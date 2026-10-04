@@ -6,7 +6,7 @@ Status: canonical code-import provenance policy
 
 Skelet intentionally reuses mature permitted source code instead of rebuilding solved infrastructure. Reuse is allowed only when the imported code remains traceable to an immutable source identity and its permission/license obligations are understood.
 
-`UPSTREAMS.lock.yml` is the machine-readable inventory of planned and activated upstream sources. `schemas/upstreams.schema.json` defines its shape, and `scripts/validate-upstreams.py` enforces bootstrap semantic rules.
+`UPSTREAMS.lock.yml` is the machine-readable inventory of planned and activated upstream sources. `schemas/upstreams.schema.json` defines its shape, and `scripts/validate_upstreams.py` enforces bootstrap semantic rules.
 
 ## Permission and License Are Separate Facts
 
