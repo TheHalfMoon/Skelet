@@ -104,12 +104,12 @@ Default qualification order:
 2. Graft freshness and blast-radius review;
 3. TypeSafe Jev exact-diff review;
 4. Alibaba Open Code Review applicability check and, for reviewable code/configuration, exact-diff review or valid delegated review;
-5. GitHub CI on the exact PR HEAD;
+5. GitHub CI on the exact PR HEAD when CI workflows are canonical; before G00-03, record CI as not yet configured and rely on the grain's required local qualification;
 6. mergeability and dependency revalidation;
 7. ordinary merge commit;
 8. post-merge verification on canonical `main`.
 
-A later passing gate does not erase an earlier unresolved failure.
+A later passing gate does not erase an earlier unresolved failure. The G00-01 and G00-02 bootstrap grains are the only planned pre-CI exception; after G00-03 is canonical, required GitHub CI may not be skipped.
 
 ## Evidence Rules
 
