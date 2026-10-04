@@ -1,0 +1,66 @@
+{
+  "description": "Skelet implementation-plan blocking-gap review",
+  "threshold": 0.5,
+  "questions": {
+    "scope_gap": {
+      "type": "noul",
+      "instructions": "Does this implementation plan leave a blocking ambiguity about what is required for initial commercial launch versus what is explicitly post-launch or optional?",
+      "criteria": {"true": "Critical launch scope or non-goals are materially ambiguous or contradictory.", "false": "Launch scope, non-goals, and deferrable capabilities are explicit enough to execute."}
+    },
+    "dependency_gap": {
+      "type": "noul",
+      "instructions": "Does the plan contain a blocking phase-order or dependency ambiguity that could cause a phase to require a contract, store, service, or capability that has not yet been established?",
+      "criteria": {"true": "At least one material execution dependency is missing, circular, or ordered incorrectly.", "false": "The dependency graph provides an executable order for material prerequisites."}
+    },
+    "domain_gap": {
+      "type": "noul",
+      "instructions": "Does the canonical domain model lack a material entity, identity rule, relation, or version/provenance concept required to unify apps, websites, screens, flows, assets, components, Lens outputs, and agent evidence?",
+      "criteria": {"true": "A core object cannot be represented without creating an incompatible parallel model or losing required lineage.", "false": "The model can represent launch-critical object types and their lineage without separate canonical silos."}
+    },
+    "provenance_rights_gap": {
+      "type": "noul",
+      "instructions": "Does this plan conflate source-code permission with dataset, asset, font, trademark, hosted-service, or redistribution rights, or omit execution-time immutable source pinning?",
+      "criteria": {"true": "A material rights/provenance boundary is missing or conflated.", "false": "Code/data rights are separated and implemented imports require immutable provenance."}
+    },
+    "security_privacy_gap": {
+      "type": "noul",
+      "instructions": "Does this plan leave a blocking security or privacy boundary unowned for hostile URL capture, redirects/DNS rebinding, untrusted HTML/SVG, MCP authorization, workspace isolation, BYOK secrets, or external model egress?",
+      "criteria": {"true": "A material attack/data-egress path remains fail-open or without an owning phase/test.", "false": "Material security/privacy boundaries have explicit fail-closed controls and tests."}
+    },
+    "agent_first_gap": {
+      "type": "noul",
+      "instructions": "Does this plan fail the requirement that Skelet be agent-first across stable structured resources, a bounded MCP tool surface, evidence identifiers, persistent research context, and human/API parity?",
+      "criteria": {"true": "Agents would still depend materially on scraping the human UI, unstable prose, or missing evidence identity.", "false": "Agents have first-class stable contracts and recoverable evidence."}
+    },
+    "search_gap": {
+      "type": "noul",
+      "instructions": "Does the search design have a blocking architecture gap for unified lexical, semantic, visual, typed-filter, rights-aware, and provenance-aware retrieval across all launch artifact kinds?",
+      "criteria": {"true": "A required search mode has no executable indexing/query path or would require a second public search contract.", "false": "One public contract can be implemented over the stated search projection/providers."}
+    },
+    "lens_gap": {
+      "type": "noul",
+      "instructions": "Does the Lens design leave a blocking gap between URL submission and a publishable agent-ready design intelligence pack, including partial provider failures, observed-versus-inferred labeling, and provenance?",
+      "criteria": {"true": "The pipeline can silently lose evidence, fail all-or-nothing on optional providers, or publish ambiguous inference as fact.", "false": "The pipeline has explicit stages, failure isolation, provenance, and observation/inference distinctions."}
+    },
+    "operations_gap": {
+      "type": "noul",
+      "instructions": "Does the plan omit a launch-blocking operational concern around queues, retries, cancellation, dedupe, backups/restores, rate limits, abuse controls, provider health, or production runbooks?",
+      "criteria": {"true": "A material production failure mode has no owner or launch gate.", "false": "Operational controls have explicit phases and qualification criteria."}
+    },
+    "test_review_gap": {
+      "type": "noul",
+      "instructions": "Does the CI/review plan omit a material verification class needed for safe implementation of database changes, importers, hostile URL capture, auth/workspace isolation, MCP/API contracts, browser UI, provenance, or exact-head code review?",
+      "criteria": {"true": "A critical change class can merge without targeted automated or review evidence.", "false": "Critical change classes have explicit automated/review gates."}
+    },
+    "cost_lockin_gap": {
+      "type": "noul",
+      "instructions": "Does the plan introduce a mandatory paid SaaS, paid model/API, hosted search/vector dependency, GPU requirement, or vendor-specific data path that violates the low-cost/local-first product constraint?",
+      "criteria": {"true": "A mandatory launch path creates avoidable paid/vendor lock-in.", "false": "Paid/external providers are optional or replaceable behind adapters and the qualified path can run without mandatory paid AI/search/crawling."}
+    },
+    "execution_grain_gap": {
+      "type": "noul",
+      "instructions": "Is this plan still too coarse to hand to an implementation agent without risking multi-purpose giant changes, stale source assumptions, or unbounded donor imports?",
+      "criteria": {"true": "Implementation grains lack enough boundaries, entry/exit criteria, pinning, or merge discipline to execute safely.", "false": "The phase/grain rules are bounded enough to begin implementation and decompose work safely."}
+    }
+  }
+}

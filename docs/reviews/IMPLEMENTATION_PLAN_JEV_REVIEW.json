@@ -1,0 +1,77 @@
+{
+  "schema_version": "1",
+  "review_target": "docs/IMPLEMENTATION_PLAN.md",
+  "plan_sha256": "e5819f23ca7a0994d057375b464a421a1bf5fb1fea5380741ade6261016ebc73",
+  "reviewed_at_utc": "2026-10-04T22:21:44.220681+00:00",
+  "reviewer": "TypeSafe Jev CLI 0.3.2",
+  "model": "jev-1.13.0",
+  "provider": "typesafe",
+  "threshold": 0.5,
+  "blocking_gap_count": 0,
+  "answers": {
+    "scope_gap": {
+      "type": "noul",
+      "noul": 0.2,
+      "yes": false
+    },
+    "dependency_gap": {
+      "type": "noul",
+      "noul": 0.32,
+      "yes": false
+    },
+    "domain_gap": {
+      "type": "noul",
+      "noul": 0.13,
+      "yes": false
+    },
+    "provenance_rights_gap": {
+      "type": "noul",
+      "noul": 0.1,
+      "yes": false
+    },
+    "security_privacy_gap": {
+      "type": "noul",
+      "noul": 0.18,
+      "yes": false
+    },
+    "agent_first_gap": {
+      "type": "noul",
+      "noul": 0.08,
+      "yes": false
+    },
+    "search_gap": {
+      "type": "noul",
+      "noul": 0.22,
+      "yes": false
+    },
+    "lens_gap": {
+      "type": "noul",
+      "noul": 0.15,
+      "yes": false
+    },
+    "operations_gap": {
+      "type": "noul",
+      "noul": 0.19,
+      "yes": false
+    },
+    "test_review_gap": {
+      "type": "noul",
+      "noul": 0.27,
+      "yes": false
+    },
+    "cost_lockin_gap": {
+      "type": "noul",
+      "noul": 0.05,
+      "yes": false
+    },
+    "execution_grain_gap": {
+      "type": "noul",
+      "noul": 0.31,
+      "yes": false
+    }
+  },
+  "usage": {
+    "input_tokens": 9455,
+    "output_tokens": 220
+  }
+}
