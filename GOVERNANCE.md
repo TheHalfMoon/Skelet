@@ -79,7 +79,7 @@ If Jev cannot run, the grain is blocked. Do not substitute an invented or histor
 
 ## Mandatory Alibaba Open Code Review Gate
 
-Alibaba Open Code Review is mandatory for every governed code or configuration diff and for repository-governance changes that affect implementation behavior.
+Alibaba Open Code Review is mandatory for every governed code or configuration diff.
 
 Preferred mode is an exact-diff review against the canonical base using a configured OCR provider.
 
@@ -90,9 +90,11 @@ If no OCR provider credential is available, the official `ocr delegate` workflow
 - findings and coverage are recorded as evidence;
 - the review does not claim to be an LLM-backed OCR scan.
 
-If neither configured OCR review nor valid OCR delegation can be completed, the grain is blocked.
+Documentation-only grains MUST still run `ocr delegate preview` against the exact diff. If OCR reports `reviewable_count = 0` solely because the changed file types are unsupported, record OCR as not applicable with the preview evidence; do not claim that OCR reviewed those files. If any reviewable code or configuration file is present, actual OCR review or valid OCR delegation coverage is mandatory.
 
-Zero unresolved blocking OCR findings are allowed before merge.
+If OCR identifies reviewable code/configuration and neither configured OCR review nor valid OCR delegation can be completed, the grain is blocked.
+
+Zero unresolved blocking OCR findings are allowed before merge for every OCR-reviewable diff.
 
 ## Review Order
 
@@ -101,7 +103,7 @@ Default qualification order:
 1. implementation-local tests and static checks;
 2. Graft freshness and blast-radius review;
 3. TypeSafe Jev exact-diff review;
-4. Alibaba Open Code Review exact-diff or valid delegated review;
+4. Alibaba Open Code Review applicability check and, for reviewable code/configuration, exact-diff review or valid delegated review;
 5. GitHub CI on the exact PR HEAD;
 6. mergeability and dependency revalidation;
 7. ordinary merge commit;
@@ -173,7 +175,7 @@ Stop the current grain before merge if any of the following is true:
 - scope expanded beyond the grain contract;
 - Graft freshness/blast evidence is invalid or required but missing;
 - Jev has an unresolved blocking finding or cannot run;
-- Alibaba OCR has an unresolved blocking finding or cannot be validly completed;
+- Alibaba OCR applicability evidence is missing, or an OCR-reviewable diff has an unresolved blocking finding or cannot be validly reviewed;
 - required tests or CI are failing;
 - provenance/rights are ambiguous for material imported content;
 - a security boundary is known to fail.
