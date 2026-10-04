@@ -1,0 +1,785 @@
+{
+  "schema_version": "1",
+  "sources": [
+    {
+      "id": "monet-registry",
+      "source_url": "https://github.com/monet-design/monet-registry",
+      "source_kind": "git",
+      "role": "base",
+      "status": "planned",
+      "capability": "Selective web/catalog engine, capture scripts, registry concepts, and metadata/search baseline.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "opensourceui",
+      "source_url": "https://github.com/bidyut10/opensourceui",
+      "source_kind": "git",
+      "role": "transplant",
+      "status": "planned",
+      "capability": "Catalog UX, component previews, quality checks, and selected component data.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "paceui-auth-starter",
+      "source_url": "https://github.com/paceui/nextjs-better-auth-starter",
+      "source_kind": "git",
+      "role": "transplant",
+      "status": "planned",
+      "capability": "Better Auth account, session, and dashboard UX patterns.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "better-auth",
+      "source_url": "https://github.com/better-auth/better-auth",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Authentication and Stripe subscription/team-seat integration.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "iconify-icon-sets",
+      "source_url": "https://github.com/iconify/icon-sets",
+      "source_kind": "git",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Normalized icon collections and metadata.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "iconserve",
+      "source_url": "https://github.com/asr-aditya/iconserve",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Agent-oriented icon search, semantic lookup, MCP, and delivery patterns.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "simple-icons",
+      "source_url": "https://github.com/simple-icons/simple-icons",
+      "source_kind": "git",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Brand icon corpus and metadata.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "svgl",
+      "source_url": "https://github.com/pheralb/svgl",
+      "source_kind": "git",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Color logo/SVG corpus and variants.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "fontsource",
+      "source_url": "https://github.com/fontsource/fontsource",
+      "source_kind": "git",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Font metadata, packages, and redistributable font assets.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "shadcn-ui",
+      "source_url": "https://github.com/shadcn-ui/ui",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Registry specification and agent-compatible component distribution contract.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "dembrandt",
+      "source_url": "https://github.com/dembrandt/dembrandt",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Deterministic design-token and design-system extraction.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "openbrand",
+      "source_url": "https://github.com/tight-studio/OpenBrand",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Logo, favicon, brand color, and brand-asset extraction.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "opentechalyzer",
+      "source_url": "https://github.com/Houseofmvps/opentechalyzer",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Local technology-stack detection.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "squirrelscan",
+      "source_url": "https://github.com/squirrelscan/squirrelscan",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Website QA, accessibility, SEO, security, crawl, and history signals.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "rrweb",
+      "source_url": "https://github.com/rrweb-io/rrweb",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Compact web interaction recording and replay.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "maestro",
+      "source_url": "https://github.com/mobile-dev-inc/Maestro",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Later mobile-flow automation and inspection.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "omniparser",
+      "source_url": "https://github.com/microsoft/OmniParser",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Screenshot UI-element parsing and grounding.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "openpencil",
+      "source_url": "https://github.com/open-pencil/open-pencil",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "Create/editor provider, editable design documents, MCP, and Figma-format interoperability.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "docling",
+      "source_url": "https://github.com/docling-project/docling",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "planned",
+      "capability": "PDF and design-guide/document ingestion.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "firecrawl",
+      "source_url": "https://github.com/firecrawl/firecrawl",
+      "source_kind": "git",
+      "role": "fallback",
+      "status": "planned",
+      "capability": "Fallback crawling for pages not handled by native capture.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "website-downloader",
+      "source_url": "https://github.com/Ahmadibrahiim/Website-downloader",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Offline website archival/mirroring utility.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "mobbin-mcp",
+      "source_url": "https://github.com/LanSynergy/mobbin-mcp",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Screen/flow taxonomy, agent research workflow, artifact store, and reference-pack patterns.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "appllama-skills",
+      "source_url": "https://github.com/Appllama/appllama-skills",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Mobile UX research methodology and agent-skill workflow.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "impeccable",
+      "source_url": "https://github.com/pbakaus/impeccable",
+      "source_kind": "git",
+      "role": "dev_gate",
+      "status": "planned",
+      "capability": "Design-quality review and engineering gate patterns.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "unreal-agent",
+      "source_url": "https://github.com/unreallabsai/unreal-agent",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Deferred durable/long-running research-agent runtime.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "design-resources",
+      "source_url": "https://github.com/reinaldosimoes/design-resources",
+      "source_kind": "git",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Curated design-resource seed data.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "personal-sites",
+      "source_url": "https://github.com/xdesro/personalsit.es",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Submission, validation, screenshot, and metadata-ingestion patterns.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "dockhunt",
+      "source_url": "https://github.com/Basedash/dockhunt",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "planned",
+      "capability": "Community discovery, profile, ranking, and collection patterns.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization to use/copy source code for this donor; non-code rights remain separately governed and must be verified before activation."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "authorized",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "designbookmark",
+      "source_url": "https://designbookmark.com",
+      "source_kind": "website",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Design-resource taxonomy and directory content.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization for this source; capture/data/asset rights must still be classified before ingestion."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "content_hash_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "not-applicable",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "briefbox",
+      "source_url": "https://www.briefbox.me",
+      "source_kind": "website",
+      "role": "dataset",
+      "status": "planned",
+      "capability": "Design briefs and challenge content.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "User states authorization for this source; capture/data/asset rights must still be classified before ingestion."
+      },
+      "license": "VERIFY_AT_IMPORT",
+      "pin_policy": "content_hash_required",
+      "exact_commit_or_release": null,
+      "verification_date": null,
+      "rights_scope": {
+        "code": "not-applicable",
+        "data": "verify-at-import",
+        "assets": "verify-at-import",
+        "models": "verify-at-import",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    }
+  ]
+}

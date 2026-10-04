@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TheHalfMoon/Skelet/schemas/upstreams.schema.json",
+  "title": "Skelet upstream source lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "sources"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "sources": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/source"}
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_url",
+        "source_kind",
+        "role",
+        "status",
+        "capability",
+        "permission_basis",
+        "license",
+        "pin_policy",
+        "exact_commit_or_release",
+        "verification_date",
+        "rights_scope",
+        "imported_paths",
+        "modifications"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "source_url": {"type": "string", "pattern": "^https://"},
+        "source_kind": {"enum": ["git", "website", "package", "dataset", "model"]},
+        "role": {"enum": ["base", "transplant", "adapter", "dataset", "reference", "fallback", "dev_gate"]},
+        "status": {"enum": ["planned", "ready", "imported", "retired"]},
+        "capability": {"type": "string", "minLength": 3},
+        "permission_basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "note"],
+          "properties": {
+            "type": {"enum": ["user_authorization", "upstream_license", "both"]},
+            "note": {"type": "string", "minLength": 3}
+          }
+        },
+        "license": {"type": "string", "minLength": 1},
+        "pin_policy": {"enum": ["git_commit_required", "content_hash_required", "release_digest_required"]},
+        "exact_commit_or_release": {"type": ["string", "null"]},
+        "verification_date": {"type": ["string", "null"]},
+        "rights_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "data", "assets", "models", "services", "trademarks"],
+          "properties": {
+            "code": {"$ref": "#/$defs/right"},
+            "data": {"$ref": "#/$defs/right"},
+            "assets": {"$ref": "#/$defs/right"},
+            "models": {"$ref": "#/$defs/right"},
+            "services": {"$ref": "#/$defs/right"},
+            "trademarks": {"$ref": "#/$defs/right"}
+          }
+        },
+        "imported_paths": {"type": "array", "items": {"type": "string"}},
+        "modifications": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "right": {
+      "enum": ["authorized", "license-governed", "verify-at-import", "not-applicable", "restricted"]
+    }
+  }
+}

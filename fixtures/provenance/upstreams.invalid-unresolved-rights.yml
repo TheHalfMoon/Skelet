@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "sources": [
+    {
+      "id": "fixture-source",
+      "source_url": "https://github.com/example/example",
+      "source_kind": "git",
+      "role": "reference",
+      "status": "ready",
+      "capability": "Validator fixture source.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Fixture uses a verified example license."
+      },
+      "license": "MIT",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "verification_date": "2026-10-05",
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "not-applicable",
+        "assets": "verify-at-import",
+        "models": "not-applicable",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    }
+  ]
+}
