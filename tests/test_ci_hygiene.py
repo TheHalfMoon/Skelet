@@ -65,6 +65,38 @@ class CIHygieneTests(unittest.TestCase):
             errors = check_files(root, [path], required_paths=None)
         self.assertTrue(any("NUL bytes" in error for error in errors), errors)
 
+    def test_unknown_text_extension_gets_text_hygiene(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "module.mjs"
+            path.write_text("export const value = 1;  \n", encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("trailing whitespace" in error for error in errors), errors)
+
+    def test_extensionless_text_gets_text_hygiene(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "Dockerfile"
+            path.write_bytes(b"FROM python:3.12\nRUN echo safe\x00unsafe\n")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("NUL bytes" in error for error in errors), errors)
+
+    def test_known_binary_is_not_decoded_as_text(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "fixture.png"
+            path.write_bytes(b"\x89PNG\x00\xfffixture")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertEqual([], errors)
+
+    def test_unknown_binary_like_file_fails_closed(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "payload.dat"
+            path.write_bytes(b"opaque\x00payload")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("NUL bytes" in error for error in errors), errors)
+
     def test_non_utf8_text_fails(self) -> None:
         with self._temp_root() as tmp:
             root = Path(tmp)

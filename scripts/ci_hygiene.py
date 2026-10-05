@@ -20,39 +20,28 @@ BINARY_EXTENSIONS = {
     ".bin",
     ".db",
     ".gif",
+    ".ico",
     ".gz",
     ".jpeg",
+    ".avif",
     ".jpg",
     ".mov",
     ".mp4",
     ".onnx",
+    ".otf",
     ".parquet",
     ".pdf",
     ".png",
     ".safetensors",
     ".sqlite",
     ".tar",
+    ".ttf",
+    ".wasm",
     ".webm",
     ".webp",
+    ".woff",
+    ".woff2",
     ".zip",
-}
-TEXT_EXTENSIONS = {
-    ".css",
-    ".html",
-    ".js",
-    ".json",
-    ".jsx",
-    ".md",
-    ".ps1",
-    ".py",
-    ".sh",
-    ".toml",
-    ".ts",
-    ".tsx",
-    ".txt",
-    ".xml",
-    ".yaml",
-    ".yml",
 }
 FORBIDDEN_TRACKED_PARTS = {"__pycache__", "graft", "node_modules"}
 FORBIDDEN_TRACKED_SUFFIXES = {".pyc", ".pyo"}
@@ -188,7 +177,8 @@ def check_files(
             errors.append(f"file exceeds {max_file_bytes} bytes: {rel_text} ({size})")
 
         suffix = path.suffix.lower()
-        if suffix in BINARY_EXTENSIONS:
+        is_binary = suffix in BINARY_EXTENSIONS
+        if is_binary:
             binary_total += size
             if size > max_binary_file_bytes:
                 errors.append(f"binary/media file exceeds {max_binary_file_bytes} bytes: {rel_text} ({size})")
@@ -196,7 +186,7 @@ def check_files(
         if oversized:
             continue
 
-        if suffix in TEXT_EXTENSIONS or path.name in {"LICENSE", "NOTICE"}:
+        if not is_binary:
             raw = path.read_bytes()
             if b"\x00" in raw:
                 errors.append(f"text file contains NUL bytes: {rel_text}")

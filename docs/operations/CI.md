@@ -59,4 +59,6 @@ Git stores source code, manifests, metadata, and small qualified fixtures. Bulk 
 
 Current bootstrap caps are 5 MiB per tracked file, 2 MiB per binary/media file, 25 MiB aggregate recognized binary/media, and 100 MiB aggregate tracked repository content.
 
+Any tracked file whose extension is not in the explicit binary allowlist is treated as UTF-8 text and receives text hygiene checks. Unknown opaque/binary formats therefore fail closed instead of bypassing validation.
+
 The bootstrap limits are intentionally conservative and may be changed only through a governed grain with a documented need.
