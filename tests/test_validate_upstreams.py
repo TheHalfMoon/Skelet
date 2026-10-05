@@ -116,9 +116,13 @@ class UpstreamsValidatorTests(unittest.TestCase):
     def test_enum_fields_are_validated(self) -> None:
         cases = [
             ("source_kind", "invalid-kind"),
+            ("source_kind", []),
             ("role", "invalid-role"),
+            ("role", []),
             ("status", "invalid-status"),
+            ("status", []),
             ("pin_policy", "invalid-policy"),
+            ("pin_policy", []),
         ]
         for field, value in cases:
             with self.subTest(field=field):

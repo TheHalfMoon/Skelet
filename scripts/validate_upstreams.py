@@ -128,7 +128,7 @@ def validate_source(source: Any, index: int, errors: list[str]) -> str | None:
             fail(errors, f"{location}.exact_commit_or_release", "planned sources must remain unpinned until execution-time verification")
         if verification_date is not None:
             fail(errors, f"{location}.verification_date", "planned sources must not claim an execution-time verification date")
-    elif status in {"ready", "imported", "retired"}:
+    elif isinstance(status, str) and status in {"ready", "imported", "retired"}:
         if not isinstance(pin, str) or not pin:
             fail(errors, f"{location}.exact_commit_or_release", f"{status} sources require an immutable pin")
         else:
@@ -136,7 +136,7 @@ def validate_source(source: Any, index: int, errors: list[str]) -> str | None:
                 fail(errors, f"{location}.exact_commit_or_release", "mutable branch/ref names are forbidden")
             if pin_policy == "git_commit_required" and not GIT_SHA_RE.fullmatch(pin):
                 fail(errors, f"{location}.exact_commit_or_release", "git sources require a full 40-hex commit SHA")
-            if pin_policy in {"content_hash_required", "release_digest_required"} and not SHA256_RE.fullmatch(pin):
+            if isinstance(pin_policy, str) and pin_policy in {"content_hash_required", "release_digest_required"} and not SHA256_RE.fullmatch(pin):
                 fail(errors, f"{location}.exact_commit_or_release", "content/release pins require sha256:<64 hex>")
         if not isinstance(verification_date, str) or not valid_date(verification_date):
             fail(errors, f"{location}.verification_date", f"{status} sources require an ISO YYYY-MM-DD verification date")
@@ -152,7 +152,7 @@ def validate_source(source: Any, index: int, errors: list[str]) -> str | None:
         for key, value in rights.items():
             if not isinstance(value, str) or value not in RIGHT_VALUES:
                 fail(errors, f"{location}.rights_scope.{key}", f"must be one of {sorted(RIGHT_VALUES)}")
-        if status in {"ready", "imported", "retired"}:
+        if isinstance(status, str) and status in {"ready", "imported", "retired"}:
             unresolved = sorted(key for key, value in rights.items() if value == "verify-at-import")
             if unresolved:
                 fail(errors, f"{location}.rights_scope", f"{status} sources cannot retain verify-at-import: {', '.join(unresolved)}")
