@@ -14,6 +14,8 @@ A status from a different commit is not evidence for the candidate HEAD.
 
 The bootstrap job must pass:
 
+The bootstrap job installs CI-only Python dependencies from `requirements-ci.txt` with `--require-hashes` before executing repository tooling. PyYAML is used only for safe YAML syntax/structure inspection; the provenance validator remains Python-standard-library-only.
+
 - exact-HEAD verification;
 - repository hygiene and relative-link validation;
 - large-file and binary-corpus guardrails;

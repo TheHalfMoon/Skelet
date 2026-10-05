@@ -8,6 +8,9 @@ import json
 import re
 import subprocess
 import sys
+
+import yaml
+from yaml.nodes import MappingNode, ScalarNode
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -52,6 +55,7 @@ REQUIRED_PATHS = {
     "DATA_PROVENANCE.md",
     "GOVERNANCE.md",
     "PRODUCT.md",
+    "requirements-ci.txt",
     "SECURITY.md",
     "UPSTREAMS.lock.yml",
     "docs/IMPLEMENTATION_PLAN.md",
@@ -118,6 +122,27 @@ def markdown_link_errors(root: Path, path: Path, file_targets: set[str], dir_tar
         normalized = candidate.as_posix().rstrip("/")
         if normalized not in file_targets and normalized not in dir_targets:
             errors.append(f"{rel.as_posix()}: broken relative link: {raw_target}")
+    return errors
+
+
+def yaml_errors(path: Path, rel_text: str, text: str) -> list[str]:
+    errors: list[str] = []
+    try:
+        node = yaml.compose(text)
+    except yaml.YAMLError as exc:
+        return [f"invalid YAML: {rel_text}: {exc}"]
+
+    if rel_text.startswith(".github/workflows/"):
+        if not isinstance(node, MappingNode):
+            return [f"GitHub workflow must be a YAML mapping: {rel_text}"]
+        keys = {
+            key.value
+            for key, _value in node.value
+            if isinstance(key, ScalarNode)
+        }
+        for required in ("on", "jobs"):
+            if required not in keys:
+                errors.append(f"GitHub workflow missing top-level '{required}': {rel_text}")
     return errors
 
 
@@ -204,6 +229,8 @@ def check_files(
                     json.loads(text)
                 except json.JSONDecodeError as exc:
                     errors.append(f"invalid JSON: {rel_text}:{exc.lineno}:{exc.colno}: {exc.msg}")
+            if suffix in {".yaml", ".yml"}:
+                errors.extend(yaml_errors(path, rel_text, text))
             if suffix == ".md":
                 errors.extend(markdown_link_errors(root, path, file_targets, dir_targets))
 

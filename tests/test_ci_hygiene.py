@@ -105,6 +105,28 @@ class CIHygieneTests(unittest.TestCase):
             errors = check_files(root, [path], required_paths=None)
         self.assertTrue(any("not valid UTF-8" in error for error in errors), errors)
 
+    def test_invalid_yaml_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "broken.yml"
+            path.write_text("root: [unterminated\n", encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("invalid YAML" in error for error in errors), errors)
+
+    def test_github_workflow_requires_on_and_jobs(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / ".github" / "workflows" / "bad.yml"
+            path.parent.mkdir(parents=True)
+            path.write_text("name: Missing contracts\n", encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("missing top-level 'on'" in error for error in errors), errors)
+        self.assertTrue(any("missing top-level 'jobs'" in error for error in errors), errors)
+
+    def test_current_workflow_yaml_contract_is_valid(self) -> None:
+        path = ROOT / ".github" / "workflows" / "ci.yml"
+        self.assertEqual([], check_files(ROOT, [path], required_paths=None))
+
     def test_invalid_json_fails(self) -> None:
         with self._temp_root() as tmp:
             root = Path(tmp)

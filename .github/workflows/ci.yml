@@ -30,6 +30,9 @@ jobs:
         with:
           python-version: "3.12.14"
 
+      - name: Install pinned CI dependencies
+        run: python -m pip install --disable-pip-version-check --require-hashes --requirement requirements-ci.txt
+
       - name: Verify exact HEAD and repository hygiene
         env:
           EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
