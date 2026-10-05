@@ -1,6 +1,8 @@
 import copy
 import io
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -247,6 +249,32 @@ class UpstreamsValidatorTests(unittest.TestCase):
         self.assertIn("UPSTREAMS_VALIDATION_FAILED", stderr.getvalue())
         self.assertIn("mutable branch/ref names are forbidden", stderr.getvalue())
 
+    def test_script_entrypoint_uses_default_lock(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "validate_upstreams.py")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("UPSTREAMS_VALIDATION_PASSED", result.stdout)
+
+    def test_script_entrypoint_returns_nonzero_for_invalid_lock(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "validate_upstreams.py"),
+                str(FIXTURES / "upstreams.invalid-mutable.yml"),
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(1, result.returncode)
+        self.assertIn("UPSTREAMS_VALIDATION_FAILED", result.stderr)
+        self.assertIn("mutable branch/ref names are forbidden", result.stderr)
     def test_schema_and_validator_enums_remain_in_sync(self) -> None:
         schema = json.loads((ROOT / "schemas" / "upstreams.schema.json").read_text(encoding="utf-8"))
         source = schema["$defs"]["source"]
