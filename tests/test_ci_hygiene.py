@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from scripts.ci_hygiene import (
@@ -79,6 +80,38 @@ class CIHygieneTests(unittest.TestCase):
             path.write_text("{bad json", encoding="utf-8")
             errors = check_files(root, [path], required_paths=None)
         self.assertTrue(any("invalid JSON" in error for error in errors), errors)
+
+    def test_missing_tracked_path_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "missing.txt"
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("tracked path is missing from checkout" in error for error in errors), errors)
+
+    def test_tracked_symlink_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "linked.txt"
+            path.write_text("safe\n", encoding="utf-8")
+            with patch.object(Path, "is_symlink", return_value=True):
+                errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("tracked symlink is forbidden" in error for error in errors), errors)
+
+    def test_total_tracked_size_limit_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            first = root / "a.txt"
+            second = root / "b.txt"
+            first.write_bytes(b"a" * 20)
+            second.write_bytes(b"b" * 20)
+            errors = check_files(
+                root,
+                [first, second],
+                max_file_bytes=100,
+                max_tracked_total_bytes=30,
+                required_paths=None,
+            )
+        self.assertTrue(any("tracked repository total exceeds 30 bytes" in error for error in errors), errors)
 
     def test_oversized_file_fails(self) -> None:
         with self._temp_root() as tmp:

@@ -47,7 +47,7 @@ The CI hygiene implementation is tested with deliberately invalid examples for:
 - malformed JSON;
 - oversized files;
 - oversized or excessive binary/media content;
-- tracked generated/cache directories;
+- tracked generated/cache directories;`n- missing, non-regular, or symlinked tracked paths;
 - tracked Python bytecode.
 
 These tests are part of the hosted `bootstrap` job, so weakening a guardrail requires a reviewed code and test change.
@@ -56,4 +56,4 @@ These tests are part of the hosted `bootstrap` job, so weakening a guardrail req
 
 Git stores source code, manifests, metadata, and small qualified fixtures. Bulk screenshots, videos, model weights, archives, databases, and generated corpora belong in the configured asset/object store, not repository history.
 
-The bootstrap limits are intentionally conservative and may be changed only through a governed grain with a documented need.
+Current bootstrap caps are 5 MiB per tracked file, 2 MiB per binary/media file, 25 MiB aggregate recognized binary/media, and 100 MiB aggregate tracked repository content.`n`nThe bootstrap limits are intentionally conservative and may be changed only through a governed grain with a documented need.
