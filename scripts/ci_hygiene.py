@@ -61,10 +61,13 @@ REQUIRED_PATHS = {
     "UPSTREAMS.lock.yml",
     "docs/IMPLEMENTATION_PLAN.md",
     "docs/operations/CI.md",
+    "imports/monet-registry/manifest.json",
+    "imports/monet-registry/source-tree.tsv",
     "schemas/upstreams.schema.json",
     "scripts/ci_hygiene.py",
     "scripts/validate_upstreams.py",
     "tests/test_ci_hygiene.py",
+    "tests/test_monet_import_manifest.py",
 }
 MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
