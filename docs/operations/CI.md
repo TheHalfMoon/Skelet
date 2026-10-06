@@ -1,0 +1,68 @@
+# Skelet CI Contract
+
+Status: bootstrap CI contract introduced by G00-03.
+
+## Exact-HEAD rule
+
+Every pull-request CI job checks out `github.event.pull_request.head.sha` directly. Push jobs check out `github.sha`. The `bootstrap` job verifies that SHA through `scripts/ci_hygiene.py`; the `graft` job verifies it directly with Git before review tooling runs.
+
+A status from a different commit is not evidence for the candidate HEAD. GitHub first-party actions are pinned by full commit SHA to Node 24-compatible releases rather than moving major tags.
+
+## Required hosted jobs
+
+### `bootstrap`
+
+The bootstrap job must pass:
+
+The bootstrap job runs on the explicit `ubuntu-24.04` image with a 10-minute timeout. It installs CI-only Python dependencies from `requirements-ci.txt` with `--require-hashes`, `--no-deps`, and `--only-binary=:all:` before executing repository tooling. PyYAML is used only for safe YAML syntax/structure inspection; the provenance validator remains Python-standard-library-only.
+
+- exact-HEAD verification;
+- repository hygiene and relative-link validation;
+- large-file and binary-corpus guardrails;
+- Python compilation for the current bootstrap code;
+- the repository unit-test suite;
+- the canonical upstream provenance-lock validator.
+
+Formal application lint/typecheck/build commands replace the bootstrap compile step as the imported application toolchain becomes canonical. A placeholder must never be reported as a real typecheck or production build.
+
+### `graft`
+
+The Graft job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It uses pinned `@nanonets/graft@0.21.1` and must pass graph build and freshness checks on the exact candidate revision.
+
+Graft output is architecture/change-impact evidence. It does not replace unit, integration, Jev, or Alibaba Open Code Review evidence.
+
+## Review evidence
+
+TypeSafe Jev and Alibaba Open Code Review remain governed pre-merge review gates under `GOVERNANCE.md`. They are not replaced by unrelated external reviewer statuses.
+
+CodeRabbit, Cubic, Qodo, and similar reviewer statuses are not accepted as Skelet governance evidence even if GitHub displays them on a pull request.
+
+## Failure behavior
+
+The CI hygiene implementation is tested with deliberately invalid examples for:
+
+- exact-HEAD mismatch;
+- missing canonical files;
+- broken relative Markdown links;
+- trailing whitespace;
+- NUL/non-UTF-8 text;
+- malformed or duplicate-key JSON;
+- malformed, empty, or duplicate-key YAML;
+- invalid empty GitHub Actions trigger/job mappings;
+- oversized files;
+- oversized or excessive binary/media content;
+- tracked generated/cache directories;
+- missing, non-regular, or symlinked tracked paths;
+- tracked Python bytecode.
+
+These tests are part of the hosted `bootstrap` job, so weakening a guardrail requires a reviewed code and test change.
+
+## Binary policy
+
+Git stores source code, manifests, metadata, and small qualified fixtures. Bulk screenshots, videos, model weights, archives, databases, and generated corpora belong in the configured asset/object store, not repository history.
+
+Current bootstrap caps are 5 MiB per tracked file, 2 MiB per binary/media file, 25 MiB aggregate recognized binary/media, and 100 MiB aggregate tracked repository content.
+
+Any tracked file whose extension is not in the explicit binary allowlist is treated as UTF-8 text and receives text hygiene checks. Unknown opaque/binary formats therefore fail closed instead of bypassing validation. JSON and YAML duplicate mapping keys are rejected, YAML composition uses `SafeLoader`, and relative Markdown paths are normalized before target validation.
+
+The bootstrap limits are intentionally conservative and may be changed only through a governed grain with a documented need.

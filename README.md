@@ -8,6 +8,7 @@ Skelet is the design intelligence layer for humans and AI agents.
 - [Architecture charter](ARCHITECTURE.md)
 - [Security charter](SECURITY.md)
 - [Repository governance](GOVERNANCE.md)
+- [CI contract](docs/operations/CI.md)
 - [Code provenance policy](CODE_PROVENANCE.md)
 - [Data provenance policy](DATA_PROVENANCE.md)
 - [Upstream source lock](UPSTREAMS.lock.yml)
