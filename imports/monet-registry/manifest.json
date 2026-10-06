@@ -1,0 +1,180 @@
+{
+  "schema_version": "1",
+  "manifest_id": "monet-registry-engine-candidate",
+  "source_id": "monet-registry",
+  "source_url": "https://github.com/monet-design/monet-registry",
+  "verification_date": "2026-10-06",
+  "observed_default_branch": "main",
+  "observed_commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+  "observed_tree": "9c0096e607a067a4f1917f5d49aab1a4dd1b9b46",
+  "state": "blocked-rights",
+  "activation_allowed": false,
+  "next_grain_allowed": false,
+  "rights_gate": {
+    "status": "blocked",
+    "lock_status_required": "planned",
+    "lock_license_required": "VERIFY_AT_IMPORT",
+    "evidence": [
+      "GitHub repository metadata reports no detected license for the exact source repository.",
+      "The exact source tree contains no LICENSE, LICENCE, COPYING, NOTICE, or COPYRIGHT file.",
+      "The exact package.json is private and has no license field.",
+      "No SPDX license identifier or repository-level license grant was found in the exact source tree.",
+      "README open-source wording is descriptive evidence, not a verified code license grant."
+    ],
+    "unblock_requires": [
+      "Verified upstream license or terms that authorize the selected code reuse at the exact source identity.",
+      "Or a repository-scoped authorization record covering monet-design/monet-registry and the selected code paths."
+    ]
+  },
+  "classification_policy": {
+    "precedence": [
+      "include_exact",
+      "include_prefixes",
+      "exclude_exact",
+      "exclude_prefixes"
+    ],
+    "include_exact": [
+      ".gitignore",
+      "components.json",
+      "docs/api.md",
+      "docs/customization-guide.md",
+      "docs/framer-scrape-pipeline.md",
+      "docs/url-to-registry-pipeline.md",
+      "eslint.config.mjs",
+      "next.config.ts",
+      "package.json",
+      "pnpm-lock.yaml",
+      "postcss.config.mjs",
+      "scripts/generate-page-component.ts",
+      "scripts/generate-registry.ts",
+      "scripts/generate-shadcn-registry.ts",
+      "scripts/migrate-metadata.ts",
+      "scripts/query-metadata.ts",
+      "scripts/screenshot/README.md",
+      "scripts/screenshot/browser.ts",
+      "scripts/screenshot/cli.ts",
+      "scripts/screenshot/queue.ts",
+      "scripts/screenshot/reset.ts",
+      "scripts/screenshot/screenshot.ts",
+      "scripts/screenshot/state.ts",
+      "scripts/search-metadata.ts",
+      "scripts/stats-metadata.ts",
+      "scripts/validate-metadata.ts",
+      "src/env.d.ts",
+      "src/middleware.ts",
+      "tsconfig.json",
+      "vitest.e2e.config.mts"
+    ],
+    "include_prefixes": [
+      "e2e/",
+      "scripts/scrape/",
+      "src/app/api/",
+      "src/config/",
+      "src/hooks/",
+      "src/lib/",
+      "src/styles/",
+      "src/types/"
+    ],
+    "exclude_exact": [
+      ".cursorignore",
+      ".dockerignore",
+      ".env.example",
+      "CONTRIBUTING.md",
+      "README.md",
+      "pricing-checklist.yaml",
+      "saaspo-feature-sections-checklist.yaml",
+      "unsection-hero-sections-checklist.yaml"
+    ],
+    "exclude_prefixes": [
+      ".claude/",
+      ".github/",
+      "agent-input/",
+      "data/",
+      "docker/",
+      "prompt/",
+      "public/",
+      "scripts/",
+      "src/app/",
+      "src/components/"
+    ]
+  },
+  "classification_proof": {
+    "included_blobs": 90,
+    "included_bytes": 687236,
+    "included_inventory_sha256": "f0bf20805ac50a9a37ec0561976341c6c65e0b633adee832badbc71db4109d4c",
+    "excluded_blobs": 3974,
+    "excluded_bytes": 636465767,
+    "excluded_inventory_sha256": "82bb37bfeedb1c4680170609abc666ebd71bd05b4caebedac312514033040344",
+    "unclassified_blobs": 0
+  },
+  "rights_quarantine": {
+    "prefixes": [
+      "agent-input/",
+      "data/",
+      "public/",
+      "src/components/registry/"
+    ],
+    "reason": "Reference images, generated/curated corpus content, public media, and registry implementations require separate data/asset/code rights review and are not admitted by this manifest."
+  },
+  "generated_or_state_rejections": [
+    "scripts/screenshot/screenshot-state.json",
+    ".next/",
+    "node_modules/",
+    "out/",
+    "dist/",
+    "coverage/"
+  ],
+  "known_dependency_edges": [
+    {
+      "from": "src/app/api/_common/services/code-reader.service.ts",
+      "to_excluded_prefix": "src/components/registry/",
+      "disposition": "Must be decoupled or replaced before the selected engine code can become an active Skelet runtime."
+    },
+    {
+      "from": "scripts/generate-registry.ts",
+      "to_excluded_prefix": "src/components/registry/",
+      "disposition": "May be retained only as donor reference until a Skelet-owned artifact store replaces the excluded corpus path."
+    },
+    {
+      "from": "scripts/generate-page-component.ts",
+      "to_excluded_prefix": "src/components/registry/",
+      "disposition": "May be retained only as donor reference until generation targets Skelet-owned artifact paths."
+    }
+  ],
+  "notices_and_licenses_to_preserve": {
+    "detected_repository_license_files": [],
+    "required_action": "Do not copy selected code until a governing license or repository-scoped authorization is recorded; preserve that evidence with the later snapshot."
+  },
+  "identity_policy": {
+    "later_replace_only_after_authorized_snapshot": [
+      "landing-mon-template package identity",
+      "Monet.Design site branding in project-owned configuration"
+    ],
+    "must_preserve": [
+      "upstream source URL and exact commit/tree provenance",
+      "third-party package identifiers",
+      "external protocol and provider identifiers",
+      "third-party copyright or attribution notices if encountered in selected files"
+    ]
+  },
+  "planned_transformations": [
+    "Copy only the classified include set after the rights gate is resolved.",
+    "Preserve selected source bytes before any project identity changes.",
+    "Replace dependencies on the excluded registry corpus with Skelet-owned artifact interfaces before activation.",
+    "Apply Skelet branding only in the later G01-03 identity grain.",
+    "Do not import screenshots, preview media, agent-input images, generated corpus data, or screenshot state."
+  ],
+  "source_inventory": {
+    "path": "imports/monet-registry/source-tree.tsv",
+    "format": "tsv",
+    "columns": [
+      "mode",
+      "sha",
+      "size",
+      "path"
+    ],
+    "upstream_tree_entries": 5453,
+    "upstream_blobs": 4064,
+    "upstream_trees": 1389
+  }
+}
