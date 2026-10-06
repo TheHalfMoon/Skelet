@@ -6,7 +6,7 @@ Status: bootstrap CI contract introduced by G00-03.
 
 Every pull-request CI job checks out `github.event.pull_request.head.sha` directly. Push jobs check out `github.sha`. The `bootstrap` job verifies that SHA through `scripts/ci_hygiene.py`; the `graft` job verifies it directly with Git before review tooling runs.
 
-A status from a different commit is not evidence for the candidate HEAD.
+A status from a different commit is not evidence for the candidate HEAD. GitHub first-party actions are pinned by full commit SHA to Node 24-compatible releases rather than moving major tags.
 
 ## Required hosted jobs
 
