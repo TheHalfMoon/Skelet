@@ -5,14 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import posixpath
 import re
 import subprocess
 import sys
-
-import yaml
-from yaml.nodes import MappingNode, ScalarNode
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+
+import yaml
+from yaml.nodes import MappingNode, ScalarNode, SequenceNode
 
 MAX_FILE_BYTES = 5 * 1024 * 1024
 MAX_TRACKED_TOTAL_BYTES = 100 * 1024 * 1024
@@ -119,31 +120,78 @@ def markdown_link_errors(root: Path, path: Path, file_targets: set[str], dir_tar
             candidate = Path(clean_path.lstrip("/"))
         else:
             candidate = rel.parent / clean_path
-        normalized = candidate.as_posix().rstrip("/")
+        normalized = posixpath.normpath(candidate.as_posix()).rstrip("/")
         if normalized not in file_targets and normalized not in dir_targets:
             errors.append(f"{rel.as_posix()}: broken relative link: {raw_target}")
     return errors
 
 
-def yaml_errors(path: Path, rel_text: str, text: str) -> list[str]:
+def yaml_duplicate_key_errors(node: object, rel_text: str, location: str = "$") -> list[str]:
+    errors: list[str] = []
+    if isinstance(node, MappingNode):
+        seen: set[str] = set()
+        for key_node, value_node in node.value:
+            if isinstance(key_node, ScalarNode):
+                key = key_node.value
+                if key in seen:
+                    errors.append(f"duplicate YAML key: {rel_text}:{location}.{key}")
+                seen.add(key)
+                child_location = f"{location}.{key}"
+            else:
+                child_location = f"{location}.<complex-key>"
+            errors.extend(yaml_duplicate_key_errors(value_node, rel_text, child_location))
+    elif isinstance(node, SequenceNode):
+        for index, child in enumerate(node.value):
+            errors.extend(yaml_duplicate_key_errors(child, rel_text, f"{location}[{index}]"))
+    return errors
+
+
+def yaml_errors(rel_text: str, text: str) -> list[str]:
     errors: list[str] = []
     try:
-        node = yaml.compose(text)
+        node = yaml.compose(text, Loader=yaml.SafeLoader)
     except yaml.YAMLError as exc:
         return [f"invalid YAML: {rel_text}: {exc}"]
 
+    if node is None:
+        return [f"empty YAML document: {rel_text}"]
+
+    errors.extend(yaml_duplicate_key_errors(node, rel_text))
+
     if rel_text.startswith(".github/workflows/"):
         if not isinstance(node, MappingNode):
-            return [f"GitHub workflow must be a YAML mapping: {rel_text}"]
-        keys = {
-            key.value
-            for key, _value in node.value
+            return errors + [f"GitHub workflow must be a YAML mapping: {rel_text}"]
+        top_level = {
+            key.value: value
+            for key, value in node.value
             if isinstance(key, ScalarNode)
         }
         for required in ("on", "jobs"):
-            if required not in keys:
+            if required not in top_level:
                 errors.append(f"GitHub workflow missing top-level '{required}': {rel_text}")
+        jobs = top_level.get("jobs")
+        if jobs is not None and (not isinstance(jobs, MappingNode) or not jobs.value):
+            errors.append(f"GitHub workflow 'jobs' must be a non-empty mapping: {rel_text}")
+        on_value = top_level.get("on")
+        if isinstance(on_value, ScalarNode) and on_value.tag.endswith(":null"):
+            errors.append(f"GitHub workflow 'on' must not be null: {rel_text}")
     return errors
+
+
+class DuplicateJSONKeyError(ValueError):
+    pass
+
+
+def strict_json_loads(text: str) -> object:
+    def reject_duplicates(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in pairs:
+            if key in result:
+                raise DuplicateJSONKeyError(key)
+            result[key] = value
+        return result
+
+    return json.loads(text, object_pairs_hook=reject_duplicates)
 
 
 def check_expected_head(root: Path, expected_head: str | None) -> list[str]:
@@ -226,11 +274,13 @@ def check_files(
                     errors.append(f"trailing whitespace: {rel_text}:{line_number}")
             if suffix == ".json":
                 try:
-                    json.loads(text)
+                    strict_json_loads(text)
+                except DuplicateJSONKeyError as exc:
+                    errors.append(f"duplicate JSON key: {rel_text}:{exc}")
                 except json.JSONDecodeError as exc:
                     errors.append(f"invalid JSON: {rel_text}:{exc.lineno}:{exc.colno}: {exc.msg}")
             if suffix in {".yaml", ".yml"}:
-                errors.extend(yaml_errors(path, rel_text, text))
+                errors.extend(yaml_errors(rel_text, text))
             if suffix == ".md":
                 errors.extend(markdown_link_errors(root, path, file_targets, dir_targets))
 

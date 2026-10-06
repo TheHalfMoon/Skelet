@@ -49,6 +49,17 @@ class CIHygieneTests(unittest.TestCase):
             readme.write_text("[file](docs/guide.md) [dir](docs/)\n", encoding="utf-8")
             self.assertEqual([], check_files(root, [readme, target], required_paths=None))
 
+    def test_parent_relative_markdown_link_passes(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            readme = root / "README.md"
+            readme.write_text("# Root\n", encoding="utf-8")
+            docs = root / "docs"
+            docs.mkdir()
+            guide = docs / "guide.md"
+            guide.write_text("[root](../README.md)\n", encoding="utf-8")
+            self.assertEqual([], check_files(root, [readme, guide], required_paths=None))
+
     def test_trailing_whitespace_fails(self) -> None:
         with self._temp_root() as tmp:
             root = Path(tmp)
@@ -113,6 +124,22 @@ class CIHygieneTests(unittest.TestCase):
             errors = check_files(root, [path], required_paths=None)
         self.assertTrue(any("invalid YAML" in error for error in errors), errors)
 
+    def test_duplicate_yaml_key_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "duplicate.yml"
+            path.write_text("root:\n  value: 1\n  value: 2\n", encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("duplicate YAML key" in error for error in errors), errors)
+
+    def test_empty_yaml_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "empty.yml"
+            path.write_text("", encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("empty YAML document" in error for error in errors), errors)
+
     def test_github_workflow_requires_on_and_jobs(self) -> None:
         with self._temp_root() as tmp:
             root = Path(tmp)
@@ -122,6 +149,16 @@ class CIHygieneTests(unittest.TestCase):
             errors = check_files(root, [path], required_paths=None)
         self.assertTrue(any("missing top-level 'on'" in error for error in errors), errors)
         self.assertTrue(any("missing top-level 'jobs'" in error for error in errors), errors)
+
+    def test_github_workflow_requires_nonempty_jobs_and_trigger(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / ".github" / "workflows" / "bad.yml"
+            path.parent.mkdir(parents=True)
+            path.write_text("name: Bad\non:\njobs: {}\n", encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("'on' must not be null" in error for error in errors), errors)
+        self.assertTrue(any("'jobs' must be a non-empty mapping" in error for error in errors), errors)
 
     def test_current_workflow_yaml_contract_is_valid(self) -> None:
         path = ROOT / ".github" / "workflows" / "ci.yml"
@@ -134,6 +171,14 @@ class CIHygieneTests(unittest.TestCase):
             path.write_text("{bad json", encoding="utf-8")
             errors = check_files(root, [path], required_paths=None)
         self.assertTrue(any("invalid JSON" in error for error in errors), errors)
+
+    def test_duplicate_json_key_fails(self) -> None:
+        with self._temp_root() as tmp:
+            root = Path(tmp)
+            path = root / "duplicate.json"
+            path.write_text('{"value": 1, "value": 2}\n', encoding="utf-8")
+            errors = check_files(root, [path], required_paths=None)
+        self.assertTrue(any("duplicate JSON key" in error for error in errors), errors)
 
     def test_missing_tracked_path_fails(self) -> None:
         with self._temp_root() as tmp:

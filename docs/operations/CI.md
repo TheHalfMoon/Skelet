@@ -14,7 +14,7 @@ A status from a different commit is not evidence for the candidate HEAD.
 
 The bootstrap job must pass:
 
-The bootstrap job installs CI-only Python dependencies from `requirements-ci.txt` with `--require-hashes` before executing repository tooling. PyYAML is used only for safe YAML syntax/structure inspection; the provenance validator remains Python-standard-library-only.
+The bootstrap job runs on the explicit `ubuntu-24.04` image with a 10-minute timeout. It installs CI-only Python dependencies from `requirements-ci.txt` with `--require-hashes`, `--no-deps`, and `--only-binary=:all:` before executing repository tooling. PyYAML is used only for safe YAML syntax/structure inspection; the provenance validator remains Python-standard-library-only.
 
 - exact-HEAD verification;
 - repository hygiene and relative-link validation;
@@ -27,7 +27,7 @@ Formal application lint/typecheck/build commands replace the bootstrap compile s
 
 ### `graft`
 
-The Graft job uses pinned `@nanonets/graft@0.21.1` and must pass graph build and freshness checks on the exact candidate revision.
+The Graft job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It uses pinned `@nanonets/graft@0.21.1` and must pass graph build and freshness checks on the exact candidate revision.
 
 Graft output is architecture/change-impact evidence. It does not replace unit, integration, Jev, or Alibaba Open Code Review evidence.
 
@@ -46,7 +46,9 @@ The CI hygiene implementation is tested with deliberately invalid examples for:
 - broken relative Markdown links;
 - trailing whitespace;
 - NUL/non-UTF-8 text;
-- malformed JSON;
+- malformed or duplicate-key JSON;
+- malformed, empty, or duplicate-key YAML;
+- invalid empty GitHub Actions trigger/job mappings;
 - oversized files;
 - oversized or excessive binary/media content;
 - tracked generated/cache directories;
@@ -61,6 +63,6 @@ Git stores source code, manifests, metadata, and small qualified fixtures. Bulk 
 
 Current bootstrap caps are 5 MiB per tracked file, 2 MiB per binary/media file, 25 MiB aggregate recognized binary/media, and 100 MiB aggregate tracked repository content.
 
-Any tracked file whose extension is not in the explicit binary allowlist is treated as UTF-8 text and receives text hygiene checks. Unknown opaque/binary formats therefore fail closed instead of bypassing validation.
+Any tracked file whose extension is not in the explicit binary allowlist is treated as UTF-8 text and receives text hygiene checks. Unknown opaque/binary formats therefore fail closed instead of bypassing validation. JSON and YAML duplicate mapping keys are rejected, YAML composition uses `SafeLoader`, and relative Markdown paths are normalized before target validation.
 
 The bootstrap limits are intentionally conservative and may be changed only through a governed grain with a documented need.
