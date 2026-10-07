@@ -1,0 +1,614 @@
+{
+  "code_candidates": [
+    {
+      "bytes": 421,
+      "path": "components.json",
+      "sha": "c7c10b8e7b7b468930f12e4ceac201206b3d5d3f"
+    },
+    {
+      "bytes": 2302,
+      "path": "e2e/api/badge.test.ts",
+      "sha": "470fdcc7fc449d305e5527d53dc2625867e53a1f"
+    },
+    {
+      "bytes": 2400,
+      "path": "e2e/api/categories.test.ts",
+      "sha": "86ac4aab190f811e58e77c927d626c6fccff8f01"
+    },
+    {
+      "bytes": 4170,
+      "path": "e2e/api/components-code.test.ts",
+      "sha": "407924af629712427103f26161cb78fb8a6e6f3a"
+    },
+    {
+      "bytes": 4513,
+      "path": "e2e/api/components-detail.test.ts",
+      "sha": "08f5e9e8b420a37db5a4eb4aae5fe6bf173e1057"
+    },
+    {
+      "bytes": 3740,
+      "path": "e2e/api/components-search.test.ts",
+      "sha": "ab6b6ecd70e1a5bbc4aaa0fff0cac901564da59f"
+    },
+    {
+      "bytes": 5281,
+      "path": "e2e/api/components.test.ts",
+      "sha": "b8b51fef2239fb4c1ee807c906b9c6f3cc253e30"
+    },
+    {
+      "bytes": 2785,
+      "path": "e2e/api/filters.test.ts",
+      "sha": "ece2cf2357bcbac057bf2ef3b53da63148dd66b6"
+    },
+    {
+      "bytes": 1012,
+      "path": "e2e/api/health.test.ts",
+      "sha": "d4f8b1de6e5857bef9d40554bf77aa8e281f0b8b"
+    },
+    {
+      "bytes": 6489,
+      "path": "e2e/api/pages-detail.test.ts",
+      "sha": "1f71bb3d582b3f3e764ea2d4e3b3ac273068208f"
+    },
+    {
+      "bytes": 5883,
+      "path": "e2e/api/pages-search.test.ts",
+      "sha": "0fb1d59dd03c499b98e23eb6cd53824bb32fb82e"
+    },
+    {
+      "bytes": 6258,
+      "path": "e2e/api/pages-sections.test.ts",
+      "sha": "d040cff5c1a1df57eb15737a77d877af5f494795"
+    },
+    {
+      "bytes": 4776,
+      "path": "e2e/api/pages-stats.test.ts",
+      "sha": "487302a64be2235baa855c2a147b6f591df9495a"
+    },
+    {
+      "bytes": 8394,
+      "path": "e2e/api/pages.test.ts",
+      "sha": "1ac3e528085ff31091a81cd7971f0af1a9a20f5b"
+    },
+    {
+      "bytes": 4225,
+      "path": "e2e/api/stats.test.ts",
+      "sha": "93f66d70e11e8d63ff41206ce296eef099dc0096"
+    },
+    {
+      "bytes": 1115,
+      "path": "e2e/helpers/api-client.ts",
+      "sha": "d1b1ecf48f8db85dd7465add5aabcf584c8f5929"
+    },
+    {
+      "bytes": 604,
+      "path": "e2e/setup.ts",
+      "sha": "5dbe6f111b2a8693315f583c84ecd59ba1d4f9e5"
+    },
+    {
+      "bytes": 633,
+      "path": "next.config.ts",
+      "sha": "2c8e2d1c6747e4dfdf954654fe4c3bf8262ed676"
+    },
+    {
+      "bytes": 306976,
+      "path": "pnpm-lock.yaml",
+      "sha": "dcf41c6ab6bd0b6b98c95d1203efc42f3fc04973"
+    },
+    {
+      "bytes": 146,
+      "path": "postcss.config.mjs",
+      "sha": "5d6d8457f78b7118cdd4dd97c1e38da55a80d608"
+    },
+    {
+      "bytes": 481,
+      "path": "scripts/screenshot/queue.ts",
+      "sha": "ec78d916afc88d7ed6ee72a0b16dde9f7a2fbbe2"
+    },
+    {
+      "bytes": 950,
+      "path": "scripts/screenshot/reset.ts",
+      "sha": "be1a617d6a36a3961edae3f094328e6cd6f39506"
+    },
+    {
+      "bytes": 1941,
+      "path": "scripts/screenshot/state.ts",
+      "sha": "b53192577d7383ddc9ba16dd2d596f136768167c"
+    },
+    {
+      "bytes": 30,
+      "path": "src/app/api/_common/constants/index.ts",
+      "sha": "03898719e42f13bf09a8a5bea9f0bb33e1108a90"
+    },
+    {
+      "bytes": 613,
+      "path": "src/app/api/health/route.ts",
+      "sha": "af3411418db8ad5faee6d7b0b8961199e9bc513e"
+    },
+    {
+      "bytes": 854,
+      "path": "src/app/api/v1/badge/route.ts",
+      "sha": "e5a82c2c05f72bccd869f1243f052690273099de"
+    },
+    {
+      "bytes": 1080,
+      "path": "src/app/api/v1/categories/route.ts",
+      "sha": "a965e3634b434b24d1622686a0b819955df2d763"
+    },
+    {
+      "bytes": 1818,
+      "path": "src/app/api/v1/components/[id]/code/route.ts",
+      "sha": "904b1288435e3df66d750a7fec94342f8f142957"
+    },
+    {
+      "bytes": 3054,
+      "path": "src/app/api/v1/components/[id]/route.ts",
+      "sha": "359a9147c524608df4e07c31d860004691c9a920"
+    },
+    {
+      "bytes": 2494,
+      "path": "src/app/api/v1/components/route.ts",
+      "sha": "972dabfa5bc584953598b53c4f9b21f0c8fc07d2"
+    },
+    {
+      "bytes": 2409,
+      "path": "src/app/api/v1/components/search/route.ts",
+      "sha": "bdefd4535b86c699b1fdc3e15a922cdc27bab906"
+    },
+    {
+      "bytes": 3781,
+      "path": "src/app/api/v1/filters/route.ts",
+      "sha": "32d3ebd17353577490e370e495e4bd43f97aa7d0"
+    },
+    {
+      "bytes": 3754,
+      "path": "src/app/api/v1/pages/[id]/route.ts",
+      "sha": "d0c5d38710d278d371f60eae169b262f8377c9ac"
+    },
+    {
+      "bytes": 2669,
+      "path": "src/app/api/v1/pages/[id]/sections/route.ts",
+      "sha": "766cf99800181cdcb759fe8de99ee3715cff558d"
+    },
+    {
+      "bytes": 2443,
+      "path": "src/app/api/v1/pages/route.ts",
+      "sha": "6d8494336da6a85e72cbf37e117b96856dbe9f6c"
+    },
+    {
+      "bytes": 2056,
+      "path": "src/app/api/v1/pages/search/route.ts",
+      "sha": "c7d10db17966ed8fa851e4ba13edb28991c08ba7"
+    },
+    {
+      "bytes": 1135,
+      "path": "src/app/api/v1/pages/stats/route.ts",
+      "sha": "fc708d8730773fb51f7f5686f45729dac47a0de1"
+    },
+    {
+      "bytes": 3232,
+      "path": "src/app/api/v1/stats/route.ts",
+      "sha": "ad4219bbb72abc8a4b9ebc54705687d1eebd587b"
+    },
+    {
+      "bytes": 239,
+      "path": "src/env.d.ts",
+      "sha": "151b4ef27eee705ac469b48e6ef34cf63ab5161d"
+    },
+    {
+      "bytes": 3948,
+      "path": "src/hooks/use-toast.ts",
+      "sha": "02e111d81dd774038ac483c11b5f5a8f8aceb024"
+    },
+    {
+      "bytes": 169,
+      "path": "src/lib/utils.ts",
+      "sha": "a5ef193506d07d0459fec4f187af08283094d7c8"
+    },
+    {
+      "bytes": 2102,
+      "path": "src/middleware.ts",
+      "sha": "1672cae7449ef4b7a71206f40597405b5ced0444"
+    },
+    {
+      "bytes": 2713,
+      "path": "src/styles/utils.css",
+      "sha": "541caea55c7deaad3391d6293a45faff8fbef2e3"
+    },
+    {
+      "bytes": 707,
+      "path": "tsconfig.json",
+      "sha": "09f0fd63275e8a69fb2cd7b1cfd209b8c6b1e103"
+    },
+    {
+      "bytes": 701,
+      "path": "vitest.e2e.config.mts",
+      "sha": "f0339e68a0eaa4bdf6dfcb1b0ac484954a697aff"
+    }
+  ],
+  "limitations": [
+    "Candidates are not yet copied into the Skelet repository.",
+    "Candidate files are not independently runtime-qualified.",
+    "Quarantine requires human review and safe English-language adaptation.",
+    "Dataset, screenshot, asset, model, service, and trademark rights remain excluded."
+  ],
+  "quarantined": [
+    {
+      "bytes": 1016,
+      "path": ".gitignore",
+      "reasons": [
+        "non_code_or_docs"
+      ],
+      "sha": "f580b56212056adbc8f7e2f9fa31fc8466616a8d"
+    },
+    {
+      "bytes": 24845,
+      "path": "docs/api.md",
+      "reasons": [
+        "donor_identity_reference",
+        "non_code_or_docs",
+        "non_english_or_unicode_content"
+      ],
+      "sha": "b32cefd6219d8309c92b78a5f5dab9189732490f"
+    },
+    {
+      "bytes": 6508,
+      "path": "docs/customization-guide.md",
+      "reasons": [
+        "non_code_or_docs",
+        "non_english_or_unicode_content"
+      ],
+      "sha": "99f6adcdf7ae8aee609ff3432f8f3ee54c2e98d1"
+    },
+    {
+      "bytes": 14562,
+      "path": "docs/framer-scrape-pipeline.md",
+      "reasons": [
+        "non_code_or_docs",
+        "non_english_or_unicode_content"
+      ],
+      "sha": "684fac9a08a15d9f8bf0b607ec2036c01a13e9a0"
+    },
+    {
+      "bytes": 14158,
+      "path": "docs/url-to-registry-pipeline.md",
+      "reasons": [
+        "non_code_or_docs",
+        "non_english_or_unicode_content"
+      ],
+      "sha": "4007b7ff5d595a40b82ef1dcd4d9e1340a214fbe"
+    },
+    {
+      "bytes": 1418,
+      "path": "eslint.config.mjs",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "b780f32a32578540c9d701e3070b86e4e0190b66"
+    },
+    {
+      "bytes": 3938,
+      "path": "package.json",
+      "reasons": [
+        "donor_identity_reference"
+      ],
+      "sha": "9dcd1f76307ad0123cca59af79b97ce1057a6b3f"
+    },
+    {
+      "bytes": 7202,
+      "path": "scripts/generate-page-component.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "4a0e19c9f0892d40e39937e716c834731d726cff"
+    },
+    {
+      "bytes": 12026,
+      "path": "scripts/generate-registry.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "0062bef71fd2c0aa047a85b7aca9c28a288b809a"
+    },
+    {
+      "bytes": 5710,
+      "path": "scripts/generate-shadcn-registry.ts",
+      "reasons": [
+        "donor_identity_reference",
+        "non_english_or_unicode_content"
+      ],
+      "sha": "9d2bbc3a21646297b65ebef76c2b65331f193edb"
+    },
+    {
+      "bytes": 11321,
+      "path": "scripts/migrate-metadata.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "fc2ce8d8c322310d7d41b3afc4967b0f199dfbba"
+    },
+    {
+      "bytes": 8985,
+      "path": "scripts/query-metadata.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "db4d399766844ba7ee115c0232ff5a597a3bb014"
+    },
+    {
+      "bytes": 8059,
+      "path": "scripts/scrape/framer-extractor.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "97cc0fe1114ab50a1cf88877266068ae5de4a67f"
+    },
+    {
+      "bytes": 8297,
+      "path": "scripts/scrape/html-analyzer.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "313edd2c7833375f8bdcafd9aa21e92852d1196f"
+    },
+    {
+      "bytes": 30886,
+      "path": "scripts/scrape/scrape-website.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "f9a61437149b88f0159dd616fb79cb2e1eaf2dad"
+    },
+    {
+      "bytes": 2792,
+      "path": "scripts/scrape/split-sections.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "50e819386f917b8e749c23782d66e5b91fa93d61"
+    },
+    {
+      "bytes": 6303,
+      "path": "scripts/scrape/types.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "142cfa7fd52627f5e18d2cc519b1f3c2eb96345d"
+    },
+    {
+      "bytes": 3833,
+      "path": "scripts/screenshot/README.md",
+      "reasons": [
+        "non_code_or_docs",
+        "non_english_or_unicode_content"
+      ],
+      "sha": "f653061950f0f764ce6a6a71db5f595687a0adb3"
+    },
+    {
+      "bytes": 2076,
+      "path": "scripts/screenshot/browser.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "49f9e5465aed4c976e561d0ae4ad603b2cce960b"
+    },
+    {
+      "bytes": 8437,
+      "path": "scripts/screenshot/cli.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "e772ade22cde681d285b4feae7b4b057f14fa72e"
+    },
+    {
+      "bytes": 3354,
+      "path": "scripts/screenshot/screenshot.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "bf0ece2d82b60fe9cbaf5a3d5e6e01180f0bfe0e"
+    },
+    {
+      "bytes": 5069,
+      "path": "scripts/search-metadata.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "71a30228a41b309f3c8e4a8ac0b8facae9b44515"
+    },
+    {
+      "bytes": 6218,
+      "path": "scripts/stats-metadata.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "28d0b7c7b64f0fbef4dc95f4257297bea49f6306"
+    },
+    {
+      "bytes": 10241,
+      "path": "scripts/validate-metadata.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "031d8b0bcff81417bd469d2405b37a3784de9208"
+    },
+    {
+      "bytes": 756,
+      "path": "src/app/api/_common/constants/cache-tags.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "67e7dbcde279b840b0f3798e51fda1c0408dce74"
+    },
+    {
+      "bytes": 256,
+      "path": "src/app/api/_common/index.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "8bc0b7188e32da0e2e1382015bff1a1e4a601f5e"
+    },
+    {
+      "bytes": 4063,
+      "path": "src/app/api/_common/services/code-reader.service.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "85fbef9ab3492ba204e56249f0a6bc2f68f51d2e"
+    },
+    {
+      "bytes": 465,
+      "path": "src/app/api/_common/services/index.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "172b40ad704d5013b7eb24da219b72b434660fdc"
+    },
+    {
+      "bytes": 8778,
+      "path": "src/app/api/_common/services/page-registry.service.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "7b27ddd6aa1a70519274d15d01391238cb660bee"
+    },
+    {
+      "bytes": 3847,
+      "path": "src/app/api/_common/services/page-search.service.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "5438c78eeb96f96e33943828ad27c722caf4e427"
+    },
+    {
+      "bytes": 6186,
+      "path": "src/app/api/_common/services/registry.service.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "c49c7ca26471246a20c6dcbea137036111761c73"
+    },
+    {
+      "bytes": 4540,
+      "path": "src/app/api/_common/services/search.service.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "25c0c5505fe518452c0bd5888534e1d49670fadc"
+    },
+    {
+      "bytes": 64,
+      "path": "src/app/api/_common/types/index.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "f7f9de30458d3dc037ba5f49193b77a2df70b1df"
+    },
+    {
+      "bytes": 9460,
+      "path": "src/app/api/_common/types/responses.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "b11ac3e55338b79a3c38d85cda87d44fd4d96bbe"
+    },
+    {
+      "bytes": 2280,
+      "path": "src/app/api/_common/utils/constants.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "a0ae18da153dced7cb55b3536458f91c6dcbc44e"
+    },
+    {
+      "bytes": 4270,
+      "path": "src/app/api/_common/utils/errors.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "0e34c04026fc49e8bc3142b0a7b63cef6c6a4fcc"
+    },
+    {
+      "bytes": 89,
+      "path": "src/app/api/_common/utils/index.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "a326d836f20da7c4ff0a3af275251dc274220fe1"
+    },
+    {
+      "bytes": 2132,
+      "path": "src/app/api/v1/revalidate/route.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "c5ddb6f7cb4043cde7d56ab610bb477dc7ced0e6"
+    },
+    {
+      "bytes": 888,
+      "path": "src/config/site-data.json",
+      "reasons": [
+        "donor_identity_configuration",
+        "donor_identity_reference"
+      ],
+      "sha": "1c1ce9e830ddc7d29119cfaab28848e55c1a5552"
+    },
+    {
+      "bytes": 963,
+      "path": "src/config/site.tsx",
+      "reasons": [
+        "donor_identity_configuration"
+      ],
+      "sha": "e361b23fff0ea2ef654d35b16c0199be59b53c59"
+    },
+    {
+      "bytes": 78,
+      "path": "src/lib/constants.ts",
+      "reasons": [
+        "donor_identity_reference"
+      ],
+      "sha": "c5e14f5f1b2da1bf8a7d8a397deac180698ea620"
+    },
+    {
+      "bytes": 4433,
+      "path": "src/lib/search/index.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "ff601f99ac63d0ad815c2b51de05aeb1cdd3c3a3"
+    },
+    {
+      "bytes": 962,
+      "path": "src/lib/search/types.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "b379dff847add916dc3bc0e31c79220b30a3c5c7"
+    },
+    {
+      "bytes": 2626,
+      "path": "src/types/categories.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "677ea10494324d2cc5ad133c5c284f4435b2419a"
+    },
+    {
+      "bytes": 5350,
+      "path": "src/types/metadata.ts",
+      "reasons": [
+        "non_english_or_unicode_content"
+      ],
+      "sha": "da5a5bddfa59ac7a41b365539bbf98f9f1bc61cb"
+    }
+  ],
+  "runtime_activation_allowed": false,
+  "schema_version": "1",
+  "source_commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+  "source_id": "monet-registry",
+  "source_tree": "9c0096e607a067a4f1917f5d49aab1a4dd1b9b46",
+  "source_url": "https://github.com/monet-design/monet-registry",
+  "state": "preflight_only_not_imported",
+  "total_selected": 90,
+  "total_verified_bytes": 687236
+}
