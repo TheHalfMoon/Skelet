@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "authorization_id": "skelet-founder-2026-10-04-listed-sources",
+  "authorization_date": "2026-10-04",
+  "recorded_date": "2026-10-06",
+  "project": "Skelet",
+  "source_id": "monet-registry",
+  "repository": "https://github.com/monet-design/monet-registry",
+  "authorized_commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+  "basis": "user_authorization",
+  "evidence_summary": "The user stated that permission covered all sources previously listed in the Skelet chat; Monet Registry had been explicitly listed before that authorization statement.",
+  "authorized_scope": {
+    "code": "authorized",
+    "code_scope": "Only source-code paths admitted by the canonical Monet import manifest.",
+    "data": "restricted",
+    "assets": "restricted",
+    "models": "restricted",
+    "services": "not-applicable",
+    "trademarks": "restricted"
+  },
+  "conditions": [
+    "The authorization does not convert absent upstream license metadata into an open-source license.",
+    "Dataset, screenshot, media, model, service, brand, and trademark rights remain separately governed.",
+    "Only paths classified include by imports/monet-registry/manifest.json may enter G01-02.",
+    "Excluded and quarantined paths remain forbidden unless a later governed rights record explicitly admits them.",
+    "Immutable source identity and provenance must be preserved through the import."
+  ]
+}

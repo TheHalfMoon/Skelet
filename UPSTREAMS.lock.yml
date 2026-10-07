@@ -6,21 +6,21 @@
       "source_url": "https://github.com/monet-design/monet-registry",
       "source_kind": "git",
       "role": "base",
-      "status": "planned",
+      "status": "ready",
       "capability": "Selective web/catalog engine, capture scripts, registry concepts, and metadata/search baseline.",
       "permission_basis": {
-        "type": "upstream_license",
-        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+        "type": "user_authorization",
+        "note": "Founder-reported authorization covers source-code reuse for sources previously listed in the Skelet chat; Monet Registry was listed before that authorization. See docs/provenance/authorizations/monet-registry-2026-10-04.json."
       },
-      "license": "VERIFY_AT_IMPORT",
+      "license": "USER_AUTHORIZATION:skelet-founder-2026-10-04-listed-sources",
       "pin_policy": "git_commit_required",
-      "exact_commit_or_release": null,
-      "verification_date": null,
+      "exact_commit_or_release": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+      "verification_date": "2026-10-06",
       "rights_scope": {
-        "code": "license-governed",
-        "data": "verify-at-import",
-        "assets": "verify-at-import",
-        "models": "verify-at-import",
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
         "services": "not-applicable",
         "trademarks": "restricted"
       },

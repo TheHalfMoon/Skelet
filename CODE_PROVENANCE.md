@@ -39,7 +39,9 @@ A planned source records intended capability, role, permission basis, rights que
 
 ### ready
 
-A ready source has been re-verified at execution time. It has an immutable pin, verified license, verification date, and sufficient rights classification to begin the bounded import grain.
+A ready source has been re-verified at execution time. It has an immutable pin, a verification date, sufficient rights classification, and a resolved governing basis for the material that will be imported.
+
+For `upstream_license` or `both`, the exact applicable upstream license or terms must be verified. For `user_authorization`, the authorization must be scoped to the source and imported material, while the upstream license state remains recorded truthfully and separately. User authorization does not imply that an upstream open-source license exists and does not extend to unrelated data, assets, models, services, brands, or trademarks.
 
 ### imported
 
