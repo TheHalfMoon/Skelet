@@ -12,6 +12,7 @@ IMPORT_DIR = ROOT / "imports" / "monet-registry"
 MANIFEST_PATH = IMPORT_DIR / "manifest.json"
 SOURCE_TREE_PATH = IMPORT_DIR / "source-tree.tsv"
 LOCK_PATH = ROOT / "UPSTREAMS.lock.yml"
+AUTHORIZATION_PATH = ROOT / "docs" / "provenance" / "authorizations" / "monet-registry-2026-10-04.json"
 
 
 def load_json(path: Path) -> dict:
@@ -61,6 +62,7 @@ class MonetImportManifestTests(unittest.TestCase):
         cls.manifest = load_json(MANIFEST_PATH)
         cls.source_tree = load_source_tree(SOURCE_TREE_PATH)
         cls.lock = load_json(LOCK_PATH)
+        cls.authorization = load_json(AUTHORIZATION_PATH)
         cls.lock_entry = next(
             source for source in cls.lock["sources"] if source["id"] == "monet-registry"
         )
@@ -138,26 +140,52 @@ class MonetImportManifestTests(unittest.TestCase):
             self.manifest["notices_and_licenses_to_preserve"]["detected_repository_license_files"],
         )
 
-    def test_rights_gate_blocks_activation_and_successor_grain(self) -> None:
-        self.assertEqual("blocked-rights", self.manifest["state"])
+    def test_rights_gate_allows_snapshot_but_not_runtime_activation(self) -> None:
+        self.assertEqual("ready-code-snapshot", self.manifest["state"])
         self.assertFalse(self.manifest["activation_allowed"])
-        self.assertFalse(self.manifest["next_grain_allowed"])
-        self.assertEqual("blocked", self.manifest["rights_gate"]["status"])
-        self.assertGreaterEqual(len(self.manifest["rights_gate"]["unblock_requires"]), 1)
+        self.assertTrue(self.manifest["next_grain_allowed"])
+        gate = self.manifest["rights_gate"]
+        self.assertEqual("resolved-code-only", gate["status"])
+        self.assertEqual("user_authorization", gate["resolution"])
+        self.assertEqual(
+            "docs/provenance/authorizations/monet-registry-2026-10-04.json",
+            gate["authorization_record"],
+        )
+        self.assertIn("datasets", gate["restricted_scope"])
+        self.assertIn("brands/trademarks", gate["restricted_scope"])
 
-    def test_canonical_upstream_lock_remains_planned_and_unpinned(self) -> None:
+    def test_authorization_record_is_repository_scoped_and_code_only(self) -> None:
+        auth = self.authorization
+        self.assertEqual("Skelet", auth["project"])
+        self.assertEqual("monet-registry", auth["source_id"])
+        self.assertEqual("https://github.com/monet-design/monet-registry", auth["repository"])
+        self.assertEqual(self.manifest["observed_commit"], auth["authorized_commit"])
+        self.assertEqual("user_authorization", auth["basis"])
+        scope = auth["authorized_scope"]
+        self.assertEqual("authorized", scope["code"])
+        self.assertEqual("restricted", scope["data"])
+        self.assertEqual("restricted", scope["assets"])
+        self.assertEqual("restricted", scope["models"])
+        self.assertEqual("restricted", scope["trademarks"])
+
+    def test_canonical_upstream_lock_is_ready_for_code_only_import(self) -> None:
         entry = self.lock_entry
-        self.assertEqual("planned", entry["status"])
-        self.assertIsNone(entry["exact_commit_or_release"])
-        self.assertIsNone(entry["verification_date"])
-        self.assertEqual("VERIFY_AT_IMPORT", entry["license"])
-        self.assertEqual("upstream_license", entry["permission_basis"]["type"])
-        unresolved = {
-            key
-            for key, value in entry["rights_scope"].items()
-            if value == "verify-at-import"
-        }
-        self.assertTrue({"data", "assets", "models"}.issubset(unresolved))
+        self.assertEqual("ready", entry["status"])
+        self.assertEqual(self.manifest["observed_commit"], entry["exact_commit_or_release"])
+        self.assertEqual("2026-10-06", entry["verification_date"])
+        self.assertEqual("user_authorization", entry["permission_basis"]["type"])
+        self.assertTrue(entry["license"].startswith("USER_AUTHORIZATION:"))
+        self.assertEqual(
+            {
+                "code": "authorized",
+                "data": "restricted",
+                "assets": "restricted",
+                "models": "restricted",
+                "services": "not-applicable",
+                "trademarks": "restricted",
+            },
+            entry["rights_scope"],
+        )
 
     def test_known_dependency_edges_to_quarantined_corpus_are_recorded(self) -> None:
         edges = self.manifest["known_dependency_edges"]
@@ -168,7 +196,7 @@ class MonetImportManifestTests(unittest.TestCase):
             by_source["src/app/api/_common/services/code-reader.service.ts"]["to_excluded_prefix"],
         )
 
-    def test_no_monet_donor_snapshot_exists_before_rights_resolution(self) -> None:
+    def test_no_monet_donor_snapshot_exists_before_g01_02(self) -> None:
         forbidden = [
             ROOT / "vendor" / "monet-registry",
             ROOT / "upstreams" / "monet-registry",

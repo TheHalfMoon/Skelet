@@ -7,23 +7,35 @@
   "observed_default_branch": "main",
   "observed_commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
   "observed_tree": "9c0096e607a067a4f1917f5d49aab1a4dd1b9b46",
-  "state": "blocked-rights",
+  "state": "ready-code-snapshot",
   "activation_allowed": false,
-  "next_grain_allowed": false,
+  "next_grain_allowed": true,
   "rights_gate": {
-    "status": "blocked",
-    "lock_status_required": "planned",
-    "lock_license_required": "VERIFY_AT_IMPORT",
-    "evidence": [
-      "GitHub repository metadata reports no detected license for the exact source repository.",
-      "The exact source tree contains no LICENSE, LICENCE, COPYING, NOTICE, or COPYRIGHT file.",
-      "The exact package.json is private and has no license field.",
-      "No SPDX license identifier or repository-level license grant was found in the exact source tree.",
-      "README open-source wording is descriptive evidence, not a verified code license grant."
+    "status": "resolved-code-only",
+    "resolution": "user_authorization",
+    "authorization_id": "skelet-founder-2026-10-04-listed-sources",
+    "authorization_record": "docs/provenance/authorizations/monet-registry-2026-10-04.json",
+    "authorized_scope": [
+      "Source code classified include by this manifest at the exact observed commit."
     ],
-    "unblock_requires": [
-      "Verified upstream license or terms that authorize the selected code reuse at the exact source identity.",
-      "Or a repository-scoped authorization record covering monet-design/monet-registry and the selected code paths."
+    "restricted_scope": [
+      "datasets",
+      "screenshots",
+      "media/assets",
+      "model weights",
+      "hosted services",
+      "brands/trademarks"
+    ],
+    "evidence": [
+      "The user authorization applies to sources previously listed in the Skelet chat, including Monet Registry.",
+      "GitHub repository metadata still reports no detected upstream license.",
+      "The exact source tree still contains no repository-level LICENSE, LICENCE, COPYING, NOTICE, or COPYRIGHT file."
+    ],
+    "conditions": [
+      "G01-02 may copy only paths classified include by this manifest.",
+      "Rights-quarantined prefixes remain excluded.",
+      "No data, screenshot, media, model, service, brand, or trademark material is admitted by this code authorization.",
+      "Runtime activation remains false until the imported snapshot is qualified in its own grain."
     ]
   },
   "classification_policy": {
