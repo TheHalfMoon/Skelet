@@ -274,6 +274,21 @@ Lens output contract:
 
 Lens MUST clearly distinguish observed facts, deterministic inference, heuristic inference, and model-generated interpretation.
 
+### 8.1 Lens Build Kit successor (P09b, normative; tracks issue #9)
+
+The Lens report (§8) is extended by a bounded successor phase **P09b — URL to ready-to-build implementation kit**, which turns a qualified Lens analysis into a downloadable, agent-usable build starter. P09b is an additive capability of Skelet Lens, not a new editor, app builder, or clone of the analyzed site's proprietary source.
+
+Build Kit execution contract:
+- Stable `AnalysisRun`/kit identifiers; idempotent submission; poll, cancel, retry, and resume operations; artifact expiration; tenant-scoped storage and access; per-job quota accounting; versioned schemas; deterministic error classification.
+- Explicit job states: queued, capturing, extracting, generating, validating, completed, partial, failed, canceled. Never return a successful empty artifact.
+- Bounded capture scope: single public page by default; explicitly selected same-site pages or bounded sitemap crawl only, under configured page/depth/byte/time budgets. Preserve per-page coverage gaps instead of claiming complete-site coverage.
+- Generated code is expressly distinguished from the original application source; unknown server logic and interactive behavior are explicit stubs. The generated starter MUST install and build from a clean checkout.
+- Per-item rights classification: restricted, trademarked, or unknown-license bytes MUST NOT enter downloadable artifacts. Support withdrawal, deletion, and derivative/cache purge.
+- No mandatory paid inference, paid crawler, GPU, or external model for the deterministic minimal path; graceful partial results on provider outage.
+- P09b is a successor to qualified Lens capture (R4 gate and basic Lens report MUST be complete first). P14 Create/OpenPencil is explicitly NOT a prerequisite, and the kit MUST NOT depend on it.
+
+Build Kit layout and schemas are frozen by the P09b implementation grains before code lands; P15 commercial launch acceptance explicitly includes the URL-to-Build-Kit journey. This planning amendment alone does not implement the feature and closes no P0 implementation risk.
+
 ## 9. Agent Platform Contract
 
 Canonical remote endpoint:
@@ -551,6 +566,17 @@ Exit criteria:
 - malicious/private-network URL test corpus fails closed.
 - no external LLM is required for the qualified path.
 
+### P09b — Lens Build Kit (URL to ready-to-build kit; tracks issue #9)
+Depends: P09 Lens capture/report qualified (R4 gate), plus P03 canonical graph and P05 job lifecycle via P09.
+Deliverables:
+- versioned Build Kit schemas and fixture-validated ZIP layout (manifest, analysis pages/sections/components, DTCG tokens, CSS/Tailwind/shadcn themes, rights-classified asset inventory, screenshots, editable React/Next.js + Tailwind starter, provenance, AGENT.md task pack);
+- AnalysisRun/kit job lifecycle with queued/capturing/extracting/generating/validating/completed/partial/failed/canceled states, idempotent create, poll/cancel/retry/resume, expiry, tenant scoping, and quota accounting;
+- UI, REST, MCP, CLI/SDK parity over stable analysis/kit IDs and `skelet://lens/{analysis_id}` URIs, so a second agent can recover the same kit without the original session.
+Exit criteria:
+- rights-cleared 3-page fixture produces desktop/mobile captures, deterministic tokens, component inventory, source-linked evidence, schema-valid ZIP, and a generated starter that installs, typechecks, builds, starts, and passes responsive/keyboard smoke on a clean checkout;
+- restricted assets are excluded from downloadable artifacts; SSRF/redirect/DNS-rebinding, prompt-injection, tenant-leakage, path-traversal, quota, cancellation/retry, and provider-outage tests pass;
+- no mandatory paid inference or P14 Create dependency on the qualified path.
+
 ### P10 — Research Corpus + Flows
 Deliverables:
 - authorized app/site/screen/flow import adapters.
@@ -626,12 +652,15 @@ P03 -> P04
 P05 -> P06 -> P07
 P06 + P03 -> P08
 P05 + P03 -> P09
+P09 -> P09b (Build Kit successor; R4 Lens report and job lifecycle must be qualified first; P14 Create is not a prerequisite)
 P03 + P05 -> P10
 P06 + P07 + P09 + P10 -> P11
 P08 + P11 -> P12
 P09 + P10 + P11 -> P13
 P08 + P11 + P12 -> P14
-P04 + P06 + P08 + P09 + P10 + P11 + P12 -> P15
+P04 + P06 + P08 + P09 + P09b + P10 + P11 + P12 -> P15
+
+Commercial launch acceptance explicitly includes the URL-to-Build-Kit journey (paste a public URL, receive a reproducible, downloadable, agent-recoverable implementation kit whose generated starter installs and builds from a clean checkout).
 
 Commercial launch MUST NOT be blocked by P13 Time Machine or P14 Create if the core launch journeys are qualified.
 
@@ -639,7 +668,7 @@ Minimum paid launch scope:
 - unified search
 - Assets: icons/logos/fonts/components
 - Research: products/sites/screens/flows from qualified corpus
-- Lens URL analysis
+- Lens URL analysis and URL-to-Build-Kit export (P09b)
 - collections/reference packs
 - Remote MCP + skills + REST API
 - auth/workspaces/billing
