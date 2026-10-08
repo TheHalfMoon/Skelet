@@ -1,0 +1,37 @@
+{
+  "schema_version": "1",
+  "grain": "G01-02b",
+  "import_id": "monet-registry-screenshot-queue",
+  "source": {
+    "repository": "https://github.com/monet-design/monet-registry",
+    "commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+    "tree": "9c0096e607a067a4f1917f5d49aab1a4dd1b9b46",
+    "path": "scripts/screenshot/queue.ts",
+    "git_blob_sha1": "ec78d916afc88d7ed6ee72a0b16dde9f7a2fbbe2",
+    "byte_length": 481
+  },
+  "destination": {
+    "path": "packages/providers/monet/screenshot/queue.ts",
+    "git_blob_sha1": "ec78d916afc88d7ed6ee72a0b16dde9f7a2fbbe2",
+    "modifications": "verbatim"
+  },
+  "permission": {
+    "type": "user_authorization",
+    "record": "docs/provenance/authorizations/monet-registry-2026-10-04.json",
+    "scope": "source_code_only",
+    "upstream_license_status": "not_verified"
+  },
+  "exclusions": [
+    "screenshots",
+    "datasets",
+    "media_assets",
+    "model_weights",
+    "hosted_services",
+    "brands_and_trademarks"
+  ],
+  "activation": {
+    "included_in_public_product": false,
+    "role": "isolated ephemeral capture helper",
+    "persistent_queue": false
+  }
+}

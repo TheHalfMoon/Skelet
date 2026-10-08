@@ -4,7 +4,7 @@ Status: bootstrap CI contract introduced by G00-03.
 
 ## Exact-HEAD rule
 
-Every pull-request CI job checks out `github.event.pull_request.head.sha` directly. Push jobs check out `github.sha`. The `bootstrap` job verifies that SHA through `scripts/ci_hygiene.py`; the `graft` job verifies it directly with Git before review tooling runs.
+Every pull-request CI job checks out `github.event.pull_request.head.sha` directly. Push jobs check out `github.sha`. The `bootstrap` job verifies that SHA through `scripts/ci_hygiene.py`; the `graft` and isolated Node donor-test jobs verify it directly with Git before tooling runs.
 
 A status from a different commit is not evidence for the candidate HEAD. GitHub first-party actions are pinned by full commit SHA to Node 24-compatible releases rather than moving major tags.
 
@@ -30,6 +30,18 @@ Formal application lint/typecheck/build commands replace the bootstrap compile s
 The Graft job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It uses pinned `@nanonets/graft@0.21.1` and must pass graph build and freshness checks on the exact candidate revision.
 
 Graft output is architecture/change-impact evidence. It does not replace unit, integration, Jev, or Alibaba Open Code Review evidence.
+
+### `monet-screenshot-queue`
+
+The isolated Monet screenshot-queue code transplant is validated in its own
+hosted Node job before any public runtime activation. This exact-HEAD job uses
+Node `22.23.1`, a pinned TypeScript `5.9.3` typecheck, and Node's native
+type-stripping test runner against deterministic queue contract tests.
+
+This test does **not** establish a production-ready capture system, persistent
+worker queue, or an application build. It verifies one verbatim and provenance-
+bound source file only. P01's final full application build/typecheck gates
+remain open until their bounded implementation grains are qualified.
 
 ## Review evidence
 
