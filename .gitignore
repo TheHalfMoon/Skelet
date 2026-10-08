@@ -1,0 +1,22 @@
+# graft's local graph cache - regenerable, not committed (run `graft build`).
+/graft/
+
+# Dependencies and install output.
+node_modules/
+.pnpm-store/
+
+# Next.js build output, typegen, and local env.
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+
+# Test, coverage, and OS artifacts.
+coverage/
+.DS_Store
+Thumbs.db
+
+# Python bytecode (bootstrap tooling).
+__pycache__/
+*.py[cod]
