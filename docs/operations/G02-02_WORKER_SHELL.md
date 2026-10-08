@@ -51,6 +51,11 @@ node --experimental-strip-types --test "apps/worker/tests/*.test.mjs"
 pnpm --dir apps/worker start health
 ```
 
+Lint uses `typescript-eslint@8.71.1` recommended rules so `.ts` sources are
+actually inspected (verified with a negative control: an unused local fails
+the gate; the earlier minimal config silently ignored `.ts` files and was
+replaced).
+
 GitHub Actions runs the same gate as the `worker` job against the exact PR
 HEAD. The web `test` script and `web` job suites now also include the worker
 tests.

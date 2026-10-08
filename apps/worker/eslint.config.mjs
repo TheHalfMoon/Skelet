@@ -1,8 +1,3 @@
-export default [
-  {
-    rules: {
-      "no-unused-vars": "error",
-      "no-undef": "off",
-    },
-  },
-];
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(...tseslint.configs.recommended);
