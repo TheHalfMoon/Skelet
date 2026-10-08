@@ -1,0 +1,42 @@
+{
+  "schema_version": "1",
+  "grain": "G01-03b",
+  "import_id": "monet-registry-cn-utils",
+  "source": {
+    "repository": "https://github.com/monet-design/monet-registry",
+    "commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+    "tree": "9c0096e607a067a4f1917f5d49aab1a4dd1b9b46",
+    "path": "src/lib/utils.ts",
+    "git_blob_sha1": "a5ef193506d07d0459fec4f187af08283094d7c8",
+    "byte_length": 169
+  },
+  "destination": {
+    "path": "apps/web/lib/utils.ts",
+    "git_blob_sha1": "a5ef193506d07d0459fec4f187af08283094d7c8",
+    "modifications": "verbatim"
+  },
+  "permission": {
+    "type": "user_authorization",
+    "record": "docs/provenance/authorizations/monet-registry-2026-10-04.json",
+    "scope": "source_code_only",
+    "upstream_license_status": "not_verified"
+  },
+  "dependency_closure": {
+    "direct_imports": ["clsx", "tailwind-merge"],
+    "pinned": {"clsx": "2.1.1", "tailwind-merge": "2.6.0"},
+    "matches_closure_record": "imports/monet-registry/dependency-closure.json"
+  },
+  "exclusions": [
+    "screenshots",
+    "datasets",
+    "media_assets",
+    "model_weights",
+    "hosted_services",
+    "brands_and_trademarks"
+  ],
+  "activation": {
+    "included_in_public_product": true,
+    "role": "class-name merge utility used by the Skelet landing page",
+    "persistent_queue": false
+  }
+}
