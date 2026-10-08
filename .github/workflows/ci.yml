@@ -256,6 +256,7 @@ jobs:
           node --experimental-strip-types --test
           packages/db/tests/db-foundation.test.mjs
           packages/db/tests/graph.test.mjs
+          packages/db/tests/workflows.test.mjs
 
       - name: Real PostgreSQL transaction and concurrency integration tests
         env:
@@ -264,3 +265,4 @@ jobs:
         run: |
           node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
           node --experimental-strip-types --test packages/db/tests/pg-graph.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-workflows.test.mjs
