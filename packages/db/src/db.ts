@@ -55,6 +55,8 @@ class PGliteClient implements DbClient {
   }
 }
 
+export const SCHEMA_MIGRATION_ADVISORY_LOCK = 8734352;
+
 export class PgPoolClient implements DbClient {
   private readonly pool: Pool;
   constructor(pool: Pool) { this.pool = pool; }
@@ -74,12 +76,14 @@ export class PgPoolClient implements DbClient {
   ): Promise<T> {
     const client = await this.pool.connect();
     let started = false;
+    let committing = false;
+    let releaseError: Error | undefined;
     try {
       await client.query("BEGIN");
       started = true;
       // Serialize only schema migrations; normal application transactions remain independent.
       if (options?.migrationLock) {
-        await client.query("SELECT pg_advisory_xact_lock($1)", [8734352]);
+        await client.query("SELECT pg_advisory_xact_lock($1)", [SCHEMA_MIGRATION_ADVISORY_LOCK]);
       }
       const tx: DbTransaction = {
         query: async (text, params) => ({
@@ -88,19 +92,26 @@ export class PgPoolClient implements DbClient {
         exec: async (text) => { await client.query(text); },
       };
       const value = await work(tx);
+      committing = true;
       await client.query("COMMIT");
       return value;
     } catch (error) {
+      // A failed BEGIN/COMMIT leaves the session state uncertain: discard it.
+      if (!started || committing) {
+        releaseError = error instanceof Error ? error : new Error(String(error));
+      }
       if (started) {
         try {
           await client.query("ROLLBACK");
         } catch (rollbackError) {
+          releaseError = rollbackError instanceof Error
+            ? rollbackError : new Error(String(rollbackError));
           throw new AggregateError([error, rollbackError], "Database transaction and rollback failed");
         }
       }
       throw error;
     } finally {
-      client.release();
+      client.release(releaseError);
     }
   }
 

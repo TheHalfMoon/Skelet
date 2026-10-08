@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { Pool } from "pg";
 
-import { openDatabase } from "../src/db.ts";
+import { openDatabase, SCHEMA_MIGRATION_ADVISORY_LOCK } from "../src/db.ts";
 import { migrateDown } from "../src/migrate.ts";
 
 const connectionString = process.env.SKELET_TEST_DATABASE_URL;
@@ -32,17 +33,19 @@ function spawnMigrator() {
         "--experimental-strip-types",
         fileURLToPath(new URL("./pg-migrate-worker.mjs", import.meta.url)),
       ],
-      {
-        env: { ...process.env },
-        windowsHide: true,
-      },
+      { env: { ...process.env }, windowsHide: true },
     );
     let stdout = "";
     let stderr = "";
+    const timeout = setTimeout(() => {
+      child.kill();
+      reject(new Error("Migrator timed out"));
+    }, 30000);
     child.stdout.setEncoding("utf8").on("data", (chunk) => { stdout += chunk; });
     child.stderr.setEncoding("utf8").on("data", (chunk) => { stderr += chunk; });
-    child.on("error", reject);
+    child.on("error", (error) => { clearTimeout(timeout); reject(error); });
     child.on("close", (code) => {
+      clearTimeout(timeout);
       if (code !== 0) {
         reject(new Error("Migrator process failed: " + stderr));
         return;
@@ -56,13 +59,43 @@ function spawnMigrator() {
   });
 }
 
-test("real PostgreSQL serializes two independent migration processes", { skip: !enabled }, async () => {
+async function waitForTwoContenders(locker) {
+  const deadline = Date.now() + 15000;
+  for (;;) {
+    const result = await locker.query(
+      "select count(*)::int as waiting from pg_locks " +
+        "where locktype = 'advisory' and not granted and classid = 0::oid and objid = $1::oid",
+      [SCHEMA_MIGRATION_ADVISORY_LOCK],
+    );
+    if (Number(result.rows[0]?.waiting) >= 2) return;
+    if (Date.now() > deadline) {
+      throw new Error("Two migrators did not reach the migration advisory lock");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
+
+test("real PostgreSQL serializes two demonstrably contending migration processes", { skip: !enabled }, async () => {
   requireFixtureDatabase();
-  const results = await Promise.all([spawnMigrator(), spawnMigrator()]);
+  const lockPool = new Pool({ connectionString, max: 1 });
+  const locker = await lockPool.connect();
+  let workers = [];
+  try {
+    // Hold a session lock so both spawned processes must contend at the same key.
+    await locker.query("select pg_advisory_lock($1)", [SCHEMA_MIGRATION_ADVISORY_LOCK]);
+    workers = [spawnMigrator(), spawnMigrator()];
+    await waitForTwoContenders(locker);
+  } finally {
+    await locker.query("select pg_advisory_unlock($1)", [SCHEMA_MIGRATION_ADVISORY_LOCK]);
+    locker.release();
+    await lockPool.end();
+  }
+
+  const results = await Promise.all(workers);
   assert.deepEqual(
     results.flat().sort(),
     ["001_sources_products"],
-    "Only one process must apply the migration",
+    "Only one blocked process may apply the migration",
   );
 
   const db = await openDatabase({ connectionString });

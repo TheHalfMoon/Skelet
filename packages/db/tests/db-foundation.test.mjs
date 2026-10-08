@@ -56,6 +56,7 @@ test("sources round-trip with unique keys", async () => {
     displayName: "Monet Registry",
   });
   assert.equal(created.key, "monet-registry");
+  assert.match(created.createdAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   assert.ok(created.id.length === 36);
   const fetched = await getSource(db, created.id);
   assert.equal(fetched.displayName, "Monet Registry");
@@ -223,4 +224,78 @@ test("PgPool transaction failure rolls back and releases the pinned connection",
     "ROLLBACK",
     "RELEASE",
   ]);
+});
+
+test("repository writes can be composed atomically in a DbTransaction", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const source = await createSource(db, { key: "atomic", kind: "fixture" });
+    await assert.rejects(
+      () => db.transaction(async (tx) => {
+        const product = await createProduct(tx, { sourceId: source.id, title: "Rollback" });
+        await createProductVersion(tx, { productId: product.id, versionNo: 1 });
+        throw new Error("transaction aborted");
+      }),
+      /transaction aborted/,
+    );
+    assert.deepEqual(await listProducts(db, source.id), []);
+  } finally {
+    await db.close();
+  }
+});
+
+test("PgPool rollback failure destroys the connection and preserves both errors", async () => {
+  const releases = [];
+  const statements = [];
+  const pool = {
+    query: async () => { throw new Error("pool.query forbidden inside transactions"); },
+    connect: async () => ({
+      query: async (sql) => {
+        statements.push(sql);
+        if (sql === "ROLLBACK") throw new Error("broken connection on rollback");
+        return { rows: [] };
+      },
+      release: (error) => { releases.push(error); },
+    }),
+    end: async () => {},
+  };
+  const db = new PgPoolClient(pool);
+  await assert.rejects(
+    () => db.transaction(async (tx) => {
+      await tx.exec("insert into fake_fixture values (1)");
+      throw new Error("original failure");
+    }),
+    (error) => error instanceof AggregateError && error.errors.length === 2,
+  );
+  assert.equal(releases.length, 1);
+  assert.match(releases[0]?.message, /broken connection on rollback/);
+  assert.deepEqual(statements, ["BEGIN", "insert into fake_fixture values (1)", "ROLLBACK"]);
+});
+
+test("PgPool releases failed BEGIN and COMMIT connections as damaged", async () => {
+  for (const brokenAt of ["BEGIN", "COMMIT"]) {
+    const releases = [];
+    const statements = [];
+    const pool = {
+      query: async () => { throw new Error("pool.query forbidden"); },
+      connect: async () => ({
+        query: async (sql) => {
+          statements.push(sql);
+          if (sql === brokenAt) throw new Error("broken " + brokenAt);
+          return { rows: [] };
+        },
+        release: (error) => { releases.push(error); },
+      }),
+      end: async () => {},
+    };
+    const db = new PgPoolClient(pool);
+    await assert.rejects(
+      () => db.transaction(async () => "ok"),
+      new RegExp("broken " + brokenAt),
+    );
+    assert.equal(releases.length, 1);
+    assert.match(releases[0]?.message, new RegExp("broken " + brokenAt));
+    assert.equal(statements.includes("ROLLBACK"), brokenAt === "COMMIT");
+  }
 });

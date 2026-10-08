@@ -1,4 +1,4 @@
-import type { DbClient } from "./db.ts";
+import type { DbTransaction } from "./db.ts";
 
 export interface Source {
   id: string;
@@ -46,6 +46,12 @@ function requireRow(rows: Record<string, unknown>[]): Record<string, unknown> {
   return row;
 }
 
+function toIsoTimestamp(raw: unknown): string {
+  const value = raw instanceof Date ? raw : new Date(String(raw));
+  if (Number.isNaN(value.getTime())) throw new Error("Invalid database timestamp");
+  return value.toISOString();
+}
+
 function toSource(row: Record<string, unknown>): Source {
   return {
     id: String(row.id),
@@ -53,12 +59,12 @@ function toSource(row: Record<string, unknown>): Source {
     kind: String(row.kind),
     displayName:
       row.display_name === null ? null : String(row.display_name),
-    createdAt: String(row.created_at),
+    createdAt: toIsoTimestamp(row.created_at),
   };
 }
 
 export async function createSource(
-  client: DbClient,
+  client: DbTransaction,
   input: NewSource,
 ): Promise<Source> {
   const result = await client.query(
@@ -70,7 +76,7 @@ export async function createSource(
 }
 
 export async function getSource(
-  client: DbClient,
+  client: DbTransaction,
   id: string,
 ): Promise<Source> {
   const result = await client.query(
@@ -90,12 +96,12 @@ function toProduct(row: Record<string, unknown>): Product {
     externalId:
       row.external_id === null ? null : String(row.external_id),
     title: String(row.title),
-    createdAt: String(row.created_at),
+    createdAt: toIsoTimestamp(row.created_at),
   };
 }
 
 export async function createProduct(
-  client: DbClient,
+  client: DbTransaction,
   input: NewProduct,
 ): Promise<Product> {
   const result = await client.query(
@@ -108,7 +114,7 @@ export async function createProduct(
 }
 
 export async function listProducts(
-  client: DbClient,
+  client: DbTransaction,
   sourceId: string,
 ): Promise<Product[]> {
   const result = await client.query(
@@ -124,12 +130,12 @@ function toProductVersion(row: Record<string, unknown>): ProductVersion {
     id: String(row.id),
     productId: String(row.product_id),
     versionNo: Number(row.version_no),
-    capturedAt: String(row.captured_at),
+    capturedAt: toIsoTimestamp(row.captured_at),
   };
 }
 
 export async function createProductVersion(
-  client: DbClient,
+  client: DbTransaction,
   input: NewProductVersion,
 ): Promise<ProductVersion> {
   const result = await client.query(
@@ -142,7 +148,7 @@ export async function createProductVersion(
 }
 
 export async function listProductVersions(
-  client: DbClient,
+  client: DbTransaction,
   productId: string,
 ): Promise<ProductVersion[]> {
   const result = await client.query(
