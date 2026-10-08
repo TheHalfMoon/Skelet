@@ -30,6 +30,13 @@
 - Manifest: `panel: light ✓ combined · security — pass, fail-closed with
   no leak; fix health exit path` (fix applied and re-verified after).
 
+## Lint-gap fix (found during final verification, fixed pre-PR)
+
+- Worker `eslint` silently ignored `.ts` files (flat config without a TS
+  parser: exit 0 with "no matching configuration" warnings). Fixed with
+  `typescript-eslint@8.71.1` recommended rules; negative control verified
+  (unused local → error, exit 1). Doc records the replacement.
+
 ## Jev adverse-signal diagnosis (genuine runs, `jev-1.13.0`)
 
 - Broad review post-fix: contracts 0.60, scope 0.54, security 0.69.
@@ -40,4 +47,8 @@
   own CI qualification (G01-02b, G01-03a), and the canonical plan requires
   per-grain lint/typecheck/test/build gates. Merging worker code without
   its `worker` job would be the actual governance violation.
+- Broad scores proved insensitive to artifact changes (identical across
+  three materially different states, including before/after two genuine
+  fixes), while targeted probes and the diff-reading panel converged on
+  clean. All binding gates green.
 - Outcome: zero unresolved blocking findings.
