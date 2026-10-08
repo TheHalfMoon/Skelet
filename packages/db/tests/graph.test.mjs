@@ -112,6 +112,13 @@ test("asset SHA-256 deduplicates without upgrading rights or source", async () =
       rightsClassification:"restricted",
     });
     assert.equal(restricted.id,duplicate.id);
+    const secondary=await createSource(db,{key:"secondary",kind:"test"});
+    await assert.rejects(
+      () => createAsset(db,{sha256:HASH,mediaType:"image/png",byteLength:100,
+        storageKey:"restricted/fixture.png",sourceId:secondary.id,
+        rightsClassification:"restricted"}),
+      /Asset provenance or rights conflict/,
+    );
     await assert.rejects(
       () => createAsset(db,{sha256:HASH,mediaType:"image/png",byteLength:100,
         storageKey:"public/unsafe.png",sourceId:source.id,

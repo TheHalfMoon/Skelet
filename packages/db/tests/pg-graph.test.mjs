@@ -37,6 +37,13 @@ test("real PostgreSQL round-trips design graph and blocks invalid raw SQL", { sk
       relationType:"uses",toType:"pattern",toId:pattern.id,confidence:0.5});
     assert.equal(edge.toId,pattern.id);
     assert.equal((await getAssetByHash(db,hash)).id,asset.id);
+    const secondary=await createSource(db,{key:"pg-secondary",kind:"test"});
+    await assert.rejects(
+      () => createAsset(db,{sha256:hash,mediaType:"image/png",byteLength:17,
+        storageKey:"fixtures/hash",sourceId:secondary.id,
+        rightsClassification:"restricted"}),
+      /Asset provenance or rights conflict/,
+    );
     await assert.rejects(
       () => db.query("delete from artifacts where id=$1",[artifact.id]),
       /graph endpoint still referenced/,
