@@ -868,3 +868,26 @@ Version independently:
 - database schema is internal and may evolve through forward migrations; public APIs never expose table shapes as contracts.
 
 Contract fixtures are stored in packages/testkit/contracts and diffed in CI. A change to a public schema MUST include an explicit compatibility classification in the PR.
+
+## 23. 2026-10-08 Architecture Review — Normative Plan Hardening
+
+This section is a **planning amendment**, not product implementation. It becomes canonical only after the governing PR is merged and its exact post-merge checks pass.
+
+The core P00–P15 product vision remains unchanged, but the following execution corrections take precedence over earlier implementation-sequencing assumptions if they conflict:
+
+1. **No runnable-Monet assumption.** The 90 Monet source files selected in G01-01 and classified in G01-02a are not a complete runnable Next.js product. G01-02 successor grains MUST import one dependency-closed, verified capability at a time; G01-03 MAY establish a clean Skelet-owned app shell instead of recreating excluded donor UI/branding. Bootstrap Python tests or an isolated copied TypeScript helper do not prove a working product.
+2. **Progress by tested user journeys.** S0 must integrate rights-qualified icon/component ingestion, canonical persistence, search, human inspection, collection saving, reference-pack export, and REST/MCP recovery from another client before expanding to S1 safe URL Lens. This does not shrink the existing paid launch scope.
+3. **Modern MCP contract.** Target the official 2026-07-28 MCP protocol with tested compatibility; OAuth metadata/audience binding/PKCE/issuer, Tasks extension and REST fallback, official MCP Apps SDK and explicit host support. Never assume MCP Apps or Tasks exist in every client.
+4. **Strict rights and egress boundaries.** Dataset, screenshot, icon/font/logo, model and trademark rights are separate from donor source-code permission. Socket-level browser egress isolation and prompt-injection defenses are mandatory for Lens, beyond URL string checks. Takedown and derivative deletion are release requirements.
+5. **Measured quality and costs.** Lexical search and local/offline path before optional embeddings. Relevance judgments, exact model/runtime pins, performance baseline, quotas, browser-minute/storage/egress cost attribution and commercial margin evidence precede scaling; no impossible promise of free public infrastructure.
+6. **Clear product responsibilities.** Skelet owns research/evidence/asset registry and agent retrieval. Lilac/OpenPencil own edit/canvas; Kernux/Deskal provide qualified access capabilities only; Morize/Orcel/Gomrey/Ineractive are optional adapter/consumer relationships, not unverified runtime dependencies.
+7. **Traceable readiness.** Every implementation grain maps to the R0–R7 gate and explicit capability state, and every P0 gap must be actually closed before the corresponding public feature/launch. A passing planning validator never substitutes for full application tests.
+8. **Preserve governance.** Graft, Jev, Alibaba OCR/delegation, exact-HEAD GitHub CI, normal merges and verified post-merge closeouts remain non-waivable.
+
+The detailed decisions, source matrix and prioritized acceptance ledger below are **normative companion documents** for any future implementation PR:
+
+- [Architecture and Execution Decisions](architecture/PLAN_HARDENING_2026-10-08.md)
+- [Ready Source / Donor Reuse Decisions](research/DONOR_REUSE_DECISIONS_2026-10-08.md)
+- [Gap Register and Mandatory Acceptance](operations/PLAN_GAP_REGISTER_2026-10-08.md)
+
+These documents authorize **planning and evaluation** only. They do not activate source material, update existing upstream locks, or claim any P01/P15 product completion.
