@@ -31,6 +31,18 @@ The Graft job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout
 
 Graft output is architecture/change-impact evidence. It does not replace unit, integration, Jev, or Alibaba Open Code Review evidence.
 
+### `web`
+
+The web job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It installs pnpm `9.12.0`, performs a frozen-lockfile install, and must pass the Skelet web application gate on the exact candidate revision:
+
+- `eslint` over `apps/web`;
+- strict `tsc --noEmit`;
+- the Node.js test suites (`tests/node/`, `apps/web/tests/`);
+- the Next.js production build;
+- the production startup smoke (`scripts/smoke-web.mjs`), which boots `next start`, asserts the `/api/health` contract and the landing page, then shuts down.
+
+A passing bootstrap compile or planning validator is never reported as this application gate.
+
 ### `monet-screenshot-queue`
 
 The isolated Monet screenshot-queue code transplant is validated in its own
