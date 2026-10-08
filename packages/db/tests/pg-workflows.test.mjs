@@ -76,6 +76,8 @@ test("real PostgreSQL concurrent import replay is unique, immutable, and rollbac
   const results=await Promise.all([registerImport(db,payload),registerImport(second,payload)]);
   assert.deepEqual(results.map(x=>x.created).sort(),[false,true]);
   assert.equal(results[0].record.id,results[1].record.id);
+  await assert.rejects(()=>registerImport(db,{...payload,metadata:{tampered:true}}),
+   /Conflicting source evidence/);
   await assert.rejects(()=>registerImport(db,{...payload,externalId:"missing",
    canonicalId:"00000000-0000-4000-8000-000000000000"}),
    /canonical target not found/);
@@ -91,4 +93,71 @@ test("real PostgreSQL concurrent import replay is unique, immutable, and rollbac
   const count=await db.query("select count(*)::int as n from capture_runs");
   assert.equal(count.rows[0]?.n,0);
  } finally {await second.close();await migrateDown(db);await db.close();}
+});
+
+test("real PostgreSQL refuses forged run completions and immutable identity changes",{
+ skip:!enabled,timeout:30000},async()=>{
+ fixtureGuard();
+ const db=await openDatabase({connectionString});
+ try{
+  await migrateUp(db);
+  const source=await createSource(db,{key:"pg-immutable",kind:"fixture"});
+  await assert.rejects(()=>db.query(`insert into capture_runs
+   (source_id,status,started_at,finished_at,result_evidence)
+   values($1,'completed',now(),now(),'{"fake":true}'::jsonb)`,[source.id]),
+   /new runs must begin queued/);
+  await assert.rejects(()=>db.query(`insert into analysis_runs
+   (source_id,provider_kind,status,started_at,finished_at,result_evidence)
+   values($1,'deterministic','completed',now(),now(),'{"fake":true}'::jsonb)`,
+   [source.id]),/new runs must begin queued/);
+  const capture=await createCaptureRun(db,{sourceId:source.id});
+  await transitionRun(db,"capture",capture.id,"queued","running");
+  await assert.rejects(()=>db.query(
+   "update capture_runs set resource_budget=$1::jsonb where id=$2",
+   [JSON.stringify({fake:999}),capture.id]),/run identity is immutable/);
+  await assert.rejects(()=>db.query(
+   "update capture_runs set result_evidence=$1::jsonb where id=$2",
+   [JSON.stringify({fake:true}),capture.id]),/without transition/);
+  const result=await transitionRun(db,"capture",capture.id,"running","completed",
+   {evidence:{observed:true}});
+  assert.equal(result.status,"completed");
+ }finally{await migrateDown(db);await db.close();}
+});
+
+test("real PostgreSQL prevents import-target deletion across two independent transactions",{
+ skip:!enabled,timeout:30000},async()=>{
+ fixtureGuard();
+ const db=await openDatabase({connectionString});
+ const other=await openDatabase({connectionString});
+ try{
+  await migrateUp(db);
+  const source=await createSource(db,{key:"pg-import-lock",kind:"fixture"});
+  const product=await createProduct(db,{sourceId:source.id,title:"Pinned target"});
+  let signal;let resume;
+  const ready=new Promise(resolve=>{signal=resolve;});
+  const held=new Promise(resolve=>{resume=resolve;});
+  const payload={sourceId:source.id,externalId:"pinned-1",
+   sourceVersion:"v1",canonicalType:"product",canonicalId:product.id};
+  const writer=db.transaction(async(tx)=>{
+   await registerImport(tx,payload);
+   signal();
+   await held;
+  });
+  await ready;
+  let deleteSettled=false;
+  const deleting=other.query("delete from products where id=$1",[product.id])
+   .then(()=>({success:true}),error=>({success:false,error}))
+   .finally(()=>{deleteSettled=true;});
+  try{
+   await new Promise(resolve=>setTimeout(resolve,125));
+   assert.equal(deleteSettled,false,"target DELETE must wait for import target key-share lock");
+  }finally{resume();}
+  await writer;
+  const result=await deleting;
+  assert.equal(result.success,false);
+  assert.match(result.error.message,/canonical target has import records/);
+  const mapping=await db.query(
+   "select canonical_id from import_records where external_id='pinned-1'");
+  assert.equal(mapping.rows[0].canonical_id,product.id);
+ }finally{await other.close();await migrateDown(db);await db.close();}
 });

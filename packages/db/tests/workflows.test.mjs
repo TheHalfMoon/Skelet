@@ -169,6 +169,8 @@ test("imports replay idempotently, reject identity conflicts and block target de
   assert.equal(first.created,true);
   assert.equal(replay.created,false);
   assert.equal(first.record.id,replay.record.id);
+  await assert.rejects(()=>registerImport(db,{...input,metadata:{origin:"tampered"}}),
+   /Conflicting source evidence/);
   const second=await createArtifact(db,{sourceId:source.id,kind:"screen",
    title:"Second imported record",contentHash:HASH,rightsClassification:"unknown"});
   await assert.rejects(()=>registerImport(db,{...input,canonicalId:second.id}),
@@ -178,7 +180,7 @@ test("imports replay idempotently, reject identity conflicts and block target de
   await assert.rejects(()=>db.query("delete from artifacts where id=$1",[artifact.id]),
    /canonical target has import records/);
   await assert.rejects(()=>db.query("update import_records set canonical_id=$1 where id=$2",
-   ["00000000-0000-4000-8000-000000000000",first.record.id]),/canonical target not found/);
+   ["00000000-0000-4000-8000-000000000000",first.record.id]),/import records are immutable/);
  } finally{await db.close();}
 });
 
@@ -194,5 +196,91 @@ test("G03-03 transaction rollback leaves no collection and run state",async()=>{
   const r=await db.query("select count(*)::int as n from capture_runs");
   assert.equal(c.rows[0].n,0);
   assert.equal(r.rows[0].n,0);
+ } finally{await db.close();}
+});
+
+test("raw inserts cannot fabricate completed or prestarted capture/analysis runs", async()=>{
+ const {db,source}=await fixture();
+ try{
+  await assert.rejects(()=>db.query(`insert into capture_runs
+   (source_id,status,started_at,finished_at,result_evidence)
+   values($1,'completed',now(),now(),'{"fake":true}'::jsonb)`,[source.id]),
+   /new runs must begin queued/);
+  await assert.rejects(()=>db.query(`insert into analysis_runs
+   (source_id,provider_kind,status,started_at,finished_at,result_evidence)
+   values($1,'deterministic','completed',now(),now(),'{"fake":true}'::jsonb)`,[source.id]),
+   /new runs must begin queued/);
+  await assert.rejects(()=>db.query(`insert into capture_runs(source_id,started_at)
+   values($1,now())`,[source.id]),/new runs must begin queued/);
+ }finally{await db.close();}
+});
+
+test("raw SQL cannot rewrite run identity, provider egress or outcome while running",async()=>{
+ const {db,source}=await fixture();
+ try{
+  const capture=await createCaptureRun(db,{sourceId:source.id});
+  await transitionRun(db,"capture",capture.id,"queued","running");
+  await assert.rejects(()=>db.query(
+    "update capture_runs set resource_budget=$1::jsonb where id=$2",
+    [JSON.stringify({cost:999}),capture.id]),/run identity is immutable/);
+  await assert.rejects(()=>db.query(
+    "update capture_runs set result_evidence=$1::jsonb where id=$2",
+    [JSON.stringify({fake:true}),capture.id]),/without transition/);
+  const run=await createAnalysisRun(db,{sourceId:source.id,providerKind:"model",
+   providerId:"provider",modelId:"model",egressClass:"external"});
+  await transitionRun(db,"analysis",run.id,"queued","running");
+  await assert.rejects(()=>db.query(
+   "update analysis_runs set egress_class='none' where id=$1",[run.id]),
+   /run identity is immutable/);
+  await assert.rejects(()=>db.query(
+   "update analysis_runs set model_id='another' where id=$1",[run.id]),
+   /run identity is immutable/);
+  await assert.rejects(()=>db.query(`update analysis_runs
+   set status='completed',finished_at=started_at-interval '1 day',
+       result_evidence='{"fake":true}'::jsonb where id=$1`,[run.id]),
+   /timestamp|check|violates/i);
+  await assert.rejects(()=>transitionRun(db,"analysis",run.id,"running","partial"),
+   /partial needs evidence|check|violates/i);
+ }finally{await db.close();}
+});
+
+test("raw SQL cannot rebind existing flows or change their referenced parents",async()=>{
+ const {db,source,product,version,artifact}=await fixture();
+ try {
+  const flow=await createFlow(db,{sourceId:source.id,productVersionId:version.id,title:"Locked"});
+  await addFlowStep(db,{flowId:flow.id,position:0,artifactId:artifact.id});
+  const next=await createProductVersion(db,{productId:product.id,versionNo:2});
+  await assert.rejects(()=>db.query(
+   "update flows set product_version_id=$1 where id=$2",[next.id,flow.id]),
+   /flow identity is immutable/);
+  await assert.rejects(()=>db.query(
+   "update artifacts set product_version_id=$1 where id=$2",[next.id,artifact.id]),
+   /flow step artifact identity is immutable/);
+  const alien=await createSource(db,{key:"alien-flow-parent",kind:"fixture"});
+  await assert.rejects(()=>db.query(
+   "update products set source_id=$1 where id=$2",[alien.id,product.id]),
+   /flow product source identity is immutable/);
+  const other=await createProduct(db,{sourceId:source.id,title:"Other"});
+  await assert.rejects(()=>db.query(
+   "update product_versions set product_id=$1 where id=$2",[other.id,version.id]),
+   /flow product version identity is immutable/);
+ }finally{await db.close();}
+});
+
+test("import records reject raw updates to a different valid canonical target",async()=>{
+ const {db,source,artifact}=await fixture();
+ try {
+  const first=await registerImport(db,{sourceId:source.id,externalId:"immutable",
+   sourceVersion:"v1",canonicalType:"artifact",canonicalId:artifact.id});
+  const second=await createArtifact(db,{sourceId:source.id,kind:"screen",
+   title:"Second valid target",contentHash:HASH,rightsClassification:"unknown"});
+  await assert.rejects(()=>db.query(
+   "update import_records set canonical_id=$1 where id=$2",
+   [second.id,first.record.id]),/import records are immutable/);
+  await assert.rejects(()=>db.query(
+   "update import_records set external_id='replaced' where id=$1",
+   [first.record.id]),/import records are immutable/);
+  await assert.rejects(()=>db.query(
+   "delete from artifacts where id=$1",[artifact.id]),/canonical target has import records/);
  } finally{await db.close();}
 });

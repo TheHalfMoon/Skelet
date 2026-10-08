@@ -12,6 +12,11 @@ create index flows_version_idx on flows(product_version_id);
 create function skelet_flow_source_guard() returns trigger
 language plpgsql set search_path = public,pg_temp as $$
 begin
+ if tg_op = 'UPDATE' and
+   (new.source_id is distinct from old.source_id or
+    new.product_version_id is distinct from old.product_version_id) then
+   raise exception 'flow identity is immutable';
+ end if;
  if not exists(select 1 from product_versions pv join products p on p.id=pv.product_id
    where pv.id=new.product_version_id and p.source_id=new.source_id) then
    raise exception 'flow source must match product version source';
@@ -66,7 +71,7 @@ create index collections_workspace_idx on collections(workspace_id);
 create table collection_items (
  id uuid primary key default gen_random_uuid(),
  collection_id uuid not null references collections(id) on delete cascade,
- artifact_id uuid not null references artifacts(id) on delete restrict,
+ artifact_id uuid not null references artifacts(id) on delete cascade,
  saved_at timestamptz not null default now(),
  unique(collection_id,artifact_id)
 );
@@ -87,7 +92,9 @@ create table capture_runs (
   or (status in ('queued','running') and finished_at is null)),
  constraint capture_started check(status in ('queued','canceled') or started_at is not null),
  constraint capture_failed_error check(status <> 'failed' or nullif(trim(error_class),'') is not null),
- constraint capture_completed_evidence check(status <> 'completed' or result_evidence <> '{}'::jsonb)
+ constraint capture_completed_evidence check(status <> 'completed' or result_evidence <> '{}'::jsonb),
+ constraint capture_partial_observation check(status <> 'partial' or result_evidence <> '{}'::jsonb or error_class is not null),
+ constraint capture_timestamp_order check(finished_at is null or started_at is null or finished_at >= started_at)
 );
 create index capture_source_status_idx on capture_runs(source_id,status);
 
@@ -114,23 +121,54 @@ create table analysis_runs (
   or (status in ('queued','running') and finished_at is null)),
  constraint analysis_started check(status in ('queued','canceled') or started_at is not null),
  constraint analysis_failed_error check(status <> 'failed' or nullif(trim(error_class),'') is not null),
- constraint analysis_completed_evidence check(status <> 'completed' or result_evidence <> '{}'::jsonb)
+ constraint analysis_completed_evidence check(status <> 'completed' or result_evidence <> '{}'::jsonb),
+ constraint analysis_partial_observation check(status <> 'partial' or result_evidence <> '{}'::jsonb or error_class is not null),
+ constraint analysis_timestamp_order check(finished_at is null or started_at is null or finished_at >= started_at)
 );
 create unique index capture_source_id_id_uq on capture_runs(source_id,id);
 alter table analysis_runs add constraint analysis_capture_source_matches
  foreign key(source_id,capture_run_id) references capture_runs(source_id,id) on delete restrict;
 create index analysis_capture_idx on analysis_runs(capture_run_id);
 
+create function skelet_run_insert_guard() returns trigger
+language plpgsql set search_path = public,pg_temp as $$
+begin
+ if new.status <> 'queued' or new.started_at is not null
+    or new.finished_at is not null or new.error_class is not null
+    or new.result_evidence <> '{}'::jsonb then
+    raise exception 'new runs must begin queued with no outcome';
+ end if;
+ return new;
+end;
+$$;
+create trigger capture_run_insert before insert on capture_runs
+ for each row execute function skelet_run_insert_guard();
+create trigger analysis_run_insert before insert on analysis_runs
+ for each row execute function skelet_run_insert_guard();
 create function skelet_run_transition_guard() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  if old.status in ('completed','partial','failed','canceled') then
    raise exception 'terminal run cannot be modified';
  end if;
+ if (to_jsonb(new) - array['status','started_at','finished_at','result_evidence','error_class']) is distinct from
+    (to_jsonb(old) - array['status','started_at','finished_at','result_evidence','error_class']) then
+   raise exception 'run identity is immutable';
+ end if;
  if new.status = old.status then
-   if new.started_at is distinct from old.started_at or new.finished_at is distinct from old.finished_at
-     then raise exception 'run timestamps are immutable without a status transition'; end if;
+   if to_jsonb(new) is distinct from to_jsonb(old) then
+     raise exception 'run state evidence cannot change without transition';
+   end if;
    return new;
+ end if;
+ if old.status = 'queued' and new.status = 'running' then
+   if new.started_at is null or new.finished_at is not null
+      or new.error_class is not null or new.result_evidence <> '{}'::jsonb then
+      raise exception 'running transition must start without outcome';
+   end if;
+ end if;
+ if new.status in ('completed','partial','failed','canceled') and new.finished_at is null then
+   raise exception 'terminal transition needs finish timestamp';
  end if;
  if old.status = 'queued' and new.status in ('running','canceled') then return new; end if;
  if old.status = 'running' and new.status in ('completed','partial','failed','canceled') then return new; end if;
@@ -165,8 +203,16 @@ end;
 $$;
 -- AFTER INSERT prevents BEFORE triggers from rejecting an idempotent
 -- ON CONFLICT DO NOTHING before its existing mapping can be checked.
-create trigger import_target_guard after insert or update of canonical_type,canonical_id
+create trigger import_target_guard after insert
  on import_records for each row execute function skelet_import_target_guard();
+create function skelet_import_immutable() returns trigger
+language plpgsql set search_path = public,pg_temp as $$
+begin
+ raise exception 'import records are immutable';
+end;
+$$;
+create trigger import_immutable_guard before update on import_records
+ for each row execute function skelet_import_immutable();
 
 -- Preserve import-record referential integrity when canonical targets are removed.
 create function skelet_import_ref_delete_guard() returns trigger
@@ -188,3 +234,35 @@ create trigger import_asset_guard before delete on assets for each row
  execute function skelet_import_ref_delete_guard('asset');
 create trigger import_pattern_guard before delete on patterns for each row
  execute function skelet_import_ref_delete_guard('pattern');
+
+-- Canonical flow references cannot drift when referenced parent identities change.
+create function skelet_flow_parent_guard() returns trigger
+language plpgsql set search_path = public,pg_temp as $$
+begin
+ if TG_ARGV[0]='artifact' then
+  if (new.product_id is distinct from old.product_id or
+      new.product_version_id is distinct from old.product_version_id)
+     and exists(select 1 from flow_steps where artifact_id=old.id) then
+    raise exception 'flow step artifact identity is immutable';
+  end if;
+ elsif TG_ARGV[0]='product_version' then
+  if new.product_id is distinct from old.product_id and
+     exists(select 1 from flows where product_version_id=old.id) then
+    raise exception 'flow product version identity is immutable';
+  end if;
+ elsif TG_ARGV[0]='product' then
+  if new.source_id is distinct from old.source_id and exists(
+     select 1 from product_versions pv join flows f on f.product_version_id=pv.id
+     where pv.product_id=old.id) then
+    raise exception 'flow product source identity is immutable';
+  end if;
+ end if;
+ return new;
+end;
+$$;
+create trigger flow_artifact_parent_guard before update of product_id,product_version_id on artifacts
+ for each row execute function skelet_flow_parent_guard('artifact');
+create trigger flow_version_parent_guard before update of product_id on product_versions
+ for each row execute function skelet_flow_parent_guard('product_version');
+create trigger flow_product_parent_guard before update of source_id on products
+ for each row execute function skelet_flow_parent_guard('product');

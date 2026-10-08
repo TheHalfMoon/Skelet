@@ -198,5 +198,12 @@ export async function registerImport(tx:DbTransaction,input:{
  if(value.canonicalType!==input.canonicalType || value.canonicalId!==input.canonicalId) {
   throw new Error("Conflicting canonical identity for source import record");
  }
+ const proof=await tx.query(
+  "select metadata = $1::jsonb as matches from import_records where id=$2",
+  [JSON.stringify(input.metadata??{}),value.id],
+ );
+ if (requireRow(proof.rows).matches !== true) {
+  throw new Error("Conflicting source evidence for import replay");
+ }
  return {record:value,created:false};
 }
