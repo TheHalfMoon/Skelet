@@ -18,7 +18,8 @@ begin
    raise exception 'flow identity is immutable';
  end if;
  if not exists(select 1 from product_versions pv join products p on p.id=pv.product_id
-   where pv.id=new.product_version_id and p.source_id=new.source_id) then
+   where pv.id=new.product_version_id and p.source_id=new.source_id
+    for share of pv,p) then
    raise exception 'flow source must match product version source';
  end if;
  return new;
@@ -41,15 +42,20 @@ create index flow_steps_artifact_idx on flow_steps(artifact_id);
 create function skelet_flow_step_integrity() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 declare expected_version uuid; actual_version uuid; actual_product uuid; expected_product uuid;
+        expected_source uuid; actual_source uuid;
 begin
- select f.product_version_id,pv.product_id into expected_version,expected_product
+ select f.product_version_id,pv.product_id,f.source_id
+ into expected_version,expected_product,expected_source
  from flows f join product_versions pv on pv.id=f.product_version_id
- where f.id=new.flow_id for key share of f,pv;
+ where f.id=new.flow_id for share of f,pv;
  if not found then raise exception 'flow does not exist'; end if;
- select a.product_version_id,a.product_id into actual_version,actual_product
- from artifacts a where a.id=new.artifact_id for key share;
+ select a.product_version_id,a.product_id,a.source_id
+ into actual_version,actual_product,actual_source
+ from artifacts a where a.id=new.artifact_id for share;
  if not found then raise exception 'flow artifact does not exist'; end if;
- if actual_version is distinct from expected_version or actual_product is distinct from expected_product then
+ if actual_version is distinct from expected_version
+    or actual_product is distinct from expected_product
+    or actual_source is distinct from expected_source then
    raise exception 'flow step artifact does not belong to flow product version';
  end if;
  return new;
@@ -93,7 +99,7 @@ create table capture_runs (
  constraint capture_started check(status in ('queued','canceled') or started_at is not null),
  constraint capture_failed_error check(status <> 'failed' or nullif(trim(error_class),'') is not null),
  constraint capture_completed_evidence check(status <> 'completed' or result_evidence <> '{}'::jsonb),
- constraint capture_partial_observation check(status <> 'partial' or result_evidence <> '{}'::jsonb or error_class is not null),
+ constraint capture_partial_observation check(status <> 'partial' or result_evidence <> '{}'::jsonb or nullif(trim(error_class),'') is not null),
  constraint capture_timestamp_order check(finished_at is null or started_at is null or finished_at >= started_at)
 );
 create index capture_source_status_idx on capture_runs(source_id,status);
@@ -122,7 +128,7 @@ create table analysis_runs (
  constraint analysis_started check(status in ('queued','canceled') or started_at is not null),
  constraint analysis_failed_error check(status <> 'failed' or nullif(trim(error_class),'') is not null),
  constraint analysis_completed_evidence check(status <> 'completed' or result_evidence <> '{}'::jsonb),
- constraint analysis_partial_observation check(status <> 'partial' or result_evidence <> '{}'::jsonb or error_class is not null),
+ constraint analysis_partial_observation check(status <> 'partial' or result_evidence <> '{}'::jsonb or nullif(trim(error_class),'') is not null),
  constraint analysis_timestamp_order check(finished_at is null or started_at is null or finished_at >= started_at)
 );
 create unique index capture_source_id_id_uq on capture_runs(source_id,id);
@@ -211,7 +217,7 @@ begin
  raise exception 'import records are immutable';
 end;
 $$;
-create trigger import_immutable_guard before update on import_records
+create trigger import_immutable_guard before update or delete on import_records
  for each row execute function skelet_import_immutable();
 
 -- Preserve import-record referential integrity when canonical targets are removed.
@@ -241,7 +247,8 @@ language plpgsql set search_path = public,pg_temp as $$
 begin
  if TG_ARGV[0]='artifact' then
   if (new.product_id is distinct from old.product_id or
-      new.product_version_id is distinct from old.product_version_id)
+      new.product_version_id is distinct from old.product_version_id or
+      new.source_id is distinct from old.source_id)
      and exists(select 1 from flow_steps where artifact_id=old.id) then
     raise exception 'flow step artifact identity is immutable';
   end if;
@@ -260,7 +267,7 @@ begin
  return new;
 end;
 $$;
-create trigger flow_artifact_parent_guard before update of product_id,product_version_id on artifacts
+create trigger flow_artifact_parent_guard before update of product_id,product_version_id,source_id on artifacts
  for each row execute function skelet_flow_parent_guard('artifact');
 create trigger flow_version_parent_guard before update of product_id on product_versions
  for each row execute function skelet_flow_parent_guard('product_version');

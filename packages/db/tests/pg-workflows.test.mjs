@@ -161,3 +161,41 @@ test("real PostgreSQL prevents import-target deletion across two independent tra
   assert.equal(mapping.rows[0].canonical_id,product.id);
  }finally{await other.close();await migrateDown(db);await db.close();}
 });
+
+test("real PostgreSQL parent reparent waits for concurrently created flow",{
+ skip:!enabled,timeout:30000},async()=>{
+ fixtureGuard();
+ const db=await openDatabase({connectionString});
+ const other=await openDatabase({connectionString});
+ try{
+  await migrateUp(db);
+  const source=await createSource(db,{key:"pg-flow-lock",kind:"fixture"});
+  const alien=await createSource(db,{key:"pg-flow-alien",kind:"fixture"});
+  const product=await createProduct(db,{sourceId:source.id,title:"Locked flow product"});
+  const version=await createProductVersion(db,{productId:product.id,versionNo:1});
+  let signal;let resume;
+  const ready=new Promise(resolve=>{signal=resolve;});
+  const hold=new Promise(resolve=>{resume=resolve;});
+  const writing=db.transaction(async(tx)=>{
+   await createFlow(tx,{sourceId:source.id,productVersionId:version.id,title:"Pinned flow"});
+   signal();
+   await hold;
+  });
+  await ready;
+  let settled=false;
+  const changing=other.query("update products set source_id=$1 where id=$2",
+   [alien.id,product.id])
+   .then(()=>({ok:true}),error=>({ok:false,error}))
+   .finally(()=>{settled=true;});
+  try{
+   await new Promise(resolve=>setTimeout(resolve,150));
+   assert.equal(settled,false,"product reparent must wait for flow creation lock");
+  }finally{resume();}
+  await writing;
+  const result=await changing;
+  assert.equal(result.ok,false);
+  assert.match(result.error.message,/flow product source identity is immutable/);
+  const parent=await db.query("select source_id from products where id=$1",[product.id]);
+  assert.equal(parent.rows[0]?.source_id,source.id);
+ } finally{await other.close();await migrateDown(db);await db.close();}
+});

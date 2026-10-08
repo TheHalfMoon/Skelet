@@ -260,6 +260,9 @@ test("raw SQL cannot rebind existing flows or change their referenced parents",a
   await assert.rejects(()=>db.query(
    "update products set source_id=$1 where id=$2",[alien.id,product.id]),
    /flow product source identity is immutable/);
+  await assert.rejects(()=>db.query(
+   "update artifacts set source_id=$1 where id=$2",[alien.id,artifact.id]),
+   /flow step artifact identity is immutable/);
   const other=await createProduct(db,{sourceId:source.id,title:"Other"});
   await assert.rejects(()=>db.query(
    "update product_versions set product_id=$1 where id=$2",[other.id,version.id]),
@@ -279,6 +282,8 @@ test("import records reject raw updates to a different valid canonical target",a
    [second.id,first.record.id]),/import records are immutable/);
   await assert.rejects(()=>db.query(
    "update import_records set external_id='replaced' where id=$1",
+   [first.record.id]),/import records are immutable/);
+  await assert.rejects(()=>db.query("delete from import_records where id=$1",
    [first.record.id]),/import records are immutable/);
   await assert.rejects(()=>db.query(
    "delete from artifacts where id=$1",[artifact.id]),/canonical target has import records/);
