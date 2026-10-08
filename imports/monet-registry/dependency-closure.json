@@ -1,0 +1,1493 @@
+{
+ "schema_version": "1",
+ "grain": "G01-02c",
+ "source": {
+  "repository": "https://github.com/monet-design/monet-registry",
+  "commit": "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+  "tree": "9c0096e607a067a4f1917f5d49aab1a4dd1b9b46",
+  "verification_method": "git blob API fetch per path at pinned commit; SHA-1 over \"blob <len>\\0<content>\" matched source-tree.tsv for all 45 candidates",
+  "verification_date": "2026-10-08"
+ },
+ "candidate_method": "docs/provenance/monet-code-snapshot-audit.json code_candidates (45); quarantined set (45) untouched",
+ "quarantine_decision": {
+  "action": "reaffirm-total-exclusion",
+  "prefixes": [
+   "agent-input/",
+   "data/",
+   "public/",
+   "src/components/registry/"
+  ],
+  "quarantined_files": [
+   ".gitignore",
+   "docs/api.md",
+   "docs/customization-guide.md",
+   "docs/framer-scrape-pipeline.md",
+   "docs/url-to-registry-pipeline.md",
+   "eslint.config.mjs",
+   "package.json",
+   "scripts/generate-page-component.ts",
+   "scripts/generate-registry.ts",
+   "scripts/generate-shadcn-registry.ts",
+   "scripts/migrate-metadata.ts",
+   "scripts/query-metadata.ts",
+   "scripts/scrape/framer-extractor.ts",
+   "scripts/scrape/html-analyzer.ts",
+   "scripts/scrape/scrape-website.ts",
+   "scripts/scrape/split-sections.ts",
+   "scripts/scrape/types.ts",
+   "scripts/screenshot/README.md",
+   "scripts/screenshot/browser.ts",
+   "scripts/screenshot/cli.ts",
+   "scripts/screenshot/screenshot.ts",
+   "scripts/search-metadata.ts",
+   "scripts/stats-metadata.ts",
+   "scripts/validate-metadata.ts",
+   "src/app/api/_common/constants/cache-tags.ts",
+   "src/app/api/_common/index.ts",
+   "src/app/api/_common/services/code-reader.service.ts",
+   "src/app/api/_common/services/index.ts",
+   "src/app/api/_common/services/page-registry.service.ts",
+   "src/app/api/_common/services/page-search.service.ts",
+   "src/app/api/_common/services/registry.service.ts",
+   "src/app/api/_common/services/search.service.ts",
+   "src/app/api/_common/types/index.ts",
+   "src/app/api/_common/types/responses.ts",
+   "src/app/api/_common/utils/constants.ts",
+   "src/app/api/_common/utils/errors.ts",
+   "src/app/api/_common/utils/index.ts",
+   "src/app/api/v1/revalidate/route.ts",
+   "src/config/site-data.json",
+   "src/config/site.tsx",
+   "src/lib/constants.ts",
+   "src/lib/search/index.ts",
+   "src/lib/search/types.ts",
+   "src/types/categories.ts",
+   "src/types/metadata.ts"
+  ],
+  "unquarantined": []
+ },
+ "minimum_module_selection": {
+  "transplanted_now": [
+   "scripts/screenshot/queue.ts"
+  ],
+  "selected_next_G01_03b": [
+   "src/lib/utils.ts"
+  ],
+  "rule": "Each future transplant must prove dependency closure the same way before copying: all edges resolve to node builtins, pinned npm externals, or already-transplanted Skelet paths."
+ },
+ "security_notes": [
+  "browser.ts launches Chromium with --no-sandbox and a hardcoded localhost origin: incompatible with Skelet worker isolation and SSRF policy. Never transplant verbatim.",
+  "middleware.ts fails OPEN when API_BASIC_AUTH_USER/PASSWORD are unset. Rejected as an auth pattern; Skelet auth fails closed.",
+  "state.ts JSON.parses a local state file without validation; tolerable for a local CLI resume file, not a pattern for untrusted input."
+ ],
+ "files": [
+  {
+   "path": "components.json",
+   "blob_sha1": "c7c10b8e7b7b468930f12e4ceac201206b3d5d3f",
+   "byte_length": 421,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [
+     "https://ui.shadcn.com/schema.json"
+    ],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": [
+    "src/app/globals.css"
+   ]
+  },
+  {
+   "path": "e2e/api/badge.test.ts",
+   "blob_sha1": "470fdcc7fc449d305e5527d53dc2625867e53a1f",
+   "byte_length": 2302,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/categories.test.ts",
+   "blob_sha1": "86ac4aab190f811e58e77c927d626c6fccff8f01",
+   "byte_length": 2400,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/components-code.test.ts",
+   "blob_sha1": "407924af629712427103f26161cb78fb8a6e6f3a",
+   "byte_length": 4170,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/components-detail.test.ts",
+   "blob_sha1": "08f5e9e8b420a37db5a4eb4aae5fe6bf173e1057",
+   "byte_length": 4513,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/components-search.test.ts",
+   "blob_sha1": "ab6b6ecd70e1a5bbc4aaa0fff0cac901564da59f",
+   "byte_length": 3740,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/components.test.ts",
+   "blob_sha1": "b8b51fef2239fb4c1ee807c906b9c6f3cc253e30",
+   "byte_length": 5281,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/filters.test.ts",
+   "blob_sha1": "ece2cf2357bcbac057bf2ef3b53da63148dd66b6",
+   "byte_length": 2785,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/health.test.ts",
+   "blob_sha1": "d4f8b1de6e5857bef9d40554bf77aa8e281f0b8b",
+   "byte_length": 1012,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/pages-detail.test.ts",
+   "blob_sha1": "1f71bb3d582b3f3e764ea2d4e3b3ac273068208f",
+   "byte_length": 6489,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/pages-search.test.ts",
+   "blob_sha1": "0fb1d59dd03c499b98e23eb6cd53824bb32fb82e",
+   "byte_length": 5883,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/pages-sections.test.ts",
+   "blob_sha1": "d040cff5c1a1df57eb15737a77d877af5f494795",
+   "byte_length": 6258,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/pages-stats.test.ts",
+   "blob_sha1": "487302a64be2235baa855c2a147b6f591df9495a",
+   "byte_length": 4776,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/api/pages.test.ts",
+   "blob_sha1": "1ac3e528085ff31091a81cd7971f0af1a9a20f5b",
+   "byte_length": 8394,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "fs",
+    "js-yaml",
+    "path",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "node-builtin",
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [
+     "existsSync",
+     "readFileSync",
+     "readdirSync"
+    ],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": [
+    "should return pages from the correct location (src/components/pages)",
+    "src/components/pages"
+   ]
+  },
+  {
+   "path": "e2e/api/stats.test.ts",
+   "blob_sha1": "93f66d70e11e8d63ff41206ce296eef099dc0096",
+   "byte_length": 4225,
+   "blob_verified": true,
+   "direct_imports": [
+    "../helpers/api-client",
+    "vitest"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external",
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/helpers/api-client.ts",
+   "blob_sha1": "d1b1ecf48f8db85dd7465add5aabcf584c8f5929",
+   "byte_length": 1115,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [
+     "API_BASE_URL",
+     "API_BASIC_AUTH_PASSWORD",
+     "API_BASIC_AUTH_USER"
+    ],
+    "network_refs": [
+     "http://localhost:4413"
+    ],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "e2e/setup.ts",
+   "blob_sha1": "5dbe6f111b2a8693315f583c84ecd59ba1d4f9e5",
+   "byte_length": 604,
+   "blob_verified": true,
+   "direct_imports": [
+    "wait-on"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Requires a running donor application (localhost + generated corpus). Contract-test patterns (health, search, filters, stats envelopes) are reference for Skelet-owned API tests; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [
+     "API_BASE_URL"
+    ],
+    "network_refs": [
+     "http://localhost:4413"
+    ],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [
+     "process.exit"
+    ],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "next.config.ts",
+   "blob_sha1": "2c8e2d1c6747e4dfdf954654fe4c3bf8262ed676",
+   "byte_length": 633,
+   "blob_verified": true,
+   "direct_imports": [
+    "next"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "pnpm-lock.yaml",
+   "blob_sha1": "dcf41c6ab6bd0b6b98c95d1203efc42f3fc04973",
+   "byte_length": 306976,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "reference-only",
+   "reason": "Donor-only lockfile pinning the donor dependency set. Documents upstream versions; never reused for the Skelet install.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [
+     "spawn"
+    ],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "postcss.config.mjs",
+   "blob_sha1": "5d6d8457f78b7118cdd4dd97c1e38da55a80d608",
+   "byte_length": 146,
+   "blob_verified": true,
+   "direct_imports": [
+    "postcss-load-config"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "scripts/screenshot/queue.ts",
+   "blob_sha1": "ec78d916afc88d7ed6ee72a0b16dde9f7a2fbbe2",
+   "byte_length": 481,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "transplanted",
+   "reason": "Zero imports; dependency-closed. Transplanted verbatim in G01-02b (PR #7).",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "scripts/screenshot/reset.ts",
+   "blob_sha1": "be1a617d6a36a3961edae3f094328e6cd6f39506",
+   "byte_length": 950,
+   "blob_verified": true,
+   "direct_imports": [
+    "./state",
+    "fs",
+    "path"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "node-builtin",
+    "relative-sibling"
+   ],
+   "decision": "rejected",
+   "reason": "Destructively deletes PNGs under the excluded donor corpus path public/registry/preview. No Skelet equivalent needed; artifact expiry belongs to the storage layer.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [
+     "unlinkSync"
+    ],
+    "fs_reads": [
+     "existsSync",
+     "readdirSync"
+    ],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": [
+    "../../public/registry/preview"
+   ]
+  },
+  {
+   "path": "scripts/screenshot/state.ts",
+   "blob_sha1": "b53192577d7383ddc9ba16dd2d596f136768167c",
+   "byte_length": 1941,
+   "blob_verified": true,
+   "direct_imports": [
+    "fs",
+    "path"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "node-builtin"
+   ],
+   "decision": "reference-only",
+   "reason": "Node builtins only, but state file path is donor-scripts-coupled and JSON.parse input is unvalidated. Resume-state pattern is reference for the Skelet worker store; no verbatim transplant.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [
+     "writeFileSync"
+    ],
+    "fs_reads": [
+     "existsSync",
+     "readFileSync"
+    ],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": [
+    "screenshot-state.json"
+   ]
+  },
+  {
+   "path": "src/app/api/_common/constants/index.ts",
+   "blob_sha1": "03898719e42f13bf09a8a5bea9f0bb33e1108a90",
+   "byte_length": 30,
+   "blob_verified": true,
+   "direct_imports": [
+    "./cache-tags"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "relative-sibling"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/health/route.ts",
+   "blob_sha1": "af3411418db8ad5faee6d7b0b8961199e9bc513e",
+   "byte_length": 613,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/badge/route.ts",
+   "blob_sha1": "e5a82c2c05f72bccd869f1243f052690273099de",
+   "byte_length": 854,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [
+     "https://shields.io/badges/endpoint-badge"
+    ],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/categories/route.ts",
+   "blob_sha1": "a965e3634b434b24d1622686a0b819955df2d763",
+   "byte_length": 1080,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/components/[id]/code/route.ts",
+   "blob_sha1": "904b1288435e3df66d750a7fec94342f8f142957",
+   "byte_length": 1818,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/components/[id]/route.ts",
+   "blob_sha1": "359a9147c524608df4e07c31d860004691c9a920",
+   "byte_length": 3054,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/components/route.ts",
+   "blob_sha1": "972dabfa5bc584953598b53c4f9b21f0c8fc07d2",
+   "byte_length": 2494,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/components/search/route.ts",
+   "blob_sha1": "bdefd4535b86c699b1fdc3e15a922cdc27bab906",
+   "byte_length": 2409,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/filters/route.ts",
+   "blob_sha1": "32d3ebd17353577490e370e495e4bd43f97aa7d0",
+   "byte_length": 3781,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/pages/[id]/route.ts",
+   "blob_sha1": "d0c5d38710d278d371f60eae169b262f8377c9ac",
+   "byte_length": 3754,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/pages/[id]/sections/route.ts",
+   "blob_sha1": "766cf99800181cdcb759fe8de99ee3715cff558d",
+   "byte_length": 2669,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/pages/route.ts",
+   "blob_sha1": "6d8494336da6a85e72cbf37e117b96856dbe9f6c",
+   "byte_length": 2443,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/pages/search/route.ts",
+   "blob_sha1": "c7d10db17966ed8fa851e4ba13edb28991c08ba7",
+   "byte_length": 2056,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/pages/stats/route.ts",
+   "blob_sha1": "fc708d8730773fb51f7f5686f45729dac47a0de1",
+   "byte_length": 1135,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/app/api/v1/stats/route.ts",
+   "blob_sha1": "ad4219bbb72abc8a4b9ebc54705687d1eebd587b",
+   "byte_length": 3232,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/app/api/_common/services",
+    "@/app/api/_common/types",
+    "@/app/api/_common/utils",
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Imports @/app/api/_common/services|types|utils which are NOT in the candidate set, and services/code-reader.service.ts carries the recorded excluded-corpus edge into src/components/registry/. Response envelope and error-format shapes are reference for Skelet REST design.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/env.d.ts",
+   "blob_sha1": "151b4ef27eee705ac469b48e6ef34cf63ab5161d",
+   "byte_length": 239,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/hooks/use-toast.ts",
+   "blob_sha1": "02e111d81dd774038ac483c11b5f5a8f8aceb024",
+   "byte_length": 3948,
+   "blob_verified": true,
+   "direct_imports": [
+    "@/components/ui/toast",
+    "react"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "candidate-internal",
+    "npm-external"
+   ],
+   "decision": "rejected",
+   "reason": "Imports excluded src/components/ui/toast. Dispensable UI hook; no transplant with or without its excluded dependency.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/lib/utils.ts",
+   "blob_sha1": "a5ef193506d07d0459fec4f187af08283094d7c8",
+   "byte_length": 169,
+   "blob_verified": true,
+   "direct_imports": [
+    "clsx",
+    "tailwind-merge"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external"
+   ],
+   "decision": "selected-next",
+   "reason": "Pure cn() helper over pinned clsx + tailwind-merge; no corpus coupling. Selected as the single G01-03b transplant candidate.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/middleware.ts",
+   "blob_sha1": "1672cae7449ef4b7a71206f40597405b5ced0444",
+   "byte_length": 2102,
+   "blob_verified": true,
+   "direct_imports": [
+    "next/server"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Basic-auth middleware pattern is reference only. Explicitly NOT copied: it fails OPEN when env credentials are unconfigured. Skelet auth must fail closed (SECURITY.md).",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [
+     "API_BASIC_AUTH_PASSWORD",
+     "API_BASIC_AUTH_USER"
+    ],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "src/styles/utils.css",
+   "blob_sha1": "541caea55c7deaad3391d6293a45faff8fbef2e3",
+   "byte_length": 2713,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  },
+  {
+   "path": "tsconfig.json",
+   "blob_sha1": "09f0fd63275e8a69fb2cd7b1cfd209b8c6b1e103",
+   "byte_length": 707,
+   "blob_verified": true,
+   "direct_imports": [],
+   "css_imports": [],
+   "edge_classes": [],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": [
+    ".next/types/**/*.ts"
+   ]
+  },
+  {
+   "path": "vitest.e2e.config.mts",
+   "blob_sha1": "f0339e68a0eaa4bdf6dfcb1b0ac484954a697aff",
+   "byte_length": 701,
+   "blob_verified": true,
+   "direct_imports": [
+    "path",
+    "vite",
+    "vitest/config"
+   ],
+   "css_imports": [],
+   "edge_classes": [
+    "node-builtin",
+    "npm-external"
+   ],
+   "decision": "reference-only",
+   "reason": "Donor project configuration. Informs the Skelet-owned G01-03a shell (Next.js + TypeScript strict + pnpm) but is not copied verbatim; Skelet identity and dependency set differ.",
+   "license_header": "none",
+   "runtime_surface": {
+    "env_reads": [],
+    "network_refs": [
+     "http://localhost:4413"
+    ],
+    "fs_writes": [],
+    "fs_reads": [],
+    "process_control": [],
+    "server_or_browser": []
+   },
+   "excluded_refs": []
+  }
+ ],
+ "license_basis": "No per-file license headers were found in any of the 45 candidates (license_header=none for all). The donor tree contains no LICENSE, NOTICE, COPYING, or COPYRIGHT file (manifest rights_gate evidence). Copying rests solely on the recorded code-only founder authorization with upstream_license_status=not_verified; each transplant grain must re-assert this basis and preserve attribution.",
+ "external_pins": {
+  "note": "Exact specifiers from the pinned donor pnpm-lock.yaml (candidate blob). Skelet transplant grains re-pin independently; recorded here so version drift is detectable.",
+  "clsx": "2.1.1",
+  "tailwind-merge": "2.6.0",
+  "typescript": "5.9.3",
+  "next": "15.1.9",
+  "puppeteer": "24.31.0",
+  "vitest": "4.0.15",
+  "wait-on": "9.0.3",
+  "js-yaml": "4.1.1",
+  "react": "19.2.1",
+  "vite": "7.2.6",
+  "playwright": null
+ },
+ "non_candidate_context": {
+  "scope": "Transitive internals of src/app/api/_common/* (14 files), read-only analysis at the pinned commit to adjudicate the 13 API routes. No bytes copied; these paths are not candidates.",
+  "all_blob_verified": true,
+  "decisive_edges": [
+   "code-reader.service.ts dynamically imports @/components/registry/${componentId}: every route reaching the services barrel transitively reaches the excluded corpus.",
+   "page-search.service.ts and search.service.ts require @orama/orama: an additional npm external for any search-route reuse.",
+   "registry.service.ts, page-registry.service.ts read the corpus via fs/promises and next/cache: Next-runtime coupled.",
+   "Leaf modules types/responses.ts, utils/constants.ts, utils/errors.ts (-> types) are corpus-free; reusable only via direct leaf imports that bypass the _common barrels."
+  ],
+  "files": [
+   {
+    "path": "src/app/api/_common/constants/cache-tags.ts",
+    "sha": "67e7dbcde279b840b0f3798e51fda1c0408dce74",
+    "size": 756,
+    "blob_verified": true,
+    "imports": []
+   },
+   {
+    "path": "src/app/api/_common/constants/index.ts",
+    "sha": "03898719e42f13bf09a8a5bea9f0bb33e1108a90",
+    "size": 30,
+    "blob_verified": true,
+    "imports": [
+     "./cache-tags"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/index.ts",
+    "sha": "8bc0b7188e32da0e2e1382015bff1a1e4a601f5e",
+    "size": 256,
+    "blob_verified": true,
+    "imports": [
+     "./constants",
+     "./services",
+     "./types",
+     "./utils"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/services/code-reader.service.ts",
+    "sha": "85fbef9ab3492ba204e56249f0a6bc2f68f51d2e",
+    "size": 4063,
+    "blob_verified": true,
+    "imports": [
+     "../types",
+     "@/components/registry/${componentId}",
+     "fs/promises",
+     "next/cache",
+     "path"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/services/index.ts",
+    "sha": "172b40ad704d5013b7eb24da219b72b434660fdc",
+    "size": 465,
+    "blob_verified": true,
+    "imports": [
+     "./code-reader.service",
+     "./page-registry.service",
+     "./page-search.service",
+     "./registry.service",
+     "./search.service"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/services/page-registry.service.ts",
+    "sha": "7b27ddd6aa1a70519274d15d01391238cb660bee",
+    "size": 8778,
+    "blob_verified": true,
+    "imports": [
+     "../constants",
+     "../types",
+     "fs/promises",
+     "next/cache",
+     "path"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/services/page-search.service.ts",
+    "sha": "5438c78eeb96f96e33943828ad27c722caf4e427",
+    "size": 3847,
+    "blob_verified": true,
+    "imports": [
+     "../types",
+     "./page-registry.service",
+     "@orama/orama"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/services/registry.service.ts",
+    "sha": "c49c7ca26471246a20c6dcbea137036111761c73",
+    "size": 6186,
+    "blob_verified": true,
+    "imports": [
+     "../constants",
+     "../types",
+     "fs/promises",
+     "next/cache",
+     "path"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/services/search.service.ts",
+    "sha": "25c0c5505fe518452c0bd5888534e1d49670fadc",
+    "size": 4540,
+    "blob_verified": true,
+    "imports": [
+     "../types",
+     "../utils",
+     "./registry.service",
+     "@orama/orama"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/types/index.ts",
+    "sha": "f7f9de30458d3dc037ba5f49193b77a2df70b1df",
+    "size": 64,
+    "blob_verified": true,
+    "imports": [
+     "./responses"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/types/responses.ts",
+    "sha": "b11ac3e55338b79a3c38d85cda87d44fd4d96bbe",
+    "size": 9460,
+    "blob_verified": true,
+    "imports": []
+   },
+   {
+    "path": "src/app/api/_common/utils/constants.ts",
+    "sha": "a0ae18da153dced7cb55b3536458f91c6dcbc44e",
+    "size": 2280,
+    "blob_verified": true,
+    "imports": []
+   },
+   {
+    "path": "src/app/api/_common/utils/errors.ts",
+    "sha": "0e34c04026fc49e8bc3142b0a7b63cef6c6a4fcc",
+    "size": 4270,
+    "blob_verified": true,
+    "imports": [
+     "../types"
+    ]
+   },
+   {
+    "path": "src/app/api/_common/utils/index.ts",
+    "sha": "a326d836f20da7c4ff0a3af275251dc274220fe1",
+    "size": 89,
+    "blob_verified": true,
+    "imports": [
+     "./constants",
+     "./errors"
+    ]
+   }
+  ]
+ }
+}
