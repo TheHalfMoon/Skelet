@@ -200,3 +200,62 @@ jobs:
 
       - name: Run Node.js queue contract tests
         run: node --experimental-strip-types --test tests/node/monet-screenshot-queue.test.mjs
+
+  db-foundation:
+    name: db-foundation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: skelet_test
+          POSTGRES_USER: skelet_test
+          POSTGRES_PASSWORD: local_ci_fixture_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U skelet_test -d skelet_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact HEAD
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.23.1"
+
+      - name: Install pinned pnpm
+        run: npm install -g pnpm@9.12.0
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint DB package
+        run: pnpm --filter skelet-db lint
+
+      - name: Strict typecheck DB package
+        run: pnpm --filter skelet-db typecheck
+
+      - name: Run DB migration and domain tests
+        run: node --experimental-strip-types --test packages/db/tests/db-foundation.test.mjs
+
+      - name: Real PostgreSQL transaction and concurrency integration tests
+        env:
+          SKELET_TEST_DATABASE_URL: postgresql://skelet_test:local_ci_fixture_only@127.0.0.1:5432/skelet_test
+          SKELET_DB_TEST_CONFIRM: "yes"
+        run: node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
