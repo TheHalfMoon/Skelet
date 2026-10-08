@@ -1,0 +1,1 @@
+{"answers":{"contracts":{"noul":0.6,"type":"noul"},"correctness":{"noul":0.25,"type":"noul"},"scope_integrity":{"noul":0.54,"type":"noul"},"security":{"noul":0.69,"type":"noul"}},"latency_ms":416,"model":"jev-1.13.0","ok":true,"usage":{"input_tokens":735,"output_tokens":73}}
