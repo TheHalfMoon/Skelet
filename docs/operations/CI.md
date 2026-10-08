@@ -43,6 +43,15 @@ The web job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. 
 
 A passing bootstrap compile or planning validator is never reported as this application gate.
 
+### `worker`
+
+The worker job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It performs the same frozen install, then must pass the Skelet worker shell gate on the exact candidate revision:
+
+- `eslint` over `apps/worker`;
+- strict `tsc --noEmit`;
+- the worker Node.js test suites (`apps/worker/tests/`);
+- the `health` command, which validates the environment and prints the worker health contract.
+
 ### `monet-screenshot-queue`
 
 The isolated Monet screenshot-queue code transplant is validated in its own
