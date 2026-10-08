@@ -274,6 +274,21 @@ Lens output contract:
 
 Lens MUST clearly distinguish observed facts, deterministic inference, heuristic inference, and model-generated interpretation.
 
+### 8.1 Lens Build Kit successor (P09b, normative; tracks issue #9)
+
+The Lens report (§8) is extended by a bounded successor phase **P09b — URL to ready-to-build implementation kit**, which turns a qualified Lens analysis into a downloadable, agent-usable build starter. P09b is an additive capability of Skelet Lens, not a new editor, app builder, or clone of the analyzed site's proprietary source.
+
+Build Kit execution contract:
+- Stable `AnalysisRun`/kit identifiers; idempotent submission; poll, cancel, retry, and resume operations; artifact expiration; tenant-scoped storage and access; per-job quota accounting; versioned schemas; deterministic error classification.
+- Explicit job states: queued, capturing, extracting, generating, validating, completed, partial, failed, canceled. Never return a successful empty artifact.
+- Bounded capture scope: single public page by default; explicitly selected same-site pages or bounded sitemap crawl only, under configured page/depth/byte/time budgets. Preserve per-page coverage gaps instead of claiming complete-site coverage.
+- Generated code is expressly distinguished from the original application source; unknown server logic and interactive behavior are explicit stubs. The generated starter MUST install and build from a clean checkout.
+- Per-item rights classification: restricted, trademarked, or unknown-license bytes MUST NOT enter downloadable artifacts. Support withdrawal, deletion, and derivative/cache purge.
+- No mandatory paid inference, paid crawler, GPU, or external model for the deterministic minimal path; graceful partial results on provider outage.
+- P09b is a successor to qualified Lens capture (R4 gate and basic Lens report MUST be complete first). P14 Create/OpenPencil is explicitly NOT a prerequisite, and the kit MUST NOT depend on it.
+
+Build Kit layout and schemas are frozen by the P09b implementation grains before code lands; P15 commercial launch acceptance explicitly includes the URL-to-Build-Kit journey. This planning amendment alone does not implement the feature and closes no P0 implementation risk.
+
 ## 9. Agent Platform Contract
 
 Canonical remote endpoint:
@@ -551,6 +566,17 @@ Exit criteria:
 - malicious/private-network URL test corpus fails closed.
 - no external LLM is required for the qualified path.
 
+### P09b — Lens Build Kit (URL to ready-to-build kit; tracks issue #9)
+Depends: P09 Lens capture/report qualified (R4 gate), plus P03 canonical graph and P05 job lifecycle via P09.
+Deliverables:
+- versioned Build Kit schemas and fixture-validated ZIP layout (manifest, analysis pages/sections/components, DTCG tokens, CSS/Tailwind/shadcn themes, rights-classified asset inventory, screenshots, editable React/Next.js + Tailwind starter, provenance, AGENT.md task pack);
+- AnalysisRun/kit job lifecycle with queued/capturing/extracting/generating/validating/completed/partial/failed/canceled states, idempotent create, poll/cancel/retry/resume, expiry, tenant scoping, and quota accounting;
+- UI, REST, MCP, CLI/SDK parity over stable analysis/kit IDs and `skelet://lens/{analysis_id}` URIs, so a second agent can recover the same kit without the original session.
+Exit criteria:
+- rights-cleared 3-page fixture produces desktop/mobile captures, deterministic tokens, component inventory, source-linked evidence, schema-valid ZIP, and a generated starter that installs, typechecks, builds, starts, and passes responsive/keyboard smoke on a clean checkout;
+- restricted assets are excluded from downloadable artifacts; SSRF/redirect/DNS-rebinding, prompt-injection, tenant-leakage, path-traversal, quota, cancellation/retry, and provider-outage tests pass;
+- no mandatory paid inference or P14 Create dependency on the qualified path.
+
 ### P10 — Research Corpus + Flows
 Deliverables:
 - authorized app/site/screen/flow import adapters.
@@ -626,12 +652,15 @@ P03 -> P04
 P05 -> P06 -> P07
 P06 + P03 -> P08
 P05 + P03 -> P09
+P09 -> P09b (Build Kit successor; R4 Lens report and job lifecycle must be qualified first; P14 Create is not a prerequisite)
 P03 + P05 -> P10
 P06 + P07 + P09 + P10 -> P11
 P08 + P11 -> P12
 P09 + P10 + P11 -> P13
 P08 + P11 + P12 -> P14
-P04 + P06 + P08 + P09 + P10 + P11 + P12 -> P15
+P04 + P06 + P08 + P09 + P09b + P10 + P11 + P12 -> P15
+
+Commercial launch acceptance explicitly includes the URL-to-Build-Kit journey (paste a public URL, receive a reproducible, downloadable, agent-recoverable implementation kit whose generated starter installs and builds from a clean checkout).
 
 Commercial launch MUST NOT be blocked by P13 Time Machine or P14 Create if the core launch journeys are qualified.
 
@@ -639,7 +668,7 @@ Minimum paid launch scope:
 - unified search
 - Assets: icons/logos/fonts/components
 - Research: products/sites/screens/flows from qualified corpus
-- Lens URL analysis
+- Lens URL analysis and URL-to-Build-Kit export (P09b)
 - collections/reference packs
 - Remote MCP + skills + REST API
 - auth/workspaces/billing
@@ -868,3 +897,26 @@ Version independently:
 - database schema is internal and may evolve through forward migrations; public APIs never expose table shapes as contracts.
 
 Contract fixtures are stored in packages/testkit/contracts and diffed in CI. A change to a public schema MUST include an explicit compatibility classification in the PR.
+
+## 23. 2026-10-08 Architecture Review — Normative Plan Hardening
+
+This section is a **planning amendment**, not product implementation. It becomes canonical only after the governing PR is merged and its exact post-merge checks pass.
+
+The core P00–P15 product vision remains unchanged, but the following execution corrections take precedence over earlier implementation-sequencing assumptions if they conflict:
+
+1. **No runnable-Monet assumption.** The 90 Monet source files selected in G01-01 and classified in G01-02a are not a complete runnable Next.js product. G01-02 successor grains MUST import one dependency-closed, verified capability at a time; G01-03 MAY establish a clean Skelet-owned app shell instead of recreating excluded donor UI/branding. Bootstrap Python tests or an isolated copied TypeScript helper do not prove a working product.
+2. **Progress by tested user journeys.** S0 must integrate rights-qualified icon/component ingestion, canonical persistence, search, human inspection, collection saving, reference-pack export, and REST/MCP recovery from another client before expanding to S1 safe URL Lens. This does not shrink the existing paid launch scope.
+3. **Modern MCP contract.** Target the official 2026-07-28 MCP protocol with tested compatibility; OAuth metadata/audience binding/PKCE/issuer, Tasks extension and REST fallback, official MCP Apps SDK and explicit host support. Never assume MCP Apps or Tasks exist in every client.
+4. **Strict rights and egress boundaries.** Dataset, screenshot, icon/font/logo, model and trademark rights are separate from donor source-code permission. Socket-level browser egress isolation and prompt-injection defenses are mandatory for Lens, beyond URL string checks. Takedown and derivative deletion are release requirements.
+5. **Measured quality and costs.** Lexical search and local/offline path before optional embeddings. Relevance judgments, exact model/runtime pins, performance baseline, quotas, browser-minute/storage/egress cost attribution and commercial margin evidence precede scaling; no impossible promise of free public infrastructure.
+6. **Clear product responsibilities.** Skelet owns research/evidence/asset registry and agent retrieval. Lilac/OpenPencil own edit/canvas; Kernux/Deskal provide qualified access capabilities only; Morize/Orcel/Gomrey/Ineractive are optional adapter/consumer relationships, not unverified runtime dependencies.
+7. **Traceable readiness.** Every implementation grain maps to the R0–R7 gate and explicit capability state, and every P0 gap must be actually closed before the corresponding public feature/launch. A passing planning validator never substitutes for full application tests.
+8. **Preserve governance.** Graft, Jev, Alibaba OCR/delegation, exact-HEAD GitHub CI, normal merges and verified post-merge closeouts remain non-waivable.
+
+The detailed decisions, source matrix and prioritized acceptance ledger below are **normative companion documents** for any future implementation PR:
+
+- [Architecture and Execution Decisions](architecture/PLAN_HARDENING_2026-10-08.md)
+- [Ready Source / Donor Reuse Decisions](research/DONOR_REUSE_DECISIONS_2026-10-08.md)
+- [Gap Register and Mandatory Acceptance](operations/PLAN_GAP_REGISTER_2026-10-08.md)
+
+These documents authorize **planning and evaluation** only. They do not activate source material, update existing upstream locks, or claim any P01/P15 product completion.

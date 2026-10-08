@@ -1,0 +1,52 @@
+{
+  "description": "Skelet G00-05 plan-amendment exact-diff review: incorporate URL-to-Build-Kit successor phase P09b (issue 9) into canonical plan",
+  "state": {
+    "base_sha": "33c4aa103a5e40c47e9e5fd8d63d7ae4aa954597",
+    "branch": "skelet/p00-g00-05-buildkit-plan",
+    "candidate_head": "3db03f67ab7c1fd3c2fa76b9d8375c6d3f9815f8",
+    "exact_diff": "diff --git PRODUCT.md\n@@ -58,7 +58,7 @@\n - Lens URL analysis;\n + Lens URL analysis and URL-to-Build-Kit export;\n\ndiff --git docs/IMPLEMENTATION_PLAN.md\n@@ section 8\n +### 8.1 Lens Build Kit successor (P09b, normative; tracks issue #9)\n +The Lens report (section 8) is extended by a bounded successor phase P09b, turning a qualified Lens analysis into a downloadable agent-usable build starter; additive Lens capability, not a new editor/app builder/clone.\n +Contract: stable AnalysisRun/kit IDs; idempotent submission; poll/cancel/retry/resume; artifact expiration; tenant-scoped storage/access; per-job quotas; versioned schemas; deterministic error classification.\n +Job states: queued/capturing/extracting/generating/validating/completed/partial/failed/canceled. Never return a successful empty artifact.\n +Bounded scope: single public page default; explicitly selected same-site pages or bounded sitemap crawl under page/depth/byte/time budgets; preserve per-page coverage gaps.\n +Generated code distinguished from original source; unknown logic are explicit stubs; starter MUST install and build from clean checkout.\n +Per-item rights: restricted/trademark/unknown-license bytes MUST NOT enter downloadable artifacts; withdrawal/deletion/derivative-purge supported.\n +No mandatory paid inference/crawler/GPU/external model on deterministic path; graceful partial results on provider outage.\n +P09b successor to qualified Lens capture (R4 gate + basic Lens report first). P14 Create/OpenPencil explicitly NOT a prerequisite.\n +Layout/schemas frozen by P09b implementation grains before code lands; P15 launch acceptance includes URL-to-Build-Kit journey. Planning amendment alone implements nothing and closes no P0 risk.\n@@ P09 block\n +### P09b phase: depends on qualified P09 (R4) + P03/P05 via P09. Deliverables: versioned kit schemas + fixture-validated ZIP layout; job lifecycle; UI/REST/MCP/CLI-SDK parity over stable IDs and skelet://lens/{analysis_id} URIs for second-agent recovery. Exit criteria: 3-page fixture desktop/mobile captures, deterministic tokens, component inventory, source-linked evidence, schema-valid ZIP, starter installs/typechecks/builds/starts + responsive/keyboard smoke; restricted assets excluded; SSRF/redirect/DNS-rebinding/prompt-injection/tenant-leakage/path-traversal/quota/retry/outage tests pass; no paid inference or P14 dependency.\n@@ section 15\n +P09 -> P09b edge (R4 Lens report + job lifecycle first; P14 not a prerequisite).\n +P15 dependency line gains P09b; launch acceptance explicitly includes URL-to-Build-Kit journey.\n +Minimum paid launch scope: Lens URL analysis and URL-to-Build-Kit export (P09b).\nNo code, schemas, CI workflows, dependencies, or runtime behavior changed.",
+    "grain": "G00-05 documentation-only planning amendment"
+  },
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "Existing canonical contracts, gates, and evidence requirements remain intact.",
+        "true": "The change breaks an existing canonical contract or waives a governance/evidence requirement."
+      },
+      "instructions": "Does this diff break compatibility with existing canonical contracts (MCP/REST versioning, R-gate sequencing, Graft/Jev/OCR/CI governance) or waive any review requirement?",
+      "type": "noul"
+    },
+    "completeness": {
+      "criteria": {
+        "false": "Contract states, scope bounds, rights handling, and launch acceptance are explicitly defined.",
+        "true": "A material contract element (job states, scope bounds, rights exclusion, parity, launch acceptance) is missing or left ambiguous."
+      },
+      "instructions": "Does the P09b contract omit any material element required by issue 9: explicit job states, bounded crawl scope, versioned wire contract and parity, per-item rights exclusion, generated-vs-original distinction, or P15 launch acceptance?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "Phase dependencies, gate ordering, and exit criteria are consistent and executable.",
+        "true": "The amendment introduces a missing, circular, or misordered dependency, or an untestable exit criterion."
+      },
+      "instructions": "Does the P09b definition introduce any incorrect dependency (e.g. hidden P14 Create prerequisite), gate-order violation, or incoherent exit criterion?",
+      "type": "noul"
+    },
+    "scope_integrity": {
+      "criteria": {
+        "false": "The amendment stays within a bounded planning change and preserves existing phase boundaries.",
+        "true": "The change expands scope beyond the grain, redefines existing phases, or silently closes implementation work."
+      },
+      "instructions": "Does this diff expand beyond a bounded planning amendment, contradict or silently alter existing P00-P15 phases, R0-R7 gates, or launch/non-goals?",
+      "type": "noul"
+    },
+    "security_rights": {
+      "criteria": {
+        "false": "Rights, egress, and hostile-data boundaries are preserved or strengthened.",
+        "true": "The amendment weakens a security boundary or conflates code permission with data/asset redistribution rights."
+      },
+      "instructions": "Does this amendment weaken any fail-closed security boundary, or conflate source-code permission with screenshot/asset/dataset redistribution rights?",
+      "type": "noul"
+    }
+  }
+}
