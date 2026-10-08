@@ -58,7 +58,7 @@ The minimum paid launch includes:
 - unified search;
 - qualified Research corpus with products, sites, screens, and flows;
 - Assets with icons, logos, fonts, and components;
-- Lens URL analysis;
+- Lens URL analysis and URL-to-Build-Kit export;
 - collections and reference packs;
 - Remote MCP, Agent Skills, and core REST APIs;
 - auth, workspaces, and billing;
