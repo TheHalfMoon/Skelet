@@ -13,6 +13,6 @@
     "start": "pnpm --dir apps/web start",
     "lint": "pnpm --dir apps/web lint",
     "typecheck": "pnpm --dir apps/web typecheck",
-    "test": "node --experimental-strip-types --test \"tests/node/*.test.mjs\" \"apps/web/tests/*.test.mjs\""
+    "test": "node --experimental-strip-types --test \"tests/node/*.test.mjs\" \"apps/web/tests/*.test.mjs\" \"apps/worker/tests/*.test.mjs\""
   }
 }
