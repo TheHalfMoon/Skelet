@@ -94,8 +94,8 @@ test("real PostgreSQL serializes two demonstrably contending migration processes
   const results = await Promise.all(workers);
   assert.deepEqual(
     results.flat().sort(),
-    ["001_sources_products"],
-    "Only one blocked process may apply the migration",
+    ["001_sources_products", "002_design_graph"],
+    "Only one blocked process may apply each migration",
   );
 
   const db = await openDatabase({ connectionString });
@@ -103,7 +103,7 @@ test("real PostgreSQL serializes two demonstrably contending migration processes
     const ledger = await db.query(
       "select filename from schema_migrations order by filename",
     );
-    assert.deepEqual(ledger.rows.map((row) => row.filename), ["001_sources_products"]);
+    assert.deepEqual(ledger.rows.map((row) => row.filename), ["001_sources_products", "002_design_graph"]);
     for (const table of ["sources", "products", "product_versions"]) {
       const result = await db.query("select to_regclass($1) as oid", ["public." + table]);
       assert.notEqual(result.rows[0]?.oid, null);

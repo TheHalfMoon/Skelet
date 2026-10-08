@@ -23,11 +23,11 @@ async function freshDb() {
 test("migrateUp from empty creates ledger and domain tables", async () => {
   const db = new PGlite();
   const applied = await migrateUp(db);
-  assert.deepEqual(applied, ["001_sources_products"]);
+  assert.deepEqual(applied, ["001_sources_products", "002_design_graph"]);
   const ledger = await db.query("select filename from schema_migrations");
   assert.deepEqual(
     ledger.rows.map((row) => row.filename),
-    ["001_sources_products"],
+    ["001_sources_products", "002_design_graph"],
   );
   for (const table of ["sources", "products", "product_versions"]) {
     const check = await db.query(
@@ -44,7 +44,7 @@ test("migrateUp is idempotent", async () => {
   const applied = await migrateUp(db);
   assert.deepEqual(applied, []);
   const count = await db.query("select count(*)::int as n from schema_migrations");
-  assert.equal(count.rows[0].n, 1);
+  assert.equal(count.rows[0].n, 2);
   await db.close();
 });
 
@@ -118,7 +118,7 @@ test("migrateDown rolls back and migrateUp recreates deterministically", async (
   );
   assert.equal(tables.rows[0].n, 0);
   const recreated = await migrateUp(db);
-  assert.deepEqual(recreated, ["001_sources_products"]);
+  assert.deepEqual(recreated, ["001_sources_products", "002_design_graph"]);
   await db.close();
 });
 
@@ -126,7 +126,7 @@ test("migrateDown rolls back and migrateUp recreates deterministically", async (
 test("openDatabase runs migrations through the transactional wrapper", async () => {
   const db = await openDatabase();
   try {
-    assert.deepEqual(await migrateUp(db), ["001_sources_products"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph"]);
     assert.deepEqual(await migrateUp(db), []);
     const source = await createSource(db, { key: "wrapper", kind: "fixture" });
     assert.equal((await getSource(db, source.id)).key, "wrapper");
@@ -188,7 +188,7 @@ test("PgPool migrations pin every statement to one connection", async () => {
     await tx.exec("create table fake_fixture (id integer)");
   }, { migrationLock: true });
   assert.deepEqual(trace, [
-    "BEGIN",
+    "BEGIN ISOLATION LEVEL READ COMMITTED",
     "SELECT pg_advisory_xact_lock($1)",
     "select 42 as verified",
     "create table fake_fixture (id integer)",
@@ -219,7 +219,7 @@ test("PgPool transaction failure rolls back and releases the pinned connection",
     /forced failure/,
   );
   assert.deepEqual(trace, [
-    "BEGIN",
+    "BEGIN ISOLATION LEVEL READ COMMITTED",
     "update fake_fixture set id = 1",
     "ROLLBACK",
     "RELEASE",
@@ -270,11 +270,11 @@ test("PgPool rollback failure destroys the connection and preserves both errors"
   );
   assert.equal(releases.length, 1);
   assert.match(releases[0]?.message, /broken connection on rollback/);
-  assert.deepEqual(statements, ["BEGIN", "insert into fake_fixture values (1)", "ROLLBACK"]);
+  assert.deepEqual(statements, ["BEGIN ISOLATION LEVEL READ COMMITTED", "insert into fake_fixture values (1)", "ROLLBACK"]);
 });
 
 test("PgPool releases failed BEGIN and COMMIT connections as damaged", async () => {
-  for (const brokenAt of ["BEGIN", "COMMIT"]) {
+  for (const brokenAt of ["BEGIN ISOLATION LEVEL READ COMMITTED", "COMMIT"]) {
     const releases = [];
     const statements = [];
     const pool = {

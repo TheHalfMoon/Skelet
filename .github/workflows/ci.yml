@@ -252,10 +252,15 @@ jobs:
         run: pnpm --filter skelet-db typecheck
 
       - name: Run DB migration and domain tests
-        run: node --experimental-strip-types --test packages/db/tests/db-foundation.test.mjs
+        run: >-
+          node --experimental-strip-types --test
+          packages/db/tests/db-foundation.test.mjs
+          packages/db/tests/graph.test.mjs
 
       - name: Real PostgreSQL transaction and concurrency integration tests
         env:
           SKELET_TEST_DATABASE_URL: postgresql://skelet_test:local_ci_fixture_only@127.0.0.1:5432/skelet_test
           SKELET_DB_TEST_CONFIRM: "yes"
-        run: node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
+        run: |
+          node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-graph.test.mjs

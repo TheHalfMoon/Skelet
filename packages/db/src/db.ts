@@ -79,7 +79,7 @@ export class PgPoolClient implements DbClient {
     let committing = false;
     let releaseError: Error | undefined;
     try {
-      await client.query("BEGIN");
+      await client.query("BEGIN ISOLATION LEVEL READ COMMITTED");
       started = true;
       // Serialize only schema migrations; normal application transactions remain independent.
       if (options?.migrationLock) {
