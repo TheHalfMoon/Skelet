@@ -117,7 +117,7 @@ jobs:
         run: pnpm --dir apps/web typecheck
 
       - name: Run Node.js tests
-        run: node --experimental-strip-types --test tests/node/ apps/web/tests/
+        run: node --experimental-strip-types --test "tests/node/*.test.mjs" "apps/web/tests/*.test.mjs"
 
       - name: Production build
         run: pnpm --dir apps/web build
