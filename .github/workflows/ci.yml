@@ -205,6 +205,20 @@ jobs:
     name: db-foundation
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: skelet_test
+          POSTGRES_USER: skelet_test
+          POSTGRES_PASSWORD: local_ci_fixture_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U skelet_test -d skelet_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout exact revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -239,3 +253,9 @@ jobs:
 
       - name: Run DB migration and domain tests
         run: node --experimental-strip-types --test packages/db/tests/db-foundation.test.mjs
+
+      - name: Real PostgreSQL transaction and concurrency integration tests
+        env:
+          SKELET_TEST_DATABASE_URL: postgresql://skelet_test:local_ci_fixture_only@127.0.0.1:5432/skelet_test
+          SKELET_DB_TEST_CONFIRM: "yes"
+        run: node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
