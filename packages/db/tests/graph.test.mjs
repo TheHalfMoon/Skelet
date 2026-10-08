@@ -108,21 +108,41 @@ test("asset SHA-256 deduplicates without upgrading rights or source", async () =
     });
     const duplicate=await createAsset(db,{
       sha256:HASH,mediaType:"image/png",byteLength:100,
-      storageKey:"public/unsafe.png",sourceId:source.id,
-      rightsClassification:"permitted",
+      storageKey:"restricted/fixture.png",sourceId:source.id,
+      rightsClassification:"restricted",
     });
     assert.equal(restricted.id,duplicate.id);
-    assert.equal(duplicate.rightsClassification,"restricted");
-    assert.equal(duplicate.storageKey,"restricted/fixture.png");
+    await assert.rejects(
+      () => createAsset(db,{sha256:HASH,mediaType:"image/png",byteLength:100,
+        storageKey:"public/unsafe.png",sourceId:source.id,
+        rightsClassification:"permitted"}),
+      /Asset provenance or rights conflict/,
+    );
+    await assert.rejects(
+      () => createAsset(db,{sha256:HASH,mediaType:"image/png",byteLength:101,
+        storageKey:"restricted/fixture.png",sourceId:source.id,
+        rightsClassification:"restricted"}),
+      /Asset metadata conflict/,
+    );
+    const permitted=await createAsset(db,{sha256:HASH2,mediaType:"image/png",
+      byteLength:50,storageKey:"permitted/fixture.png",sourceId:source.id,
+      rightsClassification:"permitted"});
+    await assert.rejects(
+      () => createAsset(db,{sha256:HASH2,mediaType:"image/png",byteLength:50,
+        storageKey:"permitted/fixture.png",sourceId:source.id,
+        rightsClassification:"restricted"}),
+      /Asset provenance or rights conflict/,
+    );
+    assert.equal(permitted.rightsClassification,"permitted");
     assert.equal((await getAssetByHash(db,HASH)).sha256,HASH);
-    assert.equal(await getAssetByHash(db,HASH2),null);
+    assert.equal((await getAssetByHash(db,HASH2)).sha256,HASH2);
     await assert.rejects(
       () => createAsset(db,{sha256:"invalid",mediaType:"image/png",byteLength:1,
         storageKey:"x",sourceId:source.id,rightsClassification:"permitted"}),
       /check|violates/i,
     );
     await assert.rejects(
-      () => createAsset(db,{sha256:HASH2,mediaType:"image/png",byteLength:-1,
+      () => createAsset(db,{sha256:"b".repeat(64),mediaType:"image/png",byteLength:-1,
         storageKey:"x",sourceId:source.id,rightsClassification:"permitted"}),
       /check|violates/i,
     );

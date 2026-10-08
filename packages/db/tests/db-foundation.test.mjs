@@ -188,7 +188,7 @@ test("PgPool migrations pin every statement to one connection", async () => {
     await tx.exec("create table fake_fixture (id integer)");
   }, { migrationLock: true });
   assert.deepEqual(trace, [
-    "BEGIN",
+    "BEGIN ISOLATION LEVEL READ COMMITTED",
     "SELECT pg_advisory_xact_lock($1)",
     "select 42 as verified",
     "create table fake_fixture (id integer)",
@@ -219,7 +219,7 @@ test("PgPool transaction failure rolls back and releases the pinned connection",
     /forced failure/,
   );
   assert.deepEqual(trace, [
-    "BEGIN",
+    "BEGIN ISOLATION LEVEL READ COMMITTED",
     "update fake_fixture set id = 1",
     "ROLLBACK",
     "RELEASE",
@@ -270,11 +270,11 @@ test("PgPool rollback failure destroys the connection and preserves both errors"
   );
   assert.equal(releases.length, 1);
   assert.match(releases[0]?.message, /broken connection on rollback/);
-  assert.deepEqual(statements, ["BEGIN", "insert into fake_fixture values (1)", "ROLLBACK"]);
+  assert.deepEqual(statements, ["BEGIN ISOLATION LEVEL READ COMMITTED", "insert into fake_fixture values (1)", "ROLLBACK"]);
 });
 
 test("PgPool releases failed BEGIN and COMMIT connections as damaged", async () => {
-  for (const brokenAt of ["BEGIN", "COMMIT"]) {
+  for (const brokenAt of ["BEGIN ISOLATION LEVEL READ COMMITTED", "COMMIT"]) {
     const releases = [];
     const statements = [];
     const pool = {

@@ -109,7 +109,6 @@ create table relations (
     from_type <> to_type or from_id <> to_id),
   unique(from_type,from_id,relation_type,to_type,to_id)
 );
-create index relations_from_idx on relations(from_type,from_id);
 create index relations_to_idx on relations(to_type,to_id);
 
 create function skelet_validate_relation() returns trigger

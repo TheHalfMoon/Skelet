@@ -187,7 +187,19 @@ export async function createAsset(tx: DbTransaction, input: AssetInput): Promise
   if (result.rows[0]) return toAsset(result.rows[0]);
   const existing = await tx.query(`select ${assetColumns} from assets where sha256=$1`,
     [input.sha256]);
-  return toAsset(rowRequired(existing.rows));
+  const stored = toAsset(rowRequired(existing.rows));
+  // Without a per-source rights-claim table we must refuse conflicts rather
+  // than silently erase a stricter license or secondary provenance.
+  if (stored.sourceId !== input.sourceId ||
+      stored.rightsClassification !== input.rightsClassification) {
+    throw new Error("Asset provenance or rights conflict for duplicate SHA-256");
+  }
+  if (stored.mediaType !== input.mediaType ||
+      stored.byteLength !== input.byteLength ||
+      stored.storageKey !== input.storageKey) {
+    throw new Error("Asset metadata conflict for duplicate SHA-256");
+  }
+  return stored;
 }
 export async function getAssetByHash(tx: DbTransaction, sha256: string): Promise<Asset | null> {
   const result = await tx.query(`select ${assetColumns} from assets where sha256=$1`, [sha256]);

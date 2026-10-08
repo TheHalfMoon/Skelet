@@ -58,3 +58,76 @@ test("real PostgreSQL round-trips design graph and blocks invalid raw SQL", { sk
     await db.close();
   }
 });
+
+test("real PostgreSQL locks both sides of relation insert/delete races", {
+  skip: !enabled,
+  timeout: 20000,
+}, async () => {
+  verifyFixture();
+  const db = await openDatabase({ connectionString: url });
+  const other = await openDatabase({ connectionString: url });
+  try {
+    await migrateUp(db);
+    const source = await createSource(db,{key:"pg-race",kind:"test"});
+    const pattern=await createPattern(db,{slug:"race-pattern",title:"Race",sourceId:source.id});
+    const hash="c".repeat(64);
+
+    // Edge first, DELETE second: deletion must wait and then be rejected.
+    const a=await createArtifact(db,{kind:"screen",title:"A",
+      sourceId:source.id,contentHash:hash,rightsClassification:"unknown"});
+    let ready=Promise.withResolvers();
+    let release=Promise.withResolvers();
+    const inserting=db.transaction(async (tx) => {
+      await createRelation(tx,{fromType:"artifact",fromId:a.id,
+        relationType:"uses",toType:"pattern",toId:pattern.id});
+      ready.resolve();
+      await release.promise;
+    });
+    await ready.promise;
+    let deleteFinished=false;
+    const deleting=other.query("delete from artifacts where id=$1",[a.id])
+      .then(()=>({ok:true}),error=>({ok:false,error}))
+      .finally(()=>{deleteFinished=true;});
+    try {
+      await new Promise(resolve=>setTimeout(resolve,150));
+      assert.equal(deleteFinished,false,"delete must wait for relation insertion");
+    } finally {
+      release.resolve();
+    }
+    await inserting;
+    const deleted=await deleting;
+    assert.equal(deleted.ok,false);
+    assert.match(deleted.error.message,/graph endpoint still referenced/);
+
+    // DELETE first, edge second: reference lock waits, then sees absent row.
+    const b=await createArtifact(db,{kind:"screen",title:"B",
+      sourceId:source.id,contentHash:hash,rightsClassification:"unknown"});
+    ready=Promise.withResolvers();
+    release=Promise.withResolvers();
+    const removing=db.transaction(async (tx)=>{
+      await tx.query("delete from artifacts where id=$1",[b.id]);
+      ready.resolve();
+      await release.promise;
+    });
+    await ready.promise;
+    let edgeFinished=false;
+    const writing=createRelation(other,{fromType:"artifact",fromId:b.id,
+      relationType:"uses",toType:"pattern",toId:pattern.id})
+      .then(()=>({ok:true}),error=>({ok:false,error}))
+      .finally(()=>{edgeFinished=true;});
+    try {
+      await new Promise(resolve=>setTimeout(resolve,150));
+      assert.equal(edgeFinished,false,"edge insert must wait on deleted endpoint");
+    } finally {
+      release.resolve();
+    }
+    await removing;
+    const inserted=await writing;
+    assert.equal(inserted.ok,false);
+    assert.match(inserted.error.message,/graph relation source endpoint not found/);
+  } finally {
+    await other.close();
+    await migrateDown(db);
+    await db.close();
+  }
+});
