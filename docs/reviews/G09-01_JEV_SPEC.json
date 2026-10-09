@@ -1,0 +1,59 @@
+{
+ "description": "Skelet G09-01 exact-diff review: fail-closed Lens URL intake guard",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "Compatible.",
+    "true": "Breaks a contract."
+   },
+   "instructions": "Do the new skelet-lens workspace, the lockfile update, or the new lens CI job break any existing install, job, or contract?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "Correct.",
+    "true": "Material error present."
+   },
+   "instructions": "Are IPv4/IPv6 parsing, blocked-range tables, hostname policy, resolved-IP gating, or redirect budget handling materially wrong?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "Coverage is adequate.",
+    "true": "Coverage gap."
+   },
+   "instructions": "Do the 6 offline tests cover the mandatory URL/Lens security matrix (loopback, private ranges, IPv6 classes, metadata, schemes, credentials, DNS-to-private, redirects)?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "Sound.",
+    "true": "Race, leak, or corruption risk."
+   },
+   "instructions": "Pure validation with injected resolvers: any state, leak, or inconsistency risk?",
+   "type": "noul"
+  },
+  "scope_integrity": {
+   "criteria": {
+    "false": "Within grain.",
+    "true": "Exceeds grain."
+   },
+   "instructions": "Exactly one guard module + 6 tests + scaffolding + CI job + lockfile. Anything beyond G09-01 (browser capture, analysis, adapters)?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No risk.",
+    "true": "Risk present."
+   },
+   "instructions": "Any SSRF bypass (missed ranges, zone IDs, mapped addresses, suffix tricks, DNS rebinding window) in the guard?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "b4be236b9718a9f743fe234ea220100bb5e5547a",
+  "branch": "skelet/p09-g09-01-url-intake",
+  "candidate_head": "cea6d4d2a45f94238a480082efd27b9f74a90fce",
+  "change": "7 files +462/-0: url-guard.ts (scheme/credential/port gates, IPv4/IPv6 policy, hostname blocks, resolved-IP gating, redirect revalidation); url-guard.test.mjs (6 offline tests over mandatory matrix); scaffolding; lens CI job; lockfile with frozen install verified. Gate: lens lint/tsc clean, 6/6 pass, python 131 OK, hygiene passed, graft OK, blast 2 areas. Post-fix: precise ranges, embedded-v4 checks, relative-Location resolution, single gate, rotation test, pinned-answer hops. Gate re-verified: 8/8 pass."
+ }
+}
