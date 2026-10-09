@@ -1,4 +1,4 @@
-import { PGlite } from "@electric-sql/pglite";
+import type { PGlite } from "@electric-sql/pglite";
 import { Pool } from "pg";
 
 export interface DbQueryResult {
@@ -135,5 +135,11 @@ export async function openDatabase(options?: {
     }
     return new PgPoolClient(pool);
   }
-  return new PGliteClient(new PGlite(options?.dataDir));
+  // Lazy WASM load: a static import would pull the PGlite bundle into
+  // server bundles (e.g. Next.js routes) that may never touch this path.
+  // webpackIgnore keeps bundlers from tracing it; Node resolves at runtime.
+  const { PGlite: PGliteConstructor } = await import(
+    /* webpackIgnore: true */ "@electric-sql/pglite"
+  );
+  return new PGliteClient(new PGliteConstructor(options?.dataDir));
 }
