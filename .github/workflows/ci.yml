@@ -260,6 +260,7 @@ jobs:
           packages/db/tests/auth.test.mjs
           packages/db/tests/workspaces.test.mjs
           packages/db/tests/collections.test.mjs
+          packages/db/tests/billing.test.mjs
 
       - name: Real PostgreSQL transaction and concurrency integration tests
         env:

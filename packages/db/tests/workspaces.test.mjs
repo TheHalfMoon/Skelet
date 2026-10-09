@@ -22,6 +22,7 @@ const SIX = [
   "004_auth",
   "005_workspaces",
   "006_collections_auth",
+  "007_billing",
 ];
 
 async function fixtureDb() {

@@ -184,7 +184,7 @@ export function isUniqueViolation(error: unknown): boolean {
   return violationCode(error) === "23505" || /unique|duplicate/i.test(errorMessage(error));
 }
 
-function isForeignKeyViolation(error: unknown): boolean {
+export function isForeignKeyViolation(error: unknown): boolean {
   return violationCode(error) === "23503";
 }
 
