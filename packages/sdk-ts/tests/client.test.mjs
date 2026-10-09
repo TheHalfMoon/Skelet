@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { SdkError, SkeletClient } from "../src/client.ts";
+import { SDK_CONTRACT_VERSION, SdkError, SkeletClient } from "../src/client.ts";
 
 const ASSET = {
   uri: "skelet://artifact/1",
@@ -35,8 +35,13 @@ test("client validates constructor input", () => {
     () => new SkeletClient({ baseUrl: "https://x", token: "t", timeoutMs: -1 }),
     SdkError,
   );
+  assert.throws(() => new SkeletClient({ baseUrl: "not-a-url", token: "t" }), SdkError);
+  assert.throws(() => new SkeletClient({ baseUrl: "http://example.com", token: "t" }), SdkError);
+  const local = new SkeletClient({ baseUrl: "http://127.0.0.1:3103", token: "t" });
+  assert.ok(local instanceof SkeletClient);
   const client = new SkeletClient({ baseUrl: "https://x///", token: "t" });
   assert.ok(client instanceof SkeletClient);
+  assert.equal(SDK_CONTRACT_VERSION, "v1");
 });
 
 test("search shapes requests and parses assets", async () => {
@@ -102,6 +107,30 @@ test("status codes map to typed errors", async () => {
   );
 });
 
+test("redirects never forward credentials and shapes stay strict", async () => {
+  const { fetchImpl, calls } = stubFetch(async (_url, options) => {
+    assert.equal(options.redirect, "error");
+    const error = new Error("redirect blocked");
+    throw Object.assign(error, { name: "TypeError" });
+  });
+  const client = new SkeletClient({ baseUrl: "https://x", token: "t", fetchImpl });
+  await assert.rejects(() => client.searchAssets({ query: "q" }), (error) => {
+    return error instanceof SdkError && error.code === "sdk/transport";
+  });
+  assert.equal(calls.length, 1);
+  const { fetchImpl: nullAsset } = stubFetch(async () => jsonResponse(200, { asset: null }));
+  await assert.rejects(
+    () => new SkeletClient({ baseUrl: "https://x", token: "t", fetchImpl: nullAsset }).getAsset("a"),
+    (error) => error instanceof SdkError && error.code === "sdk/transport",
+  );
+  const { fetchImpl: ambiguous } = stubFetch(async () =>
+    jsonResponse(200, { object: { uri: "x" }, pack: { uri: "y" } }),
+  );
+  await assert.rejects(
+    () => new SkeletClient({ baseUrl: "https://x", token: "t", fetchImpl: ambiguous }).getObject("skelet://artifact/a"),
+    (error) => error instanceof SdkError && error.code === "sdk/transport",
+  );
+});
 test("requests time out fail-closed", async () => {
   const { fetchImpl } = stubFetch(async (_url, options) => {
     await new Promise((_resolve, reject) => {

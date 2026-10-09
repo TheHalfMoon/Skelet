@@ -24,6 +24,9 @@ export class SdkError extends Error {
   }
 }
 
+/** REST contract version this SDK speaks; bump with breaking API changes. */
+export const SDK_CONTRACT_VERSION = "v1";
+
 export interface SdkAsset {
   uri: string;
   kind: string;
@@ -64,6 +67,10 @@ export interface SdkPack {
 export interface SkeletClientOptions {
   baseUrl: string;
   token: string;
+  /**
+   * Test-only seam for stubbing transport. Treated as trusted code: it
+   * observes bearer tokens and URLs, so never pass a remote value here.
+   */
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
 }
@@ -84,13 +91,25 @@ export class SkeletClient {
   private readonly timeoutMs: number;
 
   constructor(options: SkeletClientOptions) {
-    if (typeof options.baseUrl !== "string" || options.baseUrl.trim().length === 0) {
+    if (typeof options.baseUrl !== "string") {
       throw new SdkError("sdk/invalid", 0, "Base URL is invalid.");
+    }
+    const base = options.baseUrl.trim().replace(/\/+$/, "");
+    let protocol = "";
+    try {
+      protocol = new URL(base).protocol;
+    } catch {
+      throw new SdkError("sdk/invalid", 0, "Base URL is invalid.");
+    }
+    const host = base.toLowerCase();
+    const local = host.includes("://localhost") || host.includes("://127.0.0.1") || host.includes("://[::1]");
+    if (protocol !== "https:" && !local) {
+      throw new SdkError("sdk/invalid", 0, "Base URL must use HTTPS outside localhost.");
     }
     if (typeof options.token !== "string" || options.token.length === 0) {
       throw new SdkError("sdk/invalid", 0, "Token is invalid.");
     }
-    this.baseUrl = options.baseUrl.replace(/\/+$/, "");
+    this.baseUrl = base;
     this.token = options.token;
     this.fetchImpl = options.fetchImpl ?? fetch;
     const timeoutMs = options.timeoutMs ?? 30_000;
@@ -108,9 +127,12 @@ export class SkeletClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
+      // Redirects are rejected, never followed: following would forward
+      // the bearer token to wherever the server points.
       const response = await this.fetchImpl(url, {
         headers: { authorization: `Bearer ${this.token}` },
         signal: controller.signal,
+        redirect: "error",
       });
       if (!response.ok) {
         throw new SdkError(
@@ -154,7 +176,7 @@ export class SkeletClient {
     const body = await this.request<{ asset: SdkAsset }>(
       `/api/v1/assets/${encodeURIComponent(artifactId)}`,
     );
-    if (body?.asset === undefined) {
+    if (typeof body?.asset !== "object" || body.asset === null) {
       throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
     }
     return body.asset;
@@ -169,8 +191,11 @@ export class SkeletClient {
       "/api/v1/objects",
       { uri },
     );
-    if (body?.object !== undefined) return body.object;
-    if (body?.pack !== undefined) return body.pack;
-    throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
+    const hasObject = typeof body?.object === "object" && body.object !== null;
+    const hasPack = typeof body?.pack === "object" && body.pack !== null;
+    if (hasObject === hasPack) {
+      throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
+    }
+    return (hasObject ? body.object : body.pack) as SdkObject | SdkPack;
   }
 }
