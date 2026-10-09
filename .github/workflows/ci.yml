@@ -320,6 +320,7 @@ jobs:
           node --experimental-strip-types --test
           packages/assets/tests/assets.test.mjs
           packages/assets/tests/iconset.test.mjs
+          packages/assets/tests/brandfont.test.mjs
 
   db-foundation:
     name: db-foundation
