@@ -5,6 +5,8 @@ import test from "node:test";
 import { openDatabase } from "../src/db.ts";
 import { migrateDown, migrateUp } from "../src/migrate.ts";
 import {
+  AUTH_SESSION_MAX_TTL_SECONDS,
+  AUTH_SESSION_TTL_SECONDS,
   AuthError,
   createSession,
   getUserById,
@@ -51,6 +53,7 @@ test("sign-up creates a verified-free user and rejects duplicates case-insensiti
     );
     const stored = await db.query("select email from users");
     assert.equal(stored.rows.length, 1);
+    assert.equal(stored.rows[0]?.email, "researcher@skelet.example");
   } finally {
     await db.close();
   }
@@ -148,6 +151,17 @@ test("sessions expire, revoke through sign-out, and reject tampering", async () 
       () => createSession(db, user.id, { ttlSeconds: 30 }),
       (error) => error instanceof AuthError && error.code === "auth/invalid-session",
     );
+    await assert.rejects(
+      () => createSession(db, user.id, { ttlSeconds: AUTH_SESSION_MAX_TTL_SECONDS + 1 }),
+      (error) => error instanceof AuthError && error.code === "auth/invalid-session",
+    );
+    const standard = await createSession(db, user.id);
+    const lifetime =
+      Date.parse(standard.session.expiresAt) - Date.parse(standard.session.createdAt);
+    assert.ok(
+      Math.abs(lifetime - AUTH_SESSION_TTL_SECONDS * 1000) < 60_000,
+      `default session lifetime must be ~30 days, got ${lifetime}ms`,
+    );
   } finally {
     await db.close();
   }
@@ -171,6 +185,22 @@ test("sessions are isolated between users and cascade on user delete", async () 
     await assert.rejects(
       () => validateSession(db, aliceSession.token),
       (error) => error instanceof AuthError && error.code === "auth/invalid-session",
+    );
+  } finally {
+    await db.close();
+  }
+});
+
+test("unknown and malformed user references fail closed as not-found", async () => {
+  const db = await fixtureDb();
+  try {
+    await assert.rejects(
+      () => createSession(db, "11111111-2222-4333-8444-555555555555"),
+      (error) => error instanceof AuthError && error.code === "auth/user-not-found",
+    );
+    await assert.rejects(
+      () => getUserById(db, "not-a-uuid"),
+      (error) => error instanceof AuthError && error.code === "auth/user-not-found",
     );
   } finally {
     await db.close();

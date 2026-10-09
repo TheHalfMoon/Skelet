@@ -4,7 +4,7 @@ import {
   scryptSync,
   timingSafeEqual,
 } from "node:crypto";
-import type { DbTransaction } from "./db.ts";
+import type { DbQueryResult, DbTransaction } from "./db.ts";
 
 /**
  * G04-01 authentication baseline: Skelet-owned sign-up/sign-in/sign-out over
@@ -68,9 +68,13 @@ export interface CreatedSession {
 }
 
 function toIsoTimestamp(raw: unknown): string {
+  return toDate(raw).toISOString();
+}
+
+function toDate(raw: unknown): Date {
   const value = raw instanceof Date ? raw : new Date(String(raw));
   if (Number.isNaN(value.getTime())) throw new Error("Invalid auth timestamp");
-  return value.toISOString();
+  return value;
 }
 
 function toPublicUser(row: Record<string, unknown>): PublicUser {
@@ -177,12 +181,25 @@ function hashToken(token: string): string {
 }
 
 function isUniqueViolation(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  const code =
-    typeof error === "object" && error !== null && "code" in error
-      ? String((error as { code: unknown }).code)
-      : "";
-  return code === "23505" || /unique|duplicate/i.test(message);
+  return violationCode(error) === "23505" || /unique|duplicate/i.test(errorMessage(error));
+}
+
+function isForeignKeyViolation(error: unknown): boolean {
+  return violationCode(error) === "23503";
+}
+
+function isInvalidIdentifier(error: unknown): boolean {
+  return violationCode(error) === "22P02";
+}
+
+function violationCode(error: unknown): string {
+  return typeof error === "object" && error !== null && "code" in error
+    ? String((error as { code: unknown }).code)
+    : "";
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 export async function signUp(
@@ -245,6 +262,8 @@ export async function createSession(
   userId: string,
   options?: { ttlSeconds?: number; now?: Date },
 ): Promise<CreatedSession> {
+  // now is a server-supplied clock for deterministic tests; network
+  // boundaries must never accept client timestamps here.
   const ttl = options?.ttlSeconds ?? AUTH_SESSION_TTL_SECONDS;
   if (!Number.isInteger(ttl) || ttl < 60 || ttl > AUTH_SESSION_MAX_TTL_SECONDS) {
     throw new AuthError("auth/invalid-session", "Session lifetime is invalid.");
@@ -269,6 +288,9 @@ export async function createSession(
       // A 256-bit token collision is not retried silently: fail closed.
       throw new AuthError("auth/invalid-session", "Session could not be created.");
     }
+    if (isForeignKeyViolation(error)) {
+      throw new AuthError("auth/user-not-found", "User was not found.");
+    }
     throw error;
   }
 }
@@ -291,7 +313,8 @@ export async function validateSession(
   const result = await tx.query(
     `select s.id as session_id, s.user_id, s.expires_at as session_expires,
             s.created_at as session_created, s.revoked_at,
-            u.id, u.email, u.email_verified_at, u.created_at, u.updated_at
+            u.id as user_pk, u.email, u.email_verified_at,
+            u.created_at as user_created, u.updated_at as user_updated
      from sessions s join users u on u.id = s.user_id
      where s.token_hash = $1`,
     [hashToken(token)],
@@ -303,8 +326,13 @@ export async function validateSession(
   if (row.revoked_at !== null && row.revoked_at !== undefined) {
     throw new AuthError("auth/invalid-session", "Session is invalid.");
   }
-  const expires = new Date(String(row.session_expires));
-  if (Number.isNaN(expires.getTime()) || expires.getTime() <= at.getTime()) {
+  let expires: Date;
+  try {
+    expires = toDate(row.session_expires);
+  } catch {
+    throw new AuthError("auth/invalid-session", "Session is invalid.");
+  }
+  if (expires.getTime() <= at.getTime()) {
     throw new AuthError("auth/invalid-session", "Session is invalid.");
   }
   return {
@@ -314,7 +342,12 @@ export async function validateSession(
       expiresAt: toIsoTimestamp(row.session_expires),
       createdAt: toIsoTimestamp(row.session_created),
     },
-    user: toPublicUser(row),
+    user: toPublicUser({
+      ...row,
+      id: row.user_pk,
+      created_at: row.user_created,
+      updated_at: row.user_updated,
+    }),
   };
 }
 
@@ -343,14 +376,29 @@ export async function getUserById(
   tx: DbTransaction,
   id: string,
 ): Promise<PublicUser> {
-  const result = await tx.query(
-    `select id, email, email_verified_at, created_at, updated_at
-     from users where id = $1`,
-    [id],
-  );
-  const row = result.rows[0];
+  const row = await selectUserById(tx, id);
   if (row === undefined) {
     throw new AuthError("auth/user-not-found", "User was not found.");
   }
   return toPublicUser(row);
+}
+
+async function selectUserById(
+  tx: DbTransaction,
+  id: string,
+): Promise<Record<string, unknown> | undefined> {
+  try {
+    const result: DbQueryResult = await tx.query(
+      `select id, email, email_verified_at, created_at, updated_at
+       from users where id = $1`,
+      [id],
+    );
+    return result.rows[0];
+  } catch (error) {
+    // Malformed identifiers fail closed as not-found, never as raw SQL errors.
+    if (isInvalidIdentifier(error)) {
+      throw new AuthError("auth/user-not-found", "User was not found.");
+    }
+    throw error;
+  }
 }
