@@ -3,10 +3,14 @@ import test from "node:test";
 
 import { openDatabase } from "../../../packages/db/src/db.ts";
 import { migrateUp } from "../../../packages/db/src/migrate.ts";
-import { createSource } from "../../../packages/db/src/repositories.ts";
+import { createProduct, createProductVersion, createSource } from "../../../packages/db/src/repositories.ts";
+import { createArtifact } from "../../../packages/db/src/graph.ts";
+import { signUp } from "../../../packages/db/src/auth.ts";
+import { createWorkspace } from "../../../packages/db/src/workspaces.ts";
 import { registerAsset } from "../../../packages/assets/src/registry.ts";
 import { bearerToken, dispatchMcp } from "../lib/mcp.ts";
 import { resetRateLimits, checkRateLimit } from "../lib/rate-limit.ts";
+import { exportReferencePack, parseSkeletUri } from "../lib/reference-packs.ts";
 
 const TOKENS = ["test-token"];
 const CTX = { tokens: TOKENS, token: "test-token" };
@@ -61,10 +65,17 @@ test("tools require bearer authorization", async () => {
     const empty = await call(fx.db, { tokens: [], token: "test-token" }, "tools/list", {});
     assert.equal(empty.error.code, -32001);
     const allowed = await call(fx.db, CTX, "tools/list", {});
-    assert.equal(allowed.result.tools.length, 3);
+    assert.equal(allowed.result.tools.length, 6);
     assert.deepEqual(
       allowed.result.tools.map((tool) => tool.name).sort(),
-      ["get_asset", "get_registry_item", "search_assets"],
+      [
+        "create_reference_pack",
+        "get_asset",
+        "get_object",
+        "get_registry_item",
+        "save_reference",
+        "search_assets",
+      ],
     );
   } finally {
     await fx.db.close();
@@ -129,8 +140,67 @@ test("unknown methods, tools, and malformed bodies fail closed", async () => {
   }
 });
 
-test("bearer token parsing is strict", () => {
-  assert.equal(bearerToken(null), null);
+test("agent write round-trip preserves references across sessions", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const owner = await signUp(db, { email: "writer@skelet.example", password: "writer-password-01" });
+    const outsider = await signUp(db, { email: "outsider@skelet.example", password: "outsider-password-01" });
+    const space = await createWorkspace(db, { name: "Writer space", ownerId: owner.id });
+    const source = await createSource(db, { key: "writer-source", kind: "synthetic" });
+    const product = await createProduct(db, { sourceId: source.id, title: "Writer app" });
+    const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
+    const screen = await createArtifact(db, {
+      sourceId: source.id,
+      productId: product.id,
+      productVersionId: version.id,
+      kind: "screen",
+      title: "Writer screen",
+      contentHash: "b".repeat(64),
+      rightsClassification: "metadata_only",
+    });
+    const created = await call(db, CTX, "tools/call", {
+      name: "create_reference_pack",
+      arguments: {
+        workspaceId: space.workspace.id,
+        title: "Writer pack",
+        artifactIds: [screen.id],
+        actorId: owner.id,
+      },
+    });
+    const pack = JSON.parse(created.result.content[0].text).pack;
+    assert.equal(pack.schema, "skelet/reference-pack/1");
+    assert.equal(pack.itemCount, 1);
+    assert.equal(pack.items[0].uri, `skelet://artifact/${screen.id}`);
+    const saved = await call(db, CTX, "tools/call", {
+      name: "save_reference",
+      arguments: { collectionId: pack.uri.split("/").pop(), artifactId: screen.id, actorId: owner.id },
+    });
+    assert.equal(JSON.parse(saved.result.content[0].text).saved, true);
+    const fetched = await call(db, CTX, "tools/call", {
+      name: "get_object",
+      arguments: { uri: `skelet://artifact/${screen.id}` },
+    });
+    assert.equal(JSON.parse(fetched.result.content[0].text).object.title, "Writer screen");
+    const recovered = await exportReferencePack(db, pack.uri.split("/").pop(), owner.id);
+    assert.deepEqual(recovered.items.map((entry) => entry.uri), [`skelet://artifact/${screen.id}`]);
+    const denied = await call(db, CTX, "tools/call", {
+      name: "get_object",
+      arguments: { uri: pack.uri, actorId: outsider.id },
+    });
+    assert.equal(denied.error.code, -32000);
+    const badUri = await call(db, CTX, "tools/call", {
+      name: "get_object",
+      arguments: { uri: "skelet://nope/123" },
+    });
+    assert.equal(badUri.error.code, -32602);
+    assert.throws(() => parseSkeletUri("not-a-uri"), /Skelet URI is invalid/);
+  } finally {
+    await db.close();
+  }
+});
+
+test("bearer token parsing is strict", () => {  assert.equal(bearerToken(null), null);
   assert.equal(bearerToken("Token abc"), null);
   assert.equal(bearerToken("Bearer "), null);
   assert.equal(bearerToken("Bearer test-token"), "test-token");

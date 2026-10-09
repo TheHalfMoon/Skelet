@@ -1,8 +1,15 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
 import type { DbClient } from "../../../packages/db/src/db.ts";
+import { getArtifact } from "../../../packages/db/src/graph.ts";
+import { saveReference } from "../../../packages/db/src/collections.ts";
 import { searchAssets, resolveAsset } from "../../../packages/assets/src/registry.ts";
 import { buildRegistryItem } from "./registry.ts";
+import {
+  createReferencePack,
+  exportReferencePack,
+  parseSkeletUri,
+} from "./reference-packs.ts";
 
 /**
  * G08-01 remote agent transport: MCP Streamable HTTP (JSON-RPC 2.0) with
@@ -119,6 +126,43 @@ function toolSchemas(): unknown[] {
         required: ["name"],
       },
     },
+    {
+      name: "save_reference",
+      description: "Save a canonical artifact into a workspace collection. Actor identity must be server-resolved.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          collectionId: { type: "string" },
+          artifactId: { type: "string" },
+          actorId: { type: "string" },
+        },
+        required: ["collectionId", "artifactId", "actorId"],
+      },
+    },
+    {
+      name: "create_reference_pack",
+      description: "Create a reference pack (collection plus versioned export) from evidence. Actor identity must be server-resolved.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          title: { type: "string" },
+          artifactIds: { type: "array", items: { type: "string" } },
+          visibility: { type: "string" },
+          actorId: { type: "string" },
+        },
+        required: ["workspaceId", "title", "actorId"],
+      },
+    },
+    {
+      name: "get_object",
+      description: "Retrieve a canonical object by Skelet URI (skelet://artifact/{id}, skelet://collection/{id}).",
+      inputSchema: {
+        type: "object",
+        properties: { uri: { type: "string" }, actorId: { type: "string" } },
+        required: ["uri"],
+      },
+    },
   ];
 }
 
@@ -197,6 +241,95 @@ async function callTool(
       throw { code: -32602, message: "get_registry_item.name is invalid." };
     }
     return { item: buildRegistryItem(params.name) };
+  }
+  if (name === "save_reference") {
+    if (
+      typeof params.collectionId !== "string" ||
+      typeof params.artifactId !== "string" ||
+      typeof params.actorId !== "string"
+    ) {
+      throw { code: -32602, message: "save_reference arguments are invalid." };
+    }
+    await saveReference(db, {
+      collectionId: params.collectionId,
+      artifactId: params.artifactId,
+      actorId: params.actorId,
+    });
+    return { saved: true, uri: `skelet://artifact/${params.artifactId}` };
+  }
+  if (name === "create_reference_pack") {
+    if (
+      typeof params.workspaceId !== "string" ||
+      typeof params.title !== "string" ||
+      typeof params.actorId !== "string"
+    ) {
+      throw { code: -32602, message: "create_reference_pack arguments are invalid." };
+    }
+    if (params.visibility !== undefined && params.visibility !== "private" && params.visibility !== "workspace") {
+      throw { code: -32602, message: "create_reference_pack.visibility is invalid." };
+    }
+    if (
+      params.artifactIds !== undefined &&
+      (!Array.isArray(params.artifactIds) ||
+        params.artifactIds.some((entry) => typeof entry !== "string"))
+    ) {
+      throw { code: -32602, message: "create_reference_pack.artifactIds is invalid." };
+    }
+    const packInput = {
+      workspaceId: params.workspaceId as string,
+      title: params.title as string,
+      actorId: params.actorId as string,
+    } as {
+      workspaceId: string;
+      title: string;
+      actorId: string;
+      visibility?: "private" | "workspace";
+      artifactIds?: string[];
+    };
+    if (params.visibility !== undefined) {
+      packInput.visibility = params.visibility as "private" | "workspace";
+    }
+    if (params.artifactIds !== undefined) {
+      packInput.artifactIds = params.artifactIds as string[];
+    }
+    const pack = await createReferencePack(db, packInput);
+    const exported = await exportReferencePack(db, pack.collectionId, params.actorId as string);
+    return { pack: exported };
+  }
+  if (name === "get_object") {
+    if (typeof params.uri !== "string") {
+      throw { code: -32602, message: "get_object.uri is invalid." };
+    }
+    try {
+      const parsed = parseSkeletUri(params.uri);
+      if (parsed.type === "artifact") {
+        const artifact = await getArtifact(db, parsed.id);
+        if (artifact === null) {
+          throw { code: -32000, message: "Tool execution failed." };
+        }
+        return {
+          object: {
+            uri: params.uri,
+            kind: artifact.kind,
+            title: artifact.title,
+            rights: artifact.rightsClassification,
+          },
+        };
+      }
+      if (typeof params.actorId !== "string") {
+        throw { code: -32602, message: "get_object.actorId is required for collections." };
+      }
+      return { pack: await exportReferencePack(db, parsed.id, params.actorId) };
+    } catch (thrown) {
+      if (isRecord(thrown) && typeof thrown.code === "number") throw thrown;
+      if (thrown instanceof Error && thrown.name === "PackError") {
+        if ((thrown as { code?: unknown }).code === "packs/invalid") {
+          throw { code: -32602, message: "get_object.uri is invalid." };
+        }
+        throw { code: -32000, message: "Tool execution failed." };
+      }
+      throw thrown;
+    }
   }
   throw { code: -32601, message: "Tool not found." };
 }
