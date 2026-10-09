@@ -209,6 +209,15 @@ test("agent write round-trip preserves references across sessions", async () => 
       arguments: { collectionId: pack.uri.split("/").pop(), artifactId: screen.id },
     });
     assert.equal(outsiderWrite.error.code, -32000);
+    const forged = await call(db, outsiderCtx, "tools/call", {
+      name: "save_reference",
+      arguments: {
+        collectionId: pack.uri.split("/").pop(),
+        artifactId: screen.id,
+        actorId: owner.id,
+      },
+    });
+    assert.equal(forged.error.code, -32000);
     const badUri = await call(db, ownerCtx, "tools/call", {
       name: "get_object",
       arguments: { uri: "skelet://nope/123" },
