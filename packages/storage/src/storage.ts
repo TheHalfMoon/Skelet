@@ -88,11 +88,19 @@ async function nextWithAbort<T>(
     if (onAbort) signal.removeEventListener("abort", onAbort);
   }
 }
+/** POSIX: durable directory entry publication after atomic hardlink promotion. */
+async function syncDirectory(path: string): Promise<void> {
+  if (process.platform === "win32") return;
+  const handle = await open(path, "r");
+  try { await handle.sync(); } finally { await handle.close(); }
+}
+
 async function mustBeDirectory(path: string): Promise<void> {
   await mkdir(path, { recursive: true, mode: 0o700 });
   const info = await lstat(path);
-  if (!info.isDirectory() || info.isSymbolicLink()) {
-    throw new StorageError("UNSAFE_PATH", "Storage directory is not a trusted directory");
+  if (!info.isDirectory() || info.isSymbolicLink() ||
+      (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
+    throw new StorageError("UNSAFE_PATH", "Storage directory must be private and trusted");
   }
 }
 async function mustBeFile(path: string): Promise<number> {
@@ -226,10 +234,11 @@ export class LocalContentAddressedStorage implements StorageProvider {
       const hash = createHash("sha256");
       let bytes = 0;
       const iterator = source[Symbol.asyncIterator]();
+      let iteratorCompleted = false;
       try {
         for (;;) {
           const next = await nextWithAbort(iterator, signal, () => timeoutSignal.aborted);
-          if (next.done) break;
+          if (next.done) { iteratorCompleted = true; break; }
           if (!(next.value instanceof Uint8Array)) {
             throw new StorageError("INVALID_INPUT", "Input must yield Uint8Array chunks");
           }
@@ -237,12 +246,14 @@ export class LocalContentAddressedStorage implements StorageProvider {
           if (bytes > allowedBytes) {
             throw new StorageError("SIZE_LIMIT", "Upload exceeds maximum bytes");
           }
-          hash.update(next.value);
+          // Own a stable snapshot: callers may reuse/mutate their input buffers.
+          const bytesToWrite = Buffer.from(next.value);
+          hash.update(bytesToWrite);
           let offset = 0;
-          while (offset < next.value.byteLength) {
+          while (offset < bytesToWrite.byteLength) {
             if (signal.aborted) throwAborted(signal, timeoutSignal.aborted);
             const result = await file.write(
-              next.value, offset, next.value.byteLength - offset,
+              bytesToWrite, offset, bytesToWrite.byteLength - offset,
             );
             if (result.bytesWritten <= 0) {
               throw new StorageError("STORAGE_IO", "Zero-length write");
@@ -251,9 +262,11 @@ export class LocalContentAddressedStorage implements StorageProvider {
           }
         }
       } finally {
-        if (signal.aborted && iterator.return) {
-          // Cancel a cooperating stream; do not wait for a hostile provider.
-          void Promise.resolve(iterator.return()).catch(() => {});
+        if (!iteratorCompleted && iterator.return) {
+          // Cancel on ANY failure, including size and I/O errors. Never let an
+          // uncooperative source's return() hang error handling or cleanup.
+          try { void Promise.resolve(iterator.return()).catch(() => {}); }
+          catch { /* preserve original upload error */ }
         }
       }
       if (signal.aborted) throwAborted(signal, timeoutSignal.aborted);
@@ -261,12 +274,40 @@ export class LocalContentAddressedStorage implements StorageProvider {
       await file.close();
       file = undefined;
       const digest = hash.digest("hex");
+      // Verify the actual fsynced bytes, not only the source buffers. A disk
+      // fault or a caller mutating a buffer must not publish a corrupt hash.
+      const verifyTemp = await open(temporary, "r");
+      try {
+        const actual = createHash("sha256");
+        const readBuffer = Buffer.allocUnsafe(CHUNK_SIZE);
+        let offset = 0;
+        for (;;) {
+          const { bytesRead } = await verifyTemp.read(
+            readBuffer, 0, readBuffer.length, offset,
+          );
+          if (bytesRead === 0) break;
+          offset += bytesRead;
+          if (offset > allowedBytes) {
+            throw new StorageError("SIZE_LIMIT", "Temporary file exceeded byte budget");
+          }
+          actual.update(readBuffer.subarray(0, bytesRead));
+        }
+        if (offset !== bytes || actual.digest("hex") !== digest) {
+          throw new StorageError("CORRUPT_OBJECT", "Temporary bytes disagree with SHA-256");
+        }
+      } finally { await verifyTemp.close(); }
       const target = await this.target(digest);
       let created = false;
       try {
         // Same-volume hardlink is atomic and NEVER overwrites existing hashes.
         await link(temporary, target);
         created = true;
+        // fsync on file alone does not make the new directory entry durable.
+        // Sync the shard and ancestors, including newly created shard dirs.
+        const root = await this.root();
+        await syncDirectory(await this.directory(digest));
+        await syncDirectory(join(root, "sha256"));
+        await syncDirectory(root);
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
         const existingSize = await this.verify(digest);
@@ -284,16 +325,24 @@ export class LocalContentAddressedStorage implements StorageProvider {
   /** Only removes old UUID-named temporary files; never touches published objects. */
   async pruneTemporary(olderThanMs: number): Promise<number> {
     budget(olderThanMs, "olderThanMs");
+    if (olderThanMs <= this.maxTimeoutMs + 1000) {
+      throw new StorageError("INVALID_INPUT", "Prune age must exceed upload timeout");
+    }
     const dir = await this.tempDirectory();
     const cutoff = Date.now() - olderThanMs;
     let removed = 0;
     for (const name of await readdir(dir)) {
       if (!TEMP.test(name)) continue;
       const path = join(dir, name);
-      const info = await lstat(path);
+      let info;
+      try { info = await lstat(path); }
+      catch (error) {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
+        throw error;
+      }
       if (info.isSymbolicLink() || !info.isFile()) continue;
       if (info.mtimeMs <= cutoff) {
-        await rm(path);
+        await rm(path, { force: true });
         removed++;
       }
     }

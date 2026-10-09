@@ -116,7 +116,7 @@ test("garbage collection touches only older UUID-named temporary files",async()=
   await writeFile(old,"orphan");
   await utimes(old,new Date(2000,0,1),new Date(2000,0,1));
   await writeFile(unrelated,"keep");
-  assert.equal(await storage.pruneTemporary(1000),1);
+  assert.equal(await storage.pruneTemporary(6001),1);
   assert.deepEqual(await readdir(temp),["do-not-delete.txt"]);
  }finally{await close();}
 });
@@ -139,4 +139,54 @@ test("storage root and hash directories reject symlink escape where supported",a
    error=>error instanceof StorageError && error.code==="UNSAFE_PATH");
   assert.deepEqual(await readdir(outside),[]);
  }finally{await close();await rm(outside,{recursive:true,force:true});}
+});
+
+test("rejects pruning live uploads and closes source iterator after size failure",async()=>{
+ const {root,storage,close}=await fixture();
+ let didReturn=false;
+ try {
+  const src={
+   [Symbol.asyncIterator](){
+    return {
+     async next(){
+      return {value:Buffer.alloc(50),done:false};
+     },
+     async return(){didReturn=true;return {done:true};},
+    };
+   },
+  };
+  await assert.rejects(()=>storage.put(src,{maxBytes:75}),
+   error=>error instanceof StorageError && error.code==="SIZE_LIMIT");
+  assert.equal(didReturn,true);
+  await assert.rejects(()=>storage.pruneTemporary(1000),
+   error=>error instanceof StorageError && error.code==="INVALID_INPUT");
+  assert.deepEqual(await readdir(join(root,".tmp")),[]);
+ }finally{await close();}
+});
+
+test("empty content and invalid stream chunks behave deterministically",async()=>{
+ const {root,storage,close}=await fixture();
+ try{
+  const empty=await storage.put(stream());
+  assert.equal(empty.sha256,digest(Buffer.alloc(0)));
+  assert.equal(empty.byteLength,0);
+  assert.deepEqual(await collect(storage.readVerified(empty.sha256)),Buffer.alloc(0));
+  async function* bad(){yield "not bytes";}
+  await assert.rejects(()=>storage.put(bad()),
+   error=>error instanceof StorageError && error.code==="INVALID_INPUT");
+  assert.deepEqual(await readdir(join(root,".tmp")),[]);
+ }finally{await close();}
+});
+
+test("POSIX refuses a storage root readable by other accounts",{
+ skip:process.platform==="win32",
+},async()=>{
+ const {root,storage,close}=await fixture();
+ try{
+  const {chmod}=await import("node:fs/promises");
+  await chmod(root,0o755);
+  await assert.rejects(()=>storage.put(stream("unsafe")),
+   error=>error instanceof StorageError && error.code==="UNSAFE_PATH");
+  await chmod(root,0o700);
+ }finally{await close();}
 });
