@@ -17,7 +17,8 @@ create table subscriptions (
 create table billing_events (
  id uuid primary key default gen_random_uuid(),
  provider text not null default 'stripe' check(provider in ('stripe')),
- event_id text not null unique,
+ event_id text not null unique
+  check(length(trim(event_id)) > 0 and char_length(event_id) <= 256),
  event_type text not null check(length(trim(event_type)) > 0),
  payload jsonb not null default '{}'::jsonb check(jsonb_typeof(payload) = 'object'),
  received_at timestamptz not null default now(),

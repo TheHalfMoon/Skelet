@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { DbClient, DbTransaction } from "./db.ts";
-import { AuthError } from "./auth.ts";
+import { AuthError, isForeignKeyViolation } from "./auth.ts";
 
 /**
  * G04-04 billing boundary: capability plan model plus signature-verified,
@@ -183,6 +183,13 @@ export async function setSubscription(
   if (!Number.isInteger(seats) || seats < 1) {
     throw new AuthError("auth/invalid-subscription", "Seat count is invalid.");
   }
+  if (
+    input.currentPeriodEnd !== undefined &&
+    input.currentPeriodEnd !== null &&
+    Number.isNaN(Date.parse(input.currentPeriodEnd))
+  ) {
+    throw new AuthError("auth/invalid-subscription", "Billing period is invalid.");
+  }
   return client.transaction(async (tx) => {
     const workspace = await tx.query("select id from workspaces where id = $1", [
       input.workspaceId,
@@ -190,29 +197,39 @@ export async function setSubscription(
     if (workspace.rows.length === 0) {
       throw new AuthError("auth/workspace-not-found", "Workspace was not found.");
     }
-    const saved = await tx.query(
-      `insert into subscriptions
-         (workspace_id, plan_key, status, seats, stripe_customer_id,
-          stripe_subscription_id, current_period_end)
-       values ($1, $2, $3, $4, $5, $6, $7::timestamptz)
-       on conflict (workspace_id) do update set
-         plan_key = excluded.plan_key, status = excluded.status,
-         seats = excluded.seats, stripe_customer_id = excluded.stripe_customer_id,
-         stripe_subscription_id = excluded.stripe_subscription_id,
-         current_period_end = excluded.current_period_end
-       returning workspace_id, plan_key, status, seats, stripe_customer_id,
-         stripe_subscription_id, current_period_end, created_at, updated_at`,
-      [
-        input.workspaceId,
-        planKey,
-        status,
-        seats,
-        input.stripeCustomerId ?? null,
-        input.stripeSubscriptionId ?? null,
-        input.currentPeriodEnd ?? null,
-      ],
-    );
-    return toSubscription(requireRow(saved.rows));
+    // Null provider references mean "not linked"; the webhook mapping
+    // grain passes full linkage state, so replace semantics apply.
+    try {
+      const saved = await tx.query(
+        `insert into subscriptions
+           (workspace_id, plan_key, status, seats, stripe_customer_id,
+            stripe_subscription_id, current_period_end)
+         values ($1, $2, $3, $4, $5, $6, $7::timestamptz)
+         on conflict (workspace_id) do update set
+           plan_key = excluded.plan_key, status = excluded.status,
+           seats = excluded.seats, stripe_customer_id = excluded.stripe_customer_id,
+           stripe_subscription_id = excluded.stripe_subscription_id,
+           current_period_end = excluded.current_period_end
+         returning workspace_id, plan_key, status, seats, stripe_customer_id,
+           stripe_subscription_id, current_period_end, created_at, updated_at`,
+        [
+          input.workspaceId,
+          planKey,
+          status,
+          seats,
+          input.stripeCustomerId ?? null,
+          input.stripeSubscriptionId ?? null,
+          input.currentPeriodEnd ?? null,
+        ],
+      );
+      return toSubscription(requireRow(saved.rows));
+    } catch (error) {
+      // A workspace deleted between the check and the insert converges here.
+      if (isForeignKeyViolation(error)) {
+        throw new AuthError("auth/workspace-not-found", "Workspace was not found.");
+      }
+      throw error;
+    }
   });
 }
 
@@ -268,6 +285,9 @@ export function verifyWebhookSignature(input: {
   now?: Date;
 }): { eventTimestamp: string } {
   const tolerance = input.toleranceSeconds ?? WEBHOOK_TOLERANCE_SECONDS;
+  if (!Number.isFinite(tolerance) || tolerance < 0) {
+    throw new WebhookError("billing/invalid-event", "Billing event is invalid.");
+  }
   if (typeof input.secret !== "string" || input.secret.length === 0) {
     throw new WebhookError("billing/not-configured", "Billing provider is not configured.");
   }
@@ -301,6 +321,10 @@ export interface BillingEventResult {
  * and runs apply() in the same transaction; replays hit the unique
  * event_id, skip apply(), and report applied:false. Apply failures roll
  * back the intake row too, so a failed event can be redelivered.
+ *
+ * Contract: callers MUST verify the webhook signature over the exact raw
+ * body first and MUST never derive plan/seat changes from an unverified
+ * payload. The HTTP wiring grain owns that ordering.
  */
 export async function handleBillingEvent(
   client: DbClient,

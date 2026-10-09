@@ -66,6 +66,14 @@ test("007 migration applies billing tables and reverses cleanly", async () => {
     }
     assert.deepEqual(await migrateDown(db), [...SEVEN].reverse());
     assert.deepEqual(await migrateUp(db), SEVEN);
+    await assert.rejects(
+      () =>
+        db.query(
+          `insert into billing_events (provider, event_id, event_type)
+           values ('stripe', '   ', 'customer.created')`,
+        ),
+      /check|violates/i,
+    );
   } finally {
     await db.close();
   }
@@ -131,6 +139,25 @@ test("webhook signatures verify exactly and fail closed", async () => {
       }),
     (error) => error instanceof WebhookError && error.code === "billing/invalid-signature",
   );
+  for (const delta of [0, 299, 300]) {
+    const accepted = verifyWebhookSignature({
+      rawBody: body,
+      signatureHeader: signBody(body, stamp - delta),
+      secret: SECRET,
+      now: NOW,
+    });
+    assert.equal(accepted.eventTimestamp, new Date((stamp - delta) * 1000).toISOString());
+  }
+  assert.throws(
+    () =>
+      verifyWebhookSignature({
+        rawBody: body,
+        signatureHeader: signBody(body, stamp + 10),
+        secret: SECRET,
+        now: NOW,
+      }),
+    (error) => error instanceof WebhookError && error.code === "billing/invalid-signature",
+  );
   for (const header of ["", "t=abc,v1=deadbeef", "v1=deadbeef", "t=123"]) {
     assert.throws(
       () => verifyWebhookSignature({ rawBody: body, signatureHeader: header, secret: SECRET, now: NOW }),
@@ -141,6 +168,24 @@ test("webhook signatures verify exactly and fail closed", async () => {
   assert.throws(
     () => verifyWebhookSignature({ rawBody: body, signatureHeader: signBody(body, stamp), secret: "", now: NOW }),
     (error) => error instanceof WebhookError && error.code === "billing/not-configured",
+  );
+  const rotationHeader = `t=${stamp},v1=${"deadbeef".repeat(8)},v1=${signBody(body, stamp).split("v1=")[1]}`;
+  const rotated = verifyWebhookSignature({
+    rawBody: body,
+    signatureHeader: rotationHeader,
+    secret: SECRET,
+    now: NOW,
+  });
+  assert.equal(rotated.eventTimestamp, NOW.toISOString());
+  assert.throws(
+    () =>
+      verifyWebhookSignature({
+        rawBody: body,
+        signatureHeader: `t=${stamp},v1=${"deadbeef".repeat(8)}`,
+        secret: SECRET,
+        now: NOW,
+      }),
+    (error) => error instanceof WebhookError && error.code === "billing/invalid-signature",
   );
 });
 
@@ -176,6 +221,36 @@ test("billing events apply once under replay", async () => {
       ["evt_replay_1"],
     );
     assert.notEqual(ledger.rows[0]?.applied_at, null);
+  } finally {
+    await db.close();
+  }
+});
+
+test("concurrent duplicate deliveries converge to one application", async () => {
+  const db = await fixtureDb();
+  try {
+    const workspaceId = await workspaceFixture(db);
+    let applications = 0;
+    const deliver = () =>
+      handleBillingEvent(db, {
+        eventId: "evt_race_1",
+        eventType: "customer.subscription.updated",
+        payload: { plan: "pro", seats: 3 },
+        apply: async (tx) => {
+          applications += 1;
+          await setSubscriptionVia(tx, workspaceId);
+        },
+      });
+    const outcomes = await Promise.allSettled([deliver(), deliver()]);
+    const applied = outcomes.filter(
+      (outcome) => outcome.status === "fulfilled" && outcome.value.applied,
+    );
+    const skipped = outcomes.filter(
+      (outcome) => outcome.status === "fulfilled" && !outcome.value.applied,
+    );
+    assert.equal(applied.length, 1);
+    assert.equal(skipped.length, 1);
+    assert.equal(applications, 1);
   } finally {
     await db.close();
   }
@@ -249,6 +324,29 @@ test("subscription provisioning validates plans, seats, and workspaces", async (
     await assert.rejects(
       () => setSubscription(db, { workspaceId, planKey: "pro", seats: 0 }),
       (error) => error instanceof AuthError && error.code === "auth/invalid-subscription",
+    );
+    await assert.rejects(
+      () => setSubscription(db, { workspaceId, planKey: "pro", status: "trialing" }),
+      (error) => error instanceof AuthError && error.code === "auth/invalid-subscription",
+    );
+    assert.equal(
+      await getSubscription(db, "00000000-0000-0000-0000-000000000000"),
+      null,
+    );
+    await assert.rejects(
+      () => setSubscription(db, { workspaceId, planKey: "pro", currentPeriodEnd: "not-a-date" }),
+      (error) => error instanceof AuthError && error.code === "auth/invalid-subscription",
+    );
+    assert.throws(
+      () =>
+        verifyWebhookSignature({
+          rawBody: "{}",
+          signatureHeader: signBody("{}", timestampOf(NOW)),
+          secret: SECRET,
+          toleranceSeconds: NaN,
+          now: NOW,
+        }),
+      (error) => error instanceof WebhookError && error.code === "billing/invalid-event",
     );
     await assert.rejects(
       () =>
