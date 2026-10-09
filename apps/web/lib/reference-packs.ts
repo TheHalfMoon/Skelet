@@ -12,10 +12,9 @@ import {
  * every entry carries a stable Skelet URI, so a later agent recovers the
  * source evidence without the original session.
  *
- * Identity precondition: callers pass server-resolved user identities as
- * actorId (the bearer gate proves caller authenticity; token-to-identity
- * binding lands with the OAuth grain). Membership and visibility are
- * enforced on those identities by the collections layer.
+ * Identity model: actorId is always server-resolved (bound from the
+ * caller's validated session by the MCP route). Membership and
+ * visibility are enforced on that identity by the collections layer.
  */
 
 export const REFERENCE_PACK_SCHEMA = "skelet/reference-pack/1";
@@ -58,7 +57,11 @@ export function parseSkeletUri(uri: string): { type: "artifact" | "collection"; 
   if (match === null || !UUID_PATTERN.test(match[2] ?? "")) {
     throw new PackError("packs/invalid", "Skelet URI is invalid.");
   }
-  return { type: match[1] as "artifact" | "collection", id: (match[2] ?? "").toLowerCase() };
+  const type = (match[1] ?? "").toLowerCase();
+  if (type !== "artifact" && type !== "collection") {
+    throw new PackError("packs/invalid", "Skelet URI is invalid.");
+  }
+  return { type, id: (match[2] ?? "").toLowerCase() };
 }
 
 /** Create a pack (workspace collection) owned by the calling identity. */
@@ -72,12 +75,18 @@ export async function createReferencePack(
     artifactIds?: string[];
   },
 ): Promise<{ collectionId: string; uri: string }> {
-  if (typeof input.title !== "string" || input.title.trim().length === 0) {
+  if (typeof input.title !== "string" || input.title.trim().length === 0 || input.title.length > 256) {
     throw new PackError("packs/invalid", "Reference pack title is invalid.");
   }
   const artifactIds = input.artifactIds ?? [];
   if (!Array.isArray(artifactIds) || artifactIds.length > 200) {
     throw new PackError("packs/invalid", "Reference pack items are invalid.");
+  }
+  // Validate every item before creating anything: no partial packs.
+  for (const artifactId of artifactIds) {
+    if (typeof artifactId !== "string" || !UUID_PATTERN.test(artifactId)) {
+      throw new PackError("packs/invalid", "Reference pack item is invalid.");
+    }
   }
   const collection = await createCollection(db, {
     workspaceId: input.workspaceId,
@@ -86,9 +95,6 @@ export async function createReferencePack(
     actorId: input.actorId,
   });
   for (const artifactId of artifactIds) {
-    if (typeof artifactId !== "string" || !UUID_PATTERN.test(artifactId)) {
-      throw new PackError("packs/invalid", "Reference pack item is invalid.");
-    }
     await saveReference(db, {
       collectionId: collection.id,
       artifactId,

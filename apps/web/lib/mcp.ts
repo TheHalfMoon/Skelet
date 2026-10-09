@@ -1,6 +1,5 @@
-import { createHash, timingSafeEqual } from "node:crypto";
-
 import type { DbClient } from "../../../packages/db/src/db.ts";
+import { validateSession } from "../../../packages/db/src/auth.ts";
 import { getArtifact } from "../../../packages/db/src/graph.ts";
 import { saveReference } from "../../../packages/db/src/collections.ts";
 import { searchAssets, resolveAsset } from "../../../packages/assets/src/registry.ts";
@@ -30,10 +29,12 @@ export const MCP_MAX_BATCH = 32;
 export const MCP_MAX_BODY_CHARS = 256 * 1024;
 
 export interface McpContext {
-  /** Configured bearer tokens; empty means no caller is authorized. */
-  tokens: string[];
-  /** Presented credential, if any. */
-  token: string | null;
+  /**
+   * Server-resolved caller identity (Skelet user ID), bound by the route
+   * from a validated session token. Null only in tests exercising denial;
+   * the route never dispatches tools without an identity.
+   */
+  userId: string | null;
 }
 
 interface JsonRpcRequest {
@@ -64,33 +65,11 @@ function negotiateVersion(requested: unknown): string | null {
   return MCP_PROTOCOL_VERSIONS[0] ?? null;
 }
 
-function checkAuth(ctx: McpContext): JsonRpcResponse | null {
-  if (ctx.tokens.length === 0 || ctx.token === null || !includesToken(ctx.tokens, ctx.token)) {
-    return {
-      jsonrpc: "2.0",
-      id: null,
-      error: { code: -32001, message: "Unauthorized." },
-    };
+function requireUser(ctx: McpContext): string {
+  if (ctx.userId === null) {
+    throw { code: -32001, message: "Unauthorized." };
   }
-  return null;
-}
-
-function sha256(value: string): Buffer {
-  return createHash("sha256").update(value, "utf8").digest();
-}
-
-/** Constant-time token comparison; length leaks only. */
-function includesToken(tokens: string[], presented: string): boolean {
-  const digest = sha256(presented);
-  let found = false;
-  for (const candidate of tokens) {
-    const expected = sha256(candidate);
-    if (expected.length !== digest.length) continue;
-    if (timingSafeEqual(expected, digest) && candidate.length === presented.length) {
-      found = true;
-    }
-  }
-  return found;
+  return ctx.userId;
 }
 
 function toolSchemas(): unknown[] {
@@ -128,20 +107,19 @@ function toolSchemas(): unknown[] {
     },
     {
       name: "save_reference",
-      description: "Save a canonical artifact into a workspace collection. Actor identity must be server-resolved.",
+      description: "Save a canonical artifact into a workspace collection as the calling user.",
       inputSchema: {
         type: "object",
         properties: {
           collectionId: { type: "string" },
           artifactId: { type: "string" },
-          actorId: { type: "string" },
         },
-        required: ["collectionId", "artifactId", "actorId"],
+        required: ["collectionId", "artifactId"],
       },
     },
     {
       name: "create_reference_pack",
-      description: "Create a reference pack (collection plus versioned export) from evidence. Actor identity must be server-resolved.",
+      description: "Create a reference pack (collection plus versioned export) from evidence as the calling user.",
       inputSchema: {
         type: "object",
         properties: {
@@ -149,9 +127,8 @@ function toolSchemas(): unknown[] {
           title: { type: "string" },
           artifactIds: { type: "array", items: { type: "string" } },
           visibility: { type: "string" },
-          actorId: { type: "string" },
         },
-        required: ["workspaceId", "title", "actorId"],
+        required: ["workspaceId", "title"],
       },
     },
     {
@@ -159,7 +136,7 @@ function toolSchemas(): unknown[] {
       description: "Retrieve a canonical object by Skelet URI (skelet://artifact/{id}, skelet://collection/{id}).",
       inputSchema: {
         type: "object",
-        properties: { uri: { type: "string" }, actorId: { type: "string" } },
+        properties: { uri: { type: "string" } },
         required: ["uri"],
       },
     },
@@ -195,6 +172,7 @@ const REGISTRY_KINDS = ["icon", "logo", "font"] as const;
 
 async function callTool(
   db: DbClient,
+  ctx: McpContext,
   name: unknown,
   args: unknown,
 ): Promise<unknown> {
@@ -243,26 +221,23 @@ async function callTool(
     return { item: buildRegistryItem(params.name) };
   }
   if (name === "save_reference") {
-    if (
-      typeof params.collectionId !== "string" ||
-      typeof params.artifactId !== "string" ||
-      typeof params.actorId !== "string"
-    ) {
+    if (typeof params.collectionId !== "string" || typeof params.artifactId !== "string") {
       throw { code: -32602, message: "save_reference arguments are invalid." };
     }
-    await saveReference(db, {
-      collectionId: params.collectionId,
-      artifactId: params.artifactId,
-      actorId: params.actorId,
-    });
+    const actorId = requireUser(ctx);
+    try {
+      await saveReference(db, {
+        collectionId: params.collectionId,
+        artifactId: params.artifactId,
+        actorId,
+      });
+    } catch {
+      throw { code: -32000, message: "Tool execution failed." };
+    }
     return { saved: true, uri: `skelet://artifact/${params.artifactId}` };
   }
   if (name === "create_reference_pack") {
-    if (
-      typeof params.workspaceId !== "string" ||
-      typeof params.title !== "string" ||
-      typeof params.actorId !== "string"
-    ) {
+    if (typeof params.workspaceId !== "string" || typeof params.title !== "string") {
       throw { code: -32602, message: "create_reference_pack arguments are invalid." };
     }
     if (params.visibility !== undefined && params.visibility !== "private" && params.visibility !== "workspace") {
@@ -275,10 +250,11 @@ async function callTool(
     ) {
       throw { code: -32602, message: "create_reference_pack.artifactIds is invalid." };
     }
+    const actorId = requireUser(ctx);
     const packInput = {
       workspaceId: params.workspaceId as string,
       title: params.title as string,
-      actorId: params.actorId as string,
+      actorId,
     } as {
       workspaceId: string;
       title: string;
@@ -292,9 +268,13 @@ async function callTool(
     if (params.artifactIds !== undefined) {
       packInput.artifactIds = params.artifactIds as string[];
     }
-    const pack = await createReferencePack(db, packInput);
-    const exported = await exportReferencePack(db, pack.collectionId, params.actorId as string);
-    return { pack: exported };
+    try {
+      const pack = await createReferencePack(db, packInput);
+      const exported = await exportReferencePack(db, pack.collectionId, actorId);
+      return { pack: exported };
+    } catch {
+      throw { code: -32000, message: "Tool execution failed." };
+    }
   }
   if (name === "get_object") {
     if (typeof params.uri !== "string") {
@@ -316,10 +296,12 @@ async function callTool(
           },
         };
       }
-      if (typeof params.actorId !== "string") {
-        throw { code: -32602, message: "get_object.actorId is required for collections." };
+      const actorId = requireUser(ctx);
+      try {
+        return { pack: await exportReferencePack(db, parsed.id, actorId) };
+      } catch {
+        throw { code: -32000, message: "Tool execution failed." };
       }
-      return { pack: await exportReferencePack(db, parsed.id, params.actorId) };
     } catch (thrown) {
       if (isRecord(thrown) && typeof thrown.code === "number") throw thrown;
       if (thrown instanceof Error && thrown.name === "PackError") {
@@ -367,9 +349,15 @@ async function handleOne(
   if (method === "ping") {
     return { jsonrpc: "2.0", id, result: {} };
   }
-  const auth = checkAuth(ctx);
-  if (auth !== null) {
-    return { ...auth, id: id ?? null };
+  if (method === "tools/list" || method === "tools/call") {
+    try {
+      requireUser(ctx);
+    } catch (denied) {
+      if (isRecord(denied) && typeof denied.code === "number") {
+        return error(id, denied.code, "Unauthorized.");
+      }
+      return error(id, -32001, "Unauthorized.");
+    }
   }
   if (method === "tools/list") {
     return { jsonrpc: "2.0", id, result: { tools: toolSchemas() } };
@@ -381,6 +369,7 @@ async function handleOne(
     try {
       const output = await callTool(
         db,
+        ctx,
         (params as { name?: unknown }).name,
         (params as { arguments?: unknown }).arguments,
       );
@@ -428,4 +417,20 @@ export function bearerToken(header: string | null): string | null {
   if (match === null) return null;
   const token = (match[1] ?? "").trim();
   return token.length > 0 ? token : null;
+}
+
+/**
+ * Bind a presented bearer token to a server-resolved user identity via
+ * the session store. Invalid, expired, or revoked sessions throw; the
+ * route maps every failure to an opaque 401.
+ */
+export async function resolveRequestUser(
+  db: DbClient,
+  token: string | null,
+): Promise<string> {
+  if (token === null) {
+    throw new Error("Missing bearer token.");
+  }
+  const session = await validateSession(db, token);
+  return session.user.id;
 }
