@@ -33,8 +33,9 @@ def stubbed(routes, error=None):
     """Replace opener transport with a deterministic offline double."""
     calls = []
 
-    def open_request(self, request, timeout=None):
-        calls.append(request)
+    def open_request(self, url, data=None, timeout=None, **kwargs):
+        calls.append(url)
+        request = url
         if error is not None:
             raise error
         body = routes.get(request.full_url.split("?", 1)[0])
@@ -51,8 +52,8 @@ def stubbed(routes, error=None):
             def __exit__(self, *args):
                 return False
 
-            def read(self):
-                return payload
+            def read(self, size=-1):
+                return payload if size is None or size < 0 else payload[:size]
 
         return Response()
 
@@ -101,7 +102,8 @@ class SdkClientTests(unittest.TestCase):
         }
         with stubbed(routes):
             self.assertEqual(make_client().get_asset("abc")["uri"], "skelet://artifact/1")
-            self.assertEqual(make_client().get_object("skelet://artifact/abc")["title"], "A")
+            envelope = make_client().get_object("skelet://artifact/abc")
+            self.assertEqual(envelope["object"]["title"], "A")
             with self.assertRaises(SdkError):
                 make_client().get_asset("")
 
@@ -151,6 +153,13 @@ class StubApiHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         if self.headers.get("Authorization") != "Bearer cli-secret":
             self._send(401, {"error": "Unauthorized."})
+            return
+        if self.path.startswith("/api/v1/redirect"):
+            self.server.hits = getattr(self.server, "hits", 0) + 1  # type: ignore[attr-defined]
+            self.send_response(302)
+            self.send_header("Location", "/api/v1/assets?query=x")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
             return
         if self.path.startswith("/api/v1/assets?"):
             self._send(200, {"assets": [ASSET]})
@@ -222,6 +231,15 @@ class CliEndToEndTests(unittest.TestCase):
         completed = self._run("search", "--query", "x", extra_env={"SKELET_TOKEN": "wrong"})
         self.assertEqual(completed.returncode, 1)
         self.assertIn("sdk/unauthorized", completed.stderr)
+
+    def test_redirects_are_refused_without_follow(self) -> None:
+        from scripts.skelet_sdk import SkeletClient as Client
+
+        client = Client(f"http://127.0.0.1:{self.port}", "cli-secret")
+        with self.assertRaises(SdkError) as caught:
+            client._request("/api/v1/redirect")
+        self.assertEqual(caught.exception.code, "sdk/transport")
+        self.assertEqual(getattr(self.server, "hits", 0), 1)
 
 
 if __name__ == "__main__":
