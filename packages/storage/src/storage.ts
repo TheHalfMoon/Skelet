@@ -242,12 +242,12 @@ export class LocalContentAddressedStorage implements StorageProvider {
           if (!(next.value instanceof Uint8Array)) {
             throw new StorageError("INVALID_INPUT", "Input must yield Uint8Array chunks");
           }
-          bytes += next.value.byteLength;
+          // Own a stable snapshot: callers may reuse/mutate their input buffers.
+          const bytesToWrite = Buffer.from(next.value);
+          bytes += bytesToWrite.byteLength;
           if (bytes > allowedBytes) {
             throw new StorageError("SIZE_LIMIT", "Upload exceeds maximum bytes");
           }
-          // Own a stable snapshot: callers may reuse/mutate their input buffers.
-          const bytesToWrite = Buffer.from(next.value);
           hash.update(bytesToWrite);
           let offset = 0;
           while (offset < bytesToWrite.byteLength) {
@@ -274,8 +274,8 @@ export class LocalContentAddressedStorage implements StorageProvider {
       await file.close();
       file = undefined;
       const digest = hash.digest("hex");
-      // Verify the actual fsynced bytes, not only the source buffers. A disk
-      // fault or a caller mutating a buffer must not publish a corrupt hash.
+      // Re-read the fsynced temporary file through the filesystem cache.
+      // This detects code/write mismatches, not physical-media faults.
       const verifyTemp = await open(temporary, "r");
       try {
         const actual = createHash("sha256");
@@ -302,12 +302,6 @@ export class LocalContentAddressedStorage implements StorageProvider {
         // Same-volume hardlink is atomic and NEVER overwrites existing hashes.
         await link(temporary, target);
         created = true;
-        // fsync on file alone does not make the new directory entry durable.
-        // Sync the shard and ancestors, including newly created shard dirs.
-        const root = await this.root();
-        await syncDirectory(await this.directory(digest));
-        await syncDirectory(join(root, "sha256"));
-        await syncDirectory(root);
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
         const existingSize = await this.verify(digest);
@@ -315,6 +309,12 @@ export class LocalContentAddressedStorage implements StorageProvider {
           throw new StorageError("CORRUPT_OBJECT", "Existing object size conflicts with upload");
         }
       }
+      // Both creators and followers must wait for durable directory entries.
+      // A follower can otherwise return before the creator's first fsync.
+      const root = await this.root();
+      await syncDirectory(await this.directory(digest));
+      await syncDirectory(join(root, "sha256"));
+      await syncDirectory(root);
       return { sha256: digest, storageKey: internalKey(digest), byteLength: bytes, created };
     } finally {
       if (file) await file.close().catch(() => {});
