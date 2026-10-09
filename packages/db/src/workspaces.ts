@@ -1,5 +1,5 @@
 import type { DbClient, DbTransaction } from "./db.ts";
-import { AuthError } from "./auth.ts";
+import { AuthError, isUniqueViolation } from "./auth.ts";
 
 /**
  * G04-02 workspace authority: workspace creation with atomic owner
@@ -10,6 +10,12 @@ import { AuthError } from "./auth.ts";
  * closed with one generic code so membership and existence are not oracles.
  * Multi-statement mutations run inside explicit transactions so a crash
  * never leaves a workspace without its owner or a half-applied roster.
+ *
+ * Layering notes: callers pass server-resolved identities (the authenticated
+ * subject as actorId/ownerId); this module never accepts a client workspace
+ * claim as authority. User deletion cascades memberships and nulls
+ * created_by by schema design; a dedicated user-management grain owns
+ * succession for that path.
  */
 
 export type WorkspaceRole = "owner" | "admin" | "member";
@@ -21,6 +27,13 @@ const ROLE_RANK: Record<WorkspaceRole, number> = {
 };
 
 const ACCESS_DENIED = "Access denied.";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUuid(value: string): boolean {
+  return typeof value === "string" && UUID_PATTERN.test(value);
+}
 
 export interface Workspace {
   id: string;
@@ -75,7 +88,7 @@ function requireRow(rows: Record<string, unknown>[]): Record<string, unknown> {
 }
 
 function validateWorkspaceName(name: string): string {
-  if (typeof name !== "string") {
+  if (typeof name !== "string" || name.length > 200) {
     throw new AuthError("auth/invalid-workspace", "Workspace name is invalid.");
   }
   const trimmed = name.trim();
@@ -105,6 +118,9 @@ export async function createWorkspace(
   input: { name: string; ownerId: string },
 ): Promise<{ workspace: Workspace; membership: Membership }> {
   const name = validateWorkspaceName(input.name);
+  if (!isUuid(input.ownerId)) {
+    throw new AuthError("auth/user-not-found", "User was not found.");
+  }
   return client.transaction(async (tx) => {
     const owner = await tx.query("select id from users where id = $1", [
       input.ownerId,
@@ -128,12 +144,13 @@ export async function createWorkspace(
   });
 }
 
-/** Membership role, or null when the user is not a member. Unknown workspaces read as null: no oracle. */
+/** Membership role, or null when the user is not a member. Unknown or malformed identifiers read as null: no oracle. */
 export async function getMembership(
   tx: DbTransaction,
   workspaceId: string,
   userId: string,
 ): Promise<WorkspaceRole | null> {
+  if (!isUuid(workspaceId) || !isUuid(userId)) return null;
   const result = await tx.query(
     `select role from workspace_members where workspace_id = $1 and user_id = $2`,
     [workspaceId, userId],
@@ -170,6 +187,17 @@ async function countOwners(tx: DbTransaction, workspaceId: string): Promise<numb
   return Number(requireRow(result.rows).n);
 }
 
+/**
+ * Serialize roster mutations for one workspace so concurrent
+ * remove/demote pairs cannot both observe two owners and orphan authority.
+ */
+async function lockRoster(tx: DbTransaction, workspaceId: string): Promise<void> {
+  await tx.query(
+    "select 1 from workspace_members where workspace_id = $1 for update",
+    [workspaceId],
+  );
+}
+
 function canGrant(actorRole: WorkspaceRole, role: WorkspaceRole): boolean {
   if (actorRole === "owner") return true;
   return actorRole === "admin" && role === "member";
@@ -189,6 +217,9 @@ export async function addMember(
     if (actorRole === null || !canGrant(actorRole, role)) {
       throw forbidden();
     }
+    if (!isUuid(input.userId)) {
+      throw new AuthError("auth/user-not-found", "User was not found.");
+    }
     const target = await tx.query("select id from users where id = $1", [
       input.userId,
     ]);
@@ -204,11 +235,7 @@ export async function addMember(
       );
       return toMembership(requireRow(added.rows));
     } catch (error) {
-      const code =
-        typeof error === "object" && error !== null && "code" in error
-          ? String((error as { code: unknown }).code)
-          : "";
-      if (code === "23505" || /unique|duplicate/i.test(String(error))) {
+      if (isUniqueViolation(error)) {
         throw new AuthError("auth/member-exists", "User is already a member.");
       }
       throw error;
@@ -231,8 +258,11 @@ export async function setMemberRole(
     }
     if (role !== "owner") {
       const current = await getMembership(tx, input.workspaceId, input.userId);
-      if (current === "owner" && (await countOwners(tx, input.workspaceId)) <= 1) {
-        throw new AuthError("auth/last-owner", "A workspace must keep one owner.");
+      if (current === "owner") {
+        await lockRoster(tx, input.workspaceId);
+        if ((await countOwners(tx, input.workspaceId)) <= 1) {
+          throw new AuthError("auth/last-owner", "A workspace must keep one owner.");
+        }
       }
     }
     const updated = await tx.query(
@@ -272,8 +302,11 @@ export async function removeMember(
     if (!selfRemoval && actorRole === "admin" && targetRole !== "member") {
       throw forbidden();
     }
-    if (targetRole === "owner" && (await countOwners(tx, input.workspaceId)) <= 1) {
-      throw new AuthError("auth/last-owner", "A workspace must keep one owner.");
+    if (targetRole === "owner") {
+      await lockRoster(tx, input.workspaceId);
+      if ((await countOwners(tx, input.workspaceId)) <= 1) {
+        throw new AuthError("auth/last-owner", "A workspace must keep one owner.");
+      }
     }
     await tx.query(
       `delete from workspace_members where workspace_id = $1 and user_id = $2`,
@@ -303,11 +336,13 @@ export async function listMembers(
 /**
  * List workspaces the user belongs to. Callers must pass the authenticated
  * subject; this function never trusts a workspace claim, only the roster.
+ * Malformed identifiers read as an empty list: no oracle.
  */
 export async function listWorkspacesForUser(
   tx: DbTransaction,
   userId: string,
 ): Promise<Workspace[]> {
+  if (!isUuid(userId)) return [];
   const result = await tx.query(
     `select w.id, w.name, w.created_by, w.created_at, w.updated_at
      from workspaces w join workspace_members m on m.workspace_id = w.id

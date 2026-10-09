@@ -180,7 +180,7 @@ function hashToken(token: string): string {
   return createHash("sha256").update(token, "utf8").digest("hex");
 }
 
-function isUniqueViolation(error: unknown): boolean {
+export function isUniqueViolation(error: unknown): boolean {
   return violationCode(error) === "23505" || /unique|duplicate/i.test(errorMessage(error));
 }
 

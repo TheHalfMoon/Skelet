@@ -109,6 +109,27 @@ test("denial matrix is uniform: outsiders and forged workspaces see one error", 
       assert.equal(String(denial.message), "Access denied.");
     }
     assert.equal(await getMembership(db, forged, outsider.id), null);
+    for (const attempt of [
+      () => requireRole(db, "not-a-uuid", outsider.id, "member"),
+      () => requireRole(db, created.workspace.id, "not-a-uuid", "member"),
+      () => listMembers(db, "not-a-uuid", outsider.id),
+      () => addMember(db, { workspaceId: "not-a-uuid", userId: outsider.id, role: "member", actorId: owner.id }),
+    ]) {
+      await assert.rejects(
+        attempt(),
+        (error) => error instanceof AuthError && error.code === "auth/forbidden",
+        "malformed identifiers must fail closed as forbidden",
+      );
+    }
+    await assert.rejects(
+      () => createWorkspace(db, { name: "Ghost", ownerId: "not-a-uuid" }),
+      (error) => error instanceof AuthError && error.code === "auth/user-not-found",
+    );
+    await assert.rejects(
+      () => addMember(db, { workspaceId: created.workspace.id, userId: "not-a-uuid", role: "member", actorId: owner.id }),
+      (error) => error instanceof AuthError && error.code === "auth/user-not-found",
+    );
+    assert.deepEqual(await listWorkspacesForUser(db, "not-a-uuid"), []);
   } finally {
     await db.close();
   }
@@ -152,6 +173,24 @@ test("role hierarchy grants exactly its authority", async () => {
     );
     const roster = await listMembers(db, id, member.id);
     assert.deepEqual(roster.map((entry) => entry.role).sort(), ["admin", "admin", "member", "owner"]);
+    const orderKeys = roster.map((entry) => `${entry.joinedAt} ${entry.userId}`);
+    assert.deepEqual([...orderKeys].sort(), orderKeys, "roster must honor joined_at, user_id order");
+    await assert.rejects(
+      () => addMember(db, { workspaceId: id, userId: stranger.id, role: "superadmin", actorId: owner.id }),
+      (error) => error instanceof AuthError && error.code === "auth/invalid-role",
+    );
+    await assert.rejects(
+      () => addMember(db, { workspaceId: id, userId: "11111111-2222-4333-8444-555555555555", role: "member", actorId: owner.id }),
+      (error) => error instanceof AuthError && error.code === "auth/user-not-found",
+    );
+    await assert.rejects(
+      () => setMemberRole(db, { workspaceId: id, userId: "11111111-2222-4333-8444-555555555555", role: "admin", actorId: owner.id }),
+      (error) => error instanceof AuthError && error.code === "auth/member-not-found",
+    );
+    await assert.rejects(
+      () => removeMember(db, { workspaceId: id, userId: admin.id, actorId: member.id }),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
   } finally {
     await db.close();
   }
