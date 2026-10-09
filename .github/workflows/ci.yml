@@ -119,6 +119,9 @@ jobs:
       - name: Run Node.js tests
         run: node --experimental-strip-types --test "tests/node/*.test.mjs" "apps/web/tests/*.test.mjs" "apps/worker/tests/*.test.mjs"
 
+      - name: Validate component registry
+        run: python scripts/validate_registry.py
+
       - name: Production build
         run: pnpm --dir apps/web build
 
