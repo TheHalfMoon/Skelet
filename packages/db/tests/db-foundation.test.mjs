@@ -23,11 +23,11 @@ async function freshDb() {
 test("migrateUp from empty creates ledger and domain tables", async () => {
   const db = new PGlite();
   const applied = await migrateUp(db);
-  assert.deepEqual(applied, ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth"]);
+  assert.deepEqual(applied, ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing"]);
   const ledger = await db.query("select filename from schema_migrations");
   assert.deepEqual(
     ledger.rows.map((row) => row.filename),
-    ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth"],
+    ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing"],
   );
   for (const table of ["sources", "products", "product_versions"]) {
     const check = await db.query(
@@ -44,7 +44,7 @@ test("migrateUp is idempotent", async () => {
   const applied = await migrateUp(db);
   assert.deepEqual(applied, []);
   const count = await db.query("select count(*)::int as n from schema_migrations");
-  assert.equal(count.rows[0].n, 6);
+  assert.equal(count.rows[0].n, 7);
   await db.close();
 });
 
@@ -118,7 +118,7 @@ test("migrateDown rolls back and migrateUp recreates deterministically", async (
   );
   assert.equal(tables.rows[0].n, 0);
   const recreated = await migrateUp(db);
-  assert.deepEqual(recreated, ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth"]);
+  assert.deepEqual(recreated, ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing"]);
   await db.close();
 });
 
@@ -126,7 +126,7 @@ test("migrateDown rolls back and migrateUp recreates deterministically", async (
 test("openDatabase runs migrations through the transactional wrapper", async () => {
   const db = await openDatabase();
   try {
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing"]);
     assert.deepEqual(await migrateUp(db), []);
     const source = await createSource(db, { key: "wrapper", kind: "fixture" });
     assert.equal((await getSource(db, source.id)).key, "wrapper");
