@@ -1,16 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { bearerToken, dispatchMcp, MCP_MAX_BODY_CHARS } from "../../../lib/mcp";
+import { bearerToken, dispatchMcp, MCP_MAX_BODY_CHARS, resolveRequestUser } from "../../../lib/mcp";
 import { getSharedDb } from "../../../lib/mcp-db";
 import { checkRateLimit } from "../../../lib/rate-limit";
-
-function configuredTokens(): string[] {
-  const raw = process.env.SKELET_MCP_TOKENS ?? "";
-  return raw
-    .split(",")
-    .map((token) => token.trim())
-    .filter((token) => token.length > 0);
-}
 
 function clientKey(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -18,6 +10,13 @@ function clientKey(request: Request): string {
     return forwarded.split(",")[0]?.trim() || "unknown";
   }
   return "unknown";
+}
+
+function unauthorized(): NextResponse {
+  return NextResponse.json(
+    { jsonrpc: "2.0", id: null, error: { code: -32001, message: "Unauthorized." } },
+    { status: 401 },
+  );
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -53,6 +52,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
   const token = bearerToken(request.headers.get("authorization"));
+  if (token === null) {
+    return unauthorized();
+  }
   let db;
   try {
     db = await getSharedDb();
@@ -62,11 +64,19 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: 500 },
     );
   }
-  const response = await dispatchMcp(db, { tokens: configuredTokens(), token }, body);
-  if (response === null) {
-    return new NextResponse(null, { status: 202 });
+  // The bearer credential IS a Skelet session token: the actor identity
+  // is server-resolved here, never taken from client arguments. Token
+  // issuance upgrades (OAuth metadata, PKCE) land in a later P08 grain.
+  try {
+    const userId = await resolveRequestUser(db, token);
+    const response = await dispatchMcp(db, { userId }, body);
+    if (response === null) {
+      return new NextResponse(null, { status: 202 });
+    }
+    return NextResponse.json(response);
+  } catch {
+    return unauthorized();
   }
-  return NextResponse.json(response);
 }
 
 export function GET(): NextResponse {
