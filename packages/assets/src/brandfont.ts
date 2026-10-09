@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import type { DbClient, DbTransaction } from "../../db/src/db.ts";
 import { registerImport } from "../../db/src/workflows.ts";
-import type { StorageProvider } from "../../storage/src/storage.ts";
 import { IconSetError, assertSafeSvgBody } from "./iconset.ts";
 import { registerAsset } from "./registry.ts";
 
@@ -100,6 +99,7 @@ function validateVariant(variant: unknown, label: string): { name: string; body:
   if (typeof entry.name !== "string" || entry.name.trim().length === 0 || entry.name.length > 64) {
     fail(`${label} variant name is invalid.`);
   }
+  rejectControls(entry.name, label);
   if (typeof entry.svgBody !== "string" || entry.svgBody.length === 0 || entry.svgBody.length > MAX_BODY_CHARS) {
     fail(`${label} variant body is invalid.`);
   }
@@ -113,6 +113,7 @@ function validateStyle(style: unknown, label: string): { name: string; weight: n
   if (typeof entry.name !== "string" || entry.name.trim().length === 0 || entry.name.length > 128) {
     fail(`${label} style name is invalid.`);
   }
+  rejectControls(entry.name, label);
   if (!Number.isInteger(entry.weight) || (entry.weight as number) < 1 || (entry.weight as number) > 1000) {
     fail(`${label} style weight is invalid.`);
   }
@@ -126,6 +127,13 @@ function descriptorHash(parts: string[]): string {
   return createHash("sha256").update(parts.join("|"), "utf8").digest("hex");
 }
 
+function rejectControls(value: string, label: string): void {
+  // eslint-disable-next-line no-control-regex
+  if (/[<>&\0-\x1F\x7F]/.test(value)) {
+    fail(`${label} contains unsafe characters.`);
+  }
+}
+
 /**
  * Import brand marks. Every record is trademark-claimed by construction:
  * the trademark flag is not caller-configurable.
@@ -137,7 +145,6 @@ export async function importBrandMarks(
     version: string;
     rightsClassification: string;
     marks: BrandMarkInput[];
-    storage?: StorageProvider;
     dryRun?: boolean;
   },
 ): Promise<BrandFontResult> {
@@ -171,6 +178,7 @@ export async function importBrandMarks(
       if (typeof title !== "string" || title.trim().length === 0 || title.length > 500) {
         fail(`Brand ${slug} title is invalid.`);
       }
+      rejectControls(title, `Brand ${slug}`);
       const guidelinesUrl = validateGuidelinesUrl(
         (mark as BrandMarkInput).guidelinesUrl,
         `Brand ${slug}`,
@@ -179,12 +187,17 @@ export async function importBrandMarks(
       if (!Array.isArray(variants) || variants.length === 0 || variants.length > MAX_VARIANTS) {
         fail(`Brand ${slug} variants are invalid.`);
       }
+      const parsed = variants.map((variant) => validateVariant(variant, `Brand ${slug}`));
+      const variantNames = parsed.map((variant) => variant.name);
+      if (new Set(variantNames).size !== variantNames.length) {
+        fail(`Brand ${slug} variant names must be unique.`);
+      }
       plans.push({
         slug,
         title: title.trim(),
         ...(guidelinesUrl === undefined ? {} : { guidelinesUrl }),
         license: validateLicense((mark as BrandMarkInput).license),
-        variants: variants.map((variant) => validateVariant(variant, `Brand ${slug}`)),
+        variants: parsed,
       });
     } catch (error) {
       const name =
@@ -213,11 +226,19 @@ export async function importBrandMarks(
           return;
         }
         const variantNames = plan.variants.map((variant) => variant.name);
+        const bodyHashes = plan.variants
+          .map((variant) => createHash("sha256").update(variant.body, "utf8").digest("hex"))
+          .sort();
         const record = await registerAsset(tx, {
           kind: "logo",
           title: plan.title,
           sourceId: input.sourceId,
-          contentHash: descriptorHash(["brand", plan.slug, ...variantNames]),
+          contentHash: descriptorHash([
+            "brand",
+            plan.slug,
+            ...[...variantNames].sort(),
+            ...bodyHashes,
+          ]),
           rightsClassification: input.rightsClassification,
           metadata: {
             collection: "brand-corpus",
@@ -239,9 +260,11 @@ export async function importBrandMarks(
         result.imported.push(plan.slug);
       });
     } catch (error) {
+      // Commit-phase failures stay generic: constraint text must not leak
+      // internals to callers. Validation failures keep their codes above.
       result.rejected.push({
         name: plan.slug,
-        reason: error instanceof Error ? error.message.slice(0, 300) : "Import failed.",
+        reason: error instanceof IconSetError ? error.message : "Import failed.",
       });
     }
   }
@@ -291,6 +314,7 @@ export async function importFonts(
       if (typeof entry.family !== "string" || entry.family.trim().length === 0 || entry.family.length > 128) {
         fail("Font family name is invalid.");
       }
+      rejectControls(entry.family, "Font family");
       if (entry.sourceUrl !== undefined) {
         let host = "";
         try {
@@ -309,11 +333,16 @@ export async function importFonts(
       if (!Array.isArray(entry.styles) || entry.styles.length === 0 || entry.styles.length > MAX_STYLES) {
         fail(`Font ${entry.family} styles are invalid.`);
       }
+      const parsed = entry.styles.map((style) => validateStyle(style, `Font ${entry.family}`));
+      const styleKeys = parsed.map((style) => `${style.name}:${style.weight}:${style.style}`);
+      if (new Set(styleKeys).size !== styleKeys.length) {
+        fail(`Font ${entry.family} styles must be unique.`);
+      }
       plans.push({
         family: entry.family.trim(),
         license: validateLicense(entry.license),
         ...(entry.sourceUrl === undefined ? {} : { sourceUrl: entry.sourceUrl }),
-        styles: entry.styles.map((style) => validateStyle(style, `Font ${entry.family}`)),
+        styles: parsed,
       });
     } catch (error) {
       const name =
@@ -341,11 +370,12 @@ export async function importFonts(
           result.skipped.push(plan.family);
           return;
         }
+        const styleKeys = plan.styles.map((style) => `${style.name}:${style.weight}:${style.style}`);
         const record = await registerAsset(tx, {
           kind: "font",
           title: plan.family,
           sourceId: input.sourceId,
-          contentHash: descriptorHash(["font", plan.family.toLowerCase(), String(plan.styles.length)]),
+          contentHash: descriptorHash(["font", plan.family.toLowerCase(), ...[...styleKeys].sort()]),
           rightsClassification: input.rightsClassification,
           metadata: {
             collection: "font-corpus",
@@ -368,7 +398,7 @@ export async function importFonts(
     } catch (error) {
       result.rejected.push({
         name: plan.family,
-        reason: error instanceof Error ? error.message.slice(0, 300) : "Import failed.",
+        reason: error instanceof IconSetError ? error.message : "Import failed.",
       });
     }
   }

@@ -116,29 +116,45 @@ test("brand marks import trademark-separated with variants", async () => {
 test("brand input validation fails closed", async () => {
   const fx = await fixture();
   try {
-    for (const marksInput of [[], [{ slug: "bad slug!", title: "x", variants: [] }]]) {
-      await assert.rejects(
-        () =>
-          importBrandMarks(fx.db, {
-            sourceId: fx.source.id,
-            version: "1.0.0",
-            rightsClassification: "restricted",
-            marks: marksInput,
-          }),
-        (error) => error instanceof IconSetError,
-      );
-    }
+    await assert.rejects(
+      () =>
+        importBrandMarks(fx.db, {
+          sourceId: fx.source.id,
+          version: "1.0.0",
+          rightsClassification: "restricted",
+          marks: [],
+        }),
+      (error) => error instanceof IconSetError,
+    );
     const bad = await importBrandMarks(fx.db, {
       sourceId: fx.source.id,
       version: "1.0.0",
       rightsClassification: "restricted",
       marks: [
+        { slug: "bad slug!", title: "Spaced", variants: [{ name: "m", svgBody: MARK_BODY }] },
         { slug: "__proto__", title: "Reserved", variants: [{ name: "m", svgBody: MARK_BODY }] },
         { slug: "ok", title: "Ok", guidelinesUrl: "ftp://evil.example/x", variants: [{ name: "m", svgBody: MARK_BODY }] },
       ],
     });
     assert.deepEqual(bad.imported, []);
-    assert.equal(bad.rejected.length, 2);
+    assert.equal(bad.rejected.length, 3);
+    const dupes = await importBrandMarks(fx.db, {
+      sourceId: fx.source.id,
+      version: "1.0.0",
+      rightsClassification: "restricted",
+      marks: [
+        {
+          slug: "dupe",
+          title: "Dupe",
+          variants: [
+            { name: "mark", svgBody: MARK_BODY },
+            { name: "mark", svgBody: MARK_BODY },
+          ],
+        },
+      ],
+    });
+    assert.deepEqual(dupes.imported, []);
+    assert.equal(dupes.rejected.length, 1);
   } finally {
     await fx.db.close();
   }
@@ -162,6 +178,43 @@ test("fonts import metadata-only with style inventories", async () => {
     assert.deepEqual(found[0]?.variants.sort(), ["Bold Italic:700:italic", "Regular:400:normal"]);
     assert.equal(found[0]?.serving, "metadata-only");
     assert.equal(found[0]?.servingReason, "No distributable bytes registered.");
+    const revised = await importFonts(fx.db, {
+      sourceId: fx.source.id,
+      version: "2.0.0",
+      rightsClassification: "permitted",
+      families: [
+        {
+          family: "Grotesk",
+          license: "OFL-1.1",
+          styles: [
+            { name: "Regular", weight: 400, style: "normal" },
+            { name: "Light", weight: 300, style: "normal" },
+          ],
+        },
+      ],
+    });
+    assert.deepEqual(revised.imported, ["Grotesk"]);
+    const versions = await fx.db.query(
+      "select content_hash from artifacts where kind = 'font' order by created_at",
+    );
+    assert.equal(versions.rows.length, 2);
+    assert.notEqual(versions.rows[0]?.content_hash, versions.rows[1]?.content_hash);
+    const dupes = await importFonts(fx.db, {
+      sourceId: fx.source.id,
+      version: "3.0.0",
+      rightsClassification: "permitted",
+      families: [
+        {
+          family: "Dupe",
+          styles: [
+            { name: "Regular", weight: 400, style: "normal" },
+            { name: "Regular", weight: 400, style: "normal" },
+          ],
+        },
+      ],
+    });
+    assert.deepEqual(dupes.imported, []);
+    assert.equal(dupes.rejected.length, 1);
     const dry = await importFonts(fx.db, {
       sourceId: fx.source.id,
       version: "1.0.0",
@@ -173,7 +226,7 @@ test("fonts import metadata-only with style inventories", async () => {
     const fonts = await fx.db.query(
       "select count(*)::int as n from artifacts where kind = 'font'",
     );
-    assert.equal(fonts.rows[0]?.n, 1);
+    assert.equal(fonts.rows[0]?.n, 2);
   } finally {
     await fx.db.close();
   }

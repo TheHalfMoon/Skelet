@@ -125,7 +125,7 @@ function validateIconBody(name: string, body: unknown): string {
   if (typeof body !== "string" || body.length === 0 || body.length > MAX_BODY_CHARS) {
     fail(`Icon ${name} body is invalid.`);
   }
-  assertSafeSvgBody(body, name);
+  assertSafeSvgBody(body, `Icon ${name}`);
   return body;
 }
 

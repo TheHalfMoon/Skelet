@@ -179,6 +179,12 @@ function validateRegistryMetadata(metadata: unknown): RegistryMetadata {
     }
     validated.variants = [...(record.variants as string[])];
   }
+  if (record.bytesRegistered !== undefined) {
+    if (typeof record.bytesRegistered !== "boolean") {
+      throw new RegistryError("assets/invalid-record", "Asset bytes flag is invalid.");
+    }
+    validated.bytesRegistered = record.bytesRegistered;
+  }
   return validated;
 }
 
