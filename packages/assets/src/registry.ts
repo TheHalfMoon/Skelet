@@ -17,6 +17,16 @@ import {
  * bytes. Everything else resolves to metadata-only with an explicit
  * reason. A result without provenance and a serving policy is incomplete
  * by product contract, so both are always attached.
+ *
+ * Corpus scope: the asset corpus is workspace-global by canonical domain
+ * design (artifacts bind to sources, never to workspaces, exactly like
+ * the Iconify/Fontsource donor corpora). Artifact visibility labels guide
+ * downstream sharing surfaces; access enforcement lives at the
+ * collection/reference layer, whose tables carry workspace bindings.
+ * Callers authenticate and authorize workspace scope before registering
+ * or presenting records. Content hashes are identifiers, not bytes:
+ * any future byte-serve layer MUST re-check the serving policy before
+ * releasing a single byte.
  */
 
 export type RegistryKind = "icon" | "logo" | "font";
@@ -97,7 +107,11 @@ function validateRegistryMetadata(metadata: unknown): RegistryMetadata {
   const record = metadata as Record<string, unknown>;
   const validated: RegistryMetadata = {};
   if (record.collection !== undefined) {
-    if (typeof record.collection !== "string" || record.collection.length > MAX_TEXT_CHARS) {
+    if (
+      typeof record.collection !== "string" ||
+      record.collection.length === 0 ||
+      record.collection.length > MAX_TEXT_CHARS
+    ) {
       throw new RegistryError("assets/invalid-record", "Asset collection is invalid.");
     }
     validated.collection = record.collection;
@@ -122,7 +136,10 @@ function validateRegistryMetadata(metadata: unknown): RegistryMetadata {
     if (typeof record.license !== "string" || record.license.length === 0 || record.license.length > 64) {
       throw new RegistryError("assets/invalid-record", "Asset license is invalid.");
     }
-    validated.license = record.license;
+    // Trim-only canonicalization: exact SPDX match stays the policy
+    // boundary, so "mit" remains metadata-only rather than downloading
+    // on a reinterpreted claim.
+    validated.license = record.license.trim();
   }
   if (record.trademark !== undefined) {
     if (typeof record.trademark !== "boolean") {
@@ -131,23 +148,30 @@ function validateRegistryMetadata(metadata: unknown): RegistryMetadata {
     validated.trademark = record.trademark;
   }
   if (record.trademarkGuidelinesUrl !== undefined) {
-    if (
-      typeof record.trademarkGuidelinesUrl !== "string" ||
-      record.trademarkGuidelinesUrl.length > 2048 ||
-      !(
-        record.trademarkGuidelinesUrl.startsWith("http://") ||
-        record.trademarkGuidelinesUrl.startsWith("https://")
-      )
-    ) {
+    const url = record.trademarkGuidelinesUrl;
+    if (typeof url !== "string" || url.length > 2048) {
       throw new RegistryError("assets/invalid-record", "Trademark guidelines URL is invalid.");
     }
-    validated.trademarkGuidelinesUrl = record.trademarkGuidelinesUrl;
+    let host = "";
+    try {
+      host = new URL(url).host;
+    } catch {
+      host = "";
+    }
+    if (host.length === 0 || !(url.startsWith("http://") || url.startsWith("https://"))) {
+      throw new RegistryError("assets/invalid-record", "Trademark guidelines URL is invalid.");
+    }
+    // Metadata only: any future fetcher must apply capture guards
+    // (no loopback/private/metadata targets, redirect revalidation).
+    validated.trademarkGuidelinesUrl = url;
   }
   if (record.variants !== undefined) {
     if (
       !Array.isArray(record.variants) ||
       record.variants.length > MAX_VARIANTS ||
-      record.variants.some((variant) => typeof variant !== "string" || variant.length > MAX_TEXT_CHARS)
+      record.variants.some(
+        (variant) => typeof variant !== "string" || variant.length === 0 || variant.length > MAX_TEXT_CHARS,
+      )
     ) {
       throw new RegistryError("assets/invalid-record", "Asset variants are invalid.");
     }
@@ -192,11 +216,17 @@ export function servingPolicy(input: {
 }
 
 function toRecord(row: Record<string, unknown>): AssetRecord {
-  const metadata = validateRegistryMetadata(
-    typeof row.metadata === "string" ? JSON.parse(row.metadata as string) : row.metadata,
-  );
-  const license = metadata.license ?? "unknown";
-  const trademark = metadata.trademark ?? false;
+  let metadata: unknown = row.metadata;
+  if (typeof metadata === "string") {
+    try {
+      metadata = JSON.parse(metadata);
+    } catch {
+      throw new RegistryError("assets/invalid-record", "Asset metadata is corrupt.");
+    }
+  }
+  const validated = validateRegistryMetadata(metadata);
+  const license = validated.license ?? "unknown";
+  const trademark = validated.trademark ?? false;
   const rights = String(row.rights_classification);
   const policy = servingPolicy({ rightsClassification: rights, license, trademark });
   return {
@@ -204,13 +234,13 @@ function toRecord(row: Record<string, unknown>): AssetRecord {
     kind: String(row.kind) as RegistryKind,
     title: String(row.title),
     summary: row.summary === null ? null : String(row.summary),
-    collection: metadata.collection ?? null,
-    ref: metadata.ref ?? null,
-    tags: metadata.tags ?? [],
+    collection: validated.collection ?? null,
+    ref: validated.ref ?? null,
+    tags: validated.tags ?? [],
     license,
     trademark,
-    trademarkGuidelinesUrl: metadata.trademarkGuidelinesUrl ?? null,
-    variants: metadata.variants ?? [],
+    trademarkGuidelinesUrl: validated.trademarkGuidelinesUrl ?? null,
+    variants: validated.variants ?? [],
     rightsClassification: rights,
     visibility: String(row.visibility),
     sourceKey: String(row.source_key),
@@ -225,9 +255,10 @@ const RECORD_COLUMNS =
    a.visibility, a.content_hash, s.key as source_key`;
 
 /**
- * Register an asset record. Byte-backed records reference a stored asset
- * hash; metadata-only records (restricted files, unknown licenses) carry
- * an empty content hash of zeros and must never serve bytes.
+ * Register an asset record. Callers authenticate and authorize before
+ * registering: source bindings and rights/license claims are
+ * caller-attested corpus input, enforced downstream at collection and
+ * serving layers. Byte-backed records reference a stored asset hash.
  */
 export async function registerAsset(
   tx: DbTransaction,
@@ -252,6 +283,9 @@ export async function registerAsset(
   const kind: ArtifactKind = validateKind(input.kind);
   if (typeof input.title !== "string" || input.title.trim().length === 0 || input.title.length > 500) {
     throw new RegistryError("assets/invalid-record", "Asset title is invalid.");
+  }
+  if (input.summary !== undefined && (typeof input.summary !== "string" || input.summary.length > 2000)) {
+    throw new RegistryError("assets/invalid-record", "Asset summary is invalid.");
   }
   if (!/^[0-9a-f]{64}$/.test(input.contentHash)) {
     throw new RegistryError("assets/invalid-record", "Content hash is invalid.");
@@ -341,7 +375,11 @@ export async function searchAssets(
   if (kinds.length === 0) {
     throw new RegistryError("assets/invalid-record", "Asset kinds are invalid.");
   }
-  const pattern = `%${search.query.trim().toLowerCase()}%`;
+  // Escape LIKE wildcards so queries match literally instead of
+  // over-matching the catalog.
+  const escaped = search.query.trim().toLowerCase().replace(/[\\%_]/g, (char) => `\\${char}`);
+  const pattern = `%${escaped}%`;
+  const likeEscape = "escape '\\'";
   const params: unknown[] = [pattern];
   const kindPlaceholders = kinds.map((kind) => {
     params.push(kind);
@@ -349,7 +387,12 @@ export async function searchAssets(
   });
   let rightsFilter = "";
   if (search.rights !== undefined) {
-    if (search.rights.length === 0) {
+    if (
+      search.rights.length === 0 ||
+      search.rights.some(
+        (right) => !["unknown", "metadata_only", "permitted", "restricted"].includes(right),
+      )
+    ) {
       throw new RegistryError("assets/invalid-record", "Rights filter is invalid.");
     }
     const placeholders = search.rights.map((right) => {
@@ -360,7 +403,10 @@ export async function searchAssets(
   }
   let licenseFilter = "";
   if (search.licenses !== undefined) {
-    if (search.licenses.length === 0) {
+    if (
+      search.licenses.length === 0 ||
+      search.licenses.some((license) => typeof license !== "string" || license.length === 0 || license.length > 64)
+    ) {
       throw new RegistryError("assets/invalid-record", "License filter is invalid.");
     }
     const placeholders = search.licenses.map((license) => {
@@ -382,14 +428,14 @@ export async function searchAssets(
   const result = await tx.query(
     `select ${RECORD_COLUMNS} from artifacts a join sources s on s.id = a.source_id
      where a.kind in (${kindPlaceholders.join(", ")})
-       and (lower(a.title) like $1 or lower(coalesce(a.summary, '')) like $1
-         or lower(coalesce(a.canonical_text, '')) like $1
-         or lower(coalesce(a.metadata->>'collection', '')) like $1
-         or lower(coalesce(a.metadata->>'ref', '')) like $1
+       and (lower(a.title) like $1 ${likeEscape} or lower(coalesce(a.summary, '')) like $1 ${likeEscape}
+         or lower(coalesce(a.canonical_text, '')) like $1 ${likeEscape}
+         or lower(coalesce(a.metadata->>'collection', '')) like $1 ${likeEscape}
+         or lower(coalesce(a.metadata->>'ref', '')) like $1 ${likeEscape}
          or exists (select 1 from jsonb_array_elements_text(
            case when jsonb_typeof(a.metadata->'tags') = 'array'
              then a.metadata->'tags' else '[]'::jsonb end) as tag
-           where lower(tag) like $1))
+           where lower(tag) like $1 ${likeEscape}))
        ${rightsFilter} ${licenseFilter} ${trademarkFilter} ${collectionFilter}
      order by a.title, a.id limit $${params.length}`,
     params,

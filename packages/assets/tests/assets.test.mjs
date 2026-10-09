@@ -93,6 +93,10 @@ test("one query searches icons, logos, and fonts", async () => {
     const free = await searchAssets(fx.db, { query: "arrow", trademarkFree: true });
     assert.equal(free.some((entry) => entry.trademark), false);
     assert.equal(free.length, 2);
+    const literal = await searchAssets(fx.db, { query: "%" });
+    assert.equal(literal.length, 0);
+    const underscore = await searchAssets(fx.db, { query: "arrow_right" });
+    assert.equal(underscore.length, 0);
     const mit = await searchAssets(fx.db, { query: "arrow", licenses: ["Apache-2.0"] });
     assert.equal(mit.length, 1);
     const collection = await searchAssets(fx.db, { query: "arrow", collection: "fontsource" });
@@ -179,6 +183,22 @@ test("registration validates shapes and provenance", async () => {
     );
     await assert.rejects(
       () => searchAssets(fx.db, { query: "x", limit: 500 }),
+      (error) => error instanceof RegistryError && error.code === "assets/invalid-record",
+    );
+    await assert.rejects(
+      () => searchAssets(fx.db, { query: "x", rights: ["classified"] }),
+      (error) => error instanceof RegistryError && error.code === "assets/invalid-record",
+    );
+    await assert.rejects(
+      () =>
+        registerAsset(fx.db, {
+          kind: "icon",
+          title: "Long summary",
+          summary: "x".repeat(2001),
+          sourceId: fx.source.id,
+          contentHash: ICON_HASH,
+          rightsClassification: "permitted",
+        }),
       (error) => error instanceof RegistryError && error.code === "assets/invalid-record",
     );
   } finally {
