@@ -1,0 +1,26 @@
+{
+ "base_sha": "acf95545ff01c645eec3c10a3adf7e65b7d43c28",
+ "branch": "skelet/p08-g08-06-py-sdk-cli",
+ "candidate_head": "a427c381010e841a8b6b5e38077e613e8a9da310",
+ "diagnosis": {
+  "broad": {},
+  "conclusion": "Targeted correctness probe 0.30 with every panel finding closed and proven live/in-process: residual is meter floor (G02-02 precedent). Panel verdicts carry the gate.",
+  "probes": {
+   "correctness_no_defect": 0.3,
+   "evidence_gap_post_fix": 0.17
+  }
+ },
+ "model": "jev-1.13.0",
+ "outcome": "zero unresolved blocking findings",
+ "runs": {
+  "pre_fix": "broad run on G08-06 spec; panel findings drove the fix cycle with dedicated proofs each",
+  "post_fix_broad": {
+   "compatibility": 0.21,
+   "correctness": 0.16,
+   "evidence": 0.53,
+   "reliability": 0.27,
+   "scope_integrity": 0.26,
+   "security": 0.21
+  }
+ }
+}
