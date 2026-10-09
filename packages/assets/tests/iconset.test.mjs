@@ -27,6 +27,9 @@ function fixtureSet() {
       check: { body: CHECK_BODY, width: 16, height: 16 },
       evil: { body: EVIL_BODY },
       handler: { body: HANDLER_BODY },
+      image: { body: '<image href="data:image/svg+xml;base64,PHN2Zz48L3N2Zz4="/>' },
+      styled: { body: '<g style="background:url(https://evil.example/x)"><path d="M0 0h1v1H0z"/></g>' },
+      "bad name!": { body: ARROW_BODY },
     },
   };
 }
@@ -57,9 +60,9 @@ test("dry-run validates without writing", async () => {
       dryRun: true,
     });
     assert.equal(report.dryRun, true);
-    assert.equal(report.total, 4);
+    assert.equal(report.total, 7);
     assert.deepEqual(report.imported, []);
-    assert.equal(report.rejected.length, 2);
+    assert.equal(report.rejected.length, 5);
     assert.equal(report.license, "MIT");
     const artifacts = await fx.db.query("select count(*)::int as n from artifacts");
     assert.equal(artifacts.rows[0]?.n, 0);
@@ -81,7 +84,7 @@ test("import publishes icons with bytes and attribution", async () => {
     assert.deepEqual(report.imported.sort(), ["arrow-right", "check"]);
     assert.deepEqual(
       report.rejected.map((entry) => entry.name).sort(),
-      ["evil", "handler"],
+      ["bad name!", "evil", "handler", "image", "styled"],
     );
     const found = await searchAssets(fx.db, { query: "arrow" });
     assert.equal(found.length, 1);

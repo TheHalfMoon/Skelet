@@ -13,7 +13,9 @@ import { registerAsset } from "./registry.ts";
  * Fixture-first: the mechanism is proven with hand-authored offline
  * fixtures. No donor corpus is activated by this grain; real Iconify
  * collections land in a dedicated import grain with license verification
- * at import time.
+ * at import time. Set-level license and caller-supplied rights are
+ * self-attested and unverified here: they must be verified against
+ * provenance before any real-corpus activation.
  */
 
 export interface IconSetIcon {
@@ -61,21 +63,30 @@ export class IconSetError extends Error {
 
 const MAX_ICONS_PER_SET = 5000;
 const MAX_BODY_CHARS = 64 * 1024;
+const MAX_SET_BYTES = 16 * 1024 * 1024;
 const MAX_DIMENSION = 2048;
 const DEFAULT_DIMENSION = 24;
+const ICON_NAME = /^[A-Za-z0-9_-]{1,64}$/;
+const VERSION = /^[A-Za-z0-9._-]{1,128}$/;
+const RESERVED_NAMES = new Set(["__proto__", "constructor", "prototype"]);
 
 /**
- * Baseline SVG body sanitizer: blocks active content and navigation
- * vectors. Presentation attributes and inert shapes pass; anything the
- * list does not recognize as inert fails closed. A full sanitizer
- * upgrade lands with untrusted-corpus ingestion.
+ * Baseline SVG body sanitizer: blocks active content, embedded payloads,
+ * and style-driven vectors. Presentation attributes and inert shapes
+ * pass; anything the list does not recognize as inert fails closed.
+ * Stored bytes are inert corpus data: any future byte-serve layer MUST
+ * release them only in a strictly inert context (img-only consumers with
+ * script-src 'none', nosniff, and no privileged same-origin rendering).
+ * A full-sanitizer upgrade lands with untrusted-corpus ingestion.
  */
 const UNSAFE_BODY = new RegExp(
-  "<\\s*(script|foreignobject|iframe|object|embed|link|meta|base|form|style|a)\\b" +
+  "<\\s*(script|foreignobject|iframe|object|embed|link|meta|base|form|style|a|" +
+    "image|use|animate|animatetransform|animatemotion|set|video|audio|source|" +
+    "handler|listener|discard|symbol)\\b" +
+    "|\\bstyle\\s*=" +
     "|on[a-z]+\\s*=" +
-    "|javascript\\s*:" +
-    "|vbscript\\s*:" +
-    "|data\\s*:\\s*text/html",
+    "|javascript\\s*:|vbscript\\s*:|data\\s*:" +
+    "|expression\\s*\\(|-moz-binding|behaviour\\s*:",
   "i",
 );
 
@@ -174,7 +185,7 @@ export async function importIconSet(
   },
 ): Promise<IconImportResult> {
   const set = validateDocument(input.setJson);
-  if (typeof input.version !== "string" || input.version.length === 0 || input.version.length > 128) {
+  if (typeof input.version !== "string" || !VERSION.test(input.version)) {
     fail("Icon set version is invalid.");
   }
   if (!["unknown", "metadata_only", "permitted", "restricted"].includes(input.rightsClassification)) {
@@ -194,11 +205,22 @@ export async function importIconSet(
   };
 
   const plans: Array<{ name: string; body: string; width: number; height: number }> = [];
+  let plannedBytes = 0;
   for (const name of names) {
+    // Names flow into external IDs, titles, refs, and reports: bound
+    // charset and length before any use, and reject reserved keys.
+    if (!ICON_NAME.test(name) || RESERVED_NAMES.has(name)) {
+      result.rejected.push({ name: name.slice(0, 64), reason: `Icon name is invalid.` });
+      continue;
+    }
     const icon = (set.icons as Record<string, IconSetIcon>)[name];
     try {
       if (typeof icon !== "object" || icon === null) fail(`Icon ${name} is invalid.`);
       const body = validateIconBody(name, (icon as IconSetIcon).body);
+      plannedBytes += body.length;
+      if (plannedBytes > MAX_SET_BYTES) {
+        fail("Icon set total size is invalid.");
+      }
       plans.push({
         name,
         body,
