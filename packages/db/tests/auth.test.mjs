@@ -17,7 +17,7 @@ import {
   validateSession,
 } from "../src/auth.ts";
 
-const FOUR = ["001_sources_products", "002_design_graph", "003_workflows", "004_auth"];
+const FOUR = ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces"];
 
 async function fixtureDb() {
   const db = await openDatabase();

@@ -27,7 +27,7 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
  const db=await openDatabase();
  try {
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces"]);
   assert.deepEqual(await migrateUp(db),[]);
   for(const table of ["flows","flow_steps","collections","collection_items",
     "capture_runs","analysis_runs","import_records"]) {
@@ -35,9 +35,9 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
     assert.notEqual(r.rows[0]?.id,null);
   }
   assert.deepEqual(await migrateDown(db),
-   ["004_auth","003_workflows","002_design_graph","001_sources_products"]);
+   ["005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces"]);
  } finally {await db.close();}
 });
 

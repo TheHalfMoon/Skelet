@@ -1,0 +1,59 @@
+{
+ "description": "Skelet G04-02 exact-diff review: workspace authority with owner/admin/member roles and uniform denial matrix",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "Compatible.",
+    "true": "Breaks a contract."
+   },
+   "instructions": "Do the 005_workspaces migration, the eight updated migration-list assertions, or the one-line CI test-list addition break any existing contract, migration ordering, or CI job?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "Correct.",
+    "true": "Material error present."
+   },
+   "instructions": "Is the atomic workspace+owner creation, role hierarchy enforcement, last-owner guard, idempotent removal, self-leave rule, or roster/listing logic materially wrong?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "Coverage is adequate.",
+    "true": "Coverage gap."
+   },
+   "instructions": "Do the 7 PGlite tests leave a grain-scope behavior (creation atomicity, validation, uniform denial, hierarchy authority, succession, idempotency, cross-workspace isolation, migration reversibility) unproven?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "Sound.",
+    "true": "Race, leak, or corruption risk."
+   },
+   "instructions": "Can concurrent creation, membership changes, owner succession, workspace deletion cascade, or migration up/down leave a workspace without an owner, a half-applied roster, or a corrupt ledger?",
+   "type": "noul"
+  },
+  "scope_integrity": {
+   "criteria": {
+    "false": "Within grain.",
+    "true": "Exceeds grain."
+   },
+   "instructions": "Exactly 005_workspaces schema + workspace service + 7 tests + mechanical list updates + one CI test line. Anything beyond G04-02 (collections wiring, web routes, billing)?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No risk.",
+    "true": "Risk present."
+   },
+   "instructions": "Any membership/existence oracle, privilege escalation (member to admin, admin to owner), last-owner bypass, forged workspace acceptance, cross-workspace read/write, or SQL injection?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "826060d200b61908236f4bad39909cab62e3931e",
+  "branch": "skelet/p04-g04-02-workspaces",
+  "candidate_head": "b280d09285a2c58b35051178d2aa6ff2992c30f0",
+  "change": "12 files +692/-16: G04-02 workspace authority (005 schema, service, 7 tests, mechanical updates, CI line) plus fix commit: isUuid closed boundaries, FOR UPDATE roster serialization, raw name-length validation, shared isUniqueViolation, order-property and missing-branch tests. Gate: db lint/tsc clean, workspaces 7/7, db 50/50, python 107 OK, hygiene passed, graft OK, blast 1 area."
+ }
+}
