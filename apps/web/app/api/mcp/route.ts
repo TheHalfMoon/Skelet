@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { openDatabase } from "../../../../../packages/db/src/db.ts";
-import { bearerToken, dispatchMcp } from "../../../lib/mcp";
+import { bearerToken, dispatchMcp, MCP_MAX_BODY_CHARS } from "../../../lib/mcp";
+import { getSharedDb } from "../../../lib/mcp-db";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 function configuredTokens(): string[] {
   const raw = process.env.SKELET_MCP_TOKENS ?? "";
@@ -11,10 +12,40 @@ function configuredTokens(): string[] {
     .filter((token) => token.length > 0);
 }
 
+function clientKey(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (typeof forwarded === "string" && forwarded.length > 0) {
+    return forwarded.split(",")[0]?.trim() || "unknown";
+  }
+  return "unknown";
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
+  const limit = checkRateLimit(`mcp:${clientKey(request)}`);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { jsonrpc: "2.0", id: null, error: { code: -32000, message: "Rate limited." } },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
+  }
+  let text: string;
+  try {
+    text = await request.text();
+  } catch {
+    return NextResponse.json(
+      { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error." } },
+      { status: 400 },
+    );
+  }
+  if (text.length > MCP_MAX_BODY_CHARS) {
+    return NextResponse.json(
+      { jsonrpc: "2.0", id: null, error: { code: -32600, message: "Invalid request." } },
+      { status: 413 },
+    );
+  }
   let body: unknown = null;
   try {
-    body = await request.json();
+    body = JSON.parse(text);
   } catch {
     return NextResponse.json(
       { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error." } },
@@ -22,20 +53,20 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
   const token = bearerToken(request.headers.get("authorization"));
-  const db = await openDatabase(
-    process.env.SKELET_MCP_DATABASE_URL === undefined
-      ? undefined
-      : { connectionString: process.env.SKELET_MCP_DATABASE_URL },
-  );
+  let db;
   try {
-    const response = await dispatchMcp(db, { tokens: configuredTokens(), token }, body);
-    if (response === null) {
-      return new NextResponse(null, { status: 202 });
-    }
-    return NextResponse.json(response);
-  } finally {
-    await db.close();
+    db = await getSharedDb();
+  } catch {
+    return NextResponse.json(
+      { jsonrpc: "2.0", id: null, error: { code: -32603, message: "Internal error." } },
+      { status: 500 },
+    );
   }
+  const response = await dispatchMcp(db, { tokens: configuredTokens(), token }, body);
+  if (response === null) {
+    return new NextResponse(null, { status: 202 });
+  }
+  return NextResponse.json(response);
 }
 
 export function GET(): NextResponse {

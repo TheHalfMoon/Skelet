@@ -1,3 +1,5 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+
 import type { DbClient } from "../../../packages/db/src/db.ts";
 import { searchAssets, resolveAsset } from "../../../packages/assets/src/registry.ts";
 import { buildRegistryItem } from "./registry.ts";
@@ -17,6 +19,8 @@ import { buildRegistryItem } from "./registry.ts";
 export const MCP_PROTOCOL_VERSIONS = ["2026-07-28", "2025-06-18", "2025-03-26", "2024-11-05"];
 export const MCP_SERVER_NAME = "skelet";
 export const MCP_SERVER_VERSION = "0.1.0";
+export const MCP_MAX_BATCH = 32;
+export const MCP_MAX_BODY_CHARS = 256 * 1024;
 
 export interface McpContext {
   /** Configured bearer tokens; empty means no caller is authorized. */
@@ -54,7 +58,7 @@ function negotiateVersion(requested: unknown): string | null {
 }
 
 function checkAuth(ctx: McpContext): JsonRpcResponse | null {
-  if (ctx.tokens.length === 0 || ctx.token === null || !ctx.tokens.includes(ctx.token)) {
+  if (ctx.tokens.length === 0 || ctx.token === null || !includesToken(ctx.tokens, ctx.token)) {
     return {
       jsonrpc: "2.0",
       id: null,
@@ -62,6 +66,24 @@ function checkAuth(ctx: McpContext): JsonRpcResponse | null {
     };
   }
   return null;
+}
+
+function sha256(value: string): Buffer {
+  return createHash("sha256").update(value, "utf8").digest();
+}
+
+/** Constant-time token comparison; length leaks only. */
+function includesToken(tokens: string[], presented: string): boolean {
+  const digest = sha256(presented);
+  let found = false;
+  for (const candidate of tokens) {
+    const expected = sha256(candidate);
+    if (expected.length !== digest.length) continue;
+    if (timingSafeEqual(expected, digest) && candidate.length === presented.length) {
+      found = true;
+    }
+  }
+  return found;
 }
 
 function toolSchemas(): unknown[] {
@@ -111,8 +133,9 @@ function toAgentAsset(record: {
   sourceKey: string;
   contentHash: string;
 }): Record<string, unknown> {
+  // Canonical stable URI scheme per the agent platform contract.
   return {
-    uri: `skelet://asset/${record.artifactId}`,
+    uri: `skelet://artifact/${record.artifactId}`,
     kind: record.kind,
     title: record.title,
     license: record.license,
@@ -123,6 +146,8 @@ function toAgentAsset(record: {
     contentHash: record.contentHash,
   };
 }
+
+const REGISTRY_KINDS = ["icon", "logo", "font"] as const;
 
 async function callTool(
   db: DbClient,
@@ -142,11 +167,21 @@ async function callTool(
       kinds?: ("icon" | "logo" | "font")[];
       limit?: number;
     } = { query: params.query };
-    if (Array.isArray(params.kinds)) {
+    if (params.kinds !== undefined) {
+      if (
+        !Array.isArray(params.kinds) ||
+        params.kinds.some((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind))
+      ) {
+        throw { code: -32602, message: "search_assets.kinds is invalid." };
+      }
       search.kinds = params.kinds as ("icon" | "logo" | "font")[];
     }
-    if (typeof params.limit === "number") {
-      search.limit = params.limit;
+    if (params.limit !== undefined) {
+      const limit = params.limit;
+      if (!Number.isInteger(limit) || (limit as number) < 1 || (limit as number) > 50) {
+        throw { code: -32602, message: "search_assets.limit is invalid." };
+      }
+      search.limit = limit as number;
     }
     const records = await searchAssets(db, search);
     return { assets: records.map(toAgentAsset) };
@@ -163,7 +198,7 @@ async function callTool(
     }
     return { item: buildRegistryItem(params.name) };
   }
-  throw { code: -32601, message: `Tool not found: ${name}.` };
+  throw { code: -32601, message: "Tool not found." };
 }
 
 async function handleOne(
@@ -179,11 +214,9 @@ async function handleOne(
     );
   }
   const { id, method } = request as { id: unknown; method: string };
+  // Notifications (valid requests without IDs) receive no response.
+  if (id === undefined) return null;
   const params = (request as { params?: unknown }).params;
-
-  if (method === "notifications/initialized") {
-    return id === undefined ? null : { jsonrpc: "2.0", id, result: {} };
-  }
   if (method === "initialize") {
     const version = negotiateVersion(
       isRecord(params) ? (params as { protocolVersion?: unknown }).protocolVersion : undefined,
@@ -201,7 +234,6 @@ async function handleOne(
   if (method === "ping") {
     return { jsonrpc: "2.0", id, result: {} };
   }
-
   const auth = checkAuth(ctx);
   if (auth !== null) {
     return { ...auth, id: id ?? null };
@@ -221,21 +253,15 @@ async function handleOne(
       );
       return { jsonrpc: "2.0", id, result: { content: [{ type: "text", text: JSON.stringify(output) }] } };
     } catch (thrown) {
-      // callTool throws JSON-RPC-shaped objects; domain layers throw
-      // typed errors with generic messages; anything else stays opaque.
+      // callTool throws JSON-RPC-shaped objects with static messages.
+      // Domain failures stay opaque: messages never reach callers.
       if (isRecord(thrown) && typeof thrown.code === "number" && typeof thrown.message === "string") {
         return error(id, thrown.code, thrown.message);
-      }
-      if (thrown instanceof Error && thrown.name.endsWith("Error")) {
-        const known = ["RegistryError", "AuthError", "JobError", "ProviderError", "PublishError"];
-        if (known.includes(thrown.name)) {
-          return error(id, -32000, thrown.message);
-        }
       }
       return error(id, -32000, "Tool execution failed.");
     }
   }
-  return error(id, -32601, `Method not found: ${method}.`);
+  return error(id, -32601, "Method not found.");
 }
 
 /**
@@ -248,7 +274,7 @@ export async function dispatchMcp(
   body: unknown,
 ): Promise<JsonRpcResponse | JsonRpcResponse[] | null> {
   if (Array.isArray(body)) {
-    if (body.length === 0) {
+    if (body.length === 0 || body.length > MCP_MAX_BATCH) {
       return error(null, -32600, "Invalid request.");
     }
     const responses: JsonRpcResponse[] = [];
@@ -256,6 +282,8 @@ export async function dispatchMcp(
       const response = await handleOne(db, ctx, entry);
       if (response !== null) responses.push(response);
     }
+    // Notification-only batches produce no responses.
+    if (responses.length === 0) return null;
     return responses;
   }
   return handleOne(db, ctx, body);
@@ -263,7 +291,7 @@ export async function dispatchMcp(
 
 export function bearerToken(header: string | null): string | null {
   if (typeof header !== "string") return null;
-  const match = /^Bearer (.+)$/.exec(header.trim());
+  const match = /^Bearer\s+(.+)$/i.exec(header.trim());
   if (match === null) return null;
   const token = (match[1] ?? "").trim();
   return token.length > 0 ? token : null;
