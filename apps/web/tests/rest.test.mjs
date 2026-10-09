@@ -9,6 +9,7 @@ import { createWorkspace } from "../../../packages/db/src/workspaces.ts";
 import { registerAsset } from "../../../packages/assets/src/registry.ts";
 import { createReferencePack } from "../lib/reference-packs.ts";
 import { getAssetRoute, getObjectRoute, searchAssetsRoute } from "../lib/rest.ts";
+import { clientKey } from "../lib/http.ts";
 
 async function fixture() {
   const db = await openDatabase();
@@ -39,9 +40,41 @@ test("search endpoint validates and returns URI-grounded assets", async () => {
     assert.equal((await searchAssetsRoute(fx.db, {})).status, 400);
     assert.equal((await searchAssetsRoute(fx.db, { query: "arrow", limit: "500" })).status, 400);
     assert.equal((await searchAssetsRoute(fx.db, { query: "arrow", kinds: "spaceship" })).status, 400);
+    assert.equal((await searchAssetsRoute(fx.db, { query: "x".repeat(201) })).status, 400);
+    const scoped = await searchAssetsRoute(fx.db, { query: "arrow", kinds: "icon,logo" });
+    assert.equal(scoped.status, 200);
     assert.equal((await searchAssetsRoute(fx.db, { query: "missing" })).body.assets.length, 0);
   } finally {
     await fx.db.close();
+  }
+});
+
+test("rate keys bind to credentials and failures stay opaque", async () => {
+  const fx = await fixture();
+  try {
+    const request = (headers) => ({ headers: new Headers(headers) });
+    assert.equal(clientKey(request({}), null), "anonymous:unknown");
+    assert.equal(
+      clientKey(request({ "x-forwarded-for": " 1.2.3.4, 5.6.7.8 " }), null),
+      "anonymous:1.2.3.4",
+    );
+    const first = clientKey(request({}), "token-a");
+    assert.ok(first.startsWith("credential:"));
+    assert.equal(clientKey(request({}), "token-a"), first);
+    assert.notEqual(clientKey(request({}), "token-b"), first);
+    await fx.db.close();
+    const unknown = "00000000-0000-4000-8000-000000000000";
+    const broken = await getAssetRoute(fx.db, unknown);
+    assert.equal(broken.status, 500);
+    assert.deepEqual(broken.body, { error: "Request failed." });
+    const brokenObject = await getObjectRoute(fx.db, `skelet://artifact/${unknown}`, fx.owner.id);
+    assert.equal(brokenObject.status, 500);
+  } finally {
+    try {
+      await fx.db.close();
+    } catch {
+      // Already closed to prove opaque persistence failures.
+    }
   }
 });
 

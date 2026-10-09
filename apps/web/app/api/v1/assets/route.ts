@@ -3,15 +3,8 @@ import { NextResponse } from "next/server";
 import { bearerToken, resolveRequestUser } from "../../../../lib/mcp";
 import { getSharedDb } from "../../../../lib/mcp-db";
 import { checkRateLimit } from "../../../../lib/rate-limit";
+import { clientKey } from "../../../../lib/http";
 import { searchAssetsRoute } from "../../../../lib/rest";
-
-function clientKey(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (typeof forwarded === "string" && forwarded.length > 0) {
-    return forwarded.split(",")[0]?.trim() || "unknown";
-  }
-  return "unknown";
-}
 
 function searchParams(request: Request): Record<string, string | undefined> {
   const url = new URL(request.url);
@@ -25,11 +18,11 @@ function searchParams(request: Request): Record<string, string | undefined> {
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const limit = checkRateLimit(`rest:${clientKey(request)}`);
+  const token = bearerToken(request.headers.get("authorization"));
+  const limit = checkRateLimit(`rest:${clientKey(request, token)}`);
   if (!limit.allowed) {
     return NextResponse.json({ error: "Rate limited." }, { status: 429 });
   }
-  const token = bearerToken(request.headers.get("authorization"));
   let db;
   try {
     db = await getSharedDb();

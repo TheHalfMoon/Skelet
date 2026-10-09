@@ -60,7 +60,7 @@ export async function searchAssetsRoute(
   query: Record<string, string | string[] | undefined>,
 ): Promise<RestResult> {
   const rawQuery = query.query;
-  if (typeof rawQuery !== "string" || rawQuery.trim().length === 0) {
+  if (typeof rawQuery !== "string" || rawQuery.trim().length === 0 || rawQuery.trim().length > 200) {
     return badRequest();
   }
   const kinds = query.kinds === undefined ? undefined : String(query.kinds).split(",");
@@ -100,8 +100,13 @@ export async function searchAssetsRoute(
 export async function getAssetRoute(db: DbClient, artifactId: string): Promise<RestResult> {
   try {
     return { status: 200, body: { asset: agentAssetView(await resolveAsset(db, artifactId)) } };
-  } catch {
-    return notFound();
+  } catch (error) {
+    // Unknown and malformed identifiers answer alike; unexpected
+    // persistence failures stay opaque for operators.
+    if (error instanceof Error && error.name === "RegistryError") {
+      return notFound();
+    }
+    return opaque();
   }
 }
 
@@ -138,8 +143,16 @@ export async function getObjectRoute(
         },
       };
     }
-    return { status: 200, body: { pack: await exportReferencePack(db, parsed.id, userId) } };
+    try {
+      return { status: 200, body: { pack: await exportReferencePack(db, parsed.id, userId) } };
+    } catch (error) {
+      // Unknown and denied packs answer alike; anything else is opaque.
+      if (error instanceof Error && (error.name === "PackError" || error.name === "AuthError")) {
+        return notFound();
+      }
+      return opaque();
+    }
   } catch {
-    return notFound();
+    return opaque();
   }
 }
