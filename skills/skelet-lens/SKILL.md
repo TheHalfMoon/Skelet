@@ -1,6 +1,6 @@
 ---
 name: skelet-lens
-description: Turn a URL or design reference into implementation context with Skelet. Use when asked to analyze a site or bootstrap a build from a reference.
+description: Turn a design reference into implementation context with Skelet evidence. Use when bootstrapping a build from a reference pack; automated URL analysis lands in a later phase.
 ---
 
 # Skelet Lens
@@ -25,4 +25,4 @@ URL capture (`analyze_url`) and image analysis (`analyze_image`) land with the L
 
 - Never claim access to a site's proprietary source. Source-grounded means cited, not copied.
 - Restricted, trademarked, or unknown-license bytes never enter downloadable artifacts.
-- Every build context cites `skelet://` URIs a second agent can recover.
+- Every build context cites recoverable Skelet URIs a second agent can use.

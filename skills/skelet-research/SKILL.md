@@ -20,3 +20,4 @@ Research real shipped references before proposing UI. Every claim must cite reco
 - `metadata-only` records are citable for research but never downloadable.
 - Trademarked marks require brand-owner permission regardless of license text.
 - REST parity: `GET /api/v1/assets`, `GET /api/v1/assets/{id}`, `GET /api/v1/objects?uri=` serve the same contracts over HTTPS with a session bearer token.
+- Never paste, log, or commit the bearer token.

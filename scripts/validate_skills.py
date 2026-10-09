@@ -1,10 +1,12 @@
 """Validate Skelet agent skill packages.
 
 Each skill directory must carry a SKILL.md with exact frontmatter (name
-matching the directory, non-empty description), reference only
-implemented MCP tools unless an upcoming tool is explicitly gated, and
-keep every cited Skelet URI well-formed. Exits nonzero on the first
-violation.
+matching the directory, non-empty description), reference only known
+tools (implemented, or upcoming with explicit gating), keep every cited
+Skelet URI well-formed, and contain no denied instructions. Backtick
+spans outside the known tools, URIs/paths, and the documentation
+vocabulary below fail closed; extend DOC_VOCABULARY when legitimate new
+field words are introduced. Exits nonzero on the first violation.
 """
 
 from __future__ import annotations
@@ -38,7 +40,18 @@ UPCOMING_TOOLS = frozenset(
         "search_registry",
     }
 )
-GATING_MARKERS = ("lands", "once", "until then", "upcoming", "later phase", "deferred")
+GATING_MARKERS = ("lands", "until then", "upcoming", "later phase", "deferred", "do not invoke", "do not promise")
+
+DENIED_PHRASES = (
+    r"\bembed restricted\b",
+    r"\bbypass\b",
+    r"\bdisable (authentication|auth)\b",
+    r"\buse file:",
+    r"\bunsandboxed\b",
+    r"\bignore the serving\b",
+)
+
+SNAKE_FIELDS = frozenset({"artifact_ids", "workspace_id", "reference_pack"})
 
 URI_PATTERN = re.compile(r"skelet://[a-z-]+/[A-Za-z0-9_.-]+")
 TOOL_PATTERN = re.compile(r"`([^`]+)`")
@@ -125,8 +138,20 @@ def validate_skill(directory: Path) -> list[str]:
     if unknown:
         return [f"skill {name} references unknown tools: {sorted(unknown)}"]
     upcoming = tools & UPCOMING_TOOLS
-    if upcoming and not any(marker in body for marker in GATING_MARKERS):
+    lowered = body.lower()
+    if upcoming and not any(marker in lowered for marker in GATING_MARKERS):
         return [f"skill {name} references upcoming tools without gating: {sorted(upcoming)}"]
+    for span in re.findall(r"skelet://\S+", body):
+        candidate = re.sub(r"\{[^}]*\}", "x", span).rstrip(".,:)]}'\"`")
+        if URI_PATTERN.fullmatch(candidate) is None:
+            return [f"skill {name} cites a malformed Skelet URI: {span}"]
+    bare = set(re.findall(r"(?<![`/\w])[a-z]+(?:_[a-z]+)+(?![\w`])", body))
+    stray = bare - IMPLEMENTED_TOOLS - UPCOMING_TOOLS - SNAKE_FIELDS
+    if stray:
+        return [f"skill {name} references ungated tool-like words: {sorted(stray)}"]
+    for pattern in DENIED_PHRASES:
+        if re.search(pattern, lowered):
+            return [f"skill {name} contains a denied instruction: {pattern}"]
     return []
 
 
