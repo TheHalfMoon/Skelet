@@ -26,6 +26,7 @@ const SIX = [
   "005_workspaces",
   "006_collections_auth",
   "007_billing",
+  "008_jobs",
 ];
 const HASH = "c".repeat(64);
 
