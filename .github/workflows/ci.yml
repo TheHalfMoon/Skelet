@@ -257,6 +257,7 @@ jobs:
           packages/db/tests/db-foundation.test.mjs
           packages/db/tests/graph.test.mjs
           packages/db/tests/workflows.test.mjs
+          packages/db/tests/auth.test.mjs
 
       - name: Real PostgreSQL transaction and concurrency integration tests
         env:
