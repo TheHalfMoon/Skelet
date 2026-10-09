@@ -3,9 +3,10 @@
  * Only http(s) without embedded credentials; loopback, private,
  * link-local, carrier-grade NAT, reserved, and cloud-metadata targets are
  * rejected before any navigation, and every redirect target is
- * re-resolved and revalidated to defeat DNS rebinding. DNS resolution
- * itself is caller-injected so tests stay deterministic and offline;
- * production callers pass the node:dns resolver.
+ * re-resolved and revalidated. DNS resolution itself is caller-injected
+ * so tests stay deterministic and offline; production callers MUST pass
+ * a real DNS view and pin fetches to guarded answers, because this gate
+ * cannot close the check-to-fetch race on its own.
  */
 
 export type LensGuardCode =
@@ -87,7 +88,7 @@ function expandIPv6(host: string): number[] | null {
 }
 
 function ipv4Blocked(bytes: number[]): boolean {
-  const [a = 0, b = 0] = bytes;
+  const [a = 0, b = 0, c = 0] = bytes;
   if (a === 127) return true;
   if (a === 10) return true;
   if (a === 172 && b >= 16 && b <= 31) return true;
@@ -96,9 +97,12 @@ function ipv4Blocked(bytes: number[]): boolean {
   if (a === 100 && b >= 64 && b <= 127) return true;
   if (a === 0) return true;
   if (a >= 224) return true;
-  if (a === 192 && b === 0) return true;
+  if (a === 192 && b === 0 && c === 0) return true;
+  if (a === 192 && b === 0 && c === 2) return true;
+  if (a === 192 && b === 88 && c === 99) return true;
   if (a === 198 && (b === 18 || b === 19)) return true;
-  if (a === 203 && b === 0) return true;
+  if (a === 198 && b === 51 && c === 100) return true;
+  if (a === 203 && b === 0 && c === 113) return true;
   return false;
 }
 
@@ -110,6 +114,40 @@ function ipv6Blocked(groups: number[]): boolean {
   if (/^(0{1,4}:){7}0{1,4}$/.test(hex)) return true;
   if (/^ff[0-9a-f]{2}:/i.test(hex)) return true;
   if (/^2001:0*db8:/i.test(hex)) return true;
+  return false;
+}
+
+/** True when the low 32 bits embed an IPv4 address (compat/transition ranges). */
+function embeddedV4(groups: number[]): number[] | null {
+  if (groups.length !== 8) return null;
+  const first = groups.slice(0, 6);
+  const isCompat = first.every((part) => part === 0);
+  const isWellKnown = groups[0] === 0x64 && groups[1] === 0xff9b && groups[2] === 0;
+  const isSiit = groups.slice(0, 4).every((part) => part === 0) && groups[4] === 0xffff && groups[5] === 0;
+  const is6to4 = groups[0] === 0x2002;
+  if (isCompat || isWellKnown || isSiit) {
+    const low = groups[7] ?? 0;
+    const high = groups[6] ?? 0;
+    return [high >> 8, high & 0xff, low >> 8, low & 0xff];
+  }
+  if (is6to4) {
+    const high = groups[1] ?? 0;
+    const low = groups[2] ?? 0;
+    return [high >> 8, high & 0xff, low >> 8, low & 0xff];
+  }
+  return null;
+}
+
+function ipv6BlockedWithEmbedded(groups: number[]): boolean {
+  if (ipv6Blocked(groups)) return true;
+  const mapped = addressToV4Mapped(groups);
+  if (mapped !== null) {
+    const bytes = parseIPv4(mapped);
+    if (bytes === null || ipv4Blocked(bytes)) return true;
+    return false;
+  }
+  const embedded = embeddedV4(groups);
+  if (embedded !== null && ipv4Blocked(embedded)) return true;
   return false;
 }
 
@@ -139,7 +177,9 @@ const BLOCKED_HOSTS = new Set([
 ]);
 
 function guardHostname(hostname: string): void {
-  const host = hostname.toLowerCase();
+  // Trailing dots are insignificant to resolvers but defeat suffix and
+  // exact-host checks: normalize before every comparison.
+  const host = hostname.toLowerCase().replace(/\.+$/, "");
   if (host.length === 0) throw invalid();
   const v4 = parseIPv4(host);
   if (v4 !== null) {
@@ -149,13 +189,7 @@ function guardHostname(hostname: string): void {
   if (host.includes(":")) {
     const groups = expandIPv6(host);
     if (groups === null) throw invalid();
-    const mapped = addressToV4Mapped(groups);
-    if (mapped !== null) {
-      const bytes = parseIPv4(mapped);
-      if (bytes === null || ipv4Blocked(bytes)) throw blocked();
-      return;
-    }
-    if (ipv6Blocked(groups)) throw blocked();
+    if (ipv6BlockedWithEmbedded(groups)) throw blocked();
     return;
   }
   if (BLOCKED_HOSTS.has(host)) throw blocked();
@@ -217,13 +251,7 @@ export function guardResolvedIps(ips: string[]): void {
     }
     const groups = expandIPv6(ip);
     if (groups === null) throw invalid();
-    const mapped = addressToV4Mapped(groups);
-    if (mapped !== null) {
-      const bytes = parseIPv4(mapped);
-      if (bytes === null || ipv4Blocked(bytes)) throw blocked();
-      continue;
-    }
-    if (ipv6Blocked(groups)) throw blocked();
+    if (ipv6BlockedWithEmbedded(groups)) throw blocked();
   }
 }
 
@@ -232,21 +260,55 @@ export interface DnsResolver {
 }
 
 /**
- * Validate a redirect target against the hop budget, then resolve and
- * guard it. Callers repeat per hop with an independent resolver view so
- * a mid-chain DNS change cannot smuggle a private target past intake.
+ * Single policy-plus-resolution gate: validate the hostname, resolve it
+ * with a real DNS view, and guard every answer. Navigation paths MUST
+ * use this (or guardRedirectTarget) instead of validateCaptureUrl alone:
+ * names are meaningless until their answers are checked, and answers
+ * must be re-checked per hop because DNS can rotate between checks.
+ */
+export async function validateAndResolve(
+  hostname: string,
+  resolver: DnsResolver,
+): Promise<{ hostname: string; ips: string[] }> {
+  guardHostname(hostname);
+  const ips = await resolver.resolve(hostname);
+  guardResolvedIps(ips);
+  return { hostname, ips };
+}
+
+export interface RedirectHop {
+  url: ValidatedUrl;
+  hopsUsed: number;
+}
+
+/**
+ * Validate a redirect target against the hop budget, resolving relative
+ * Locations against the current URL inside this function (callers pass
+ * the raw Location and never pre-join). The target is resolved and
+ * guarded before return. Fetch layers MUST additionally pin navigation
+ * to a guarded answer (no second resolution) and re-resolve per hop:
+ * this gate closes policy holes, not the check-to-fetch race, which
+ * only pinning closes. TTL-0/per-query rotation remains a residual
+ * unless the fetcher pins.
  */
 export async function guardRedirectTarget(
   location: string,
+  baseHref: string,
   hopsUsed: number,
   resolver: DnsResolver,
-): Promise<ValidatedUrl> {
+): Promise<RedirectHop> {
   if (!Number.isInteger(hopsUsed) || hopsUsed < 0 || hopsUsed >= MAX_REDIRECT_HOPS) {
     throw blocked("Redirect budget exhausted.");
   }
-  const validated = validateCaptureUrl(location);
-  guardResolvedIps(await resolver.resolve(validated.hostname));
-  return validated;
+  let absolute: string;
+  try {
+    absolute = new URL(location, baseHref).href;
+  } catch {
+    throw invalid();
+  }
+  const validated = validateCaptureUrl(absolute);
+  await validateAndResolve(validated.hostname, resolver);
+  return { url: validated, hopsUsed: hopsUsed + 1 };
 }
 
 export const LENS_LIMITS = {

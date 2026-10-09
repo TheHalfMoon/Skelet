@@ -6,6 +6,7 @@ import {
   LensError,
   guardRedirectTarget,
   guardResolvedIps,
+  validateAndResolve,
   validateCaptureUrl,
 } from "../src/url-guard.ts";
 
@@ -105,18 +106,49 @@ test("redirect targets revalidate under budget", async () => {
     "example.org": ["93.184.216.34"],
     "evil.example": ["192.168.9.9"],
   });
-  const first = await guardRedirectTarget("https://example.org/a", 0, resolver);
-  assert.equal(first.hostname, "example.org");
+  const first = await guardRedirectTarget("https://example.org/a", "https://example.org/", 0, resolver);
+  assert.equal(first.url.hostname, "example.org");
+  assert.equal(first.hopsUsed, 1);
+  const relative = await guardRedirectTarget("/next", "https://example.org/a", 1, resolver);
+  assert.equal(relative.url.hostname, "example.org");
+  assert.equal(relative.hopsUsed, 2);
   await assert.rejects(
-    guardRedirectTarget("https://evil.example/b", 1, resolver),
+    guardRedirectTarget("https://evil.example/b", "https://example.org/", 1, resolver),
     (error) => error instanceof LensError && error.code === "lens/blocked-host",
   );
   await assert.rejects(
-    guardRedirectTarget("https://example.org/c", LENS_LIMITS.maxRedirectHops, resolver),
+    guardRedirectTarget("https://example.org/c", "https://example.org/", LENS_LIMITS.maxRedirectHops, resolver),
     (error) => error instanceof LensError && error.code === "lens/blocked-host",
   );
   await assert.rejects(
-    guardRedirectTarget("http://10.2.3.4/", 0, resolver),
+    guardRedirectTarget("http://10.2.3.4/", "https://example.org/", 0, resolver),
     (error) => error instanceof LensError,
+  );
+});
+
+test("trailing dots and reserved ranges fail closed", () => {
+  for (const url of [
+    "http://localhost./",
+    "http://myhost.local./",
+    "http://metadata.google.internal./",
+    "http://198.51.100.23/",
+    "http://192.88.99.1/",
+    "http://[::7f00:1]/",
+    "http://[::ffff:0:7f00:1]/",
+  ]) {
+    assert.throws(() => validateCaptureUrl(url), LensError, url);
+  }
+  assert.throws(() => validateCaptureUrl("http://[64:ff9b::7f00:1]/"), LensError);
+  assert.doesNotThrow(() => validateCaptureUrl("https://192.0.32.10/"));
+});
+
+test("rebinding rotations fail on re-resolution", async () => {
+  const answers = [["93.184.216.34"], ["10.9.9.9"]];
+  const rotating = { resolve: async () => answers.shift() ?? ["10.9.9.9"] };
+  const first = await validateAndResolve("flaky-rotator.com", rotating);
+  assert.deepEqual(first.ips, ["93.184.216.34"]);
+  await assert.rejects(
+    validateAndResolve("flaky-rotator.com", rotating),
+    (error) => error instanceof LensError && error.code === "lens/blocked-host",
   );
 });
