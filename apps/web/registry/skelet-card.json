@@ -1,0 +1,16 @@
+{
+  "name": "skelet-card",
+  "type": "registry:ui",
+  "title": "Skelet Card",
+  "description": "Evidence reference card with title, summary, and provenance slot.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/skelet-card.tsx",
+      "type": "registry:ui",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface SkeletCardProps extends React.HTMLAttributes<HTMLElement> {\n  title: string;\n  summary?: string;\n  evidenceUri?: string;\n  rightsNote?: string;\n}\n\nexport function SkeletCard({\n  title,\n  summary,\n  evidenceUri,\n  rightsNote,\n  className,\n  children,\n  ...props\n}: SkeletCardProps): React.JSX.Element {\n  return (\n    <article\n      data-evidence-uri={evidenceUri}\n      className={cn(\"rounded-lg border border-border bg-card p-4\", className)}\n      {...props}\n    >\n      <h3 className=\"text-sm font-semibold\">{title}</h3>\n      {summary ? <p className=\"mt-1 text-sm text-muted-foreground\">{summary}</p> : null}\n      {rightsNote ? <p className=\"mt-2 text-xs text-muted-foreground\">{rightsNote}</p> : null}\n      {children}\n    </article>\n  );\n}\n"
+    }
+  ]
+}

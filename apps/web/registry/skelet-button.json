@@ -1,0 +1,16 @@
+{
+  "name": "skelet-button",
+  "type": "registry:ui",
+  "title": "Skelet Button",
+  "description": "Evidence-linked button with variant and size support for agent-built interfaces.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/skelet-button.tsx",
+      "type": "registry:ui",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport type SkeletButtonVariant = \"primary\" | \"secondary\" | \"ghost\";\nexport type SkeletButtonSize = \"sm\" | \"md\" | \"lg\";\n\nexport interface SkeletButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {\n  variant?: SkeletButtonVariant;\n  size?: SkeletButtonSize;\n  evidenceUri?: string;\n}\n\nconst variants: Record<SkeletButtonVariant, string> = {\n  primary: \"bg-foreground text-background hover:opacity-90\",\n  secondary: \"border border-input bg-background hover:bg-muted\",\n  ghost: \"hover:bg-muted\",\n};\n\nconst sizes: Record<SkeletButtonSize, string> = {\n  sm: \"h-8 px-3 text-xs\",\n  md: \"h-9 px-4 text-sm\",\n  lg: \"h-10 px-6 text-base\",\n};\n\nexport function SkeletButton({\n  variant = \"primary\",\n  size = \"md\",\n  evidenceUri,\n  className,\n  ...props\n}: SkeletButtonProps): React.JSX.Element {\n  return (\n    <button\n      data-evidence-uri={evidenceUri}\n      className={cn(\n        \"inline-flex items-center justify-center rounded-md font-medium transition-colors\",\n        \"disabled:pointer-events-none disabled:opacity-50\",\n        variants[variant],\n        sizes[size],\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n"
+    }
+  ]
+}
