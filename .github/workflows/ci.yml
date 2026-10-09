@@ -128,6 +128,9 @@ jobs:
       - name: Production startup smoke
         run: node scripts/smoke-web.mjs 3103
 
+      - name: Clean-consumer registry install proof
+        run: node scripts/prove_registry_install.mjs
+
   worker:
     name: worker
     runs-on: ubuntu-24.04
