@@ -8,12 +8,14 @@ import { getMembership, type WorkspaceRole } from "./workspaces.ts";
  *
  * Authority model: every operation first proves workspace membership
  * server-side; then visibility applies. Private collections belong to
- * their owner_subject alone (who must be a workspace member);
+ * their owner_subject alone (who must be a workspace member), including
+ * visibility changes, which never leave the owner's hands;
  * workspace-visible collections are readable by all members and writable
- * by all members, while rename/visibility-change/delete additionally
- * admit workspace admins and owners. Unknown or malformed collection
- * identifiers fail closed as not-found; denied callers see one generic
- * forbidden error, so membership and existence are not oracles.
+ * by all members, while rename/delete additionally admit workspace admins
+ * and owners. Unknown or malformed collection identifiers fail closed as
+ * not-found; denied callers see one generic forbidden error. (Collection
+ * identifiers are unguessable UUIDs, so the not-found/forbidden split
+ * aids debugging without creating a practical enumeration oracle.)
  */
 
 export type CollectionVisibility = "private" | "workspace";
@@ -147,13 +149,17 @@ async function authorizeItemWrite(
   return collection;
 }
 
-/** Manage gate for rename/visibility/delete: owner_subject, or a workspace admin or owner. */
+/** Manage gate for rename/delete: owner_subject, or a workspace admin or owner. Visibility changes stay with the owner_subject alone. */
 function authorizeManage(
   collection: Collection,
   callerId: string,
   callerRole: WorkspaceRole,
+  visibilityChange: boolean,
 ): void {
   if (collection.ownerSubject === callerId) return;
+  if (visibilityChange) {
+    throw forbidden();
+  }
   if (callerRole === "admin" || callerRole === "owner") return;
   throw forbidden();
 }
@@ -203,7 +209,7 @@ export async function getCollection(
   return authorizeRead(tx, collectionId, callerId);
 }
 
-/** Rename and/or change visibility; owner_subject, workspace admins, and owners may manage. */
+/** Rename (owner_subject, workspace admins, owners) and/or change visibility (owner_subject only). */
 export async function updateCollection(
   client: DbClient,
   input: { collectionId: string; title?: string; visibility?: CollectionVisibility; actorId: string },
@@ -222,7 +228,7 @@ export async function updateCollection(
     if (role === null) {
       throw forbidden();
     }
-    await authorizeManage(collection, input.actorId, role);
+    authorizeManage(collection, input.actorId, role, visibility !== undefined);
     const updated = await tx.query(
       `update collections set title = coalesce($2, title), visibility = coalesce($3, visibility)
        where id = $1
@@ -251,7 +257,7 @@ export async function deleteCollection(
     if (role === null) {
       throw forbidden();
     }
-    await authorizeManage(collection, input.actorId, role);
+    authorizeManage(collection, input.actorId, role, false);
     await tx.query("delete from collections where id = $1", [input.collectionId]);
   });
 }

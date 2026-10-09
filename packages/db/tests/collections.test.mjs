@@ -167,6 +167,11 @@ test("workspace admins manage collections they do not own", async () => {
       actorId: admin.id,
     });
     assert.equal(renamed.title, "Admin renamed");
+    await assert.rejects(
+      () => updateCollection(db, { collectionId: created.id, visibility: "private", actorId: admin.id }),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+      "visibility changes stay with the owner alone",
+    );
     await deleteCollection(db, { collectionId: created.id, actorId: admin.id });
     await assert.rejects(
       () => getCollection(db, created.id, owner.id),
