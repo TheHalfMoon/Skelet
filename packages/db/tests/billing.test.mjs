@@ -23,6 +23,7 @@ const SEVEN = [
   "005_workspaces",
   "006_collections_auth",
   "007_billing",
+  "008_jobs",
 ];
 const SECRET = "whsec_test_fixture_only_not_a_secret";
 const NOW = new Date("2026-10-09T03:00:00.000Z");

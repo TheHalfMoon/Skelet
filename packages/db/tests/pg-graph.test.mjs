@@ -22,7 +22,7 @@ test("real PostgreSQL round-trips design graph and blocks invalid raw SQL", { sk
   verifyFixture();
   const db = await openDatabase({ connectionString: url });
   try {
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs"]);
     const source = await createSource(db,{key:"pg-fixture",kind:"test"});
     const product = await createProduct(db,{sourceId:source.id,title:"Real PostgreSQL"});
     const version = await createProductVersion(db,{productId:product.id,versionNo:1});
