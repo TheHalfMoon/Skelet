@@ -50,6 +50,9 @@ jobs:
       - name: Validate upstream provenance lock
         run: python scripts/validate_upstreams.py
 
+      - name: Validate agent skills
+        run: python scripts/validate_skills.py
+
   graft:
     name: graft
     runs-on: ubuntu-24.04
