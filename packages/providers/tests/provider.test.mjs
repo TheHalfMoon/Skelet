@@ -60,6 +60,41 @@ test("slow providers fail closed with timeout", async () => {
   assert.ok(Date.now() - started < 2000, "timeout must bound execution");
 });
 
+test("timeouts are enforced on signal-ignoring providers", async () => {
+  const stubborn = {
+    ...goodProvider(),
+    id: "fixture-stubborn",
+    invoke: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      return { tokens: [] };
+    },
+  };
+  const started = Date.now();
+  await assert.rejects(
+    () => invokeProvider(stubborn, "page-1", { timeoutMs: 50 }),
+    (error) => error instanceof ProviderError && error.code === "provider/timeout",
+  );
+  assert.ok(Date.now() - started < 2000, "timeout must settle the caller");
+});
+
+test("input guards fail fast before execution", async () => {
+  let executed = false;
+  const guarded = {
+    ...goodProvider(),
+    id: "fixture-guarded",
+    checkInput: (input) => typeof input === "string",
+    invoke: async (input) => {
+      executed = true;
+      return { tokens: [input] };
+    },
+  };
+  await assert.rejects(
+    () => invokeProvider(guarded, 42, { timeoutMs: 1000 }),
+    (error) => error instanceof ProviderError && error.code === "provider/failed",
+  );
+  assert.equal(executed, false);
+});
+
 test("malformed outputs and failures classify exactly", async () => {
   const malformed = {
     ...goodProvider(),
@@ -133,7 +168,7 @@ test("health probes never throw", async () => {
   assert.match(exploding.detail ?? "", /probe crashed/);
 });
 
-test("registry binds identifiers and filters capabilities", () => {
+test("registry binds identifiers and filters capabilities", async () => {
   const registry = createRegistry();
   registry.register(goodProvider());
   registry.register({ ...goodProvider(), id: "fixture-other", capability: "brand-clues" });
@@ -152,5 +187,25 @@ test("registry binds identifiers and filters capabilities", () => {
   assert.throws(
     () => registry.register({ ...goodProvider(), id: "  " }),
     (error) => error instanceof ProviderError && error.code === "provider/failed",
+  );
+  assert.throws(
+    () => registry.register({ ...goodProvider(), id: "fixture-nocap", capability: "" }),
+    (error) => error instanceof ProviderError && error.code === "provider/failed",
+  );
+  const frozen = registry.get("fixture-good");
+  assert.equal(Object.isFrozen(frozen), true);
+  const loud = {
+    ...goodProvider(),
+    id: "fixture-loud",
+    invoke: async () => {
+      throw new Error("x".repeat(5000));
+    },
+  };
+  await assert.rejects(
+    () => invokeProvider(loud, "page-1", { timeoutMs: 1000 }),
+    (error) =>
+      error instanceof ProviderError &&
+      error.code === "provider/failed" &&
+      error.message.length <= 2000,
   );
 });
