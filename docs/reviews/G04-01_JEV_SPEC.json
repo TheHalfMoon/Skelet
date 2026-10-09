@@ -1,0 +1,59 @@
+{
+ "description": "Skelet G04-01 exact-diff review: Skelet-owned auth baseline (sign-up, sign-in, sessions, sign-out) over new 004_auth schema",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "Compatible.",
+    "true": "Breaks a contract."
+   },
+   "instructions": "Do the 004_auth migration, the seven updated migration-list assertions, or the one-line CI test-list addition break any existing contract, migration ordering, or CI job?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "Correct.",
+    "true": "Material error present."
+   },
+   "instructions": "Is the scrypt verifier format/parse/verify round-trip, the opaque-token SHA-256 binding, the expiry/revocation lifecycle, the case-insensitive email uniqueness, or the concurrent-duplicate convergence materially wrong?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "Coverage is adequate.",
+    "true": "Coverage gap."
+   },
+   "instructions": "Do the 9 PGlite integration tests leave a grain-scope behavior (sign-up, duplicate, invalid input, token binding, enumeration, expiry, revocation, isolation, salting, concurrency) unproven?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "Sound.",
+    "true": "Race, leak, or corruption risk."
+   },
+   "instructions": "Can concurrent sign-ups, session creation, sign-out, user delete, or migration up/down leave a duplicate user, a false published session, a leaked raw token, or a corrupt ledger?",
+   "type": "noul"
+  },
+  "scope_integrity": {
+   "criteria": {
+    "false": "Within grain.",
+    "true": "Exceeds grain."
+   },
+   "instructions": "Exactly 004_auth schema + auth service + 9 tests + mechanical list updates + one CI test line. Anything beyond G04-01 (workspaces, web endpoints, billing, Better Auth library)?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No risk.",
+    "true": "Risk present."
+   },
+   "instructions": "Any plaintext password/token storage, user-enumeration oracle, timing oracle, SQL injection, token-entropy weakness, or privilege confusion in sign-up/sign-in/validate/sign-out?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "752688db7423b4d2b99f0b05a0e3b24db3c37a4f",
+  "branch": "skelet/p04-g04-01-auth-baseline",
+  "candidate_head": "cd968045292ce81759dbbbe3762999ade7a88f45",
+  "change": "11 files +724/-15: G04-01 auth baseline (004_auth schema, auth service, 10 tests, mechanical list updates, CI test line) plus fix commit closing PStack findings: FK/malformed-identifier AuthError mapping, aliased join columns with Date-aware expiry parse, server-clock contract, max-TTL/default-lifetime/stored-email/unknown-user tests. Gate: db lint clean, tsc strict clean, db suite 43/43 (10 new), python 107 OK, hygiene passed, upstreams valid, node 21/21, graft check OK, blast 1 area no outside dependents."
+ }
+}
