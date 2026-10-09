@@ -109,6 +109,7 @@ test("redirect targets revalidate under budget", async () => {
   const first = await guardRedirectTarget("https://example.org/a", "https://example.org/", 0, resolver);
   assert.equal(first.url.hostname, "example.org");
   assert.equal(first.hopsUsed, 1);
+  assert.deepEqual(first.ips, ["93.184.216.34"]);
   const relative = await guardRedirectTarget("/next", "https://example.org/a", 1, resolver);
   assert.equal(relative.url.hostname, "example.org");
   assert.equal(relative.hopsUsed, 2);

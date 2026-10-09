@@ -279,6 +279,8 @@ export async function validateAndResolve(
 export interface RedirectHop {
   url: ValidatedUrl;
   hopsUsed: number;
+  /** Guarded answers for this hop: pin the fetch to these, no re-resolution. */
+  ips: string[];
 }
 
 /**
@@ -307,8 +309,8 @@ export async function guardRedirectTarget(
     throw invalid();
   }
   const validated = validateCaptureUrl(absolute);
-  await validateAndResolve(validated.hostname, resolver);
-  return { url: validated, hopsUsed: hopsUsed + 1 };
+  const resolved = await validateAndResolve(validated.hostname, resolver);
+  return { url: validated, hopsUsed: hopsUsed + 1, ips: resolved.ips };
 }
 
 export const LENS_LIMITS = {
