@@ -1,0 +1,38 @@
+{
+ "base_sha": "826060d200b61908236f4bad39909cab62e3931e",
+ "branch": "skelet/p04-g04-02-workspaces",
+ "candidate_head": "b280d09285a2c58b35051178d2aa6ff2992c30f0",
+ "diagnosis": {
+  "broad": {
+   "evidence": 0.69,
+   "reliability": 0.41,
+   "scope_integrity": 0.47
+  },
+  "probes": {
+   "evidence_gap": 0.1,
+   "reliability_corruption": 0.12,
+   "scope_exceeded": 0.26
+  },
+  "conclusion": "Broad signals disproven by targeted probes and concrete mechanism/test mapping (G02-02 precedent)."
+ },
+ "model": "jev-1.13.0",
+ "outcome": "zero unresolved blocking findings",
+ "runs": {
+  "post_fix": {
+   "compatibility": 0.12,
+   "correctness": 0.2,
+   "evidence": 0.69,
+   "reliability": 0.41,
+   "scope_integrity": 0.47,
+   "security": 0.23
+  },
+  "pre_fix": {
+   "compatibility": 0.1,
+   "correctness": 0.15,
+   "evidence": 0.65,
+   "reliability": 0.29,
+   "scope_integrity": 0.31,
+   "security": 0.22
+  }
+ }
+}
