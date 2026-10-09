@@ -120,6 +120,36 @@ test("required validation failures publish nothing", async () => {
         rightsClassification: "metadata_only",
         asset: { bytes: BYTES, mediaType: "not-a-type!!" },
       },
+      {
+        kind: "screen",
+        title: "Big metadata",
+        rightsClassification: "metadata_only",
+        metadata: { blob: "x".repeat(40000) },
+      },
+      {
+        kind: "screen",
+        title: "Proto metadata",
+        rightsClassification: "metadata_only",
+        metadata: JSON.parse('{"__proto__":{"polluted":true}}'),
+      },
+      {
+        kind: "screen",
+        title: "Long summary",
+        rightsClassification: "metadata_only",
+        summary: "x".repeat(5000),
+      },
+      {
+        kind: "screen",
+        title: "Bad URL",
+        rightsClassification: "metadata_only",
+        asset: { bytes: BYTES, mediaType: "image/png", sourceUrl: "file:///etc/passwd" },
+      },
+      {
+        kind: "screen",
+        title: "Too many enrichers",
+        rightsClassification: "metadata_only",
+        enrichers: Array.from({ length: 11 }, (_, index) => enricher(`e${index}`, async () => ({}))),
+      },
     ];
     for (const overrides of cases) {
       await assert.rejects(
@@ -198,6 +228,81 @@ test("enricher timeouts degrade to partial", async () => {
     assert.equal(result.status, "partial");
     assert.equal(result.enrichment[0]?.errorCode, "provider/timeout");
     assert.notEqual(result.artifactId, null);
+  } finally {
+    await teardown(fx);
+  }
+});
+
+test("conflicting source or rights fail closed without inheriting", async () => {
+  const fx = await fixture();
+  try {
+    const other = await createSource(fx.db, { key: "other-source", kind: "synthetic" });
+    const first = await publishArtifact(fx.db, fx.storage, {
+      sourceId: fx.source.id,
+      kind: "icon",
+      title: "Mark",
+      rightsClassification: "restricted",
+      asset: { bytes: BYTES, mediaType: "image/svg+xml" },
+    });
+    assert.equal(first.status, "published");
+    const conflict = await publishArtifact(fx.db, fx.storage, {
+      sourceId: other.id,
+      kind: "icon",
+      title: "Mark",
+      rightsClassification: "metadata_only",
+      asset: { bytes: BYTES, mediaType: "image/svg+xml" },
+    }).then(
+      () => { throw new Error("conflicting rights must fail"); },
+      (failure) => failure,
+    );
+    assert.ok(conflict instanceof PublishError);
+    assert.equal(conflict.code, "publish/rights-conflict");
+    const artifacts = await fx.db.query("select count(*)::int as n from artifacts");
+    assert.equal(artifacts.rows[0]?.n, 1);
+    const row = await fx.db.query("select source_id, rights_classification from assets where id = $1", [
+      first.assetId,
+    ]);
+    assert.equal(row.rows[0]?.source_id, fx.source.id);
+    assert.equal(row.rows[0]?.rights_classification, "restricted");
+  } finally {
+    await teardown(fx);
+  }
+});
+
+test("storage failures carry a generic message", async () => {
+  const fx = await fixture();
+  try {
+    const error = await publishArtifact(fx.db, fx.storage, {
+      sourceId: fx.source.id,
+      kind: "icon",
+      title: "Heavy",
+      rightsClassification: "permitted",
+      asset: { bytes: BYTES, mediaType: "image/png" },
+      storageMaxBytes: 4,
+    }).then(
+      () => { throw new Error("oversize asset must fail"); },
+      (failure) => failure,
+    );
+    assert.ok(error instanceof PublishError);
+    assert.equal(error.message, "Asset storage failed.");
+  } finally {
+    await teardown(fx);
+  }
+});
+
+test("media types normalize and oversize assets fail by default", async () => {
+  const fx = await fixture();
+  try {
+    const result = await publishArtifact(fx.db, fx.storage, {
+      sourceId: fx.source.id,
+      kind: "icon",
+      title: "Uppercase",
+      rightsClassification: "permitted",
+      asset: { bytes: BYTES, mediaType: "IMAGE/PNG" },
+    });
+    assert.equal(result.status, "published");
+    const row = await fx.db.query("select media_type from assets where id = $1", [result.assetId]);
+    assert.equal(row.rows[0]?.media_type, "image/png");
   } finally {
     await teardown(fx);
   }

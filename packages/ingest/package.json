@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "skelet-db": "workspace:*",
+    "skelet-providers": "workspace:*",
+    "skelet-storage": "workspace:*"
+  },
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
