@@ -60,7 +60,7 @@ export function computeBackoffSeconds(attempt: number): number {
 function toIsoTimestamp(raw: unknown): string {
   const value = raw instanceof Date ? raw : new Date(String(raw));
   if (Number.isNaN(value.getTime())) {
-    throw new Error("Invalid job timestamp");
+    throw new JobError("jobs/invalid-job", "Job record is invalid.");
   }
   return value.toISOString();
 }
@@ -74,7 +74,7 @@ function toStatus(value: unknown): JobStatus {
     value !== "canceled" &&
     value !== "dead"
   ) {
-    throw new Error("Invalid job status in database");
+    throw new JobError("jobs/invalid-job", "Job record is invalid.");
   }
   return value;
 }
@@ -116,13 +116,28 @@ function validateName(field: string, value: string): string {
   return trimmed;
 }
 
+function validateWorkerId(workerId: string): string {
+  if (typeof workerId !== "string") {
+    throw new JobError("jobs/invalid-job", "Worker identity is invalid.");
+  }
+  const trimmed = workerId.trim();
+  if (trimmed.length === 0 || trimmed.length > 128) {
+    throw new JobError("jobs/invalid-job", "Worker identity is invalid.");
+  }
+  return trimmed;
+}
+
+const PAYLOAD_MAX_BYTES = 262144;
+
 function invalidId(): JobError {
   return new JobError("jobs/not-found", "Job was not found.");
 }
 
 /**
- * Enqueue a job. A repeated idempotency key converges to the original row
- * (reported with enqueued:false); a null key always creates a new row.
+ * Enqueue a job. Identity keys are trimmed and scoped to their queue: a
+ * repeated key on the same queue converges to the original row (reported
+ * with enqueued:false), while the same key on another queue is a
+ * different job. A null key always creates a new row.
  */
 export async function enqueue(
   tx: DbTransaction,
@@ -141,8 +156,10 @@ export async function enqueue(
   if (!Number.isInteger(maxAttempts) || maxAttempts < 1) {
     throw new JobError("jobs/invalid-job", "Job retry budget is invalid.");
   }
-  const key = input.idempotencyKey ?? null;
-  if (key !== null && (key.trim().length === 0 || key.length > 256)) {
+  const key = input.idempotencyKey === undefined || input.idempotencyKey === null
+    ? null
+    : input.idempotencyKey.trim();
+  if (key !== null && (key.length === 0 || key.length > 256)) {
     throw new JobError("jobs/invalid-job", "Job identity key is invalid.");
   }
   const runAt = input.runAt ?? new Date();
@@ -152,12 +169,16 @@ export async function enqueue(
   if (input.payload !== undefined && (typeof input.payload !== "object" || input.payload === null || Array.isArray(input.payload))) {
     throw new JobError("jobs/invalid-job", "Job payload is invalid.");
   }
+  const encoded = JSON.stringify(input.payload ?? {});
+  if (encoded.length > PAYLOAD_MAX_BYTES) {
+    throw new JobError("jobs/invalid-job", "Job payload is too large.");
+  }
   const inserted = await tx.query(
     `insert into jobs (queue, kind, payload, idempotency_key, max_attempts, run_at)
      values ($1, $2, $3::jsonb, $4, $5, $6::timestamptz)
-     on conflict (idempotency_key) do nothing
+     on conflict (queue, idempotency_key) do nothing
      returning ${JOB_COLUMNS}`,
-    [queue, kind, JSON.stringify(input.payload ?? {}), key, maxAttempts, runAt.toISOString()],
+    [queue, kind, encoded, key, maxAttempts, runAt.toISOString()],
   );
   const row = inserted.rows[0];
   if (row !== undefined) {
@@ -165,8 +186,8 @@ export async function enqueue(
   }
   // A null key never conflicts; reaching here means a duplicate key.
   const existing = await tx.query(
-    `select ${JOB_COLUMNS} from jobs where idempotency_key = $1`,
-    [key],
+    `select ${JOB_COLUMNS} from jobs where queue = $1 and idempotency_key = $2`,
+    [queue, key],
   );
   const found = existing.rows[0];
   if (found === undefined) {
@@ -187,9 +208,7 @@ export async function claim(
   input: { queue: string; workerId: string; now?: Date },
 ): Promise<Job | null> {
   const queue = validateName("queue", input.queue);
-  if (typeof input.workerId !== "string" || input.workerId.trim().length === 0) {
-    throw new JobError("jobs/invalid-job", "Worker identity is invalid.");
-  }
+  const workerId = validateWorkerId(input.workerId);
   const at = input.now ?? new Date();
   const claimed = await tx.query(
     `update jobs set status = 'running', attempts = attempts + 1,
@@ -200,7 +219,7 @@ export async function claim(
        order by run_at, id limit 1 for update skip locked
      )
      returning ${JOB_COLUMNS}`,
-    [queue, input.workerId, at.toISOString()],
+    [queue, workerId, at.toISOString()],
   );
   const row = claimed.rows[0];
   return row === undefined ? null : toJob(row);
@@ -214,11 +233,12 @@ export async function complete(
   if (!UUID_PATTERN.test(input.jobId)) {
     throw invalidId();
   }
+  const workerId = validateWorkerId(input.workerId);
   const done = await tx.query(
     `update jobs set status = 'completed', locked_by = null, locked_at = null, last_error = null
      where id = $1 and status = 'running' and locked_by = $2
      returning ${JOB_COLUMNS}`,
-    [input.jobId, input.workerId],
+    [input.jobId, workerId],
   );
   const row = done.rows[0];
   if (row === undefined) {
@@ -230,6 +250,8 @@ export async function complete(
 /**
  * Fail a job claimed by this worker. Attempts below budget reschedule
  * with deterministic backoff; the final attempt dead-letters the job.
+ * The terminal writes re-check ownership, so a racing cancellation wins
+ * instead of being resurrected.
  */
 export async function fail(
   tx: DbTransaction,
@@ -241,10 +263,11 @@ export async function fail(
   if (typeof input.error !== "string" || input.error.trim().length === 0) {
     throw new JobError("jobs/invalid-job", "Failure reason is invalid.");
   }
+  const workerId = validateWorkerId(input.workerId);
   const at = input.now ?? new Date();
   const current = await tx.query(
     "select attempts, max_attempts from jobs where id = $1 and status = 'running' and locked_by = $2",
-    [input.jobId, input.workerId],
+    [input.jobId, workerId],
   );
   const found = current.rows[0];
   if (found === undefined) {
@@ -255,8 +278,8 @@ export async function fail(
   if (attempts >= maxAttempts) {
     const dead = await tx.query(
       `update jobs set status = 'dead', locked_by = null, locked_at = null, last_error = $2
-       where id = $1 returning ${JOB_COLUMNS}`,
-      [input.jobId, input.error.slice(0, 2000)],
+       where id = $1 and status = 'running' and locked_by = $3 returning ${JOB_COLUMNS}`,
+      [input.jobId, input.error.slice(0, 2000), workerId],
     );
     const deadRow = dead.rows[0];
     if (deadRow === undefined) {
@@ -268,8 +291,8 @@ export async function fail(
   const retry = await tx.query(
     `update jobs set status = 'failed', locked_by = null, locked_at = null,
        last_error = $2, run_at = $3::timestamptz
-     where id = $1 returning ${JOB_COLUMNS}`,
-    [input.jobId, input.error.slice(0, 2000), retryAt.toISOString()],
+     where id = $1 and status = 'running' and locked_by = $4 returning ${JOB_COLUMNS}`,
+    [input.jobId, input.error.slice(0, 2000), retryAt.toISOString(), workerId],
   );
   const retryRow = retry.rows[0];
   if (retryRow === undefined) {

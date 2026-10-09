@@ -111,6 +111,20 @@ test("duplicate enqueue converges to the original job", async () => {
     assert.equal(second.enqueued, false);
     assert.equal(second.job.id, first.job.id);
     assert.deepEqual(second.job.payload, {});
+    const otherQueue = await enqueue(db, {
+      queue: "exports",
+      kind: "dataset",
+      idempotencyKey: "import-batch-7",
+    });
+    assert.equal(otherQueue.enqueued, true);
+    assert.notEqual(otherQueue.job.id, first.job.id);
+    const padded = await enqueue(db, {
+      queue: "imports",
+      kind: "dataset",
+      idempotencyKey: "  import-batch-7  ",
+    });
+    assert.equal(padded.enqueued, false);
+    assert.equal(padded.job.id, first.job.id);
     const third = await enqueue(db, { queue: "imports", kind: "dataset" });
     assert.equal(third.enqueued, true);
     assert.notEqual(third.job.id, first.job.id);
@@ -157,6 +171,22 @@ test("failures reschedule with backoff and exhaust to dead-letter", async () => 
     assert.equal(dead.status, "dead");
     assert.equal(dead.lockedBy, null);
     assert.equal(await claim(db, { queue: "analysis", workerId: "w" }), null);
+  } finally {
+    await db.close();
+  }
+});
+
+test("cancellation wins over a racing failure", async () => {
+  const db = await fixtureDb();
+  try {
+    const placed = await enqueue(db, { queue: "race-cancel", kind: "capture" });
+    await claim(db, { queue: "race-cancel", workerId: "w" });
+    await cancel(db, placed.job.id);
+    await assert.rejects(
+      () => fail(db, { jobId: placed.job.id, workerId: "w", error: "too late" }),
+      (error) => error instanceof JobError && error.code === "jobs/not-claimed",
+    );
+    assert.equal((await getJob(db, placed.job.id)).status, "canceled");
   } finally {
     await db.close();
   }
@@ -234,6 +264,7 @@ test("worker isolation and input validation fail closed", async () => {
       { queue: "q", kind: "   " },
       { queue: "q", kind: "k", maxAttempts: 0 },
       { queue: "q", kind: "k", payload: ["array"] },
+      { queue: "q", kind: "k", payload: { blob: "x".repeat(300000) } },
       { queue: "q", kind: "k", idempotencyKey: "  " },
     ]) {
       await assert.rejects(
@@ -241,6 +272,18 @@ test("worker isolation and input validation fail closed", async () => {
         (error) => error instanceof JobError && error.code === "jobs/invalid-job",
       );
     }
+    await assert.rejects(
+      () => claim(db, { queue: "solo", workerId: "  " }),
+      (error) => error instanceof JobError && error.code === "jobs/invalid-job",
+    );
+    await assert.rejects(
+      () => claim(db, { queue: "solo", workerId: "w".repeat(129) }),
+      (error) => error instanceof JobError && error.code === "jobs/invalid-job",
+    );
+    await enqueue(db, { queue: "solo", kind: "capture" });
+    const paddedWorker = await claim(db, { queue: "solo", workerId: "  owner  " });
+    assert.equal(paddedWorker?.lockedBy, "owner");
+    await complete(db, { jobId: paddedWorker.id, workerId: "owner" });
   } finally {
     await db.close();
   }

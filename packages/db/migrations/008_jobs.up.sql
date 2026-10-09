@@ -8,16 +8,20 @@ create table jobs (
   check(length(trim(queue)) > 0 and char_length(queue) <= 128),
  kind text not null
   check(length(trim(kind)) > 0 and char_length(kind) <= 128),
- payload jsonb not null default '{}'::jsonb check(jsonb_typeof(payload) = 'object'),
+ payload jsonb not null default '{}'::jsonb
+  check(jsonb_typeof(payload) = 'object' and octet_length(payload::text) <= 262144),
  status text not null default 'queued'
   check(status in ('queued', 'running', 'completed', 'failed', 'canceled', 'dead')),
- idempotency_key text unique
+ idempotency_key text
   check(idempotency_key is null or
    (length(trim(idempotency_key)) > 0 and char_length(idempotency_key) <= 256)),
+ unique(queue, idempotency_key),
  attempts integer not null default 0 check(attempts >= 0),
  max_attempts integer not null default 5 check(max_attempts >= 1),
  run_at timestamptz not null default now(),
- locked_by text,
+ locked_by text
+  check(locked_by is null or
+   (length(trim(locked_by)) > 0 and char_length(locked_by) <= 128)),
  locked_at timestamptz,
  last_error text,
  created_at timestamptz not null default now(),
