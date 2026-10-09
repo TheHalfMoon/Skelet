@@ -125,10 +125,15 @@ function validateIconBody(name: string, body: unknown): string {
   if (typeof body !== "string" || body.length === 0 || body.length > MAX_BODY_CHARS) {
     fail(`Icon ${name} body is invalid.`);
   }
-  if (UNSAFE_BODY.test(body)) {
-    fail(`Icon ${name} body contains unsafe markup.`);
-  }
+  assertSafeSvgBody(body, name);
   return body;
+}
+
+/** Shared SVG body gate for corpus importers (icons, brand marks). */
+export function assertSafeSvgBody(body: string, label: string): void {
+  if (UNSAFE_BODY.test(body)) {
+    fail(`${label} body contains unsafe markup.`);
+  }
 }
 
 function dimension(value: number | undefined, fallback: number | undefined): number {

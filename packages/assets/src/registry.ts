@@ -61,8 +61,10 @@ export interface RegistryMetadata {
   trademark?: boolean;
   /** Brand-guideline URL, recorded separately from code license. */
   trademarkGuidelinesUrl?: string;
-  /** Known variants, e.g. light/dark/monochrome/wordmark. */
+  /** Known variants, e.g. light/dark/monochrome/mark/wordmark. */
   variants?: string[];
+  /** Set by registration: whether distributable bytes exist. */
+  bytesRegistered?: boolean;
 }
 
 export interface AssetRecord {
@@ -228,7 +230,10 @@ function toRecord(row: Record<string, unknown>): AssetRecord {
   const license = validated.license ?? "unknown";
   const trademark = validated.trademark ?? false;
   const rights = String(row.rights_classification);
-  const policy = servingPolicy({ rightsClassification: rights, license, trademark });
+  let policy = servingPolicy({ rightsClassification: rights, license, trademark });
+  if (policy.serving === "download" && validated.bytesRegistered !== true) {
+    policy = { serving: "metadata-only", reason: "No distributable bytes registered." };
+  }
   return {
     artifactId: String(row.id),
     kind: String(row.kind) as RegistryKind,
@@ -291,6 +296,8 @@ export async function registerAsset(
     throw new RegistryError("assets/invalid-record", "Content hash is invalid.");
   }
   const metadata = validateRegistryMetadata(input.metadata);
+  // Authoritative: callers cannot self-assert distributable bytes.
+  metadata.bytesRegistered = input.asset !== undefined;
   const rights = String(input.rightsClassification);
   if (!["unknown", "metadata_only", "permitted", "restricted"].includes(rights)) {
     throw new RegistryError("assets/invalid-record", "Rights classification is invalid.");
