@@ -316,7 +316,10 @@ jobs:
         run: pnpm --filter skelet-assets typecheck
 
       - name: Run asset registry tests
-        run: node --experimental-strip-types --test packages/assets/tests/assets.test.mjs
+        run: >-
+          node --experimental-strip-types --test
+          packages/assets/tests/assets.test.mjs
+          packages/assets/tests/iconset.test.mjs
 
   db-foundation:
     name: db-foundation
