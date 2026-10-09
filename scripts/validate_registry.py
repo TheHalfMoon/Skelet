@@ -10,6 +10,7 @@ with a fail-closed message on the first violation.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -28,10 +29,14 @@ def read_json(path: Path):
 
 
 def item_path_for(directory: Path, name: str) -> Path | None:
-    for candidate in (f"{name}.json", f"{name.replace('skelet-', '')}.json"):
-        candidate_path = directory / candidate
-        if candidate_path.is_file():
+    if not re.fullmatch(r"skelet-[a-z0-9-]+", name):
+        return None
+    candidate_path = directory / f"{name}.json"
+    try:
+        if candidate_path.is_file() and candidate_path.resolve().is_relative_to(directory.resolve()):
             return candidate_path
+    except (OSError, ValueError):
+        return None
     return None
 
 
@@ -39,7 +44,8 @@ def validate_file_entry(name: str, file) -> str | None:
     if (
         not isinstance(file, dict)
         or not isinstance(file.get("path"), str)
-        or not file["path"]
+        or not re.fullmatch(r"components/[A-Za-z0-9][A-Za-z0-9/_.-]*\.tsx", file["path"])
+        or ".." in file["path"]
         or not isinstance(file.get("content"), str)
         or not file["content"]
     ):

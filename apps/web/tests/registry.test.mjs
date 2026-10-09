@@ -51,4 +51,12 @@ test("unknown registry items fail closed", () => {
     () => buildRegistryItem("../registry"),
     (error) => error instanceof RegistryError && error.code === "registry/not-found",
   );
+  assert.throws(
+    () => buildRegistryItem("__proto__"),
+    (error) => error instanceof RegistryError && error.code === "registry/not-found",
+  );
+  assert.throws(
+    () => buildRegistryItem("constructor"),
+    (error) => error instanceof RegistryError && error.code === "registry/not-found",
+  );
 });

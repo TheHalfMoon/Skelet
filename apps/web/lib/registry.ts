@@ -2,8 +2,8 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const registryIndex = require("../registry/registry.json") as RegistryIndexFile;
-const buttonItem = require("../registry/button.json") as RegistryItem;
-const cardItem = require("../registry/card.json") as RegistryItem;
+const buttonItem = require("../registry/skelet-button.json") as RegistryItem;
+const cardItem = require("../registry/skelet-card.json") as RegistryItem;
 
 export interface RegistryIndexEntry {
   name: string;
@@ -46,6 +46,13 @@ const ITEMS: Record<string, RegistryItem> = {
   "skelet-card": cardItem,
 };
 
+function lookupItem(name: string): RegistryItem | undefined {
+  // hasOwn, not truthiness: __proto__/constructor must fail closed
+  // to not-found instead of reaching the prototype chain.
+  if (!Object.hasOwn(ITEMS, name)) return undefined;
+  return ITEMS[name];
+}
+
 export class RegistryError extends Error {
   readonly code: "registry/not-found" | "registry/invalid";
   constructor(code: RegistryError["code"], message: string) {
@@ -69,7 +76,11 @@ function validateItemShape(item: unknown): asserts item is RegistryItem {
     }
   }
   for (const list of ["dependencies", "devDependencies", "registryDependencies"] as const) {
-    if (!Array.isArray(item[list])) {
+    const values = item[list];
+    if (
+      !Array.isArray(values) ||
+      values.some((entry) => typeof entry !== "string" || entry.length === 0)
+    ) {
       throw new RegistryError("registry/invalid", `Registry item ${list} is invalid.`);
     }
   }
@@ -80,8 +91,9 @@ function validateItemShape(item: unknown): asserts item is RegistryItem {
     if (
       !isRecord(file) ||
       typeof file.path !== "string" ||
-      file.path.length === 0 ||
-      typeof file.type !== "string" ||
+      !/^components\/[A-Za-z0-9][A-Za-z0-9/_.-]*\.tsx$/.test(file.path) ||
+      file.path.includes("..") ||
+      file.type !== "registry:ui" ||
       typeof file.content !== "string" ||
       file.content.length === 0
     ) {
@@ -109,7 +121,7 @@ export function buildRegistryIndex(): RegistryIndex {
     ) {
       throw new RegistryError("registry/invalid", "Registry index entry is invalid.");
     }
-    if (ITEMS[entry.name] === undefined) {
+    if (lookupItem(entry.name) === undefined) {
       throw new RegistryError("registry/invalid", `Registry item missing: ${entry.name}.`);
     }
     return {
@@ -123,7 +135,7 @@ export function buildRegistryIndex(): RegistryIndex {
 }
 
 export function buildRegistryItem(name: string): RegistryItem {
-  const item = ITEMS[name];
+  const item = lookupItem(name);
   if (item === undefined) {
     throw new RegistryError("registry/not-found", "Registry item was not found.");
   }

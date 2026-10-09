@@ -13,6 +13,7 @@ export async function GET(
     if (error instanceof RegistryError && error.code === "registry/not-found") {
       return NextResponse.json({ error: "Registry item was not found." }, { status: 404 });
     }
-    throw error;
+    // Misconfiguration or corrupt bundle: generic shape, no internals.
+    return NextResponse.json({ error: "Registry unavailable." }, { status: 500 });
   }
 }
