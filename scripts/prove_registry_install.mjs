@@ -13,9 +13,9 @@
  * the one-time pinned dependency install.
  */
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve, sep } from "node:path";
 import process from "node:process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
@@ -58,7 +58,7 @@ async function run(cwd, command, args, useShell = false) {
   try {
     const { stdout, stderr } = await execFileAsync(command, args, {
       cwd,
-      timeout: 240_000,
+      timeout: 180_000,
       shell: useShell,
     });
     if (stdout) process.stdout.write(String(stdout).slice(-2000));
@@ -112,32 +112,59 @@ async function main() {
     await writeFile(join(sandbox, "lib", "utils.ts"), CN_UTIL);
 
     const installed = [];
+    const declaredDeps = new Set();
     for (const itemPath of itemPaths) {
+      const resolvedPath = resolve(ROOT, itemPath);
+      if (!resolvedPath.startsWith(ROOT + sep)) fail(`item path escapes repository: ${itemPath}`);
       let item;
       try {
-        item = JSON.parse(await readFile(resolve(ROOT, itemPath), "utf-8"));
+        item = JSON.parse(await readFile(resolvedPath, "utf-8"));
       } catch (error) {
         fail(`unreadable item document ${itemPath}: ${error.message}`);
       }
       if (typeof item?.name !== "string" || !Array.isArray(item?.files) || item.files.length === 0) {
         fail(`invalid item document ${itemPath}`);
       }
+      for (const list of ["dependencies", "devDependencies", "registryDependencies"]) {
+        for (const dep of item[list] ?? []) {
+          if (typeof dep === "string" && dep.length > 0) declaredDeps.add(dep.split("@")[0]);
+        }
+      }
       for (const file of item.files) {
         if (typeof file?.path !== "string" || typeof file?.content !== "string") {
           fail(`invalid file entry in ${itemPath}`);
         }
-        if (file.path.includes("..") || file.path.startsWith("/") || !file.path.endsWith(".tsx")) {
+        if (
+          isAbsolute(file.path) ||
+          file.path.includes("..") ||
+          file.path.includes("\\") ||
+          /^[a-zA-Z]:/.test(file.path) ||
+          !file.path.endsWith(".tsx")
+        ) {
           fail(`unsafe file path in ${itemPath}: ${file.path}`);
         }
         const target = resolve(sandbox, file.path);
-        if (!target.startsWith(sandbox)) fail(`escaping file path in ${itemPath}`);
+        if (target !== sandbox && !target.startsWith(sandbox + sep)) {
+          fail(`escaping file path in ${itemPath}`);
+        }
         await mkdir(dirname(target), { recursive: true });
         await writeFile(target, file.content);
       }
       installed.push(item.name);
     }
+    for (const dep of declaredDeps) {
+      if (!(dep in PINNED_DEPS) && !(dep in PINNED_DEVS)) {
+        fail(`item declares dependency outside proof pins: ${dep}`);
+      }
+    }
+    console.log("CN_FALLBACK_USED lib/utils.ts is proof scaffolding, not item content");
 
-    await run(sandbox, NPM, ["install", "--no-audit", "--no-fund", "--loglevel=error"], true);
+    await run(
+      sandbox,
+      NPM,
+      ["install", "--no-audit", "--no-fund", "--ignore-scripts", "--loglevel=error"],
+      process.platform === "win32",
+    );
     await run(sandbox, process.execPath, [
       "node_modules/typescript/bin/tsc",
       "--noEmit",
@@ -158,20 +185,50 @@ async function main() {
 
     // Consumer bundlers resolve the documented @/* alias (shadcn
     // convention); the proof rewrites it to relative paths explicitly.
-    for (const name of ["skelet-button", "skelet-card"]) {
-      const emitted = join(sandbox, "dist", "components", `${name}.js`);
-      const code = await readFile(emitted, "utf-8");
+    const emittedFiles = await readdir(join(sandbox, "dist", "components")).catch(() => {
+      fail("missing emitted components");
+    });
+    for (const emittedName of emittedFiles.filter((name) => name.endsWith(".js"))) {
+      const emitted = join(sandbox, "dist", "components", emittedName);
+      let code;
+      try {
+        code = await readFile(emitted, "utf-8");
+      } catch {
+        fail(`missing emitted component: ${emittedName}`);
+      }
       await writeFile(emitted, code.replaceAll("@/lib/utils", "../lib/utils.js"));
     }
+    const remaining = [];
+    for (const emittedName of emittedFiles.filter((name) => name.endsWith(".js"))) {
+      const code = await readFile(join(sandbox, "dist", "components", emittedName), "utf-8");
+      if (code.includes("@/")) remaining.push(emittedName);
+    }
+    if (remaining.length > 0) fail(`unresolved aliases in: ${remaining.join(",")}`);
+
+    const renderImports = [];
+    const renderAsserts = [];
+    if (installed.includes("skelet-button")) {
+      renderImports.push('import { SkeletButton } from "./components/skelet-button.js";');
+      renderAsserts.push(
+        'const button = renderToStaticMarkup(SkeletButton({ children: "Ship it", evidenceUri: "skelet://artifact/demo" }));',
+        'if (!button.includes("Ship it") || !button.includes("data-evidence-uri")) throw new Error("button render mismatch");',
+      );
+    }
+    if (installed.includes("skelet-card")) {
+      renderImports.push('import { SkeletCard } from "./components/skelet-card.js";');
+      renderAsserts.push(
+        'const card = renderToStaticMarkup(SkeletCard({ title: "Demo", summary: "Summary", rightsNote: "MIT", evidenceUri: "skelet://artifact/demo" }));',
+        'if (!card.includes("Demo") || !card.includes("MIT") || !card.includes("data-evidence-uri")) throw new Error("card render mismatch");',
+      );
+    }
+    if (renderImports.length === 0) {
+      console.log("RENDER_SKIPPED no known render targets; install and typecheck proven");
+      console.log(`REGISTRY_INSTALL_PROOF_OK items=${installed.join(",")}`);
+      return;
+    }
     const render = `import { renderToStaticMarkup } from "react-dom/server";
-import { SkeletButton } from "./components/skelet-button.js";
-import { SkeletCard } from "./components/skelet-card.js";
-const button = renderToStaticMarkup(SkeletButton({ children: "Ship it", evidenceUri: "skelet://artifact/demo" }));
-const card = renderToStaticMarkup(
-  SkeletCard({ title: "Demo", summary: "Summary", rightsNote: "MIT", evidenceUri: "skelet://artifact/demo" }),
-);
-if (!button.includes("Ship it") || !button.includes("data-evidence-uri")) throw new Error("button render mismatch");
-if (!card.includes("Demo") || !card.includes("MIT")) throw new Error("card render mismatch");
+${renderImports.join("\n")}
+${renderAsserts.join("\n")}
 console.log("RENDER_OK");
 `;
     await writeFile(join(sandbox, "dist", "render.mjs"), render);
