@@ -17,7 +17,7 @@ import {
   validateSession,
 } from "../src/auth.ts";
 
-const FOUR = ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces"];
+const SIX = ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth"];
 
 async function fixtureDb() {
   const db = await openDatabase();
@@ -28,13 +28,13 @@ async function fixtureDb() {
 test("004 migration applies auth tables and reverses cleanly", async () => {
   const db = await openDatabase();
   try {
-    assert.deepEqual(await migrateUp(db), FOUR);
+    assert.deepEqual(await migrateUp(db), SIX);
     for (const table of ["users", "sessions"]) {
       const check = await db.query("select to_regclass($1) as oid", [`public.${table}`]);
       assert.notEqual(check.rows[0]?.oid, null, `missing table ${table}`);
     }
-    assert.deepEqual(await migrateDown(db), [...FOUR].reverse());
-    assert.deepEqual(await migrateUp(db), FOUR);
+    assert.deepEqual(await migrateDown(db), [...SIX].reverse());
+    assert.deepEqual(await migrateUp(db), SIX);
   } finally {
     await db.close();
   }

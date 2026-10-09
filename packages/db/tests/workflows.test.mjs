@@ -8,9 +8,16 @@ import { createArtifact } from "../src/graph.ts";
 import { createFlow,addFlowStep,listFlowSteps,createCollection,saveCollectionArtifact,
  listCollectionArtifacts,createCaptureRun,createAnalysisRun,getCaptureRun,getAnalysisRun,
  transitionRun,registerImport } from "../src/workflows.ts";
+import { signUp } from "../src/auth.ts";
+import { createWorkspace } from "../src/workspaces.ts";
 
 const HASH="a".repeat(64);
-const workspace="e47b0745-e60a-4c15-82f8-1ed277c900f3";
+async function workspaceFixture(db) {
+ const user=await signUp(db,{email:"workflows-fixture@skelet.example",
+  password:"workflows-password-01"});
+ const created=await createWorkspace(db,{name:"Workflows fixture",ownerId:user.id});
+ return created.workspace.id;
+}
 async function fixture() {
  const db=await openDatabase();
  await migrateUp(db);
@@ -27,7 +34,7 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
  const db=await openDatabase();
  try {
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth"]);
   assert.deepEqual(await migrateUp(db),[]);
   for(const table of ["flows","flow_steps","collections","collection_items",
     "capture_runs","analysis_runs","import_records"]) {
@@ -35,9 +42,9 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
     assert.notEqual(r.rows[0]?.id,null);
   }
   assert.deepEqual(await migrateDown(db),
-   ["005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
+   ["006_collections_auth","005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth"]);
  } finally {await db.close();}
 });
 
@@ -69,6 +76,7 @@ test("ordered FlowSteps round-trip and mismatched version/source rejected",async
 test("collection references are idempotent and private by default",async()=>{
  const {db,artifact}=await fixture();
  try{
+  const workspace=await workspaceFixture(db);
   const c=await createCollection(db,{workspaceId:workspace,ownerSubject:"fixture-user",
    title:"UX research"});
   assert.equal(c.visibility,"private");
@@ -187,6 +195,7 @@ test("imports replay idempotently, reject identity conflicts and block target de
 test("G03-03 transaction rollback leaves no collection and run state",async()=>{
  const {db,source}=await fixture();
  try{
+  const workspace=await workspaceFixture(db);
   await assert.rejects(()=>db.transaction(async(tx)=>{
    await createCollection(tx,{workspaceId:workspace,ownerSubject:"rollback",title:"rollback"});
    await createCaptureRun(tx,{sourceId:source.id});

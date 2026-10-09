@@ -15,12 +15,13 @@ import {
   setMemberRole,
 } from "../src/workspaces.ts";
 
-const FIVE = [
+const SIX = [
   "001_sources_products",
   "002_design_graph",
   "003_workflows",
   "004_auth",
   "005_workspaces",
+  "006_collections_auth",
 ];
 
 async function fixtureDb() {
@@ -45,13 +46,13 @@ async function users(db, count) {
 test("005 migration applies workspace tables and reverses cleanly", async () => {
   const db = await openDatabase();
   try {
-    assert.deepEqual(await migrateUp(db), FIVE);
+    assert.deepEqual(await migrateUp(db), SIX);
     for (const table of ["workspaces", "workspace_members"]) {
       const check = await db.query("select to_regclass($1) as oid", [`public.${table}`]);
       assert.notEqual(check.rows[0]?.oid, null, `missing table ${table}`);
     }
-    assert.deepEqual(await migrateDown(db), [...FIVE].reverse());
-    assert.deepEqual(await migrateUp(db), FIVE);
+    assert.deepEqual(await migrateDown(db), [...SIX].reverse());
+    assert.deepEqual(await migrateUp(db), SIX);
   } finally {
     await db.close();
   }

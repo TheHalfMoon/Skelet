@@ -6,6 +6,8 @@ import {createSource,createProduct,createProductVersion} from "../src/repositori
 import {createArtifact} from "../src/graph.ts";
 import {createFlow,addFlowStep,listFlowSteps,createCollection,saveCollectionArtifact,
  createCaptureRun,createAnalysisRun,transitionRun,registerImport} from "../src/workflows.ts";
+import {signUp} from "../src/auth.ts";
+import {createWorkspace} from "../src/workspaces.ts";
 
 const connectionString=process.env.SKELET_TEST_DATABASE_URL;
 const enabled=Boolean(connectionString);
@@ -24,7 +26,7 @@ test("real PostgreSQL ordered flow, tenant-tagged collection, and state identity
  const db=await openDatabase({connectionString});
  try {
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth"]);
   const source=await createSource(db,{key:"pg-workflows",kind:"fixture"});
   const product=await createProduct(db,{sourceId:source.id,title:"Journey"});
   const version=await createProductVersion(db,{productId:product.id,versionNo:1});
@@ -36,7 +38,11 @@ test("real PostgreSQL ordered flow, tenant-tagged collection, and state identity
   await addFlowStep(db,{flowId:flow.id,position:1,artifactId:screen.id});
   await addFlowStep(db,{flowId:flow.id,position:0,artifactId:screen.id});
   assert.deepEqual((await listFlowSteps(db,flow.id)).map(x=>x.position),[0,1]);
-  const c=await createCollection(db,{workspaceId:"0d042202-86cf-46e5-aa54-4a4372907cca",
+  const fixtureUser=await signUp(db,{email:"pg-workflows@skelet.example",
+   password:"pg-workflows-01"});
+  const fixtureSpace=await createWorkspace(db,{name:"PG workflows",
+   ownerId:fixtureUser.id});
+  const c=await createCollection(db,{workspaceId:fixtureSpace.workspace.id,
    ownerSubject:"fixture-user",title:"Synthetic UX"});
   assert.equal(c.visibility,"private");
   assert.equal(await saveCollectionArtifact(db,c.id,screen.id),true);
