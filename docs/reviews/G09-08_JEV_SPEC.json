@@ -1,0 +1,59 @@
+{
+  "description": "Skelet G09-08 offline Design DNA report projection",
+  "state": {
+    "base_sha": "79d5ad38e8119ee568c20dc7da3b1446876eed0e",
+    "branch": "skelet/p09-g09-08-design-dna-report-core",
+    "change": "Final 64/64 Lens Node and 131/131 Python qualified G09-08 code at candidate_code_head, with bounded JPEG marker allowlist and pixel caps, verified Playwright JPEG fixture, fully bound SHA256 report identity, DTCG 2025.10 signed px values/colors, fail-closed sparse arrays, 1M style characters, provenance-required coverage, unknown asset rights.",
+    "candidate_code_head": "15fd658b1c364812d84dcd55bb1c8efb46982a45"
+  },
+  "questions": {
+    "correctness": {
+      "type": "noul",
+      "instructions": "Any concrete report data loss, wrong DTCG 2025.10 representation, invalid SHA256 identity, erroneous style token attribution or unsupported claims?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "security": {
+      "type": "noul",
+      "instructions": "Any unsafe link, resource injection, XSS/CSS re-emission, unbounded input, inherited secrets, or fabricated rights in the offline assembly?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "evidence": {
+      "type": "noul",
+      "instructions": "Are fixture tests sufficient for malformed JPEG/URLs/links, optional absent tokens, injection-like text, determinism and DTCG representation?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "reliability": {
+      "type": "noul",
+      "instructions": "Any nondeterminism across OS, browser versions, order-invariant inputs, or exception cleanup risk?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "scope": {
+      "type": "noul",
+      "instructions": "Anything beyond G09-08 deterministic report assembly and CI, before URL wiring, provider integrations and exports?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "compatibility": {
+      "type": "noul",
+      "instructions": "Could this new pure module or CI test list regress an existing P09 contract?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    }
+  }
+}
