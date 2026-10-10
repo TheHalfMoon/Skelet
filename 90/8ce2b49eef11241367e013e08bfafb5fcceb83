@@ -1,0 +1,35 @@
+packages/lens/tests/design-tokens.test.mjs
+  s_dedc22fd5f2cf3::t_5be53dbf721091 150,153,157-158,162-167
+  s_dedc22fd5f2cf3::t_eb119d7eb12387 97-98
+  s_dedc22fd5f2cf3::t_6285ba0f38c49b 394-446
+packages/lens/src/design-tokens.ts
+  s_dedc22fd5f2cf3::t_7bb819c5500526 1204-1213
+  s_dedc22fd5f2cf3::t_9dcfb610622297 831-832,1080-1088
+  s_dedc22fd5f2cf3::t_0ad9e0866f536e 1301
+  s_dedc22fd5f2cf3::t_efabdb467d2180 26-38,40-43
+  s_dedc22fd5f2cf3::t_0b9edc7cb54a35 917-922,933-938,1056-1061
+  s_dedc22fd5f2cf3::t_d13bccdeaeaec2 981-986
+  s_dedc22fd5f2cf3::t_a8f10c296a7043 1007-1010
+  s_dedc22fd5f2cf3::t_23e0cbc1f3fe90 393,396
+  s_dedc22fd5f2cf3::t_38511652e73996 143,146,148-153
+  s_dedc22fd5f2cf3::t_21d7010fd127eb 713-729
+  s_dedc22fd5f2cf3::t_52e0acc9975ac3 630-637
+  s_dedc22fd5f2cf3::t_cb617409af018c 854-859
+  s_dedc22fd5f2cf3::t_da1bda4451e2d2 1173-1176
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "908ce2b49eef11241367e013e08bfafb5fcceb83",
+  "prompts": {},
+  "sessions": {
+    "s_dedc22fd5f2cf3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edc07ee4cffehmFIoX26xfvSxl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
