@@ -100,9 +100,21 @@ export async function capturePublicPage(input: string): Promise<CaptureResult> {
           ));
         } else if (value.kind === "result") {
           const result = value as CaptureResult;
+          const sectionsOk = Array.isArray(result.sections) &&
+            result.sections.length <= CAPTURE_BUDGET.maxSections &&
+            result.sections.every((part) =>
+              typeof part?.tag === "string" && part.tag.length <= 16 &&
+              typeof part?.text === "string" && part.text.length <= 640);
+          const assetsOk = Array.isArray(result.assets) &&
+            result.assets.length <= CAPTURE_BUDGET.maxAssets &&
+            result.assets.every((asset) =>
+              typeof asset?.tag === "string" && asset.tag.length <= 16 &&
+              typeof asset?.href === "string" && asset.href.length <= 2_048);
           if (result.status !== "partial" || result.screenshotMime !== "image/jpeg" ||
               typeof result.screenshotBase64 !== "string" ||
-              result.screenshotBase64.length > Math.ceil(CAPTURE_BUDGET.maxScreenshotBytes * 4 / 3) + 4) {
+              result.screenshotBase64.length > Math.ceil(CAPTURE_BUDGET.maxScreenshotBytes * 4 / 3) + 4 ||
+              typeof result.title !== "string" || result.title.length > 240 ||
+              !sectionsOk || !assetsOk) {
             settle(new CaptureError("capture/browser", "Invalid capture output."));
             return;
           }

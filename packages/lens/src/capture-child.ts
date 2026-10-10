@@ -7,18 +7,16 @@ import { CAPTURE_BUDGET, CaptureError, fetchGuardedHtml, type GuardedHtml } from
 interface CaptureRequest {
   kind: "capture";
   url: string;
-  executablePath?: string;
 }
 
 async function capture(request: CaptureRequest) {
   const sourcePage = await fetchGuardedHtml(request.url);
-  return renderOfflineSource(sourcePage, request.executablePath);
+  return renderOfflineSource(sourcePage);
 }
 
-export async function renderOfflineSource(sourcePage: GuardedHtml, executablePath?: string) {
+export async function renderOfflineSource(sourcePage: GuardedHtml) {
   const browser = await chromium.launch({
     headless: true,
-    ...(executablePath ? { executablePath } : {}),
   });
   try {
     const context = await browser.newContext({
