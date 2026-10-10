@@ -2,7 +2,10 @@
 
 Base: `70f12947af29dccdb1a324f48c8afb64d473b8fa`.
 Branch: `skelet/p09-g09-03-capture-worker`.
-Status: IMPLEMENTED, all mandatory gates satisfied; **ready for exact-head CI and merge**.
+Status: CANONICAL. Merged to main as `9763c94a565278c26ab91c0de6d13c494f0193f0`
+(PR #44, reviewed head `66d9a41af82aadc7ba7acc25f8a2b204e727c523`).
+Exact-head CI run 38034610806 13/13 SUCCESS; post-merge main CI run
+38035666792 SUCCESS (all 13 jobs).
 
 ## Scoped change
 
