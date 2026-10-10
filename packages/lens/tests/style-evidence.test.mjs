@@ -165,7 +165,10 @@ test("capture-to-report path binds computed evidence with capture provenance", (
   ];
   const report = assembleLensReportFromCapture(captured(declarations));
   assert.equal(report.designDna.inputBasis, "capture-computed-styles");
-  assert.deepEqual(report.provenance.deterministic, ["design-tokens-from-capture"]);
+  assert.deepEqual(report.provenance.deterministic, [
+    "design-tokens-from-capture",
+    "technology-clues-from-owned-rules:skelet.tech-rules.v1",
+  ]);
   assert.deepEqual(
     report.provenance.observed,
     ["source", "title", "sections", "screenshot", "asset-links", "computed-styles", "technology-signals"]);

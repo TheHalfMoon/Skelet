@@ -49,6 +49,7 @@
 import { createHash } from "node:crypto";
 
 import type { LensReport } from "./report-assembly.ts";
+import { validTechnologyClues } from "./tech-clue-matcher.ts";
 import { validTechSignals } from "./tech-signal-evidence.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
 
@@ -117,7 +118,7 @@ const EXPORT_VALUE_EXCLUSIONS: readonly string[] = [
 /** Features explicitly unsupported by this export surface. */
 const EXPORT_UNSUPPORTED: readonly string[] = [
   "shadcn semantic role mapping (background/foreground/primary/...) is not inferred; indexed observed variables only",
-  "technology detection, component classification, logo identification, QA findings, and similar references have no qualified detector and are reported unknown",
+  "technology clues are evidence-graded matches (confidence below 1.0) from a small owned rule set over observed signals, never verified installations; component classification, logo identification, QA findings, and similar references have no qualified detector and are reported unknown",
   "asset bytes and remote resources are never embedded; unknown-rights assets are excluded from redistributable artifacts",
   "full-site reproduction is not claimed; exports describe a single bounded capture",
 ];
@@ -385,12 +386,16 @@ function assertExportableReport(report: LensReport): void {
   } catch {
     throw new ExportError();
   }
-  // Provider slots must be empty: this grain has no qualified detector and
-  // must never launder invented technology/component/logo/QA facts.
+  // Provider slots: only G09-12 evidence-graded technology clues may be
+  // non-empty, and only in validated shape (explicit confidence below 1.0
+  // with linked rule ids and signal refs). Every other slot must stay
+  // empty: this grain has no other qualified detector and must never
+  // launder invented component/logo/QA facts.
   const unknownValue: unknown = (report as unknown as Record<string, unknown>)["unknown"];
   if (!isRecord(unknownValue)) throw new ExportError();
   const unknownSlots = unknownValue as Record<string, unknown>;
-  for (const key of ["technologyClues", "components", "logos", "qaFindings", "similarReferences"]) {
+  if (!validTechnologyClues(unknownSlots["technologyClues"])) throw new ExportError();
+  for (const key of ["components", "logos", "qaFindings", "similarReferences"]) {
     const slot = unknownSlots[key];
     if (!Array.isArray(slot)) throw new ExportError();
     if (slot.length !== 0) throw new ExportError();
@@ -693,8 +698,8 @@ function buildDesignMd(report: LensReport, values: ThemeValues, exclusions: stri
     "### Technology signals (observations only, never verified identities)",
     "",
     "Attribute strings and resolved resource URLs observed in the offline",
-    "capture. Filenames and metadata values are not technology facts; no",
-    "matcher ran in this pipeline (see Uncertainty).",
+    "capture. Filenames and metadata values are not technology facts; graded",
+    "matches (if any) follow in Technology clues (see Uncertainty).",
     "",
   );
   const techSignals = report.observed.techSignals as Array<{
@@ -707,6 +712,36 @@ function buildDesignMd(report: LensReport, values: ThemeValues, exclusions: stri
     for (let i = 0; i < techSignals.length; i += 1) {
       const signal = techSignals[i] as { kind: string; value: string; ref: string; detail: string };
       lines.push(`| ${mdCode(signal.kind)} | ${mdCode(signal.value)} | ${mdCode(signal.ref)} | ${mdCode(signal.detail)} |`);
+    }
+    lines.push("");
+  }
+  lines.push(
+    "### Technology clues (evidence-graded matches, never verified installations)",
+    "",
+    "Deterministic matches from the owned rule set over the signals above.",
+    "Confidence is always below 1.0; every clue links its rules and signal",
+    "refs. An empty table means no rule matched: honestly unknown.",
+    "",
+  );
+  const techClues = report.unknown.technologyClues as Array<{
+    technology: string; confidence: number; ruleIds: string[]; evidenceRefs: string[]; truncatedRefs: boolean;
+  }>;
+  if (techClues.length === 0) {
+    lines.push("_No technology clues matched._", "");
+  } else {
+    lines.push(
+      "| Technology | Confidence | Rules | Evidence refs |",
+      "| --- | ---: | --- | --- |",
+    );
+    for (let i = 0; i < techClues.length; i += 1) {
+      const clue = techClues[i] as {
+        technology: string; confidence: number; ruleIds: string[]; evidenceRefs: string[]; truncatedRefs: boolean;
+      };
+      const refs = clue.evidenceRefs.map((ref) => mdCode(ref)).join(", ") +
+        (clue.truncatedRefs ? " _(refs truncated; full list in lens.json)_" : "");
+      lines.push(
+        `| ${mdCode(clue.technology)} | ${mdCode(clue.confidence.toFixed(2))} | ${clue.ruleIds.map((id) => mdCode(id)).join(", ")} | ${refs} |`,
+      );
     }
     lines.push("");
   }
@@ -766,11 +801,14 @@ function buildDesignMd(report: LensReport, values: ThemeValues, exclusions: stri
     "",
     "## Uncertainty",
     "",
-    "- Technology clues, components, logos, QA findings, and similar",
-    "  references are unknown: no qualified detector ran in this pipeline.",
+    "- Technology clues below are evidence-graded matches (confidence below",
+    "  1.0) with linked rules and signal refs, never verified installations.",
+    "- Components, logos, QA findings, and similar references are unknown:",
+    "  no qualified detector ran in this pipeline.",
     "- Technology signals above are observations only, never verified",
-    "  technology identities; confidence-scored matching is future work.",
-    "- Heuristic inference: none. Model-generated interpretation: none.",
+    "  technology identities.",
+    "- Heuristic inference beyond graded clue matching: none.",
+    "  Model-generated interpretation: none.",
     "- Empty token sets stay explicitly partial via `no-qualified-style-tokens`",
     "  instead of presenting fabricated coverage.",
     "",
@@ -860,8 +898,9 @@ function buildAgentMd(report: LensReport, values: ThemeValues, exclusions: strin
     "## Rights and uncertainty",
     "",
     "- Assets: rights unknown, downloadable false, never embedded.",
-    "- Technology signals: observations only, never verified identities; no matcher ran.",
-    "- Technology, components, logos, QA, similar references: unknown.",
+    `- Technology clues: ${(report.unknown.technologyClues as unknown[]).length} evidence-graded match(es) (confidence below 1.0), never verified installations.`,
+    "- Technology signals: observations only, never verified identities.",
+    "- Components, logos, QA, similar references: unknown.",
     "- Heuristic and model-generated content: none in this report.",
     "- Do not claim full-site reproduction; this pack covers one bounded capture.",
     "",

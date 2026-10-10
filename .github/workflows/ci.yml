@@ -420,6 +420,7 @@ jobs:
           packages/lens/tests/style-evidence.test.mjs
           packages/lens/tests/export-surface.test.mjs
           packages/lens/tests/tech-signal-evidence.test.mjs
+          packages/lens/tests/tech-clue-matcher.test.mjs
 
   db-foundation:
     name: db-foundation

@@ -177,7 +177,7 @@ test("report carries signals as observations without inventing clues", () => {
   ]);
   assert.deepEqual(report.unknown.technologyClues, []);
   assert.ok(report.provenance.disclaimers.some((item) => item.includes("not verified technology identities")));
-  assert.ok(!JSON.stringify(report).includes("confidence"));
+  assert.ok(report.provenance.disclaimers.some((item) => item.includes("never verified installations")));
   const callerPath = assembleLensReport(captured({ techSignals }), []);
   assert.deepEqual(callerPath.observed.techSignals, report.observed.techSignals);
   assert.ok(callerPath.provenance.observed.includes("technology-signals"));

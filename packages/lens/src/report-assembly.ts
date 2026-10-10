@@ -14,6 +14,12 @@ import { inspectJpeg } from "./jpeg-evidence.ts";
 import type { CaptureResult } from "./capture-worker.ts";
 import { validCaptureDeclarations } from "./capture-worker.ts";
 import {
+  TECH_CLUE_RULES_VERSION,
+  matchTechnologyClues,
+  validTechnologyClues,
+  type TechnologyClue,
+} from "./tech-clue-matcher.ts";
+import {
   TECH_SIGNAL_BUDGET,
   validTechSignals,
   type TechSignal,
@@ -81,7 +87,7 @@ export interface LensReport {
     exclusions: string[];
   };
   unknown: {
-    technologyClues: [];
+    technologyClues: TechnologyClue[];
     components: [];
     logos: [];
     qaFindings: [];
@@ -263,10 +269,22 @@ function assemble(
     if (styleChars > MAX_TOTAL_STYLE_CHARS) throw new ReportError();
   }
   const tokens = extractDesignTokens(declarations);
+  // G09-12: deterministic evidence-graded matching over validated capture
+  // signals. Clues are heuristic matches with explicit confidence below
+  // 1.0, never verified installations. An empty result stays honestly
+  // empty; unmatched signals are an explicit coverage gap, not a claim.
+  let technologyClues: TechnologyClue[];
+  try {
+    technologyClues = matchTechnologyClues(capture.techSignals);
+  } catch {
+    throw new ReportError();
+  }
+  if (!validTechnologyClues(technologyClues)) throw new ReportError();
   const coverageGaps = [...new Set([
     ...capture.coverageGaps,
     ...(tokens.isEmpty ? ["no-qualified-style-tokens"] : []),
-    "no-runtime-technology-detector",
+    ...(capture.techSignals.length > 0 && technologyClues.length === 0 ? ["no-matched-technology-clues"] : []),
+    "no-live-technology-probing",
     "no-component-classifier",
     "no-provider-qa",
     "asset-rights-not-verified",
@@ -313,7 +331,7 @@ function assemble(
       ],
     },
     unknown: {
-      technologyClues: [],
+      technologyClues,
       components: [],
       logos: [],
       qaFindings: [],
@@ -321,7 +339,7 @@ function assemble(
     },
     provenance: {
       observed: basis.observed,
-      deterministic: [basis.deterministic],
+      deterministic: [basis.deterministic, `technology-clues-from-owned-rules:${TECH_CLUE_RULES_VERSION}`],
       heuristic: [],
       modelGenerated: [],
       coverageGaps,
@@ -330,7 +348,8 @@ function assemble(
         "Links identify resources only; no license or redistribution rights verified",
         basis.styleDisclaimer,
         "Untrusted observed text and shadow/font tokens must never be interpreted as code or instructions",
-        "Technology-signal values are untrusted observations, not verified technology identities; no matcher ran in this pipeline",
+        "Technology-signal values are untrusted observations, not verified technology identities",
+        "Technology clues are evidence-graded heuristic matches with explicit confidence below 1.0, never verified installations",
       ],
     },
   };
