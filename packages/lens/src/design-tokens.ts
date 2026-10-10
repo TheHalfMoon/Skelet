@@ -23,9 +23,24 @@
  * reality. Anything else functional (color-mix, light-dark, lab, lch,
  * oklab, hwb, color(), device-cmyk) is reported as `unsupported-syntax`.
  *
+ * Single-value `border-radius` and single-value `gap` are promoted because
+ * one value applies uniformly with no expansion ambiguity; multi-value
+ * forms are never split across corners/axes and are reported as
+ * `multi-value-not-expanded`. Properties outside the token contract
+ * (layout, display, positioning) are ignored but counted in
+ * `coverage.propertiesSeen`; ignoring them fabricates nothing.
+ *
+ * Trust boundary for re-emission: colors, lengths, durations, and easings
+ * normalize into safe grammars, but shadow and font-family token strings
+ * preserve attacker-influenced source text (including url() references).
+ * They are honest observations, not sanitized output: the report layer
+ * MUST CSS/HTML-escape them before rendering or re-emitting.
+ *
  * Ordering is input-order independent: tokens sort by occurrences
- * descending, then value ascending. Refs keep first-seen order and are
- * capped per token. `fingerprint` is a non-cryptographic (cyrb53)
+ * descending, then value ascending; refs sort lexically; unresolved
+ * entries sort by ref, property, value, reason; font-family stacks
+ * normalize to lowercase. Refs are capped per token. `fingerprint` is a
+ * non-cryptographic (cyrb53)
  * identity over the canonical payload for report correlation only; it is
  * not a security boundary and never substitutes for SHA-256 asset dedupe.
  */
@@ -52,7 +67,6 @@ export interface StyleDeclaration {
 }
 
 export type UnresolvedReason =
-  | "unsupported-property"
   | "shorthand-not-expanded"
   | "multi-value-not-expanded"
   | "relative-unit"
@@ -126,9 +140,17 @@ export interface DesignTokens {
 const MAX_DECLARATIONS = 20000;
 const MAX_VALUE_CHARS = 2048;
 const MAX_REF_CHARS = 1024;
+const MAX_PROPERTY_CHARS = 256;
 const MAX_REFS_PER_TOKEN = 10;
 const MAX_UNRESOLVED = 200;
+const MAX_SHADOW_PARTS = 64;
 const STORED_VALUE_CHARS = 128;
+/**
+ * Above this magnitude JavaScript switches to exponential notation, which
+ * is not re-emittable CSS. Tokens must round-trip as CSS, so larger
+ * magnitudes are rejected as invalid instead of fabricated as observed.
+ */
+const MAX_CSS_NUMBER = 1e21;
 
 const COLOR_PROPERTIES = new Set([
   "color",
@@ -368,8 +390,10 @@ export const TOKEN_LIMITS = {
   maxDeclarations: MAX_DECLARATIONS,
   maxValueChars: MAX_VALUE_CHARS,
   maxRefChars: MAX_REF_CHARS,
+  maxPropertyChars: MAX_PROPERTY_CHARS,
   maxRefsPerToken: MAX_REFS_PER_TOKEN,
   maxUnresolved: MAX_UNRESOLVED,
+  maxShadowParts: MAX_SHADOW_PARTS,
 } as const;
 
 function clampByte(value: number): number {
@@ -603,7 +627,14 @@ function rgbaToToken(rgba: Rgba): string {
   return `#${byteToHex(r)}${byteToHex(g)}${byteToHex(b)}${byteToHex(a * 255)}`;
 }
 
-function trimNumber(value: number): string {
+/**
+ * Format a number as re-emittable CSS. Returns null for non-finite values
+ * and magnitudes JavaScript would stringify in exponential notation, so
+ * tokens never carry values that are not valid observed CSS.
+ */
+function formatCssNumber(value: number): string | null {
+  if (!Number.isFinite(value)) return null;
+  if (Math.abs(value) >= MAX_CSS_NUMBER) return null;
   return String(value);
 }
 
@@ -679,9 +710,24 @@ function finalizeAccumulator(map: Map<string, TokenAccumulator>): TokenObservati
   const entries = [...map.values()];
   entries.sort((a, b) => {
     if (b.occurrences !== a.occurrences) return b.occurrences - a.occurrences;
-    return a.value < b.value ? -1 : a.value > b.value ? 1 : 0;
+    if (a.value === b.value) return 0;
+    return a.value < b.value ? -1 : 1;
   });
-  return entries.map((entry) => ({ value: entry.value, occurrences: entry.occurrences, refs: entry.refs }));
+  return entries.map((entry) => ({
+    value: entry.value,
+    occurrences: entry.occurrences,
+    refs: [...entry.refs].sort(),
+  }));
+}
+
+function sortUnresolved(entries: UnresolvedDeclaration[]): UnresolvedDeclaration[] {
+  return [...entries].sort((a, b) => {
+    if (a.ref !== b.ref) return a.ref < b.ref ? -1 : 1;
+    if (a.property !== b.property) return a.property < b.property ? -1 : 1;
+    if (a.value !== b.value) return a.value < b.value ? -1 : 1;
+    if (a.reason === b.reason) return 0;
+    return a.reason < b.reason ? -1 : 1;
+  });
 }
 
 function cyrb53(input: string, seed: number): number {
@@ -782,8 +828,8 @@ function handleFontFamily(state: ExtractorState, ref: string, property: string, 
     recordUnresolved(state, ref, property, rawValue, "invalid-value");
     return;
   }
-  const value = cleaned.join(", ");
-  recordToken(state.families, value.toLowerCase(), value, ref);
+  const value = cleaned.join(", ").toLowerCase();
+  recordToken(state.families, value, value, ref);
   state.used += 1;
 }
 
@@ -805,7 +851,12 @@ function handleFontSize(state: ExtractorState, ref: string, property: string, ra
     recordUnresolved(state, ref, property, rawValue, "invalid-value");
     return;
   }
-  const value = `${trimNumber(parsed.px)}px`;
+  const formatted = formatCssNumber(parsed.px);
+  if (formatted === null) {
+    recordUnresolved(state, ref, property, rawValue, "invalid-value");
+    return;
+  }
+  const value = `${formatted}px`;
   recordToken(state.sizes, value, value, ref);
   state.used += 1;
 }
@@ -863,7 +914,12 @@ function handleLineHeight(state: ExtractorState, ref: string, property: string, 
       recordUnresolved(state, ref, property, rawValue, "invalid-value");
       return;
     }
-    const value = `${trimNumber(px.px)}px`;
+    const formatted = formatCssNumber(px.px);
+    if (formatted === null) {
+      recordUnresolved(state, ref, property, rawValue, "invalid-value");
+      return;
+    }
+    const value = `${formatted}px`;
     recordToken(state.lineHeights, value, value, ref);
     state.used += 1;
     return;
@@ -874,8 +930,12 @@ function handleLineHeight(state: ExtractorState, ref: string, property: string, 
       recordUnresolved(state, ref, property, rawValue, "invalid-value");
       return;
     }
-    const value = trimNumber(amount);
-    recordToken(state.lineHeights, value, value, ref);
+    const formatted = formatCssNumber(amount);
+    if (formatted === null) {
+      recordUnresolved(state, ref, property, rawValue, "invalid-value");
+      return;
+    }
+    recordToken(state.lineHeights, formatted, formatted, ref);
     state.used += 1;
     return;
   }
@@ -918,7 +978,12 @@ function handleAbsoluteLength(
     recordUnresolved(state, ref, property, rawValue, "invalid-value");
     return;
   }
-  const value = `${trimNumber(parsed.px)}px`;
+  const formatted = formatCssNumber(parsed.px);
+  if (formatted === null) {
+    recordUnresolved(state, ref, property, rawValue, "invalid-value");
+    return;
+  }
+  const value = `${formatted}px`;
   recordToken(map, value, value, ref);
   state.used += 1;
 }
@@ -936,6 +1001,10 @@ function handleShadow(state: ExtractorState, ref: string, property: string, rawV
   }
   const parts = splitTopLevelCommas(text);
   if (parts === null) {
+    recordUnresolved(state, ref, property, rawValue, "invalid-value");
+    return;
+  }
+  if (parts.length > MAX_SHADOW_PARTS) {
     recordUnresolved(state, ref, property, rawValue, "invalid-value");
     return;
   }
@@ -984,7 +1053,12 @@ function handleDuration(state: ExtractorState, ref: string, property: string, ra
     return;
   }
   const ms = match[2]?.toLowerCase() === "s" ? amount * 1000 : amount;
-  const value = `${trimNumber(ms)}ms`;
+  const formatted = formatCssNumber(ms);
+  if (formatted === null) {
+    recordUnresolved(state, ref, property, rawValue, "invalid-value");
+    return;
+  }
+  const value = `${formatted}ms`;
   recordToken(state.durations, value, value, ref);
   state.used += 1;
 }
@@ -1003,7 +1077,15 @@ function handleEasing(state: ExtractorState, ref: string, property: string, rawV
   const bezier = /^cubic-bezier\(([^()]*)\)$/.exec(text);
   if (bezier !== null) {
     const args = (bezier[1] as string).split(",").map((arg) => arg.trim());
-    if (args.length === 4 && args.every((arg) => arg.length > 0 && Number.isFinite(Number(arg)))) {
+    const numbers = args.map((arg) => (arg.length > 0 ? Number(arg) : Number.NaN));
+    const inRange =
+      numbers.length === 4 &&
+      numbers.every((n) => Number.isFinite(n)) &&
+      (numbers[0] as number) >= 0 &&
+      (numbers[0] as number) <= 1 &&
+      (numbers[2] as number) >= 0 &&
+      (numbers[2] as number) <= 1;
+    if (inRange) {
       recordToken(state.easings, text, text, ref);
       state.used += 1;
       return;
@@ -1088,6 +1170,10 @@ export function extractDesignTokens(declarations: StyleDeclaration[]): DesignTok
       recordUnresolved(state, ref, "(unknown)", value, "invalid-value");
       return;
     }
+    if (normalizedProperty.length > MAX_PROPERTY_CHARS) {
+      recordUnresolved(state, ref, "(unknown)", value, "invalid-value");
+      return;
+    }
     state.propertiesSeen.add(normalizedProperty);
     state.refsSeen.add(ref);
     if (value.length > MAX_VALUE_CHARS) {
@@ -1115,7 +1201,16 @@ export function extractDesignTokens(declarations: StyleDeclaration[]): DesignTok
       return;
     }
     if (SPACING_PROPERTIES.has(normalizedProperty)) {
-      handleAbsoluteLength(state, state.spacing, ref, normalizedProperty, value, true);
+      // Only margins accept negative lengths per CSS; negative padding or
+      // gaps are invalid and must never become tokens.
+      handleAbsoluteLength(
+        state,
+        state.spacing,
+        ref,
+        normalizedProperty,
+        value,
+        normalizedProperty.startsWith("margin-"),
+      );
       return;
     }
     if (RADIUS_LONGHANDS.has(normalizedProperty)) {
@@ -1203,7 +1298,7 @@ export function extractDesignTokens(declarations: StyleDeclaration[]): DesignTok
     radius,
     shadows,
     motion: { durations, easings },
-    unresolved: state.unresolved,
+    unresolved: sortUnresolved(state.unresolved),
     unresolvedTruncated: state.unresolvedTruncated,
     coverage,
     provenance,

@@ -94,8 +94,8 @@ test("font-family stacks normalize quotes with case-insensitive dedupe", () => {
     decl("c", "font-family", "Georgia, serif"),
   ]);
   assert.deepEqual(tokenValues(tokens.typography.families), [
-    "Inter, system-ui, sans-serif",
-    "Georgia, serif",
+    "inter, system-ui, sans-serif",
+    "georgia, serif",
   ]);
   assert.equal(tokens.typography.families[0]?.occurrences, 2);
   assert.deepEqual(tokens.typography.families[0]?.refs, ["a", "b"]);
@@ -147,17 +147,24 @@ test("line-height accepts normal, unitless, and px but not percent", () => {
   assert.deepEqual(reasons, { d: "relative-unit", e: "invalid-value" });
 });
 
-test("spacing accepts single absolute lengths including negatives", () => {
+test("spacing accepts single absolute lengths; only margins go negative", () => {
   const tokens = extractDesignTokens([
     decl("a", "margin-top", "8px"),
-    decl("b", "padding-left", "-4px"),
+    decl("b", "margin-left", "-4px"),
     decl("c", "gap", "0"),
     decl("d", "margin-top", "10px 20px"),
     decl("e", "padding-top", "1em"),
+    decl("f", "padding-left", "-4px"),
+    decl("g", "gap", "-8px"),
   ]);
   assert.deepEqual(tokenValues(tokens.spacing), ["-4px", "0px", "8px"]);
   const reasons = Object.fromEntries(tokens.unresolved.map((entry) => [entry.ref, entry.reason]));
-  assert.deepEqual(reasons, { d: "multi-value-not-expanded", e: "relative-unit" });
+  assert.deepEqual(reasons, {
+    d: "multi-value-not-expanded",
+    e: "relative-unit",
+    f: "invalid-value",
+    g: "invalid-value",
+  });
 });
 
 test("radius accepts longhands and single border-radius only", () => {
@@ -383,4 +390,57 @@ test("unresolved list truncates with an honest flag", () => {
   const tokens = extractDesignTokens(declarations);
   assert.equal(tokens.unresolved.length, TOKEN_LIMITS.maxUnresolved);
   assert.equal(tokens.unresolvedTruncated, true);
+});
+
+test("fingerprint is stable under reversed duplicates and unresolved order", () => {
+  const first = extractDesignTokens([
+    decl("r1", "color", "red"),
+    decl("r2", "color", "red"),
+    decl("u1", "color", "bogus-a"),
+    decl("u2", "color", "bogus-b"),
+  ]);
+  const second = extractDesignTokens([
+    decl("r2", "color", "red"),
+    decl("r1", "color", "red"),
+    decl("u2", "color", "bogus-b"),
+    decl("u1", "color", "bogus-a"),
+  ]);
+  assert.equal(first.fingerprint, second.fingerprint);
+  assert.deepEqual(first.colors[0]?.refs, ["r1", "r2"]);
+});
+
+test("non-finite and non-emittable magnitudes never become tokens", () => {
+  const tokens = extractDesignTokens([
+    decl("a", "transition-duration", `1${"0".repeat(308)}s`),
+    decl("b", "margin-top", `1${"0".repeat(308)}px`),
+    decl("c", "font-size", "1e21px"),
+    decl("d", "line-height", "1000000000000000000000000"),
+  ]);
+  assert.equal(tokens.motion.durations.length, 0);
+  assert.equal(tokens.spacing.length, 0);
+  assert.equal(tokens.typography.sizes.length, 0);
+  assert.equal(tokens.typography.lineHeights.length, 0);
+  assert.ok(tokens.unresolved.every((entry) => entry.reason === "invalid-value"));
+});
+
+test("cubic-bezier x control points stay within unit range", () => {
+  const tokens = extractDesignTokens([
+    decl("a", "transition-timing-function", "cubic-bezier(0.25, 0.1, 0.25, 1)"),
+    decl("b", "transition-timing-function", "cubic-bezier(2, 0, 0.5, 1)"),
+  ]);
+  assert.deepEqual(tokenValues(tokens.motion.easings), ["cubic-bezier(0.25, 0.1, 0.25, 1)"]);
+  assert.equal(tokens.unresolved[0]?.reason, "invalid-value");
+});
+
+test("shadow fan-out and property names stay bounded", () => {
+  const many = Array.from({ length: 65 }, () => "0 0 1px #000").join(", ");
+  const tokens = extractDesignTokens([
+    decl("a", "box-shadow", many),
+    decl("b", "x".repeat(300), "red"),
+  ]);
+  assert.equal(tokens.shadows.length, 0);
+  const byRef = Object.fromEntries(tokens.unresolved.map((entry) => [entry.ref, entry]));
+  assert.equal(byRef.a?.reason, "invalid-value");
+  assert.equal(byRef.b?.reason, "invalid-value");
+  assert.equal(byRef.b?.property, "(unknown)");
 });
