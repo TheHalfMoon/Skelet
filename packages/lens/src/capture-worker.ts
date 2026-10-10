@@ -8,7 +8,6 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright-core";
 
 import { CAPTURE_BUDGET, CaptureError } from "./capture-network.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
@@ -100,9 +99,7 @@ export async function capturePublicPage(input: string): Promise<CaptureResult> {
           settle(new CaptureError("capture/browser", "Unknown worker response."));
         }
       });
-      child.send({ kind: "capture", url: validated.href,
-        executablePath: chromium.executablePath(),
-      }, (error) => {
+      child.send({ kind: "capture", url: validated.href }, (error) => {
         if (error) settle(new CaptureError("capture/browser", "Worker IPC failed."));
       });
     });

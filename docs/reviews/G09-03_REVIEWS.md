@@ -31,7 +31,10 @@ Status: IMPLEMENTED, PENDING independent review and exact-head CI; **not merged*
   This is a diagnostic smoke, not a deterministic CI assertion.
 - Graft build/check: 910 nodes, 2,306 edges, graph in sync.
 - CI Lens job updated to install the pinned Chromium headless shell and run
-  the new hermetic capture suites. Exact-head CI has not run yet.
+  the new hermetic capture suites. Initial PR #44 run 38031743967 had 47/48
+  Lens tests pass: the browser test explicitly selected full Chromium while CI
+  installed only the headless shell. The code/test now use Playwright's default
+  headless executable selection; this repair needs a fresh exact-head CI run.
 
 ## Mandatory review record
 

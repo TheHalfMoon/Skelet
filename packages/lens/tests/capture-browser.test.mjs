@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { chromium } from "playwright-core";
 import { renderOfflineSource } from "../src/capture-child.ts";
 
 test("Chromium capture remains offline, script-free, and honest about missing resources", async () => {
@@ -18,7 +17,7 @@ test("Chromium capture remains offline, script-free, and honest about missing re
     byteCount: 350,
     redirects: 0,
   };
-  const result = await renderOfflineSource(fixture, chromium.executablePath());
+  const result = await renderOfflineSource(fixture);
   assert.equal(result.kind, "result");
   assert.equal(result.status, "partial");
   assert.equal(result.title, "Evidence Fixture");
