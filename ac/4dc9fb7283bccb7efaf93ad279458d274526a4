@@ -1,0 +1,74 @@
+docs/reviews/G09-11_PSTACK_PANELS.md
+  s_dda5138074567a::t_c87e50ae591110 1-81
+packages/lens/src/capture-child.ts
+  s_dda5138074567a::t_a1132c48aa6773 216-221
+  s_dda5138074567a::t_8945ce8d72ef86 129-140,147-156,160-165,167-192,194-215,222-229
+  s_dda5138074567a::t_1d49df907ce21d 12-17
+  s_dda5138074567a::t_5575aa47bf281a 304-305,313
+  s_dda5138074567a::t_3f9bae78b10fad 193
+  s_dda5138074567a::t_9ef832f46edbc1 236-237,247-256,269-283
+  s_dda5138074567a::t_39105cdf89d792 53,62-76
+  s_dda5138074567a::t_8f712d7fcb403d 141-146,157-159,166
+packages/lens/tests/style-evidence.test.mjs
+  s_dda5138074567a::t_8c01b6ee7f4724 171
+  s_dda5138074567a::t_1ca73be56c063e 31-32
+packages/lens/tests/tech-signal-evidence.test.mjs
+  s_dda5138074567a::t_8b0b4cf24ba5a6 333-365
+  s_dda5138074567a::t_504af43fa98169 179,259-260,264,266-267
+  s_dda5138074567a::t_a6a5317d2688f2 366
+  s_dda5138074567a::t_d597e1c33db72e 1-13,15-150,152-156,158,160-178,180-258,261-263,265,268-274,276-332,367-394
+  s_dda5138074567a::t_27ca2d9642e51b 151
+  s_dda5138074567a::t_aa6edb1e1c9cd9 14,157,159
+  s_dda5138074567a::t_35ec5bf1ba258a 275
+packages/lens/tests/export-surface.test.mjs
+  s_dda5138074567a::t_8ed8d231587e1b 41-42
+packages/lens/src/export-surface.ts
+  s_dda5138074567a::t_a9d5ae8d651732 692-712
+  s_dda5138074567a::t_05f7a6aacbd685 366-370
+  s_dda5138074567a::t_cb5d0f96fe5110 52
+  s_dda5138074567a::t_6c448f921dda20 771-772
+  s_dda5138074567a::t_c648a8a807a872 863
+packages/lens/src/tech-signal-evidence.ts
+  s_dda5138074567a::t_78a79b1fd059ed 216
+docs/reviews/G09-11_JEV_REVIEW.json
+  s_dda5138074567a::t_4680f811e5650f 1
+packages/lens/tests/report-assembly.test.mjs
+  s_dda5138074567a::t_cbd2fd0b0e4424 29-30
+  s_dda5138074567a::t_7154d204cf03db 117-120
+  s_dda5138074567a::t_a6acd97228a3a6 175,180-182
+docs/reviews/G09-11_OCR_DELEGATION.md
+  s_dda5138074567a::t_8b82e5a8270735 1-60
+docs/reviews/G09-11_JEV_SPEC.json
+  s_dda5138074567a::t_d6b428b9c6e87b 1-58
+packages/lens/src/report-assembly.ts
+  s_dda5138074567a::t_9ddf5edacd9500 130-132,135-138
+  s_dda5138074567a::t_225b833e8a0630 198
+  s_dda5138074567a::t_4c86353de716fc 304
+  s_dda5138074567a::t_4edf9c82f1b680 17-20
+  s_dda5138074567a::t_f445be5955ad73 274-281
+  s_dda5138074567a::t_675893212f00b3 333
+  s_dda5138074567a::t_e0fb68d8eacde6 75
+  s_dda5138074567a::t_4cf7ec9dc54f98 214
+.github/workflows/ci.yml
+  s_dda5138074567a::t_3ea5a4d0456b6e 422
+packages/lens/src/capture-worker.ts
+  s_dda5138074567a::t_b15a8341d6d7b5 15-19
+  s_dda5138074567a::t_3179171fc7d97b 40-41
+  s_dda5138074567a::t_5ab64e8f2af655 148-153,158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ac4dc9fb7283bccb7efaf93ad279458d274526a4",
+  "prompts": {},
+  "sessions": {
+    "s_dda5138074567a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed8f37b4fffeV5c1qUMGJaSSRl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": null
+    }
+  }
+}
