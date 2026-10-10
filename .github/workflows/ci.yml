@@ -406,8 +406,11 @@ jobs:
       - name: Strict typecheck Lens package
         run: pnpm --filter skelet-lens typecheck
 
-      - name: Run URL guard tests
-        run: node --experimental-strip-types --test packages/lens/tests/url-guard.test.mjs
+      - name: Run Lens tests
+        run: >-
+          node --experimental-strip-types --test
+          packages/lens/tests/url-guard.test.mjs
+          packages/lens/tests/design-tokens.test.mjs
 
   db-foundation:
     name: db-foundation

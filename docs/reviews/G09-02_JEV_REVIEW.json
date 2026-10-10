@@ -1,0 +1,60 @@
+{
+ "broad": {
+  "answers": {
+   "compatibility": {
+    "noul": 0.12,
+    "type": "noul"
+   },
+   "correctness": {
+    "noul": 0.18,
+    "type": "noul"
+   },
+   "evidence": {
+    "noul": 0.35,
+    "type": "noul"
+   },
+   "reliability": {
+    "noul": 0.22,
+    "type": "noul"
+   },
+   "scope_integrity": {
+    "noul": 0.29,
+    "type": "noul"
+   },
+   "security": {
+    "noul": 0.21,
+    "type": "noul"
+   }
+  },
+  "latency_ms": 613,
+  "model": "jev-1.13.0",
+  "ok": true,
+  "usage": {
+   "input_tokens": 946,
+   "output_tokens": 113
+  }
+ },
+ "targeted_probes": {
+  "answers": {
+   "evidence_gap": {
+    "noul": 0.6,
+    "type": "noul"
+   },
+   "parser_edge": {
+    "noul": 0.31,
+    "type": "noul"
+   },
+   "redos": {
+    "noul": 0.34,
+    "type": "noul"
+   }
+  },
+  "latency_ms": 426,
+  "model": "jev-1.13.0",
+  "ok": true,
+  "usage": {
+   "input_tokens": 815,
+   "output_tokens": 56
+  }
+ }
+}
