@@ -1,0 +1,33 @@
+packages/lens/src/design-tokens.ts
+  s_dedc22fd5f2cf3::t_b8c9f690b055c9 1-507,510,514-518,521-964,967-997,999-1003,1013-1185
+  s_dedc22fd5f2cf3::t_5caeabbd3cb124 965-966,998,1004-1012
+  s_dedc22fd5f2cf3::t_281d2148b811ad 508-509,511-513,519-520
+.github/workflows/ci.yml
+  s_dedc22fd5f2cf3::t_5b8f1b7952498e 409-413
+packages/lens/tests/design-tokens.test.mjs
+  s_dedc22fd5f2cf3::t_dcd3a38b5af412 56
+  s_dedc22fd5f2cf3::t_33d11f40a667b3 189
+  s_dedc22fd5f2cf3::t_5453e2e05f097d 22
+  s_dedc22fd5f2cf3::t_314f126c944885 319
+  s_dedc22fd5f2cf3::t_7001c5aecec693 46
+  s_dedc22fd5f2cf3::t_a597491c42c0b0 25
+  s_dedc22fd5f2cf3::t_8ddb97fa298472 1-21,23-24,26-45,47-55,57-63,65-113,115-188,190-203,205-298,300-318,320-332
+  s_dedc22fd5f2cf3::t_6bfbde880af285 204,299
+  s_dedc22fd5f2cf3::t_cfca6722b9d845 64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1f605c3b68dc368956cc23ad5cfcc2352d3caf2c",
+  "prompts": {},
+  "sessions": {
+    "s_dedc22fd5f2cf3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edc07ee4cffehmFIoX26xfvSxl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
