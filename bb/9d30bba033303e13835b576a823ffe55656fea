@@ -1,0 +1,19 @@
+docs/reviews/G09-03_REVIEWS.md
+  s_319451ec3625ec::t_39701c40c2ebd3 5-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "bb9d30bba033303e13835b576a823ffe55656fea",
+  "prompts": {},
+  "sessions": {
+    "s_319451ec3625ec": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edb65aed4ffeD4BsOFGJLNDW9L",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
