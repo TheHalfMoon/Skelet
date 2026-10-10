@@ -416,6 +416,7 @@ jobs:
           packages/lens/tests/design-tokens.test.mjs
           packages/lens/tests/capture-network.test.mjs
           packages/lens/tests/capture-browser.test.mjs
+          packages/lens/tests/report-assembly.test.mjs
 
   db-foundation:
     name: db-foundation
