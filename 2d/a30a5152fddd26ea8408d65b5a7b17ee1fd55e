@@ -1,0 +1,30 @@
+.github/workflows/ci.yml
+  s_dda5138074567a::t_82cb089d6aeb19 53-55
+tests/test_validate_build_kit.py
+  s_dda5138074567a::t_8ea3e35a90fb29 1-82,87-90
+  s_dda5138074567a::t_5ab9962f86dbbd 83-86
+docs/reviews/G09b-01_JEV_SPEC.json
+  s_dda5138074567a::t_eb465ec59d036d 1
+schemas/lens-build-kit.schema.json
+  s_dda5138074567a::t_e46253863e55f6 1-116
+docs/reviews/G09b-01_JEV_REVIEW.json
+  s_dda5138074567a::t_c67ef3ace74695 1
+scripts/validate_build_kit.py
+  s_dda5138074567a::t_8958ae72670b01 1-201
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2da30a5152fddd26ea8408d65b5a7b17ee1fd55e",
+  "prompts": {},
+  "sessions": {
+    "s_dda5138074567a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed8f37b4fffeV5c1qUMGJaSSRl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
