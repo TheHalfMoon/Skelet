@@ -427,9 +427,35 @@ test("cubic-bezier x control points stay within unit range", () => {
   const tokens = extractDesignTokens([
     decl("a", "transition-timing-function", "cubic-bezier(0.25, 0.1, 0.25, 1)"),
     decl("b", "transition-timing-function", "cubic-bezier(2, 0, 0.5, 1)"),
+    decl("c", "transition-timing-function", "cubic-bezier(0x10, 0, 0.5, 1)"),
+    decl("d", "transition-timing-function", "steps(1000000000000000000000)"),
   ]);
   assert.deepEqual(tokenValues(tokens.motion.easings), ["cubic-bezier(0.25, 0.1, 0.25, 1)"]);
-  assert.equal(tokens.unresolved[0]?.reason, "invalid-value");
+  assert.equal(tokens.unresolved.length, 3);
+  assert.ok(tokens.unresolved.every((entry) => entry.reason === "invalid-value"));
+});
+
+test("refs truncate to the sorted first ten regardless of input order", () => {
+  const declarations = Array.from({ length: 12 }, (_, i) =>
+    decl(`r${String(12 - i).padStart(2, "0")}`, "color", "red"),
+  );
+  const tokens = extractDesignTokens(declarations);
+  assert.equal(tokens.colors[0]?.occurrences, 12);
+  assert.deepEqual(tokenValues(tokens.colors), ["#ff0000"]);
+  assert.deepEqual(tokens.colors[0]?.refs, [
+    "r01",
+    "r02",
+    "r03",
+    "r04",
+    "r05",
+    "r06",
+    "r07",
+    "r08",
+    "r09",
+    "r10",
+  ]);
+  const flipped = extractDesignTokens([...declarations].reverse());
+  assert.equal(flipped.fingerprint, tokens.fingerprint);
 });
 
 test("shadow fan-out and property names stay bounded", () => {

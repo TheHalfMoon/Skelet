@@ -146,9 +146,11 @@ const MAX_UNRESOLVED = 200;
 const MAX_SHADOW_PARTS = 64;
 const STORED_VALUE_CHARS = 128;
 /**
- * Above this magnitude JavaScript switches to exponential notation, which
- * is not re-emittable CSS. Tokens must round-trip as CSS, so larger
- * magnitudes are rejected as invalid instead of fabricated as observed.
+ * Above this magnitude JavaScript switches to exponential notation for
+ * large values, which is not re-emittable CSS. Tokens must round-trip as
+ * CSS, so larger magnitudes are rejected as invalid instead of fabricated
+ * as observed. (Tiny fractions may still stringify exponentially, which
+ * remains valid CSS `<number>` syntax and therefore stays promotable.)
  */
 const MAX_CSS_NUMBER = 1e21;
 
@@ -702,7 +704,6 @@ function normalizeWhitespace(raw: string): string {
 interface TokenAccumulator {
   value: string;
   occurrences: number;
-  refs: string[];
   seenRefs: Set<string>;
 }
 
@@ -716,7 +717,7 @@ function finalizeAccumulator(map: Map<string, TokenAccumulator>): TokenObservati
   return entries.map((entry) => ({
     value: entry.value,
     occurrences: entry.occurrences,
-    refs: [...entry.refs].sort(),
+    refs: [...entry.seenRefs].sort().slice(0, MAX_REFS_PER_TOKEN),
   }));
 }
 
@@ -770,14 +771,11 @@ interface ExtractorState {
 function recordToken(map: Map<string, TokenAccumulator>, key: string, value: string, ref: string): void {
   let entry = map.get(key);
   if (entry === undefined) {
-    entry = { value, occurrences: 0, refs: [], seenRefs: new Set() };
+    entry = { value, occurrences: 0, seenRefs: new Set() };
     map.set(key, entry);
   }
   entry.occurrences += 1;
-  if (!entry.seenRefs.has(ref)) {
-    entry.seenRefs.add(ref);
-    if (entry.refs.length < MAX_REFS_PER_TOKEN) entry.refs.push(ref);
-  }
+  entry.seenRefs.add(ref);
 }
 
 function recordUnresolved(state: ExtractorState, ref: string, property: string, value: string, reason: UnresolvedReason): void {
@@ -1077,7 +1075,10 @@ function handleEasing(state: ExtractorState, ref: string, property: string, rawV
   const bezier = /^cubic-bezier\(([^()]*)\)$/.exec(text);
   if (bezier !== null) {
     const args = (bezier[1] as string).split(",").map((arg) => arg.trim());
-    const numbers = args.map((arg) => (arg.length > 0 ? Number(arg) : Number.NaN));
+    // CSS numbers are decimal only: reject hex/exponent forms Number()
+    // would otherwise accept, then enforce the x1/x2 unit range.
+    const decimal = /^[+-]?(\d+\.?\d*|\.\d+)$/;
+    const numbers = args.map((arg) => (decimal.test(arg) ? Number(arg) : Number.NaN));
     const inRange =
       numbers.length === 4 &&
       numbers.every((n) => Number.isFinite(n)) &&
@@ -1096,17 +1097,21 @@ function handleEasing(state: ExtractorState, ref: string, property: string, rawV
   const steps = /^steps\(([^()]*)\)$/.exec(text);
   if (steps !== null) {
     const args = (steps[1] as string).split(",").map((arg) => arg.trim().toLowerCase());
-    const count = Number(args[0]);
+    const countText = args[0] as string;
+    const decimal = /^[+]?(\d+)$/;
+    const count = decimal.test(countText) ? Number(countText) : Number.NaN;
+    const formatted = formatCssNumber(count);
     const jump = args.length === 1 ? "end" : args[1];
     const jumps = new Set(["start", "end", "jump-start", "jump-end", "jump-none", "jump-both"]);
     if (
       args.length <= 2 &&
-      Number.isInteger(count) &&
+      formatted !== null &&
+      Number.isSafeInteger(count) &&
       count >= 1 &&
       jump !== undefined &&
       jumps.has(jump)
     ) {
-      const value = args.length === 1 ? `steps(${String(count)})` : `steps(${String(count)}, ${jump})`;
+      const value = args.length === 1 ? `steps(${formatted})` : `steps(${formatted}, ${jump})`;
       recordToken(state.easings, value, value, ref);
       state.used += 1;
       return;
