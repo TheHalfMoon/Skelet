@@ -1,0 +1,29 @@
+docs/reviews/G09-07_JEV_SPEC.json
+  s_319451ec3625ec::t_86d4f04dd61367 1
+docs/provenance/SQUIRRELSCAN_EVALUATION_2026-10-10.md
+  s_319451ec3625ec::t_858a6b0e4de99c 19-21
+  s_319451ec3625ec::t_a6916261a1c846 1-18,22-69
+docs/reviews/G09-07_JEV_REVIEW.json
+  s_319451ec3625ec::t_520e63f6412d66 1
+UPSTREAMS.lock.yml
+  s_319451ec3625ec::t_10d7815b7fe2c6 347-348,351,353,355-356,359-361
+docs/reviews/G09-07_REVIEWS.md
+  s_319451ec3625ec::t_57b4db5f9c811f 38-44
+  s_319451ec3625ec::t_bb78b724acc13e 1-37,45-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "7b81a7d64bb606d73a5ab357a403aa968a1c7276",
+  "prompts": {},
+  "sessions": {
+    "s_319451ec3625ec": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edb65aed4ffeD4BsOFGJLNDW9L",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
