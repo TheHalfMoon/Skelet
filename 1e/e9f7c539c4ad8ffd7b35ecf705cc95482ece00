@@ -1,0 +1,30 @@
+docs/reviews/G09b-03_PSTACK_PANELS.md
+  s_c77644d5f2d5a2::t_dbd2239ac24dfd 1-44
+packages/lens/tests/capture-scope.test.mjs
+  s_c77644d5f2d5a2::t_d3e4051ccc8b84 1-54,56-67,69-166
+  s_c77644d5f2d5a2::t_29c770147488f9 55,68
+.github/workflows/ci.yml
+  s_c77644d5f2d5a2::t_7917c59e7798ae 428
+docs/reviews/G09b-03_JEV_SPEC.json
+  s_c77644d5f2d5a2::t_95256eafa7159b 1
+docs/reviews/G09b-03_JEV_REVIEW.json
+  s_c77644d5f2d5a2::t_90e51a67e8cbd7 1
+packages/lens/src/capture-scope.ts
+  s_c77644d5f2d5a2::t_e1d5c1f3c7d534 1-283
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1ee9f7c539c4ad8ffd7b35ecf705cc95482ece00",
+  "prompts": {},
+  "sessions": {
+    "s_c77644d5f2d5a2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed866c891ffeULgTLaArkTR3Ht",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": null
+    }
+  }
+}
