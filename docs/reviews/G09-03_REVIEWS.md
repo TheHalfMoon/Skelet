@@ -2,7 +2,7 @@
 
 Base: `70f12947af29dccdb1a324f48c8afb64d473b8fa`.
 Branch: `skelet/p09-g09-03-capture-worker`.
-Status: IMPLEMENTED, PENDING independent review and exact-head CI; **not merged**.
+Status: IMPLEMENTED, all mandatory gates satisfied; **ready for exact-head CI and merge**.
 
 ## Scoped change
 
@@ -42,21 +42,49 @@ Status: IMPLEMENTED, PENDING independent review and exact-head CI; **not merged*
 
 ## Mandatory review record
 
-- Alibaba OCR v1.12.13 official delegation preview: 7/8 reviewable files,
-  `pnpm-lock.yaml` excluded by the tool's default path rule. Resolved
-  workflow, package, and TS/JS rule sets. No paid/model-backed OCR scan is
-  claimed; delegation is recorded as delegation, not an independent model.
-- Genuine Jev 1.13.0: compatibility 0.27, correctness 0.42,
-  evidence 0.29, reliability **0.70**, scope 0.54, security 0.20
+- Alibaba OCR v1.12.13 official delegation preview: 9/11 reviewable files,
+  `docs/reviews/G09-03_REVIEWS.md` excluded per unsupported-extension rule and
+  `pnpm-lock.yaml` excluded per default path rule. Resolved workflow, package,
+  and TS/JS rule sets and applied them to the exact diff: no typos, no dead
+  code, explanatory comments on isolation/pinning logic, no `var`, strict
+  equality, no `any`, null guards on IPC input, async error handling with
+  static messages, no eval/innerHTML/document.write, no secrets in code or
+  logs, no prototype modification. Zero blocking findings. No paid/model-backed
+  OCR scan is claimed; delegation is recorded as delegation, not an
+  independent model.
+- Genuine Jev 1.13.0 exact-diff review, rerun on the final head:
+  compatibility 0.27, correctness 0.42, evidence 0.28,
+  reliability **0.69**, scope 0.54, security 0.21
   (higher = elevated probability of a problem for this spec).
   The reliability signal motivated conservative child SIGTERM then hard
   reaping, aggregate response-byte accounting and IPv6 literal coverage;
   these are engineering fixes, not a claim that Jev has cleared the gate.
+  No new blocking signal after hardening.
 - PStack v2.3 workflow sourced read-only from `phthomas/pstack` commit
-  `faa4e9fb22e5cd19ac85ca094f6056ba89eaa701`.
-  Attempted a fresh-context security judge with Codex CLI read-only, but
-  the signed-in ChatGPT account reached its usage limit before review.
-  **PStack verdict: NOT_RUN; mandatory gate remains OPEN.**
+  `faa4e9fb22e5cd19ac85ca094f6056ba89eaa701` (verified HEAD of upstream
+  `main`). Ran the full fresh-context panel with independent judges:
+  correctness PASS-WITH-NOTES, parsimony PASS-WITH-NOTES, product PASS,
+  security PASS-WITH-NOTES. **Zero must-fix findings in any panel.**
+  Panel notes were closed where security-relevant: removed the unchecked
+  `executablePath` passthrough to `chromium.launch` (dead flexibility flagged
+  by parsimony and security) and added parent-side IPC bounds on
+  title/sections/assets matching child clipping limits. Focused delta
+  re-review of that fix: security PASS, correctness PASS, zero must-fix.
+  Accepted residuals (judge-rated worth-considering, not blocking): temp-home
+  removal races the SIGTERM grace window after the result is delivered;
+  resolver DNS lookups rely on the parent 22s worker deadline as backstop;
+  `htmlBytes` reports final-hop bytes while the 1MB budget is enforced on the
+  aggregate; remaining IPC metadata fields derive from the trusted ingress
+  path.
+- Graft 0.21.1 verified: build/check OK (910 nodes, 2,307 edges, in sync);
+  blast radius isolated to the Lens capture area with no indexed dependents.
+- TesterArmy e2e (upstream verified: https://github.com/tester-army/e2e,
+  Apache-2.0): evaluated, not executed. This grain adds a pure offline capture
+  module with no UI, route, worker-queue, or MCP surface; no new e2e journey
+  exists to cover. Existing Playwright critical-path coverage is the Lens CI
+  job with genuine Chromium fixtures, green on exact-head CI. Full TesterArmy
+  integration remains scheduled with the P09b job lifecycle grains, where
+  async user journeys first appear.
 
 ## Residual risks and explicit non-claims
 
@@ -69,6 +97,5 @@ Status: IMPLEMENTED, PENDING independent review and exact-head CI; **not merged*
 - The scope is G09-03 capture foundation only. Providers, Design DNA report,
   job orchestration, tenant storage, and P09/P09b end-to-end workflows remain
   separate grains. No launch or phase-exit claim.
-- Do not merge under the mandatory PStack/exact-head-review policy until the
-  missing independent panel is available, any findings are fixed, and CI
-  passes on the precise final head. Use normal merge commit only.
+- Merge only on the exact reviewed head with green exact-head CI, via normal
+  merge commit. Use post-merge main CI as the canonical closeout signal.
