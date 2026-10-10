@@ -1,0 +1,58 @@
+{
+  "description": "Skelet G09-10 deterministic Lens export surface",
+  "state": {
+    "base_sha": "e12c4e0dd35c921a84af0d0123c57bfcb59e8d98",
+    "branch": "skelet/p09-g09-10-lens-export",
+    "change": "New pure export-surface module projecting an assembled LensReport into 7 byte-deterministic artifacts (lens.json canonical report, DESIGN.md, tokens.dtcg.json validated against a pinned offline DTCG 2025.10 subset, tailwind.theme.js CommonJS verified by node --check plus require round-trip, shadcn-theme.css with indexed observed variables and no semantic role inference, AGENT.md context pack, manifest.json with hashes). Font-family and shadow observations stay data-only and are excluded from executable themes; unknown provider slots and heuristic/modelGenerated provenance fail closed; unknown-rights assets are never embedded and appear only as inert code spans; untrusted text is HTML/Markdown-escaped; artifact paths are fixed constants. New export-surface test file (10 tests: determinism, qualified export, exclusions, executable-CSS refusal, inert Markdown, asset exclusion, parser verification, manifest accuracy, fail-closed negatives, empty partial). CI lens job lists the new test file (+1 line, no other workflow change)."
+  },
+  "questions": {
+    "correctness": {
+      "type": "noul",
+      "instructions": "Any lost export observation, wrong token attribution, broken determinism, inaccurate manifest hash, or regressed G09-08/G09-09 report contract?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "security": {
+      "type": "noul",
+      "instructions": "Any executable CSS/JS smuggling via font/shadow strings, unescaped Markdown/HTML re-emission, redistributed unknown-rights asset, path traversal, or laundered model/provider fact in the new export path?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "evidence": {
+      "type": "noul",
+      "instructions": "Are the new tests sufficient for byte-determinism, qualified export, exclusions, adversarial CSS/Markdown payloads, asset exclusion, real parser verification, manifest accuracy, and fail-closed negatives?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "reliability": {
+      "type": "noul",
+      "instructions": "Any nondeterminism across runs, locales, or key ordering, or any unhandled input shape that escapes fail-closed ExportError handling?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "scope": {
+      "type": "noul",
+      "instructions": "Anything beyond G09-10 Lens export surface, before technology detection, provider outputs, report API, and user-facing integration?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "compatibility": {
+      "type": "noul",
+      "instructions": "Could the new export module, DTCG validation, or CI test listing regress an existing P09 contract, consumer, or CI job?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    }
+  }
+}
