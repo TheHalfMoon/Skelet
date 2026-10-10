@@ -25,6 +25,7 @@ function captured() {
     ],
     screenshotBase64: jpeg,
     screenshotMime: "image/jpeg",
+    declarations: [],
     coverageGaps: ["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"],
   };
 }
@@ -109,6 +110,12 @@ test("malformed screenshot, blocked source, illegal asset links, and oversized t
     (c) => { c.status = "completed"; },
     (c) => { c.coverageGaps = ["x".repeat(100)]; },
     (c) => { c.coverageGaps = ["javascript-disabled"]; },
+    (c) => { c.declarations = [{ ref: "x", property: "color" }]; },
+    (c) => { c.declarations = [{ ref: "", property: "color", value: "#fff" }]; },
+    (c) => {
+      c.declarations = Array.from({ length: 1501 }, (_, i) => (
+        { ref: `e${String(i)}`, property: "color", value: "#fff" }));
+    },
   ];
   for (const change of changes) {
     const input = captured();
@@ -159,7 +166,7 @@ test("analysis identifier changes when capture metadata changes", () => {
 });
 
 test("sparse arrays fail closed rather than silently drop observed evidence", () => {
-  for (const key of ["sections", "assets", "coverageGaps"]) {
+  for (const key of ["sections", "assets", "coverageGaps", "declarations"]) {
     const input = captured();
     input[key] = new Array(1);
     assert.throws(() => assembleLensReport(input, []), ReportError);

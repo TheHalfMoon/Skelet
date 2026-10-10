@@ -1,0 +1,58 @@
+{
+  "description": "Skelet G09-09 source-linked style evidence and capture-to-report wiring",
+  "state": {
+    "base_sha": "19ed118475a229d5687cd0065fdc5dbfe23c4a57",
+    "branch": "skelet/p09-g09-09-style-evidence",
+    "change": "New pure style-evidence module (43-property computed allowlist mirroring the extractor contract, 32-element/1500-declaration budgets, deterministic ASCII refs), offline capture collects bounded computed-style snapshots with scripts disabled and remote resources blocked, worker IPC validates declarations fail-closed including sparse arrays, report gains assembleLensReportFromCapture with capture-computed-styles provenance; caller-supplied path unchanged."
+  },
+  "questions": {
+    "correctness": {
+      "type": "noul",
+      "instructions": "Any lost style evidence, wrong token attribution, broken provenance basis, or regressed G09-08 report contract?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "security": {
+      "type": "noul",
+      "instructions": "Any executed page content, unbounded input, XSS/CSS re-emission, fabricated rights, or weakened capture isolation in the new evidence path?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "evidence": {
+      "type": "noul",
+      "instructions": "Are the new tests sufficient for allowlist filtering, budgets, hostile values, sparse arrays, offline capture attachment, and both report paths?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "reliability": {
+      "type": "noul",
+      "instructions": "Any nondeterminism across OS, browser versions, element ordering, or ref construction in the evidence pipeline?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "scope": {
+      "type": "noul",
+      "instructions": "Anything beyond G09-09 source-linked style evidence and capture/report wiring, before exports and provider integration?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    },
+    "compatibility": {
+      "type": "noul",
+      "instructions": "Could the new CaptureResult declarations field or report validator change regress an existing P09 contract or consumer?",
+      "criteria": {
+        "true": "Material issue exists",
+        "false": "No demonstrated material issue"
+      }
+    }
+  }
+}
