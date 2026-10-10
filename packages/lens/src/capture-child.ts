@@ -3,6 +3,12 @@ import { chromium } from "playwright-core";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { CAPTURE_BUDGET, CaptureError, fetchGuardedHtml, type GuardedHtml } from "./capture-network.ts";
+import {
+  STYLE_EVIDENCE_BUDGET,
+  STYLE_EVIDENCE_PROPERTIES,
+  collectStyleEvidence,
+  projectPathSnapshots,
+} from "./style-evidence.ts";
 
 interface CaptureRequest {
   kind: "capture";
@@ -38,7 +44,7 @@ export async function renderOfflineSource(sourcePage: GuardedHtml) {
         timeout: CAPTURE_BUDGET.pageMs,
       });
       const extracted = await page.evaluate(
-        ({ source, sectionLimit, assetLimit }) => {
+        ({ source, sectionLimit, assetLimit, styleProps, styleElementLimit, styleValueLimit }) => {
           const clip = (v: string, max: number) => v.trim().replace(/\s+/g, " ").slice(0, max);
           const safeLink = (v: string) => {
             if (!v || v.length > 2_048) return null;
@@ -61,14 +67,70 @@ export async function renderOfflineSource(sourcePage: GuardedHtml) {
             const href = safeLink(raw);
             return href ? [{ tag: element.tagName.toLowerCase(), href }] : [];
           });
-          return { title: clip(document.title || "", 240), sections, assets };
+          // Source-linked computed-style evidence. Inline <style> applies in
+          // this offline render; scripts never run and remote sheets never
+          // load, so only author-inline and UA declarations are observed.
+          // Values are page DATA, not instructions: clipped, never executed.
+          const styleCandidates = [
+            document.body,
+            ...Array.from(document.querySelectorAll(
+              "header, nav, main, section, article, aside, footer, h1, h2, h3, p, a, button, img",
+            )),
+          ].filter((node): node is Element => node instanceof Element).slice(0, styleElementLimit);
+          let styleTruncated = false;
+          const stylePaths = styleCandidates.map((element) => {
+            const computed = window.getComputedStyle(element);
+            const styles: Record<string, string> = {};
+            for (const property of styleProps as string[]) {
+              const value = computed.getPropertyValue(property);
+              if (typeof value === "string" && value.trim().length > 0) {
+                const collapsed = value.trim().replace(/\s+/g, " ");
+                if (collapsed.length > (styleValueLimit as number)) styleTruncated = true;
+                styles[property] = collapsed.slice(0, styleValueLimit as number);
+              }
+            }
+            // Closest-6 ancestor chain, root-down: deterministic and
+            // text/attribute-free, so refs identify position, not content.
+            const segments: Array<{ tag: string; index: number }> = [];
+            let cursor: Element | null = element;
+            while (cursor instanceof Element && segments.length < 6) {
+              const tag = cursor.tagName.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 16) || "el";
+              const parent: Element | null = cursor.parentElement;
+              const index = parent instanceof Element
+                ? Array.from(parent.children).indexOf(cursor)
+                : 0;
+              segments.unshift({ tag, index: Math.max(0, index) });
+              cursor = parent;
+            }
+            return { segments, styles };
+          });
+          return {
+            title: clip(document.title || "", 240),
+            sections,
+            assets,
+            stylePaths,
+            styleTruncated,
+          };
         },
         {
           source: sourcePage.href,
           sectionLimit: CAPTURE_BUDGET.maxSections,
           assetLimit: CAPTURE_BUDGET.maxAssets,
+          styleProps: [...STYLE_EVIDENCE_PROPERTIES],
+          styleElementLimit: STYLE_EVIDENCE_BUDGET.maxElements,
+          styleValueLimit: STYLE_EVIDENCE_BUDGET.maxValueChars,
         },
       );
+      let declarations;
+      try {
+        if (!extracted || !Array.isArray(extracted.stylePaths) ||
+            typeof extracted.styleTruncated !== "boolean") {
+          throw new CaptureError("capture/browser", "Style evidence exceeds its budget.");
+        }
+        declarations = collectStyleEvidence(projectPathSnapshots(extracted.stylePaths));
+      } catch {
+        throw new CaptureError("capture/browser", "Style evidence exceeds its budget.");
+      }
       const screenshot = await page.screenshot({
         type: "jpeg", quality: 65, fullPage: false,
         animations: "disabled", caret: "hide",
@@ -87,12 +149,14 @@ export async function renderOfflineSource(sourcePage: GuardedHtml) {
         title: extracted.title,
         sections: extracted.sections,
         assets: extracted.assets,
+        declarations,
         screenshotBase64: screenshot.toString("base64"),
         screenshotMime: "image/jpeg" as const,
         coverageGaps: [
           "javascript-disabled",
           "external-resources-blocked",
           "viewport-only-screenshot",
+          ...(extracted.styleTruncated ? ["style-values-truncated"] : []),
         ],
       };
     } finally {

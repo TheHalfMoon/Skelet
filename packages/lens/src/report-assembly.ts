@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { CAPTURE_BUDGET } from "./capture-network.ts";
 import { inspectJpeg } from "./jpeg-evidence.ts";
 import type { CaptureResult } from "./capture-worker.ts";
+import { validCaptureDeclarations } from "./capture-worker.ts";
 import {
   extractDesignTokens,
   type DesignTokens,
@@ -69,7 +70,7 @@ export interface LensReport {
   };
   designDna: {
     tokens: DesignTokens;
-    inputBasis: "caller-supplied-declarations";
+    inputBasis: "caller-supplied-declarations" | "capture-computed-styles";
     dtcg: DtcgExport;
     exclusions: string[];
   };
@@ -81,8 +82,8 @@ export interface LensReport {
     similarReferences: [];
   };
   provenance: {
-    observed: ["source", "title", "sections", "screenshot", "asset-links"];
-    deterministic: ["design-tokens-from-supplied-declarations"];
+    observed: string[];
+    deterministic: string[];
     heuristic: [];
     modelGenerated: [];
     coverageGaps: string[];
@@ -119,6 +120,7 @@ function validHtmlSource(capture: CaptureResult): void {
       !Array.isArray(capture.coverageGaps) ||
       capture.coverageGaps.length > 20 ||
       Array.from(capture.coverageGaps).some((gap) => !validText(gap, 80)) ||
+      !validCaptureDeclarations(capture.declarations) ||
       !["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"]
         .every((required) => capture.coverageGaps.includes(required)) ||
       capture.screenshotMime !== "image/jpeg" ||
@@ -178,6 +180,40 @@ const MAX_TOTAL_STYLE_CHARS = 1_000_000;
 
 /** Pure assembly. A caller must not label an empty-token result complete. */
 export function assembleLensReport(capture: CaptureResult, declarations: StyleDeclaration[]): LensReport {
+  return assemble(capture, declarations, {
+    inputBasis: "caller-supplied-declarations",
+    observed: ["source", "title", "sections", "screenshot", "asset-links"],
+    deterministic: "design-tokens-from-supplied-declarations",
+    styleDisclaimer: "Caller-supplied style declarations must be independently provenance-qualified",
+  });
+}
+
+/**
+ * G09-09: assemble directly from capture-attached computed-style evidence.
+ * The declarations were observed by the offline capture worker
+ * (JavaScript disabled, remote resources blocked); they remain untrusted
+ * page data and must be escaped before re-emission.
+ */
+export function assembleLensReportFromCapture(capture: CaptureResult): LensReport {
+  if (!validCaptureDeclarations(capture.declarations)) throw new ReportError();
+  return assemble(capture, capture.declarations, {
+    inputBasis: "capture-computed-styles",
+    observed: ["source", "title", "sections", "screenshot", "asset-links", "computed-styles"],
+    deterministic: "design-tokens-from-capture",
+    styleDisclaimer: "Capture-attached style declarations are observed computed values from the offline worker, not author-attested facts",
+  });
+}
+
+function assemble(
+  capture: CaptureResult,
+  declarations: StyleDeclaration[],
+  basis: {
+    inputBasis: LensReport["designDna"]["inputBasis"];
+    observed: string[];
+    deterministic: string;
+    styleDisclaimer: string;
+  },
+): LensReport {
   validHtmlSource(capture);
   const bytes = Buffer.from(capture.screenshotBase64, "base64");
   const dimensions = inspectJpeg(bytes);
@@ -247,7 +283,7 @@ export function assembleLensReport(capture: CaptureResult, declarations: StyleDe
     },
     designDna: {
       tokens,
-      inputBasis: "caller-supplied-declarations",
+      inputBasis: basis.inputBasis,
       dtcg: exportDtcg(tokens),
       exclusions: [
         "font-family and shadow CSS strings require an escaping/sanitization layer before code export",
@@ -262,15 +298,15 @@ export function assembleLensReport(capture: CaptureResult, declarations: StyleDe
       similarReferences: [],
     },
     provenance: {
-      observed: ["source", "title", "sections", "screenshot", "asset-links"],
-      deterministic: ["design-tokens-from-supplied-declarations"],
+      observed: basis.observed,
+      deterministic: [basis.deterministic],
       heuristic: [],
       modelGenerated: [],
       coverageGaps,
       disclaimers: [
         "Upstream capture worker reports offline JavaScript-disabled render and blocked remote resources",
         "Links identify resources only; no license or redistribution rights verified",
-        "Caller-supplied style declarations must be independently provenance-qualified",
+        basis.styleDisclaimer,
         "Untrusted observed text and shadow/font tokens must never be interpreted as code or instructions",
       ],
     },

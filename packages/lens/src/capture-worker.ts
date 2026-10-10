@@ -10,8 +10,16 @@ import { join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { CAPTURE_BUDGET, CaptureError } from "./capture-network.ts";
+import { TOKEN_LIMITS } from "./design-tokens.ts";
+import { STYLE_EVIDENCE_BUDGET } from "./style-evidence.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
 import { chromium } from "playwright-core";
+
+export interface CaptureDeclaration {
+  ref: string;
+  property: string;
+  value: string;
+}
 
 export interface CaptureResult {
   kind: "result";
@@ -23,9 +31,29 @@ export interface CaptureResult {
   title: string;
   sections: { tag: string; text: string }[];
   assets: { tag: string; href: string }[];
+  declarations: CaptureDeclaration[];
   screenshotBase64: string;
   screenshotMime: "image/jpeg";
   coverageGaps: string[];
+}
+
+/** Fail-closed shape check for worker-produced style evidence. */
+export function validCaptureDeclarations(value: unknown): value is CaptureDeclaration[] {
+  if (!Array.isArray(value) || value.length > STYLE_EVIDENCE_BUDGET.maxDeclarations) return false;
+  // Index-based iteration: every/some/forEach skip sparse-array holes,
+  // which would otherwise let a holey array pass as valid evidence.
+  for (let i = 0; i < value.length; i += 1) {
+    const declaration = (value as CaptureDeclaration[])[i] as unknown;
+    if (declaration === null || typeof declaration !== "object") return false;
+    const candidate = declaration as Partial<CaptureDeclaration>;
+    if (typeof candidate.ref !== "string" || candidate.ref.length === 0 ||
+        candidate.ref.length > STYLE_EVIDENCE_BUDGET.maxRefChars) return false;
+    if (typeof candidate.property !== "string" || candidate.property.length === 0 ||
+        candidate.property.length > TOKEN_LIMITS.maxPropertyChars) return false;
+    if (typeof candidate.value !== "string" || candidate.value.length === 0 ||
+        candidate.value.length > STYLE_EVIDENCE_BUDGET.maxValueChars) return false;
+  }
+  return true;
 }
 
 /** No AWS/GCP/GH/DB/Stripe keys, no NODE_OPTIONS, no HOME/SSH/SSL credentials. */
@@ -114,7 +142,7 @@ export async function capturePublicPage(input: string): Promise<CaptureResult> {
               typeof result.screenshotBase64 !== "string" ||
               result.screenshotBase64.length > Math.ceil(CAPTURE_BUDGET.maxScreenshotBytes * 4 / 3) + 4 ||
               typeof result.title !== "string" || result.title.length > 240 ||
-              !sectionsOk || !assetsOk) {
+              !sectionsOk || !assetsOk || !validCaptureDeclarations(result.declarations)) {
             settle(new CaptureError("capture/browser", "Invalid capture output."));
             return;
           }
