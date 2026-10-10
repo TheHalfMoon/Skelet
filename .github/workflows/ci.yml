@@ -485,19 +485,19 @@ jobs:
           packages/db/tests/auth.test.mjs
           packages/db/tests/workspaces.test.mjs
           packages/db/tests/collections.test.mjs
-           packages/db/tests/billing.test.mjs
-           packages/db/tests/jobs.test.mjs
-           packages/db/tests/build-kit.test.mjs
+          packages/db/tests/billing.test.mjs
+          packages/db/tests/jobs.test.mjs
+          packages/db/tests/build-kit.test.mjs
 
       - name: Real PostgreSQL transaction and concurrency integration tests
         env:
           SKELET_TEST_DATABASE_URL: postgresql://skelet_test:local_ci_fixture_only@127.0.0.1:5432/skelet_test
           SKELET_DB_TEST_CONFIRM: "yes"
         run: |
-           node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
-           node --experimental-strip-types --test packages/db/tests/pg-graph.test.mjs
-           node --experimental-strip-types --test packages/db/tests/pg-workflows.test.mjs
-           node --experimental-strip-types --test packages/db/tests/pg-build-kit.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-graph.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-workflows.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-build-kit.test.mjs
 
   storage:
     name: storage-${{ matrix.os }}
