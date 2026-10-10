@@ -406,11 +406,16 @@ jobs:
       - name: Strict typecheck Lens package
         run: pnpm --filter skelet-lens typecheck
 
-      - name: Run Lens tests
+      - name: Install pinned Playwright Chromium headless shell
+        run: node packages/lens/node_modules/playwright-core/cli.js install chromium-headless-shell
+
+      - name: Run Lens tests including isolated Chromium capture
         run: >-
           node --experimental-strip-types --test
           packages/lens/tests/url-guard.test.mjs
           packages/lens/tests/design-tokens.test.mjs
+          packages/lens/tests/capture-network.test.mjs
+          packages/lens/tests/capture-browser.test.mjs
 
   db-foundation:
     name: db-foundation

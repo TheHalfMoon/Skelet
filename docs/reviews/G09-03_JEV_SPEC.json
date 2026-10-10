@@ -1,0 +1,58 @@
+{
+  "description": "Skelet G09-03 Playwright isolated capture worker exact-diff audit",
+  "state": {
+    "base_sha": "70f12947af29dccdb1a324f48c8afb64d473b8fa",
+    "branch": "skelet/p09-g09-03-capture-worker",
+    "scope": "New secret-free IPC child, DNS-pinned HTTP ingress with strict HTML bytes/redirect deadline, JavaScript/network-disabled Playwright partial screenshot, offline tests, frozen Playwright dependency, lens CI"
+  },
+  "questions": {
+    "security": {
+      "type": "noul",
+      "instructions": "Does the worker permit private IP, DNS rebinding, redirect bypass, browser network access, ambient secret inheritance, unsafe filesystem side effect, or credential leakage?",
+      "criteria": {
+        "false": "No blocking problem",
+        "true": "A blocking problem exists"
+      }
+    },
+    "correctness": {
+      "type": "noul",
+      "instructions": "Any material error in DNS-pinned TCP/TLS, response streaming cap, redirect hop budget, browser HTML setContent, IPC results, screenshot evidence, or status partial?",
+      "criteria": {
+        "false": "No blocking problem",
+        "true": "A blocking problem exists"
+      }
+    },
+    "reliability": {
+      "type": "noul",
+      "instructions": "Could the worker hang or leak a Chrome process, exhaust CPU/memory through large HTML/assets, mishandle exceptions, or return a false successful artifact?",
+      "criteria": {
+        "false": "No blocking problem",
+        "true": "A blocking problem exists"
+      }
+    },
+    "compatibility": {
+      "type": "noul",
+      "instructions": "Does pinned playwright-core 1.56.1 or runner shell installation conflict with Node 22.23.1 or Ubuntu 24.04 CI?",
+      "criteria": {
+        "false": "No blocking problem",
+        "true": "A blocking problem exists"
+      }
+    },
+    "evidence": {
+      "type": "noul",
+      "instructions": "Do unit and Chromium fixture tests adequately prove secret-free env, SSRF fail-closed, byte/time limits, script isolation, browser cleanup, and stable evidence?",
+      "criteria": {
+        "false": "No blocking problem",
+        "true": "A blocking problem exists"
+      }
+    },
+    "scope": {
+      "type": "noul",
+      "instructions": "Is the change limited to G09-03 capture worker, no unsolicited P09 provider, report or UI?",
+      "criteria": {
+        "false": "No blocking problem",
+        "true": "A blocking problem exists"
+      }
+    }
+  }
+}
