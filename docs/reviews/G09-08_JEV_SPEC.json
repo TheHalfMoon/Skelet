@@ -3,7 +3,7 @@
   "state": {
     "base_sha": "79d5ad38e8119ee568c20dc7da3b1446876eed0e",
     "branch": "skelet/p09-g09-08-design-dna-report-core",
-    "change": "Pure offline report assembly: captured partial evidence, safe bounded screenshot/asset provenance, deterministic SHA256 identity, caller style tokens, DTCG 2025.10 SRGB and dimensions, fail-closed invalid inputs, no providers invented; tests and CI."
+    "change": "Pure offline report assembly: strict URL/asset/required capture-coverage validation, structurally parsed bounded JPEG + Playwright fixture, complete domain-separated SHA256 report identity, 1M-char aggregate style cap, honest unknown rights and provider clues, DTCG 2025.10 SRGB/signed dimensions, sparse-array rejection; 13 adversarial/contract tests and CI extension."
   },
   "questions": {
     "correctness": {

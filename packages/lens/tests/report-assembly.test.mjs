@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 
 import { ReportError, assembleLensReport } from "../src/report-assembly.ts";
 
-const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xd9]).toString("base64");
+const jpeg = readFileSync(new URL("./fixtures/valid.jpeg", import.meta.url)).toString("base64");
 function captured() {
   return {
     kind: "result",
@@ -24,7 +25,7 @@ function captured() {
     ],
     screenshotBase64: jpeg,
     screenshotMime: "image/jpeg",
-    coverageGaps: ["javascript-disabled", "external-resources-blocked"],
+    coverageGaps: ["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"],
   };
 }
 function styles() {
@@ -52,7 +53,9 @@ test("report assembles observed evidence without inventing provider facts", () =
   assert.equal(report.observed.assets.length, 2);
   assert.ok(report.observed.assets.every((asset) => asset.rights === "unknown" && asset.downloadable === false));
   assert.equal(report.observed.screenshot.mime, "image/jpeg");
-  assert.equal(report.observed.screenshot.bytes, 4);
+  assert.equal(report.observed.screenshot.bytes, 840);
+  assert.equal(report.observed.screenshot.width, 20);
+  assert.equal(report.observed.screenshot.height, 20);
   assert.equal(report.designDna.inputBasis, "caller-supplied-declarations");
   assert.equal(report.designDna.dtcg.colors.value_001.$value.hex, "#aabbcc");
   assert.deepEqual(report.designDna.dtcg.fontSizes.value_001.$value, { value: 24, unit: "px" });
@@ -90,7 +93,12 @@ test("hostile content stays data, never a synthesized instruction or executable 
 
 test("malformed screenshot, blocked source, illegal asset links, and oversized text reject", () => {
   const changes = [
-    (c) => { c.screenshotBase64 = Buffer.from("not a jpeg").toString("base64"); },
+    (c) => { c.screenshotBase64 = Buffer.from([0xff, 0xd8, 0xff, 0xd9]).toString("base64"); },
+    (c) => {
+      const corrupted = Buffer.from(c.screenshotBase64, "base64");
+      corrupted[2] = 0x00;
+      c.screenshotBase64 = corrupted.toString("base64");
+    },
     (c) => { c.screenshotBase64 = "a".repeat(3_000_000); },
     (c) => { c.sourceUrl = "http://127.0.0.1/latest/meta-data"; },
     (c) => { c.assets = [{ tag: "img", href: "file:///etc/passwd" }]; },
@@ -100,6 +108,7 @@ test("malformed screenshot, blocked source, illegal asset links, and oversized t
     (c) => { c.redirects = 6; },
     (c) => { c.status = "completed"; },
     (c) => { c.coverageGaps = ["x".repeat(100)]; },
+    (c) => { c.coverageGaps = ["javascript-disabled"]; },
   ];
   for (const change of changes) {
     const input = captured();
@@ -138,4 +147,88 @@ test("analysis identity is cryptographically bound to complete report inputs", (
   const after = assembleLensReport(captured(), modified);
   assert.notEqual(before.analysisId, after.analysisId);
   assert.match(after.analysisId, /^[a-f0-9]{64}$/);
+});
+
+test("analysis identifier changes when capture metadata changes", () => {
+  const original = captured();
+  const first = assembleLensReport(original, []);
+  const changedBytes = assembleLensReport({ ...original, htmlBytes: original.htmlBytes + 1 }, []);
+  const changedRedirects = assembleLensReport({ ...original, redirects: 1 }, []);
+  assert.notEqual(first.analysisId, changedBytes.analysisId);
+  assert.notEqual(first.analysisId, changedRedirects.analysisId);
+});
+
+test("sparse arrays fail closed rather than silently drop observed evidence", () => {
+  for (const key of ["sections", "assets", "coverageGaps"]) {
+    const input = captured();
+    input[key] = new Array(1);
+    assert.throws(() => assembleLensReport(input, []), ReportError);
+  }
+});
+
+test("qualified negative margin is retained in dimension export", () => {
+  const report = assembleLensReport(captured(), [
+    { ref: "main", property: "margin-left", value: "-8px" },
+  ]);
+  assert.deepEqual(report.designDna.dtcg.spacing.value_001,
+    { $type: "dimension", $value: { value: -8, unit: "px" } });
+});
+
+
+test("JPEG parser rejects enormous dimensions before any decode", async () => {
+  const { inspectJpeg } = await import("../src/jpeg-evidence.ts");
+  const bytes = Buffer.from(jpeg, "base64");
+  const frame = bytes.indexOf(Buffer.from([0xff, 0xc0]));
+  assert.ok(frame > 0);
+  bytes[frame + 7] = 0xff;
+  bytes[frame + 8] = 0xff;
+  assert.equal(inspectJpeg(bytes), null);
+  assert.throws(() => assembleLensReport({
+    ...captured(), screenshotBase64: bytes.toString("base64"),
+  }, []), ReportError);
+});
+
+test("aggregate style-character budget rejects otherwise-valid oversized corpus", () => {
+  const huge = Array.from({ length: 650 }, (_, i) => ({
+    ref: "element-" + i,
+    property: "color",
+    value: "#fff" + " ".repeat(1900),
+  }));
+  assert.throws(() => assembleLensReport(captured(), huge), ReportError);
+});
+
+test("unsupported SOF frame before valid baseline frame fails closed", async () => {
+  const { inspectJpeg } = await import("../src/jpeg-evidence.ts");
+  const original = Buffer.from(jpeg, "base64");
+  for (const marker of [0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]) {
+    const illegalFrame = Buffer.from([
+      0xff, marker, 0x00, 0x11, 0x08, 0xff, 0xff,
+      0xff, 0xff, 0x03, 0x01, 0x11, 0x00,
+      0x02, 0x11, 0x00, 0x03, 0x11, 0x00,
+    ]);
+    const poisoned = Buffer.concat([
+      original.subarray(0, 2), illegalFrame, original.subarray(2),
+    ]);
+    assert.equal(inspectJpeg(poisoned), null, `Rejected unsupported SOF ${marker.toString(16)}`);
+    assert.throws(() => assembleLensReport({
+      ...captured(), screenshotBase64: poisoned.toString("base64"),
+    }, []), ReportError);
+  }
+});
+
+test("unsupported JPEG structural controls including DHP cannot smuggle dimensions", async () => {
+  const { inspectJpeg } = await import("../src/jpeg-evidence.ts");
+  const original = Buffer.from(jpeg, "base64");
+  for (const marker of [0xde, 0xdf, 0xdc, 0xcc, 0xc8, 0xf0, 0xf8]) {
+    const forged = Buffer.from([
+      0xff, marker, 0x00, 0x08, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00,
+    ]);
+    const poisoned = Buffer.concat([
+      original.subarray(0, 2), forged, original.subarray(2),
+    ]);
+    assert.equal(inspectJpeg(poisoned), null, `unsupported marker ${marker.toString(16)}`);
+    assert.throws(() => assembleLensReport({
+      ...captured(), screenshotBase64: poisoned.toString("base64"),
+    }, []), ReportError);
+  }
 });
