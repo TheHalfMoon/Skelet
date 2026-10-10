@@ -357,6 +357,13 @@ const EASING_KEYWORDS = new Set([
   "step-end",
 ]);
 
+const MATH_FUNCTIONS = ["calc(", "min(", "max(", "clamp("];
+
+function containsMathFunction(raw: string): boolean {
+  const lower = raw.toLowerCase();
+  return MATH_FUNCTIONS.some((fn) => lower.includes(fn));
+}
+
 export const TOKEN_LIMITS = {
   maxDeclarations: MAX_DECLARATIONS,
   maxValueChars: MAX_VALUE_CHARS,
@@ -412,6 +419,7 @@ function parseAlphaComponent(raw: string): number | null {
 
 function parseHueDegrees(raw: string): number | null {
   const text = raw.trim().toLowerCase();
+  if (text === "none") return 0;
   let amount: number;
   if (text.endsWith("deg")) amount = Number(text.slice(0, -3));
   else if (text.endsWith("grad")) amount = Number(text.slice(0, -4)) * 0.9;
@@ -538,6 +546,7 @@ function parseColorValue(raw: string): { kind: "rgba"; rgba: Rgba } | { kind: "r
   if (lower === "transparent") return { kind: "rgba", rgba: [0, 0, 0, 0] };
   if (CONTEXT_KEYWORDS.has(lower)) return { kind: "context" };
   if (lower.includes("var(")) return { kind: "reference" };
+  if (containsMathFunction(text)) return { kind: "unsupported" };
   const fnMatch = /^([a-z][a-z0-9-]*)\((.*)\)$/s.exec(lower);
   if (fnMatch !== null) {
     const fn = fnMatch[1] as string;
@@ -779,6 +788,10 @@ function handleFontFamily(state: ExtractorState, ref: string, property: string, 
 }
 
 function handleFontSize(state: ExtractorState, ref: string, property: string, rawValue: string): void {
+  if (containsMathFunction(rawValue)) {
+    recordUnresolved(state, ref, property, rawValue, "unsupported-syntax");
+    return;
+  }
   const parsed = parsePxLength(rawValue);
   if (parsed === null) {
     recordUnresolved(state, ref, property, rawValue, "invalid-value");
@@ -798,6 +811,10 @@ function handleFontSize(state: ExtractorState, ref: string, property: string, ra
 }
 
 function handleFontWeight(state: ExtractorState, ref: string, property: string, rawValue: string): void {
+  if (containsMathFunction(rawValue)) {
+    recordUnresolved(state, ref, property, rawValue, "unsupported-syntax");
+    return;
+  }
   const text = rawValue.trim().toLowerCase();
   if (text === "normal") {
     recordToken(state.weights, "400", "400", ref);
@@ -826,6 +843,10 @@ function handleFontWeight(state: ExtractorState, ref: string, property: string, 
 }
 
 function handleLineHeight(state: ExtractorState, ref: string, property: string, rawValue: string): void {
+  if (containsMathFunction(rawValue)) {
+    recordUnresolved(state, ref, property, rawValue, "unsupported-syntax");
+    return;
+  }
   const text = rawValue.trim().toLowerCase();
   if (text === "normal") {
     recordToken(state.lineHeights, "normal", "normal", ref);
@@ -870,6 +891,10 @@ function handleAbsoluteLength(
   allowNegative: boolean,
 ): void {
   const text = rawValue.trim();
+  if (containsMathFunction(text)) {
+    recordUnresolved(state, ref, property, rawValue, "unsupported-syntax");
+    return;
+  }
   if (text.length === 0 || /[\s,]/.test(text)) {
     recordUnresolved(
       state,
@@ -929,6 +954,10 @@ function handleShadow(state: ExtractorState, ref: string, property: string, rawV
 
 function handleDuration(state: ExtractorState, ref: string, property: string, rawValue: string): void {
   const text = rawValue.trim();
+  if (containsMathFunction(text)) {
+    recordUnresolved(state, ref, property, rawValue, "unsupported-syntax");
+    return;
+  }
   if (text.length === 0 || /[\s,]/.test(text)) {
     recordUnresolved(
       state,

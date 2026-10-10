@@ -358,6 +358,24 @@ test("probe-driven edge coverage: clamping, slash alpha, strict numbers", () => 
   assert.ok(tokenValues(tokens.shadows).includes("0 0 4px url(sprite.png)"));
 });
 
+test("math expressions and none hue classify honestly", () => {
+  const tokens = extractDesignTokens([
+    decl("a", "color", "hsl(none 0% 0%)"),
+    decl("b", "margin-top", "calc(8px + 4px)"),
+    decl("c", "font-size", "clamp(12px, 2vw, 20px)"),
+    decl("d", "color", "rgb(calc(255) 0 0)"),
+    decl("e", "transition-duration", "max(100ms, 1s)"),
+  ]);
+  assert.deepEqual(tokenValues(tokens.colors), ["#000000"]);
+  const reasons = Object.fromEntries(tokens.unresolved.map((entry) => [entry.ref, entry.reason]));
+  assert.deepEqual(reasons, {
+    b: "unsupported-syntax",
+    c: "unsupported-syntax",
+    d: "unsupported-syntax",
+    e: "unsupported-syntax",
+  });
+});
+
 test("unresolved list truncates with an honest flag", () => {
   const declarations = Array.from({ length: TOKEN_LIMITS.maxUnresolved + 5 }, (_, i) =>
     decl(`r${String(i)}`, "color", "not-a-color"),
