@@ -1,0 +1,21 @@
+docs/reviews/G09-03_REVIEWS.md
+  s_319451ec3625ec::t_7c01ac43a756c8 5
+  s_319451ec3625ec::t_4fb5c431ecad88 45-57,62,64-87
+  s_319451ec3625ec::t_49d40e02a4330a 100-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "66d9a41af82aadc7ba7acc25f8a2b204e727c523",
+  "prompts": {},
+  "sessions": {
+    "s_319451ec3625ec": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edb65aed4ffeD4BsOFGJLNDW9L",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
