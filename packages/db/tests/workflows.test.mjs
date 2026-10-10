@@ -34,17 +34,17 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
  const db=await openDatabase();
  try {
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs"]);
-  assert.deepEqual(await migrateUp(db),[]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs"]);
+   assert.deepEqual(await migrateUp(db),[]);
   for(const table of ["flows","flow_steps","collections","collection_items",
     "capture_runs","analysis_runs","import_records"]) {
     const r=await db.query("select to_regclass($1) as id",["public."+table]);
     assert.notEqual(r.rows[0]?.id,null);
   }
   assert.deepEqual(await migrateDown(db),
-   ["008_jobs","007_billing","006_collections_auth","005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
-  assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs"]);
+   ["009_lens_build_kit_runs","008_jobs","007_billing","006_collections_auth","005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
+   assert.deepEqual(await migrateUp(db),
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs"]);
  } finally {await db.close();}
 });
 

@@ -23,6 +23,7 @@ const EIGHT = [
   "006_collections_auth",
   "007_billing",
   "008_jobs",
+  "009_lens_build_kit_runs",
 ];
 const BASE = new Date("2026-10-09T04:00:00.000Z");
 
