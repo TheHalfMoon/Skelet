@@ -38,8 +38,8 @@ Status: IMPLEMENTED, PStack fresh-context delta PASS; exact-head CI and merge pe
   indexed downstream dependents. No dependency added.
 - Jev genuine `jev-1.13.0`: see `G09-08_JEV_SPEC.json` and
   `G09-08_JEV_REVIEW.json`. Probabilities for a problem:
-  correctness 0.17, security 0.14, evidence 0.43,
-  reliability 0.56, scope 0.37, compatibility 0.49.
+  correctness 0.22, security 0.24, evidence 0.36,
+  reliability 0.46, scope 0.43, compatibility 0.42.
   Scores are uncertainty indicators, not a substitute for tests or review.
 - Alibaba OCR v1.12.13: official delegation preview/rules applied to TS and
   workflow changes; no independent model-backed OCR scan is claimed.
@@ -77,5 +77,10 @@ Status: IMPLEMENTED, PStack fresh-context delta PASS; exact-head CI and merge pe
 - JPEG marker/dimension validation is not a complete entropy/image decode.
   Downstream image views must handle decoder failures and pixel dimensions
   defensively; the capture worker itself emits Chromium-encoded JPEGs.
+- First exact-head CI run for code SHA `15fd658` had the Lens job pass
+  but bootstrap fail because copied PStack findings contained broken
+  relative Markdown links. The panel record links have been normalized
+  to code-formatted file anchors and locally rechecked with ci_hygiene.py.
+  This is a documentation/hygiene correction, not a code change.
 - This commit remains subject to mandatory independent review and
   exact-head CI before normal merge, followed by post-merge verification.

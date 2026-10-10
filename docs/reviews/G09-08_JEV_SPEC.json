@@ -3,7 +3,8 @@
   "state": {
     "base_sha": "79d5ad38e8119ee568c20dc7da3b1446876eed0e",
     "branch": "skelet/p09-g09-08-design-dna-report-core",
-    "change": "Pure offline report assembly: strict URL/asset/required capture-coverage validation, structurally parsed bounded JPEG + Playwright fixture, complete domain-separated SHA256 report identity, 1M-char aggregate style cap, honest unknown rights and provider clues, DTCG 2025.10 SRGB/signed dimensions, sparse-array rejection; 13 adversarial/contract tests and CI extension."
+    "change": "Final 64/64 Lens Node and 131/131 Python qualified G09-08 code at candidate_code_head, with bounded JPEG marker allowlist and pixel caps, verified Playwright JPEG fixture, fully bound SHA256 report identity, DTCG 2025.10 signed px values/colors, fail-closed sparse arrays, 1M style characters, provenance-required coverage, unknown asset rights.",
+    "candidate_code_head": "15fd658b1c364812d84dcd55bb1c8efb46982a45"
   },
   "questions": {
     "correctness": {
