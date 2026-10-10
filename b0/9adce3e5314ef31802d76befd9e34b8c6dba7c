@@ -1,0 +1,48 @@
+docs/reviews/G09-12_JEV_SPEC.json
+  s_dda5138074567a::t_a95ada3c274536 1
+.github/workflows/ci.yml
+  s_dda5138074567a::t_75f63bf0fd100c 423
+packages/lens/tests/tech-clue-matcher.test.mjs
+  s_dda5138074567a::t_aacd0f4a9a8632 96-97
+  s_dda5138074567a::t_bc600517ae5184 1-95,98-138,140-325,327-328
+  s_dda5138074567a::t_c65edbe1da5304 139
+  s_dda5138074567a::t_11629ec60b959b 326
+packages/lens/src/export-surface.ts
+  s_dda5138074567a::t_67e405282fe822 52
+  s_dda5138074567a::t_97cd6dd1051f5c 701-702,718-744
+  s_dda5138074567a::t_8c731dbbceb83e 804-807,809-811
+  s_dda5138074567a::t_bd29aa620d50d3 389-393,397-398
+  s_dda5138074567a::t_df14dd9a6931db 901-903
+  s_dda5138074567a::t_4d6bd077596f50 121
+packages/lens/tests/style-evidence.test.mjs
+  s_dda5138074567a::t_1c9986179e22a6 168-171
+packages/lens/src/tech-clue-matcher.ts
+  s_dda5138074567a::t_8d521c9f896c8d 1-213,218-346
+  s_dda5138074567a::t_18800570f76b33 214-217
+packages/lens/src/report-assembly.ts
+  s_dda5138074567a::t_1e3f761d901b0f 287
+  s_dda5138074567a::t_4da5d9e3e50796 272-282,286
+  s_dda5138074567a::t_9e0771d1de3745 17-21,90
+  s_dda5138074567a::t_1829ad6cf02c30 334,342,352
+  s_dda5138074567a::t_12824ea6cbf9f2 351
+docs/reviews/G09-12_JEV_REVIEW.json
+  s_dda5138074567a::t_06d31a3ea425b7 1
+packages/lens/tests/tech-signal-evidence.test.mjs
+  s_dda5138074567a::t_59198482ce6fcf 180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b09adce3e5314ef31802d76befd9e34b8c6dba7c",
+  "prompts": {},
+  "sessions": {
+    "s_dda5138074567a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed8f37b4fffeV5c1qUMGJaSSRl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
