@@ -418,6 +418,7 @@ jobs:
           packages/lens/tests/capture-browser.test.mjs
           packages/lens/tests/report-assembly.test.mjs
           packages/lens/tests/style-evidence.test.mjs
+          packages/lens/tests/export-surface.test.mjs
 
   db-foundation:
     name: db-foundation
