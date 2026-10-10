@@ -344,21 +344,21 @@
       "source_url": "https://github.com/squirrelscan/squirrelscan",
       "source_kind": "git",
       "role": "adapter",
-      "status": "planned",
-      "capability": "Website QA, accessibility, SEO, security, crawl, and history signals.",
+      "status": "ready",
+      "capability": "Optional QA-rule reference (deterministic rules over guarded HTML only); crawler, live fetchers, and cloud services explicitly out of scope. Lens works with this provider disabled.",
       "permission_basis": {
         "type": "upstream_license",
-        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+        "note": "MIT License verified 2026-10-10 via GitHub API and LICENSE file at pinned commit. No source import in G09-07; evaluation only. Bun monorepo toolchain, Effect-based engine, and live crawler/fetchers are incompatible with Skelet offline pnpm/Node pipeline; deterministic rules are reference-only for a future Skelet-owned QA layer. See docs/provenance/SQUIRRELSCAN_EVALUATION_2026-10-10.md."
       },
-      "license": "VERIFY_AT_IMPORT",
+      "license": "MIT",
       "pin_policy": "git_commit_required",
-      "exact_commit_or_release": null,
-      "verification_date": null,
+      "exact_commit_or_release": "b0e209c44c14ef5340de030c36b3b075fa49a6ff",
+      "verification_date": "2026-10-10",
       "rights_scope": {
         "code": "license-governed",
-        "data": "verify-at-import",
-        "assets": "verify-at-import",
-        "models": "verify-at-import",
+        "data": "not-applicable",
+        "assets": "not-applicable",
+        "models": "not-applicable",
         "services": "not-applicable",
         "trademarks": "restricted"
       },
