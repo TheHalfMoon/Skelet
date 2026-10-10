@@ -1,0 +1,77 @@
+packages/lens/src/report-assembly.ts
+  s_b7ede8c1dd4c35::t_a378633c1d0d52 123
+  s_b7ede8c1dd4c35::t_aa573a4ad757b0 302,309
+  s_b7ede8c1dd4c35::t_95c7e462f69242 201,210-215
+  s_b7ede8c1dd4c35::t_3c00a9f80dec9b 73
+  s_b7ede8c1dd4c35::t_e4052175433650 85
+  s_b7ede8c1dd4c35::t_7c1816eb17210d 15
+  s_b7ede8c1dd4c35::t_279ac7aa49f524 183-184,186-200,202-209,216
+  s_b7ede8c1dd4c35::t_7899e45defd580 286
+  s_b7ede8c1dd4c35::t_8b32faf1a5cfed 185
+  s_b7ede8c1dd4c35::t_77b15703b4d548 301
+  s_b7ede8c1dd4c35::t_5ca82c01d530e4 86
+packages/lens/src/capture-worker.ts
+  s_b7ede8c1dd4c35::t_41823934d7abdb 13
+  s_b7ede8c1dd4c35::t_b9f02fb94096f3 40-42,57
+  s_b7ede8c1dd4c35::t_0fc97f0dd5b911 14,18-23,34
+  s_b7ede8c1dd4c35::t_979ee9e54dabcf 52-53
+  s_b7ede8c1dd4c35::t_7dd15f7f58b6d7 58
+  s_b7ede8c1dd4c35::t_5156126b53698a 43-51,54-56
+  s_b7ede8c1dd4c35::t_40f37a5e155977 145
+docs/reviews/G09-09_REVIEWS.md
+  s_b7ede8c1dd4c35::t_5499b82c28bec9 50-53
+  s_b7ede8c1dd4c35::t_875c5b67693562 1-25,32-35,37-49,54-71
+  s_b7ede8c1dd4c35::t_88fdeec8c7bd57 36
+  s_b7ede8c1dd4c35::t_e268944df2e439 26-31
+packages/lens/src/style-evidence.ts
+  s_b7ede8c1dd4c35::t_6869f694d0fcd5 92-105,114-115,119-120
+  s_b7ede8c1dd4c35::t_79bc77d09bbc8c 106-113,116-118
+  s_b7ede8c1dd4c35::t_7da1607cd59944 1-91,121-175
+packages/lens/tests/style-evidence.test.mjs
+  s_b7ede8c1dd4c35::t_a12d2a1459704b 104
+  s_b7ede8c1dd4c35::t_639b743226ad6a 167-169
+  s_b7ede8c1dd4c35::t_4d0c10606efda4 1-10,12-80,99-103,105-133,156-166,170-191
+  s_b7ede8c1dd4c35::t_bc8706924d368c 81-94,96
+  s_b7ede8c1dd4c35::t_44202dcd5b70fb 97-98
+  s_b7ede8c1dd4c35::t_ce7479dfac15e8 11
+  s_b7ede8c1dd4c35::t_e66a9ef6eebbd6 134-155
+  s_b7ede8c1dd4c35::t_92c30190377443 95
+docs/reviews/G09-09_JEV_SPEC.json
+  s_b7ede8c1dd4c35::t_9abf1b02e77624 1-58
+packages/lens/tests/report-assembly.test.mjs
+  s_b7ede8c1dd4c35::t_806eb9e94628d4 169
+  s_b7ede8c1dd4c35::t_0e82fb76ad4263 113-118
+  s_b7ede8c1dd4c35::t_7ef2a2eea47a5e 28
+docs/reviews/G09-09_JEV_REVIEW.json
+  s_b7ede8c1dd4c35::t_99c96b35676a0b 1
+.github/workflows/ci.yml
+  s_b7ede8c1dd4c35::t_c329dc26bc81ea 420
+docs/reviews/G09-09_PSTACK_PANELS.md
+  s_b7ede8c1dd4c35::t_a6956018b2b9b2 1-95
+packages/lens/src/capture-child.ts
+  s_b7ede8c1dd4c35::t_8cac6215f37857 159
+  s_b7ede8c1dd4c35::t_94ada1b55c8bb5 128-129
+  s_b7ede8c1dd4c35::t_eb2e78fe12247a 80-81,87-89,92-97,99-105,107-113
+  s_b7ede8c1dd4c35::t_de659c0b87022a 6-9,11
+  s_b7ede8c1dd4c35::t_2649004045ce29 98
+  s_b7ede8c1dd4c35::t_6d4c5d27d70463 10
+  s_b7ede8c1dd4c35::t_6c892769455c49 152
+  s_b7ede8c1dd4c35::t_8e1599cfee0314 126-127,130
+  s_b7ede8c1dd4c35::t_1a924c00d30d7f 47,70-79,82-86,90-91,106,119-121,124-125,131-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "226db54464f8ee2b1d91bc03acc1b82e7726d238",
+  "prompts": {},
+  "sessions": {
+    "s_b7ede8c1dd4c35": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed962d4b4ffeuZynDOQmpSViwK",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
