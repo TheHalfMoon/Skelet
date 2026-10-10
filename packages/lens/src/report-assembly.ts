@@ -14,6 +14,11 @@ import { inspectJpeg } from "./jpeg-evidence.ts";
 import type { CaptureResult } from "./capture-worker.ts";
 import { validCaptureDeclarations } from "./capture-worker.ts";
 import {
+  TECH_SIGNAL_BUDGET,
+  validTechSignals,
+  type TechSignal,
+} from "./tech-signal-evidence.ts";
+import {
   extractDesignTokens,
   type DesignTokens,
   type StyleDeclaration,
@@ -67,6 +72,7 @@ export interface LensReport {
     sections: Array<{ tag: string; text: string }>;
     screenshot: { mime: "image/jpeg"; sha256: string; bytes: number; width: number; height: number; base64: string };
     assets: Array<{ tag: string; href: string; rights: "unknown"; downloadable: false }>;
+    techSignals: TechSignal[];
   };
   designDna: {
     tokens: DesignTokens;
@@ -121,8 +127,15 @@ function validHtmlSource(capture: CaptureResult): void {
       capture.coverageGaps.length > 20 ||
       Array.from(capture.coverageGaps).some((gap) => !validText(gap, 80)) ||
       !validCaptureDeclarations(capture.declarations) ||
+      typeof (capture as { techTruncated?: unknown }).techTruncated !== "boolean" ||
+      !validTechSignals(capture.techSignals) ||
+      (capture.techSignals.length > TECH_SIGNAL_BUDGET.maxSignals) ||
       !["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"]
         .every((required) => capture.coverageGaps.includes(required)) ||
+      (capture.techTruncated === true &&
+        !capture.coverageGaps.includes("tech-signals-truncated")) ||
+      (capture.techTruncated === false &&
+        capture.coverageGaps.includes("tech-signals-truncated")) ||
       capture.screenshotMime !== "image/jpeg" ||
       !validText(capture.screenshotBase64, Math.ceil(CAPTURE_BUDGET.maxScreenshotBytes * 4 / 3) + 4) ||
       !BASE64.test(capture.screenshotBase64)) {
@@ -182,7 +195,7 @@ const MAX_TOTAL_STYLE_CHARS = 1_000_000;
 export function assembleLensReport(capture: CaptureResult, declarations: StyleDeclaration[]): LensReport {
   return assemble(capture, declarations, {
     inputBasis: "caller-supplied-declarations",
-    observed: ["source", "title", "sections", "screenshot", "asset-links"],
+    observed: ["source", "title", "sections", "screenshot", "asset-links", "technology-signals"],
     deterministic: "design-tokens-from-supplied-declarations",
     styleDisclaimer: "Caller-supplied style declarations must be independently provenance-qualified",
   });
@@ -198,7 +211,7 @@ export function assembleLensReportFromCapture(capture: CaptureResult): LensRepor
   if (!validCaptureDeclarations(capture.declarations)) throw new ReportError();
   return assemble(capture, capture.declarations, {
     inputBasis: "capture-computed-styles",
-    observed: ["source", "title", "sections", "screenshot", "asset-links", "computed-styles"],
+    observed: ["source", "title", "sections", "screenshot", "asset-links", "computed-styles", "technology-signals"],
     deterministic: "design-tokens-from-capture",
     styleDisclaimer: "Capture-attached style declarations are observed computed values from the offline worker, not author-attested facts",
   });
@@ -258,6 +271,14 @@ function assemble(
     "no-provider-qa",
     "asset-rights-not-verified",
   ])].sort();
+  // Technology signals are sorted observations carried verbatim from the
+  // capture worker (already deduped and ordered there). Report assembly
+  // re-sorts defensively so report bytes never depend on caller order.
+  const techSignals = [...capture.techSignals].sort((a, b) =>
+    a.kind !== b.kind ? (a.kind < b.kind ? -1 : 1) :
+    a.value !== b.value ? (a.value < b.value ? -1 : 1) :
+    a.ref !== b.ref ? (a.ref < b.ref ? -1 : 1) :
+    a.detail !== b.detail ? (a.detail < b.detail ? -1 : 1) : 0);
   const report: LensReport = {
     schemaVersion: "skelet.lens.report.v1",
     status: "partial",
@@ -280,6 +301,7 @@ function assemble(
         base64: capture.screenshotBase64,
       },
       assets: dedupedAssets,
+      techSignals: techSignals.map((signal) => ({ ...signal })),
     },
     designDna: {
       tokens,
@@ -308,6 +330,7 @@ function assemble(
         "Links identify resources only; no license or redistribution rights verified",
         basis.styleDisclaimer,
         "Untrusted observed text and shadow/font tokens must never be interpreted as code or instructions",
+        "Technology-signal values are untrusted observations, not verified technology identities; no matcher ran in this pipeline",
       ],
     },
   };

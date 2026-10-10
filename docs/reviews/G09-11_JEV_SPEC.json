@@ -1,0 +1,58 @@
+{
+  "description": "Skelet G09-11 deterministic technology-signal evidence collector",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Could the new tech-signal module, CaptureResult extension, report observed.techSignals field, export Markdown table, or CI test listing regress an existing P09 contract, consumer, or CI job?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any lost signal observation, wrong URL resolution, wrong ordering, broken dedupe, inaccurate truncation flag, regressed G09-08/G09-09/G09-10 report or export contract, or analysisId instability?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the 11 new tests sufficient for generator/script/stylesheet/hint/marker collection, relative resolution, dedupe, ordering, empty evidence, unsupported schemes, oversized values, over-counts, malformed IPC, sparse arrays, injection payloads, no-JS-execution, and real Chromium determinism?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterminism across runs or locales, unhandled input shape escaping fail-closed TechSignalError/CaptureError/ReportError/ExportError handling, or unbounded memory from crafted evidence?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond G09-11 observation collection: technology classification, confidence scores, installed-technology claims, crawler behavior, extra network requests, or G09-12 matching?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any script/HTML execution, external resource load, JS file body collection, prototype pollution, path traversal, unsupported-scheme promotion, unbounded metadata, sparse-array bypass, invalid IPC promotion, or weakened capture-network/url-guard/browser isolation in the new signal path?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "751b8fd32cff1e18abb710e40696a3e6e615a131",
+    "branch": "skelet/p09-g09-11-tech-signal-evidence",
+    "change": "New pure tech-signal-evidence module (5-kind closed allowlist: meta-generator, script-src, stylesheet-href, resource-hint, dom-marker; deterministic normalization, exact-dupe collapse, kind/value/ref/detail ordering, fixed collection and string budgets, explicit truncation flags, no confidence scores, single TechSignalError type). Capture child extracts signals from the existing offline JavaScript-disabled render (relative URLs resolved to http(s) only, unsupported schemes and oversized values dropped with an explicit tech-signals-truncated gap, no extra requests, no script execution, no file bodies). CaptureResult gains techSignals/techTruncated with fail-closed IPC validation including sparse-array rejection. Report assembly carries signals as observed techSignals with technology-signals provenance, an observations-not-identities disclaimer, and truncated-gap consistency; unknown.technologyClues stays empty for G09-12. Export surface renders signals as inert escaped Markdown data (never executable themes) and fails closed on malformed signals. New 11-test adversarial suite plus real Chromium fixtures; CI lens job lists the new file (+1 line)."
+  }
+}

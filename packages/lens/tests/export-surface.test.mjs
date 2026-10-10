@@ -38,6 +38,8 @@ function captured() {
     screenshotBase64: jpeg,
     screenshotMime: "image/jpeg",
     declarations: [],
+    techSignals: [],
+    techTruncated: false,
     coverageGaps: ["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"],
   };
 }

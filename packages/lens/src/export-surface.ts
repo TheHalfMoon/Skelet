@@ -49,6 +49,7 @@
 import { createHash } from "node:crypto";
 
 import type { LensReport } from "./report-assembly.ts";
+import { validTechSignals } from "./tech-signal-evidence.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
 
 export type ExportErrorCode = "lens/invalid-export-input";
@@ -362,6 +363,11 @@ function assertExportableReport(report: LensReport): void {
       throw new ExportError();
     }
   }
+  // G09-11 technology signals travel as observed data inside lens.json
+  // and the Markdown records. They never enter executable theme files,
+  // and malformed signals fail closed instead of being laundered.
+  const techSignals = observed["techSignals"];
+  if (!validTechSignals(techSignals)) throw new ExportError();
   const designDna = report["designDna"];
   if (!isRecord(designDna)) throw new ExportError();
   if (
@@ -683,6 +689,27 @@ function buildDesignMd(report: LensReport, values: ThemeValues, exclusions: stri
     }
     lines.push("");
   }
+  lines.push(
+    "### Technology signals (observations only, never verified identities)",
+    "",
+    "Attribute strings and resolved resource URLs observed in the offline",
+    "capture. Filenames and metadata values are not technology facts; no",
+    "matcher ran in this pipeline (see Uncertainty).",
+    "",
+  );
+  const techSignals = report.observed.techSignals as Array<{
+    kind: string; value: string; ref: string; detail: string;
+  }>;
+  if (techSignals.length === 0) {
+    lines.push("_No technology signals observed._", "");
+  } else {
+    lines.push("| Kind | Observed value | Source ref | Detail |", "| --- | --- | --- | --- |");
+    for (let i = 0; i < techSignals.length; i += 1) {
+      const signal = techSignals[i] as { kind: string; value: string; ref: string; detail: string };
+      lines.push(`| ${mdCode(signal.kind)} | ${mdCode(signal.value)} | ${mdCode(signal.ref)} | ${mdCode(signal.detail)} |`);
+    }
+    lines.push("");
+  }
   lines.push("## Deterministic tokens", "");
   lines.push("### Colors", "");
   lines.push(...tokenRows(tokens.colors));
@@ -741,6 +768,8 @@ function buildDesignMd(report: LensReport, values: ThemeValues, exclusions: stri
     "",
     "- Technology clues, components, logos, QA findings, and similar",
     "  references are unknown: no qualified detector ran in this pipeline.",
+    "- Technology signals above are observations only, never verified",
+    "  technology identities; confidence-scored matching is future work.",
     "- Heuristic inference: none. Model-generated interpretation: none.",
     "- Empty token sets stay explicitly partial via `no-qualified-style-tokens`",
     "  instead of presenting fabricated coverage.",
@@ -831,6 +860,7 @@ function buildAgentMd(report: LensReport, values: ThemeValues, exclusions: strin
     "## Rights and uncertainty",
     "",
     "- Assets: rights unknown, downloadable false, never embedded.",
+    "- Technology signals: observations only, never verified identities; no matcher ran.",
     "- Technology, components, logos, QA, similar references: unknown.",
     "- Heuristic and model-generated content: none in this report.",
     "- Do not claim full-site reproduction; this pack covers one bounded capture.",
