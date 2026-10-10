@@ -28,6 +28,8 @@ function captured(declarations = []) {
     sections: [{ tag: "main", text: "Observed" }],
     assets: [{ tag: "img", href: "https://example.org/logo.svg" }],
     declarations,
+    techSignals: [],
+    techTruncated: false,
     screenshotBase64: jpeg,
     screenshotMime: "image/jpeg",
     coverageGaps: ["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"],
@@ -166,7 +168,7 @@ test("capture-to-report path binds computed evidence with capture provenance", (
   assert.deepEqual(report.provenance.deterministic, ["design-tokens-from-capture"]);
   assert.deepEqual(
     report.provenance.observed,
-    ["source", "title", "sections", "screenshot", "asset-links", "computed-styles"]);
+    ["source", "title", "sections", "screenshot", "asset-links", "computed-styles", "technology-signals"]);
   assert.ok(report.provenance.disclaimers.some((item) => item.includes("offline worker")));
   assert.equal(report.designDna.dtcg.colors.value_001.$value.hex, "#ff0000");
   assert.deepEqual(report.designDna.dtcg.fontSizes.value_001.$value, { value: 32, unit: "px" });

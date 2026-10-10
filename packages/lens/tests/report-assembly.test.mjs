@@ -26,6 +26,8 @@ function captured() {
     screenshotBase64: jpeg,
     screenshotMime: "image/jpeg",
     declarations: [],
+    techSignals: [],
+    techTruncated: false,
     coverageGaps: ["javascript-disabled", "external-resources-blocked", "viewport-only-screenshot"],
   };
 }
@@ -112,6 +114,10 @@ test("malformed screenshot, blocked source, illegal asset links, and oversized t
     (c) => { c.coverageGaps = ["javascript-disabled"]; },
     (c) => { c.declarations = [{ ref: "x", property: "color" }]; },
     (c) => { c.declarations = [{ ref: "", property: "color", value: "#fff" }]; },
+    (c) => { c.techSignals = [{ kind: "nope", value: "x", ref: "html:nth(0)", detail: "src" }]; },
+    (c) => { c.techSignals = [{ kind: "script-src", value: "", ref: "html:nth(0)", detail: "src" }]; },
+    (c) => { c.techTruncated = true; },
+    (c) => { c.coverageGaps = [...c.coverageGaps, "tech-signals-truncated"]; },
     (c) => {
       c.declarations = Array.from({ length: 1501 }, (_, i) => (
         { ref: `e${String(i)}`, property: "color", value: "#fff" }));
@@ -166,11 +172,14 @@ test("analysis identifier changes when capture metadata changes", () => {
 });
 
 test("sparse arrays fail closed rather than silently drop observed evidence", () => {
-  for (const key of ["sections", "assets", "coverageGaps", "declarations"]) {
+  for (const key of ["sections", "assets", "coverageGaps", "declarations", "techSignals"]) {
     const input = captured();
     input[key] = new Array(1);
     assert.throws(() => assembleLensReport(input, []), ReportError);
   }
+  const truncated = captured();
+  truncated.techTruncated = new Array(1);
+  assert.throws(() => assembleLensReport(truncated, []), ReportError);
 });
 
 test("qualified negative margin is retained in dimension export", () => {

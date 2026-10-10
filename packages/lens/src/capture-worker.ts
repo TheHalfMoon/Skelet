@@ -12,6 +12,11 @@ import { fileURLToPath } from "node:url";
 import { CAPTURE_BUDGET, CaptureError } from "./capture-network.ts";
 import { TOKEN_LIMITS } from "./design-tokens.ts";
 import { STYLE_EVIDENCE_BUDGET } from "./style-evidence.ts";
+import {
+  TECH_SIGNAL_BUDGET,
+  validTechSignals,
+  type TechSignal,
+} from "./tech-signal-evidence.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
 import { chromium } from "playwright-core";
 
@@ -32,6 +37,8 @@ export interface CaptureResult {
   sections: { tag: string; text: string }[];
   assets: { tag: string; href: string }[];
   declarations: CaptureDeclaration[];
+  techSignals: TechSignal[];
+  techTruncated: boolean;
   screenshotBase64: string;
   screenshotMime: "image/jpeg";
   coverageGaps: string[];
@@ -138,11 +145,17 @@ export async function capturePublicPage(input: string): Promise<CaptureResult> {
             result.assets.every((asset) =>
               typeof asset?.tag === "string" && asset.tag.length <= 16 &&
               typeof asset?.href === "string" && asset.href.length <= 2_048);
+          // G09-11: sparse-array holes must fail closed. validTechSignals
+          // re-validates every signal through the deterministic collector.
+          const techOk = Array.isArray((result as { techSignals?: unknown }).techSignals) &&
+            typeof (result as { techTruncated?: unknown }).techTruncated === "boolean" &&
+            validTechSignals(result.techSignals) &&
+            (result.techSignals.length <= TECH_SIGNAL_BUDGET.maxSignals);
           if (result.status !== "partial" || result.screenshotMime !== "image/jpeg" ||
               typeof result.screenshotBase64 !== "string" ||
               result.screenshotBase64.length > Math.ceil(CAPTURE_BUDGET.maxScreenshotBytes * 4 / 3) + 4 ||
               typeof result.title !== "string" || result.title.length > 240 ||
-              !sectionsOk || !assetsOk || !validCaptureDeclarations(result.declarations)) {
+              !sectionsOk || !assetsOk || !validCaptureDeclarations(result.declarations) || !techOk) {
             settle(new CaptureError("capture/browser", "Invalid capture output."));
             return;
           }
