@@ -1,0 +1,59 @@
+{
+ "description": "Skelet G09-02 exact-diff review: deterministic design-token extractor",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "Compatible.",
+    "true": "Breaks a contract."
+   },
+   "instructions": "Do the new skelet-lens token module, its tests, or the extended lens CI test command break any existing install, job, or public contract?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "Correct.",
+    "true": "Material error present."
+   },
+   "instructions": "Are color parsing (hex/rgb/hsl/keywords/alpha/clamping), typography/spacing/radius/shadow/motion normalization, dedupe ranking, unresolved classification, coverage accounting, fingerprint determinism, or budget enforcement materially wrong?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "Coverage is adequate.",
+    "true": "Coverage gap."
+   },
+   "instructions": "Do the 22 offline tests cover color syntax matrix, typography/spacing/radius/shadow/motion normalization, shorthand and relative-unit refusal, empty-input honesty, determinism under shuffle, budget and malformed-input failure, and unresolved truncation?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "Sound.",
+    "true": "Race, leak, or corruption risk."
+   },
+   "instructions": "Pure offline extraction over injected declarations: any state, unbounded growth, exception, nondeterminism, or output-ordering risk?",
+   "type": "noul"
+  },
+  "scope_integrity": {
+   "criteria": {
+    "false": "Within grain.",
+    "true": "Exceeds grain."
+   },
+   "instructions": "Exactly one token module plus tests plus a lens CI test-line extension. Anything beyond G09-02 (browser capture, report UI, provider adapters, Dembrandt import)?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No risk.",
+    "true": "Risk present."
+   },
+   "instructions": "Any injection, ReDoS, prototype pollution, unbounded allocation, secret handling, or network/DOM/ambient-authority risk in the extractor or its tests?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "79abf89377062c8f17f6ea8e709c1593f7933de9",
+  "branch": "skelet/p09-g09-02-token-extractor",
+  "candidate_head": "03fb9ea39651e1604babbe7ef95e77ed21407e93",
+  "change": "Final G09-02 diff: pure offline token extractor (colors/typography/spacing/radius/shadow/motion, reasoned unresolved, order-independent ranking+fingerprint, declaration/shadow/property budgets, finite re-emittable numbers, margin-only negatives, bezier x-range, safe steps, re-emission trust docs), 29 offline tests (8 url-guard + 21 token... 37 total node tests), lens CI job runs both suites. Gate: lens lint/tsc clean, 37/37 pass, 131 python pass, graft OK, blast 1 area no dependents, panels PASS with advisories closed."
+ }
+}
