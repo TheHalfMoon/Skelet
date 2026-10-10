@@ -322,6 +322,42 @@ test("oversize values become bounded unresolved entries", () => {
   assert.ok((tokens.unresolved[0]?.value.length ?? 0) <= 128);
 });
 
+test("probe-driven edge coverage: clamping, slash alpha, strict numbers", () => {
+  const tokens = extractDesignTokens([
+    decl("a", "color", "rgb(300, -5, 260)"),
+    decl("b", "color", "rgba(255, 0, 0, 1.5)"),
+    decl("c", "color", "rgb(0 0 0 / 150%)"),
+    decl("d", "color", "hsl(240 100% 50% / 50%)"),
+    decl("e", "color", "hsla(180, 100%, 50%, 0.5)"),
+    decl("f", "font-family", '"Inter, sans-serif'),
+    decl("g", "color", "VAR(--brand)"),
+    decl("h", "transition-duration", "1e3ms"),
+    decl("i", "font-weight", "0"),
+    decl("j", "font-weight", "1001"),
+    decl("k", "transition-timing-function", "steps(0)"),
+    decl("l", "transition-timing-function", "steps(2, bogus)"),
+    decl("m", "box-shadow", "0 0 4px url(sprite.png)"),
+  ]);
+  assert.deepEqual(tokenValues(tokens.colors), [
+    "#000000",
+    "#0000ff80",
+    "#00ffff80",
+    "#ff0000",
+    "#ff00ff",
+  ]);
+  const reasons = Object.fromEntries(tokens.unresolved.map((entry) => [entry.ref, entry.reason]));
+  assert.deepEqual(reasons, {
+    f: "invalid-value",
+    g: "unresolved-reference",
+    h: "invalid-value",
+    i: "invalid-value",
+    j: "invalid-value",
+    k: "invalid-value",
+    l: "invalid-value",
+  });
+  assert.ok(tokenValues(tokens.shadows).includes("0 0 4px url(sprite.png)"));
+});
+
 test("unresolved list truncates with an honest flag", () => {
   const declarations = Array.from({ length: TOKEN_LIMITS.maxUnresolved + 5 }, (_, i) =>
     decl(`r${String(i)}`, "color", "not-a-color"),
