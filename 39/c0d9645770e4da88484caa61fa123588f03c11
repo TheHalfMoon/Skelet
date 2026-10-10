@@ -1,0 +1,21 @@
+packages/lens/tests/design-tokens.test.mjs
+  s_dedc22fd5f2cf3::t_30cd19307d4426 360
+  s_dedc22fd5f2cf3::t_f3cfd5a46fee1c 342
+  s_dedc22fd5f2cf3::t_6e1ad79b5c1c30 325-341,343-359
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "39c0d9645770e4da88484caa61fa123588f03c11",
+  "prompts": {},
+  "sessions": {
+    "s_dedc22fd5f2cf3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edc07ee4cffehmFIoX26xfvSxl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
