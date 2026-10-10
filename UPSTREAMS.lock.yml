@@ -266,21 +266,21 @@
       "source_url": "https://github.com/dembrandt/dembrandt",
       "source_kind": "git",
       "role": "adapter",
-      "status": "planned",
-      "capability": "Deterministic design-token and design-system extraction.",
+      "status": "ready",
+      "capability": "DTCG validation/export and color math for design tokens; live browser extraction explicitly out of scope.",
       "permission_basis": {
         "type": "upstream_license",
-        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+        "note": "MIT License verified 2026-10-10 via GitHub API and LICENSE file at pinned commit. No source import in G09-04; evaluation only. Browser-driven extractors are incompatible with offline capture; pure-function reuse shortlist recorded in docs/provenance/DEMBRANDT_EVALUATION_2026-10-10.md."
       },
-      "license": "VERIFY_AT_IMPORT",
+      "license": "MIT",
       "pin_policy": "git_commit_required",
-      "exact_commit_or_release": null,
-      "verification_date": null,
+      "exact_commit_or_release": "d2d570706dbd83d6531225c67923872d813be1a4",
+      "verification_date": "2026-10-10",
       "rights_scope": {
         "code": "license-governed",
-        "data": "verify-at-import",
-        "assets": "verify-at-import",
-        "models": "verify-at-import",
+        "data": "not-applicable",
+        "assets": "not-applicable",
+        "models": "not-applicable",
         "services": "not-applicable",
         "trademarks": "restricted"
       },
