@@ -1,0 +1,44 @@
+docs/reviews/G09-10_PSTACK_PANELS.md
+  s_dd1629803d0534::t_0c5a6eda6e1bfa 1-75
+.github/workflows/ci.yml
+  s_dd1629803d0534::t_4609f16b706e83 421
+packages/lens/src/export-surface.ts
+  s_dd1629803d0534::t_2c6f5cba581b26 900
+  s_dd1629803d0534::t_41c8a3f8048de1 384-386
+  s_dd1629803d0534::t_d936f536d76ce2 376
+  s_dd1629803d0534::t_b958b7a71c82a1 1-148,150-192,251-375,377-383,387,391-549,551,553,555,557,559-560,570-571,583-786,788-899,901-937
+  s_dd1629803d0534::t_830bf9aa720bf4 193-250
+  s_dd1629803d0534::t_6696dc38496c48 550,552,554,556,558,561-569,572-582
+  s_dd1629803d0534::t_a3c2e7eeafd356 787
+  s_dd1629803d0534::t_7863a42b91fce8 388-390
+  s_dd1629803d0534::t_0394bef19d6cd5 149
+packages/lens/tests/export-surface.test.mjs
+  s_dd1629803d0534::t_f17fe1991905ac 234-235
+  s_dd1629803d0534::t_60a35be3a20fdb 213-216
+  s_dd1629803d0534::t_9b3cd9758400f4 1-203,207,211-212,217-233,236-237,239-241,245-280,300-315,319-345
+  s_dd1629803d0534::t_fc800bcb0c855f 316-318
+  s_dd1629803d0534::t_8dd27549a02c71 242-244
+  s_dd1629803d0534::t_596ab26b85d5d0 204-206,208-210
+  s_dd1629803d0534::t_44fdc61d61c4a1 238
+  s_dd1629803d0534::t_550fb36c881324 281-299
+docs/reviews/G09-10_JEV_SPEC.json
+  s_dd1629803d0534::t_ae0265485b316f 1-58
+docs/reviews/G09-10_JEV_REVIEW.json
+  s_dd1629803d0534::t_ace079999582c0 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e35bd7eb43b10c812ed1041820964c9a0b83569f",
+  "prompts": {},
+  "sessions": {
+    "s_dd1629803d0534": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed91ce35bffe01rz5ofPDami5a",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": null
+    }
+  }
+}
