@@ -50,6 +50,9 @@ jobs:
       - name: Validate upstream provenance lock
         run: python scripts/validate_upstreams.py
 
+      - name: Validate Lens Build Kit contract
+        run: python scripts/validate_build_kit.py
+
       - name: Validate agent skills
         run: python scripts/validate_skills.py
 
