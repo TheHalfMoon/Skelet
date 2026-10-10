@@ -2,7 +2,10 @@
 
 Base: `726a862388ff271fb60c6e13f8972f11f9737443`.
 Branch: `skelet/p09-g09-04-dembrandt-adapter`.
-Status: IMPLEMENTED, pending exact-head CI and merge.
+Status: CANONICAL. Merged to main as `a8ed39e9531bef1fd92d1707dacf6d7e39c5949f`
+(PR #46, reviewed head `5d9e1271c2a00350835c18d9aef0f30d6584cf8a`).
+Exact-head CI run 38036979600 13/13 SUCCESS; post-merge main CI run
+38037222136 SUCCESS.
 
 ## Scoped change
 
