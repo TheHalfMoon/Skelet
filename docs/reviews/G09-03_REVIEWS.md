@@ -23,18 +23,22 @@ Status: IMPLEMENTED, PENDING independent review and exact-head CI; **not merged*
 ## Locally executed checks (MacBook / Node 26)
 
 - Strict TypeScript typecheck and ESLint: PASS.
-- Lens tests: 48 total (8 URL guard, 29 design tokens, 10 guarded-network,
-  1 real headless Chromium isolated-render fixture): PASS.
+- Lens tests: 49 total (8 URL guard, 29 design tokens, 10 guarded-network,
+  2 real headless Chromium fixtures including a secret-free child launch): PASS.
 - Python bootstrap: 131/131 PASS.
 - Live public-site smoke on `https://example.org/`: partial result,
   title `Example Domain`, real JPEG; HTTPS pin verified via direct client.
   This is a diagnostic smoke, not a deterministic CI assertion.
 - Graft build/check: 910 nodes, 2,306 edges, graph in sync.
-- CI Lens job updated to install the pinned Chromium headless shell and run
-  the new hermetic capture suites. Initial PR #44 run 38031743967 had 47/48
-  Lens tests pass: the browser test explicitly selected full Chromium while CI
-  installed only the headless shell. The code/test now use Playwright's default
-  headless executable selection; this repair needs a fresh exact-head CI run.
+- CI Lens job installs pinned Chromium headless shell. Initial PR #44 run
+  38031743967 had 47/48 Lens tests pass because the test requested full
+  Chromium while CI installed only the headless shell. Repair commit
+  `2397c379472712252e2454ff31b3684600b3f48c` passed all 13/13 CI legs
+  (run 38031954266), including Lens on Ubuntu and Windows storage.
+  Follow-up child smoke uncovered Playwright browser-cache discovery under
+  a deliberately private HOME. The allowlist now passes only the browser
+  cache directory, and an actual child-launch fixture proves it can boot
+  with no inherited credentials. The updated exact-head CI remains pending.
 
 ## Mandatory review record
 

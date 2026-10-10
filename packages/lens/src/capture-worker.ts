@@ -6,11 +6,12 @@
 import { fork } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { CAPTURE_BUDGET, CaptureError } from "./capture-network.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
+import { chromium } from "playwright-core";
 
 export interface CaptureResult {
   kind: "result";
@@ -29,7 +30,18 @@ export interface CaptureResult {
 
 /** No AWS/GCP/GH/DB/Stripe keys, no NODE_OPTIONS, no HOME/SSH/SSL credentials. */
 export function isolatedWorkerEnv(home: string): NodeJS.ProcessEnv {
+  // Playwright normally derives its browser cache from HOME. The isolated
+  // child has a private HOME, so pass ONLY the preinstalled browser cache.
+  // Do not inherit user environment variables, profile data, or credentials.
+  const executable = chromium.executablePath();
+  const marker = `${sep}chromium-`;
+  const markerIndex = executable.lastIndexOf(marker);
+  if (markerIndex < 0) {
+    throw new CaptureError("capture/browser", "Chromium installation path is unsupported.");
+  }
+  const browserCache = executable.slice(0, markerIndex);
   return {
+    PLAYWRIGHT_BROWSERS_PATH: browserCache,
     HOME: home,
     TMPDIR: home,
     TMP: home,

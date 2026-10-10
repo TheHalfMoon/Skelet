@@ -134,8 +134,10 @@ test("child-process environment is actually secret-free", async () => {
     assert.equal(got.env.NODE_OPTIONS, undefined);
     assert.equal(got.env.GITHUB_TOKEN, undefined);
     assert.equal(got.env.HOME, dir);
+    assert.equal(got.env.PLAYWRIGHT_BROWSERS_PATH, isolatedWorkerEnv(dir).PLAYWRIGHT_BROWSERS_PATH);
+    assert.notEqual(got.env.PLAYWRIGHT_BROWSERS_PATH, dir);
     assert.deepEqual(Object.keys(got.env).filter((key) => key !== "__CF_USER_TEXT_ENCODING").sort(), [
-      "HOME", "LANG", "LC_ALL", "PATH", "TEMP", "TMP", "TMPDIR", "TZ",
+      "HOME", "LANG", "LC_ALL", "PATH", "PLAYWRIGHT_BROWSERS_PATH", "TEMP", "TMP", "TMPDIR", "TZ",
     ]);
   } finally {
     if (original === undefined) delete process.env.SKELET_PRIVATE_CLOUD_KEY;
