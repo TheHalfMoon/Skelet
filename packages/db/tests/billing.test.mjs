@@ -24,6 +24,7 @@ const SEVEN = [
   "006_collections_auth",
   "007_billing",
   "008_jobs",
+  "009_lens_build_kit_runs",
 ];
 const SECRET = "whsec_test_fixture_only_not_a_secret";
 const NOW = new Date("2026-10-09T03:00:00.000Z");

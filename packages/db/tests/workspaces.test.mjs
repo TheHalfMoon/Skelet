@@ -24,6 +24,7 @@ const SIX = [
   "006_collections_auth",
   "007_billing",
   "008_jobs",
+  "009_lens_build_kit_runs",
 ];
 
 async function fixtureDb() {
