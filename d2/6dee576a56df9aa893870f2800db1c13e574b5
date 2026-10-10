@@ -1,0 +1,28 @@
+UPSTREAMS.lock.yml
+  s_319451ec3625ec::t_4dd61a4a4f5688 295-296,299,301,303-304,307-309
+docs/provenance/OPENBRAND_EVALUATION_2026-10-10.md
+  s_319451ec3625ec::t_e570dfe3f8d72e 1-63
+docs/reviews/G09-05_JEV_SPEC.json
+  s_319451ec3625ec::t_27d6a2db46a253 1
+docs/reviews/G09-05_REVIEWS.md
+  s_319451ec3625ec::t_c0f33046faf637 38-46
+  s_319451ec3625ec::t_b73058f47aa8d7 1-37,47-60
+docs/reviews/G09-05_JEV_REVIEW.json
+  s_319451ec3625ec::t_e335a88880a53f 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d26dee576a56df9aa893870f2800db1c13e574b5",
+  "prompts": {},
+  "sessions": {
+    "s_319451ec3625ec": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edb65aed4ffeD4BsOFGJLNDW9L",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
