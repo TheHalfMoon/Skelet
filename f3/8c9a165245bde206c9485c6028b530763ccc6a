@@ -1,0 +1,27 @@
+packages/lens/src/design-tokens.ts
+  s_dedc22fd5f2cf3::t_a6f7d9c51ba5c7 360-366
+  s_dedc22fd5f2cf3::t_029c9d27aa04dd 422
+  s_dedc22fd5f2cf3::t_bde0464b85ca88 894-897
+  s_dedc22fd5f2cf3::t_f16e605642f069 549
+  s_dedc22fd5f2cf3::t_7f52cc61442d99 791-794,846-849
+  s_dedc22fd5f2cf3::t_d6fb8eeacba382 814-817
+  s_dedc22fd5f2cf3::t_c2dffbf1257ffc 957-960
+packages/lens/tests/design-tokens.test.mjs
+  s_dedc22fd5f2cf3::t_f5f3b800093ad6 361-378
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "f38c9a165245bde206c9485c6028b530763ccc6a",
+  "prompts": {},
+  "sessions": {
+    "s_dedc22fd5f2cf3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_edc07ee4cffehmFIoX26xfvSxl",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
