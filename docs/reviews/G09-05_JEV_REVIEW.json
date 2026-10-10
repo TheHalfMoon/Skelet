@@ -1,0 +1,1 @@
+{"answers":{"correctness":{"noul":0.39,"type":"noul"},"evidence":{"noul":0.67,"type":"noul"},"scope":{"noul":0.88,"type":"noul"}},"latency_ms":428,"model":"jev-1.13.0","ok":true,"usage":{"input_tokens":558,"output_tokens":56}}

@@ -292,21 +292,21 @@
       "source_url": "https://github.com/tight-studio/OpenBrand",
       "source_kind": "git",
       "role": "adapter",
-      "status": "planned",
-      "capability": "Logo, favicon, brand color, and brand-asset extraction.",
+      "status": "ready",
+      "capability": "Brand-clue reference only (output shapes and offline parser heuristics); live fetching and byte serving explicitly out of scope.",
       "permission_basis": {
         "type": "upstream_license",
-        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+        "note": "MIT License verified 2026-10-10 via GitHub API and LICENSE file at pinned commit. No source import in G09-05; evaluation only. Live fetch path (global fetch plus third-party reader fallback) rejected for SSRF/egress posture; extracted logo bytes are trademark-restricted and never redistributable. See docs/provenance/OPENBRAND_EVALUATION_2026-10-10.md."
       },
-      "license": "VERIFY_AT_IMPORT",
+      "license": "MIT",
       "pin_policy": "git_commit_required",
-      "exact_commit_or_release": null,
-      "verification_date": null,
+      "exact_commit_or_release": "a21d34fadc3dcf15271d71fdb3f7d95baf7578d8",
+      "verification_date": "2026-10-10",
       "rights_scope": {
         "code": "license-governed",
-        "data": "verify-at-import",
-        "assets": "verify-at-import",
-        "models": "verify-at-import",
+        "data": "not-applicable",
+        "assets": "not-applicable",
+        "models": "not-applicable",
         "services": "not-applicable",
         "trademarks": "restricted"
       },
