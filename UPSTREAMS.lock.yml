@@ -318,21 +318,21 @@
       "source_url": "https://github.com/Houseofmvps/opentechalyzer",
       "source_kind": "git",
       "role": "adapter",
-      "status": "planned",
-      "capability": "Local technology-stack detection.",
+      "status": "ready",
+      "capability": "Bounded low-confidence tech-clue reference (fingerprint patterns and evidence-graded engine shape); live probing and enrichment explicitly out of scope.",
       "permission_basis": {
         "type": "upstream_license",
-        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+        "note": "MIT License verified 2026-10-10 via GitHub API and LICENSE file at pinned commit. No source import in G09-06; evaluation only. Live collectors (HTTP/DNS/TLS/CT/crawl/render) and external enrichment (CVE/Tranco/BigQuery/email) are rejected for offline-capture posture and no-external-service rule; community fingerprint merge must stay disabled. See docs/provenance/OPENTECHALYZER_EVALUATION_2026-10-10.md."
       },
-      "license": "VERIFY_AT_IMPORT",
+      "license": "MIT",
       "pin_policy": "git_commit_required",
-      "exact_commit_or_release": null,
-      "verification_date": null,
+      "exact_commit_or_release": "a3d30e479c91c06732ef88867d69b7feef8f3f35",
+      "verification_date": "2026-10-10",
       "rights_scope": {
         "code": "license-governed",
-        "data": "verify-at-import",
-        "assets": "verify-at-import",
-        "models": "verify-at-import",
+        "data": "not-applicable",
+        "assets": "not-applicable",
+        "models": "not-applicable",
         "services": "not-applicable",
         "trademarks": "restricted"
       },
