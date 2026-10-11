@@ -5,7 +5,7 @@
 - OCR version: open-code-review v1.12.13 (fabbdb29) darwin/arm64. No OCR LLM
   provider credential is configured in this environment, so the official
   `ocr delegate` workflow was used per `GOVERNANCE.md`.
-- `ocr delegate preview --from <base> --to HEAD`: 20 reviewable / 22 total.
+- `ocr delegate preview --from <base> --to HEAD`: 31 reviewable / 33 total.
   The 2 excluded files are this record's sibling markdown panels
   (`AF-SEC-00_OCR_DELEGATION.md`, `AF-SEC-00_PSTACK_PANELS.md`),
   excluded by OCR itself (`unsupported_ext`) and covered by the inline
@@ -23,9 +23,21 @@
   `packages/db/src/artifact-access.ts`, `packages/db/src/collections.ts`,
   `packages/db/src/graph.ts`,
   `packages/db/tests/artifact-access.test.mjs`,
+  `packages/db/tests/auth.test.mjs`, `packages/db/tests/billing.test.mjs`,
+  `packages/db/tests/build-kit.test.mjs`,
   `packages/db/tests/collections.test.mjs`,
-  `packages/db/tests/graph.test.mjs`,
+  `packages/db/tests/db-foundation.test.mjs`,
+  `packages/db/tests/graph.test.mjs`, `packages/db/tests/jobs.test.mjs`,
+  `packages/db/tests/pg-build-kit.test.mjs`,
+  `packages/db/tests/pg-graph.test.mjs`,
+  `packages/db/tests/pg-integration.test.mjs`,
+  `packages/db/tests/pg-workflows.test.mjs`,
+  `packages/db/tests/workflows.test.mjs`,
+  `packages/db/tests/workspaces.test.mjs`,
   `packages/ingest/src/pipeline.ts`.
+  The follow-up test-alignment commit only adds migration-list
+  assertions (`010_artifact_actor_scope`) to 11 test files — same
+  TS/JS rule group, no new rule groups, no product change.
 - Delegated rules executed against the exact diff
   (`ocr delegate rule` groups: workflow rules; TS/JS rules; SQL default
   rules; JSON key-spelling rules):
