@@ -361,12 +361,18 @@ export async function registerAsset(
 
 export interface AssetSearch {
   query: string;
-  kinds?: RegistryKind[];
-  rights?: string[];
-  licenses?: string[];
-  trademarkFree?: boolean;
-  collection?: string;
-  limit?: number;
+  kinds?: RegistryKind[] | undefined;
+  rights?: string[] | undefined;
+  licenses?: string[] | undefined;
+  trademarkFree?: boolean | undefined;
+  collection?: string | undefined;
+  limit?: number | undefined;
+  /**
+   * AF-03b zero-based row offset for opaque cursor pagination. Defaults
+   * to 0. Callers must use the canonical cursor helpers in
+   * apps/web/lib/agent-contract.ts; raw offsets are an internal detail.
+   */
+  offset?: number | undefined;
 }
 
 const SEARCH_MAX_LIMIT = 50;
@@ -410,6 +416,10 @@ async function searchAssetsScoped(
   const limit = search.limit ?? 20;
   if (!Number.isInteger(limit) || limit < 1 || limit > SEARCH_MAX_LIMIT) {
     throw new RegistryError("assets/invalid-record", "Search limit is invalid.");
+  }
+  const offset = search.offset ?? 0;
+  if (!Number.isInteger(offset) || offset < 0 || offset > 1_000_000) {
+    throw new RegistryError("assets/invalid-record", "Search cursor is invalid.");
   }
   const kinds = search.kinds ?? (["icon", "logo", "font"] as RegistryKind[]);
   for (const kind of kinds) validateKind(kind);
@@ -486,6 +496,9 @@ async function searchAssetsScoped(
       `))))`;
   }
   params.push(limit);
+  const limitParam = `$${params.length}`;
+  params.push(offset);
+  const offsetParam = `$${params.length}`;
   const result = await tx.query(
     `select ${RECORD_COLUMNS} from artifacts a join sources s on s.id = a.source_id
      where a.kind in (${kindPlaceholders.join(", ")})
@@ -498,7 +511,7 @@ async function searchAssetsScoped(
              then a.metadata->'tags' else '[]'::jsonb end) as tag
            where lower(tag) like $1 ${likeEscape}))
        ${rightsFilter} ${licenseFilter} ${trademarkFilter} ${collectionFilter} ${scopeFilter}
-     order by a.title, a.id limit $${params.length}`,
+     order by a.title, a.id limit ${limitParam} offset ${offsetParam}`,
     params,
   );
   return result.rows.map(toRecord);

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { bearerToken, dispatchMcp, MCP_MAX_BODY_CHARS, resolveRequestUser } from "../../../lib/mcp";
 import { getSharedDb } from "../../../lib/mcp-db";
 import { checkRateLimit } from "../../../lib/rate-limit";
+import { AgentContractError } from "../../../lib/agent-contract";
 
 function clientKey(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -13,18 +14,20 @@ function clientKey(request: Request): string {
 }
 
 function unauthorized(): NextResponse {
+  const err = new AgentContractError("UNAUTHENTICATED");
   return NextResponse.json(
-    { jsonrpc: "2.0", id: null, error: { code: -32001, message: "Unauthorized." } },
-    { status: 401 },
+    { jsonrpc: "2.0", id: null, error: { code: err.mcpCode, message: err.safeMessage, data: { envelope: err.toFailureEnvelope() } } },
+    { status: err.httpStatus },
   );
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
   const limit = checkRateLimit(`mcp:${clientKey(request)}`);
   if (!limit.allowed) {
+    const err = new AgentContractError("RATE_LIMITED");
     return NextResponse.json(
-      { jsonrpc: "2.0", id: null, error: { code: -32000, message: "Rate limited." } },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+      { jsonrpc: "2.0", id: null, error: { code: err.mcpCode, message: err.safeMessage, data: { envelope: err.toFailureEnvelope() } } },
+      { status: err.httpStatus, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
     );
   }
   let text: string;
@@ -59,9 +62,10 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     db = await getSharedDb();
   } catch {
+    const err = new AgentContractError("INTERNAL_OPAQUE");
     return NextResponse.json(
-      { jsonrpc: "2.0", id: null, error: { code: -32603, message: "Internal error." } },
-      { status: 500 },
+      { jsonrpc: "2.0", id: null, error: { code: err.mcpCode, message: err.safeMessage, data: { envelope: err.toFailureEnvelope() } } },
+      { status: err.httpStatus },
     );
   }
   // The bearer credential IS a Skelet session token: the actor identity

@@ -9,6 +9,20 @@ import {
   exportReferencePack,
   parseSkeletUri,
 } from "./reference-packs.ts";
+import { listReferences } from "../../../packages/db/src/collections.ts";
+import {
+  AGENT_SCHEMA_VERSION,
+  AgentContractError,
+  computedProvenance,
+  decodeCursor,
+  encodeCursor,
+  newRequestId,
+  observedProvenance,
+  parseSearchLimit,
+  requireCapability,
+  successEnvelope,
+} from "./agent-contract.ts";
+import type { AgentEnvelope } from "./agent-contract.ts";
 
 /**
  * G08-01 remote agent transport: MCP Streamable HTTP (JSON-RPC 2.0) with
@@ -20,6 +34,12 @@ import {
  * a bearer token; token issuance (OAuth metadata, audience binding,
  * PKCE) arrives in a later P08 grain — this layer only verifies
  * caller-supplied tokens against server configuration.
+ *
+ * AF-03b: every domain tool payload is a skelet.agent.v1 envelope. The
+ * JSON-RPC transport stays backward compatible (same methods, same
+ * transport codes); domain semantics (typed errors, request IDs,
+ * pagination, warnings, rights, capabilities) live in the envelope so MCP
+ * and REST share one canonical contract implementation.
  */
 
 export const MCP_PROTOCOL_VERSIONS = ["2026-07-28", "2025-06-18", "2025-03-26", "2024-11-05"];
@@ -55,8 +75,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function error(id: unknown, code: number, message: string): JsonRpcResponse {
-  return { jsonrpc: "2.0", id: id ?? null, error: { code, message } };
+function error(id: unknown, code: number, message: string, data?: unknown): JsonRpcResponse {
+  const response: JsonRpcResponse = { jsonrpc: "2.0", id: id ?? null, error: { code, message } };
+  if (data !== undefined) {
+    response.error = { code, message, data };
+  }
+  return response;
 }
 
 function negotiateVersion(requested: unknown): string | null {
@@ -67,7 +91,7 @@ function negotiateVersion(requested: unknown): string | null {
 
 function requireUser(ctx: McpContext): string {
   if (ctx.userId === null) {
-    throw { code: -32001, message: "Unauthorized." };
+    throw new AgentContractError("UNAUTHENTICATED");
   }
   return ctx.userId;
 }
@@ -83,6 +107,7 @@ function toolSchemas(): unknown[] {
           query: { type: "string" },
           kinds: { type: "array", items: { type: "string" } },
           limit: { type: "number" },
+          cursor: { type: "string" },
         },
         required: ["query"],
       },
@@ -170,91 +195,173 @@ function toAgentAsset(record: {
 
 const REGISTRY_KINDS = ["icon", "logo", "font"] as const;
 
+function invalidInput(message: string, requestId?: string): AgentContractError {
+  return new AgentContractError("INVALID_INPUT", { message, requestId });
+}
+
 async function callTool(
   db: DbClient,
   ctx: McpContext,
   name: unknown,
   args: unknown,
-): Promise<unknown> {
+): Promise<AgentEnvelope> {
+  const requestId = newRequestId();
   if (typeof name !== "string") {
-    throw { code: -32602, message: "Tool name is invalid." };
+    throw invalidInput("Tool name is invalid.", requestId);
   }
   const params = isRecord(args) ? args : {};
   if (name === "search_assets") {
     if (typeof params.query !== "string") {
-      throw { code: -32602, message: "search_assets.query is invalid." };
+      throw invalidInput("search_assets.query is invalid.", requestId);
+    }
+    if (typeof params.query !== "string" || params.query.trim().length === 0 || params.query.trim().length > 200) {
+      throw invalidInput("search_assets.query is invalid.", requestId);
     }
     const actorId = requireUser(ctx);
     const search: {
       query: string;
       kinds?: ("icon" | "logo" | "font")[];
-      limit?: number;
-    } = { query: params.query };
+      limit: number;
+      offset: number;
+    } = { query: params.query.trim(), limit: 20, offset: 0 };
     if (params.kinds !== undefined) {
       if (
         !Array.isArray(params.kinds) ||
         params.kinds.some((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind))
       ) {
-        throw { code: -32602, message: "search_assets.kinds is invalid." };
+        throw invalidInput("search_assets.kinds is invalid.", requestId);
       }
       search.kinds = params.kinds as ("icon" | "logo" | "font")[];
     }
-    if (params.limit !== undefined) {
-      const limit = params.limit;
-      if (!Number.isInteger(limit) || (limit as number) < 1 || (limit as number) > 50) {
-        throw { code: -32602, message: "search_assets.limit is invalid." };
-      }
-      search.limit = limit as number;
+    try {
+      search.limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput("search_assets.limit is invalid.", requestId);
     }
-    const records = await searchAssetsForActor(db, search, actorId);
-    return { assets: records.map(toAgentAsset) };
+    if (params.cursor !== undefined) {
+      try {
+        search.offset = decodeCursor(params.cursor);
+      } catch {
+        throw invalidInput("Pagination cursor is invalid.", requestId);
+      }
+    }
+    try {
+      const fetchLimit = search.limit + 1;
+      const records = await searchAssetsForActor(
+        db,
+        { query: search.query, kinds: search.kinds, limit: fetchLimit, offset: search.offset },
+        actorId,
+      );
+      const hasMore = records.length > search.limit;
+      const page = hasMore ? records.slice(0, search.limit) : records;
+      return successEnvelope(
+        requestId,
+        { assets: page.map(toAgentAsset) },
+        {
+          cursor: hasMore ? encodeCursor(search.offset + search.limit) : undefined,
+          provenance: computedProvenance(),
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        throw new AgentContractError(thrown.code, {
+          message: thrown.code === "INVALID_INPUT" ? thrown.safeMessage : undefined,
+          requestId,
+        });
+      }
+      if (thrown instanceof Error && thrown.name === "RegistryError") {
+        throw invalidInput("search_assets.query is invalid.", requestId);
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
   }
   if (name === "get_asset") {
     if (typeof params.artifactId !== "string") {
-      throw { code: -32602, message: "get_asset.artifactId is invalid." };
+      throw invalidInput("get_asset.artifactId is invalid.", requestId);
     }
     const actorId = requireUser(ctx);
     try {
-      return { asset: toAgentAsset(await resolveAssetForActor(db, params.artifactId, actorId)) };
-    } catch {
-      throw { code: -32000, message: "Tool execution failed." };
+      const record = await resolveAssetForActor(db, params.artifactId, actorId);
+      if (record.rightsClassification === "restricted") {
+        throw new AgentContractError("RIGHTS_RESTRICTED", {
+          requestId,
+          provenance: observedProvenance(`skelet://artifact/${params.artifactId}`),
+        });
+      }
+      const warnings =
+        record.serving === "metadata-only" ? [`Rights note: ${record.servingReason}`.slice(0, 512)] : [];
+      return successEnvelope(
+        requestId,
+        { asset: toAgentAsset(record) },
+        {
+          warnings: warnings.length > 0 ? warnings : undefined,
+          provenance: observedProvenance(`skelet://artifact/${record.artifactId}`),
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
     }
   }
   if (name === "get_registry_item") {
     if (typeof params.name !== "string") {
-      throw { code: -32602, message: "get_registry_item.name is invalid." };
+      throw invalidInput("get_registry_item.name is invalid.", requestId);
     }
-    return { item: buildRegistryItem(params.name) };
+    try {
+      requireCapability("registry", requestId);
+      const item = buildRegistryItem(params.name);
+      return successEnvelope(
+        requestId,
+        { item },
+        { provenance: observedProvenance() },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      if (thrown instanceof Error && thrown.name === "RegistryError") {
+        const code = (thrown as { code?: unknown }).code;
+        if (code === "registry/not-found") {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        throw new AgentContractError("NOT_AVAILABLE", { requestId });
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
   }
   if (name === "save_reference") {
     if (typeof params.collectionId !== "string" || typeof params.artifactId !== "string") {
-      throw { code: -32602, message: "save_reference arguments are invalid." };
+      throw invalidInput("save_reference arguments are invalid.", requestId);
     }
     const actorId = requireUser(ctx);
     try {
+      requireCapability("packs", requestId);
       await saveReference(db, {
         collectionId: params.collectionId,
         artifactId: params.artifactId,
         actorId,
       });
-    } catch {
-      throw { code: -32000, message: "Tool execution failed." };
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
     }
-    return { saved: true, uri: `skelet://artifact/${params.artifactId}` };
+    return successEnvelope(
+      requestId,
+      { saved: true, uri: `skelet://artifact/${params.artifactId}` },
+      { provenance: observedProvenance(`skelet://artifact/${params.artifactId}`) },
+    );
   }
   if (name === "create_reference_pack") {
     if (typeof params.workspaceId !== "string" || typeof params.title !== "string") {
-      throw { code: -32602, message: "create_reference_pack arguments are invalid." };
+      throw invalidInput("create_reference_pack arguments are invalid.", requestId);
     }
     if (params.visibility !== undefined && params.visibility !== "private" && params.visibility !== "workspace") {
-      throw { code: -32602, message: "create_reference_pack.visibility is invalid." };
+      throw invalidInput("create_reference_pack.visibility is invalid.", requestId);
     }
     if (
       params.artifactIds !== undefined &&
       (!Array.isArray(params.artifactIds) ||
         params.artifactIds.some((entry) => typeof entry !== "string"))
     ) {
-      throw { code: -32602, message: "create_reference_pack.artifactIds is invalid." };
+      throw invalidInput("create_reference_pack.artifactIds is invalid.", requestId);
     }
     const actorId = requireUser(ctx);
     const packInput = {
@@ -275,16 +382,28 @@ async function callTool(
       packInput.artifactIds = params.artifactIds as string[];
     }
     try {
+      requireCapability("packs", requestId);
       const pack = await createReferencePack(db, packInput);
       const exported = await exportReferencePack(db, pack.collectionId, actorId);
-      return { pack: exported };
-    } catch {
-      throw { code: -32000, message: "Tool execution failed." };
+      const requested = packInput.artifactIds?.length ?? 0;
+      const partial = requested > 0 && exported.itemCount < requested;
+      return successEnvelope(
+        requestId,
+        { pack: exported },
+        {
+          provenance: observedProvenance(exported.uri),
+          warnings: partial ? ["Some references were withheld by rights or visibility."] : undefined,
+          partial,
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
     }
   }
   if (name === "get_object") {
     if (typeof params.uri !== "string") {
-      throw { code: -32602, message: "get_object.uri is invalid." };
+      throw invalidInput("get_object.uri is invalid.", requestId);
     }
     try {
       const parsed = parseSkeletUri(params.uri);
@@ -292,30 +411,58 @@ async function callTool(
         const actorId = requireUser(ctx);
         const artifact = await getArtifactForActor(db, parsed.id, actorId);
         if (artifact === null) {
-          throw { code: -32000, message: "Tool execution failed." };
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
         }
-        return {
-          object: {
-            uri: params.uri,
-            kind: artifact.kind,
-            title: artifact.title,
-            rights: artifact.rightsClassification,
+        if (artifact.rightsClassification === "restricted") {
+          throw new AgentContractError("RIGHTS_RESTRICTED", {
+            requestId,
+            provenance: observedProvenance(params.uri),
+          });
+        }
+        return successEnvelope(
+          requestId,
+          {
+            object: {
+              uri: params.uri,
+              kind: artifact.kind,
+              title: artifact.title,
+              rights: artifact.rightsClassification,
+            },
           },
-        };
+          { provenance: observedProvenance(params.uri) },
+        );
       }
       const actorId = requireUser(ctx);
       try {
-        return { pack: await exportReferencePack(db, parsed.id, actorId) };
-      } catch {
-        throw { code: -32000, message: "Tool execution failed." };
+        requireCapability("packs", requestId);
+        const exported = await exportReferencePack(db, parsed.id, actorId);
+        let partial = false;
+        let warnings: string[] | undefined;
+        try {
+          const refs = await listReferences(db, parsed.id, actorId);
+          if (refs.length > exported.itemCount) {
+            partial = true;
+            warnings = ["Some references were withheld by rights or visibility."];
+          }
+        } catch {
+          // Best-effort withholding signal; export already succeeded.
+        }
+        return successEnvelope(
+          requestId,
+          { pack: exported },
+          { provenance: observedProvenance(exported.uri), warnings, partial },
+        );
+      } catch (thrown) {
+        if (thrown instanceof AgentContractError) throw thrown;
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
       }
     } catch (thrown) {
-      if (isRecord(thrown) && typeof thrown.code === "number") throw thrown;
+      if (thrown instanceof AgentContractError) throw thrown;
       if (thrown instanceof Error && thrown.name === "PackError") {
         if ((thrown as { code?: unknown }).code === "packs/invalid") {
-          throw { code: -32602, message: "get_object.uri is invalid." };
+          throw invalidInput("get_object.uri is invalid.", requestId);
         }
-        throw { code: -32000, message: "Tool execution failed." };
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
       }
       throw thrown;
     }
@@ -360,8 +507,9 @@ async function handleOne(
     try {
       requireUser(ctx);
     } catch (denied) {
-      if (isRecord(denied) && typeof denied.code === "number") {
-        return error(id, denied.code, "Unauthorized.");
+      if (denied instanceof AgentContractError) {
+        const envelope = denied.toFailureEnvelope();
+        return error(id, denied.mcpCode, denied.safeMessage, { envelope });
       }
       return error(id, -32001, "Unauthorized.");
     }
@@ -371,23 +519,31 @@ async function handleOne(
   }
   if (method === "tools/call") {
     if (!isRecord(params)) {
-      return error(id, -32602, "Invalid params.");
+      const err = new AgentContractError("INVALID_INPUT", { message: "Invalid params." });
+      return error(id, err.mcpCode, err.safeMessage, { envelope: err.toFailureEnvelope() });
     }
     try {
-      const output = await callTool(
+      const envelope = await callTool(
         db,
         ctx,
         (params as { name?: unknown }).name,
         (params as { arguments?: unknown }).arguments,
       );
-      return { jsonrpc: "2.0", id, result: { content: [{ type: "text", text: JSON.stringify(output) }] } };
+      return { jsonrpc: "2.0", id, result: { content: [{ type: "text", text: JSON.stringify(envelope) }] } };
     } catch (thrown) {
-      // callTool throws JSON-RPC-shaped objects with static messages.
-      // Domain failures stay opaque: messages never reach callers.
+      // Domain failures carry the canonical envelope in error.data so MCP
+      // and REST share one error policy; transport codes stay compatible.
+      if (thrown instanceof AgentContractError) {
+        const envelope = thrown.toFailureEnvelope();
+        return error(id, thrown.mcpCode, thrown.safeMessage, { envelope });
+      }
       if (isRecord(thrown) && typeof thrown.code === "number" && typeof thrown.message === "string") {
         return error(id, thrown.code, thrown.message);
       }
-      return error(id, -32000, "Tool execution failed.");
+      const fallback = new AgentContractError("INTERNAL_OPAQUE");
+      return error(id, fallback.mcpCode, fallback.safeMessage, {
+        envelope: fallback.toFailureEnvelope(),
+      });
     }
   }
   return error(id, -32601, "Method not found.");
@@ -441,3 +597,6 @@ export async function resolveRequestUser(
   const session = await validateSession(db, token);
   return session.user.id;
 }
+
+export { AGENT_SCHEMA_VERSION };
+export type { AgentEnvelope };

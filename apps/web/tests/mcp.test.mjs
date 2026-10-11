@@ -104,20 +104,24 @@ test("asset tools return stable Skelet URIs", async () => {
       arguments: { query: "arrow" },
     });
     const payload = JSON.parse(searched.result.content[0].text);
-    assert.equal(payload.assets.length, 1);
-    assert.equal(payload.assets[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
-    assert.equal(payload.assets[0].serving, "download");
+    assert.equal(payload.schema_version, "skelet.agent.v1");
+    assert.equal(payload.status, "complete");
+    assert.ok(typeof payload.request_id === "string" && payload.request_id.length > 0);
+    assert.equal(payload.result.assets.length, 1);
+    assert.equal(payload.result.assets[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(payload.result.assets[0].serving, "download");
     const single = await call(fx.db, fx.ctx, "tools/call", {
       name: "get_asset",
       arguments: { artifactId: fx.icon.artifactId },
     });
     const one = JSON.parse(single.result.content[0].text);
-    assert.equal(one.asset.uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(one.schema_version, "skelet.agent.v1");
+    assert.equal(one.result.asset.uri, `skelet://artifact/${fx.icon.artifactId}`);
     const item = await call(fx.db, fx.ctx, "tools/call", {
       name: "get_registry_item",
       arguments: { name: "skelet-button" },
     });
-    assert.equal(JSON.parse(item.result.content[0].text).item.name, "skelet-button");
+    assert.equal(JSON.parse(item.result.content[0].text).result.item.name, "skelet-button");
   } finally {
     await fx.db.close();
   }
@@ -186,7 +190,9 @@ test("agent write round-trip preserves references across sessions", async () => 
         artifactIds: [screen.id],
       },
     });
-    const pack = JSON.parse(created.result.content[0].text).pack;
+    const createdPayload = JSON.parse(created.result.content[0].text);
+    assert.equal(createdPayload.schema_version, "skelet.agent.v1");
+    const pack = createdPayload.result.pack;
     assert.equal(pack.schema, "skelet/reference-pack/1");
     assert.equal(pack.itemCount, 1);
     assert.equal(pack.items[0].uri, `skelet://artifact/${screen.id}`);
@@ -194,12 +200,12 @@ test("agent write round-trip preserves references across sessions", async () => 
       name: "save_reference",
       arguments: { collectionId: pack.uri.split("/").pop(), artifactId: screen.id },
     });
-    assert.equal(JSON.parse(saved.result.content[0].text).saved, true);
+    assert.equal(JSON.parse(saved.result.content[0].text).result.saved, true);
     const fetched = await call(db, ownerCtx, "tools/call", {
       name: "get_object",
       arguments: { uri: `skelet://artifact/${screen.id}` },
     });
-    assert.equal(JSON.parse(fetched.result.content[0].text).object.title, "Writer screen");
+    assert.equal(JSON.parse(fetched.result.content[0].text).result.object.title, "Writer screen");
     const recovered = await exportReferencePack(db, pack.uri.split("/").pop(), owner.id);
     assert.deepEqual(recovered.items.map((entry) => entry.uri), [`skelet://artifact/${screen.id}`]);
     const denied = await call(db, outsiderCtx, "tools/call", {
@@ -305,7 +311,7 @@ test("AF-SEC-00: forged cross-workspace artifact reads and saves fail closed", a
       name: "get_object",
       arguments: { uri: `skelet://artifact/${priv.id}` },
     });
-    assert.equal(JSON.parse(allowed.result.content[0].text).object.title, "AF MCP private");
+    assert.equal(JSON.parse(allowed.result.content[0].text).result.object.title, "AF MCP private");
     const denied = await call(db, ctxB, "tools/call", {
       name: "get_object",
       arguments: { uri: `skelet://artifact/${priv.id}` },

@@ -35,15 +35,18 @@ test("search endpoint validates and returns URI-grounded assets", async () => {
   try {
     const ok = await searchAssetsRoute(fx.db, { query: "arrow" }, fx.owner.id);
     assert.equal(ok.status, 200);
-    assert.equal(ok.body.assets.length, 1);
-    assert.equal(ok.body.assets[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(ok.body.schema_version, "skelet.agent.v1");
+    assert.equal(ok.body.status, "complete");
+    assert.ok(typeof ok.body.request_id === "string" && ok.body.request_id.length > 0);
+    assert.equal(ok.body.result.assets.length, 1);
+    assert.equal(ok.body.result.assets[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
     assert.equal((await searchAssetsRoute(fx.db, {}, fx.owner.id)).status, 400);
     assert.equal((await searchAssetsRoute(fx.db, { query: "arrow", limit: "500" }, fx.owner.id)).status, 400);
     assert.equal((await searchAssetsRoute(fx.db, { query: "arrow", kinds: "spaceship" }, fx.owner.id)).status, 400);
     assert.equal((await searchAssetsRoute(fx.db, { query: "x".repeat(201) }, fx.owner.id)).status, 400);
     const scoped = await searchAssetsRoute(fx.db, { query: "arrow", kinds: "icon,logo" }, fx.owner.id);
     assert.equal(scoped.status, 200);
-    assert.equal((await searchAssetsRoute(fx.db, { query: "missing" }, fx.owner.id)).body.assets.length, 0);
+    assert.equal((await searchAssetsRoute(fx.db, { query: "missing" }, fx.owner.id)).body.result.assets.length, 0);
   } finally {
     await fx.db.close();
   }
@@ -66,7 +69,8 @@ test("rate keys bind to credentials and failures stay opaque", async () => {
     const unknown = "00000000-0000-4000-8000-000000000000";
     const broken = await getAssetRoute(fx.db, unknown, fx.owner.id);
     assert.equal(broken.status, 500);
-    assert.deepEqual(broken.body, { error: "Request failed." });
+    assert.equal(broken.body.schema_version, "skelet.agent.v1");
+    assert.equal(broken.body.error.code, "INTERNAL_OPAQUE");
     const brokenObject = await getObjectRoute(fx.db, `skelet://artifact/${unknown}`, fx.owner.id);
     assert.equal(brokenObject.status, 500);
   } finally {
@@ -83,7 +87,7 @@ test("asset endpoint resolves or answers 404", async () => {
   try {
     const ok = await getAssetRoute(fx.db, fx.icon.artifactId, fx.owner.id);
     assert.equal(ok.status, 200);
-    assert.equal(ok.body.asset.uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(ok.body.result.asset.uri, `skelet://artifact/${fx.icon.artifactId}`);
     assert.equal((await getAssetRoute(fx.db, "not-a-uuid", fx.owner.id)).status, 404);
     assert.equal(
       (await getAssetRoute(fx.db, "00000000-0000-0000-0000-000000000000", fx.owner.id)).status,
@@ -99,7 +103,7 @@ test("object endpoint recovers artifacts and gates packs", async () => {
   try {
     const artifact = await getObjectRoute(fx.db, `skelet://artifact/${fx.icon.artifactId}`, fx.owner.id);
     assert.equal(artifact.status, 200);
-    assert.equal(artifact.body.object.title, "REST arrow");
+    assert.equal(artifact.body.result.object.title, "REST arrow");
     assert.equal((await getObjectRoute(fx.db, undefined, fx.owner.id)).status, 400);
     assert.equal((await getObjectRoute(fx.db, "bogus", fx.owner.id)).status, 400);
     assert.equal(
@@ -116,8 +120,8 @@ test("object endpoint recovers artifacts and gates packs", async () => {
     assert.equal(denied.status, 404);
     const allowed = await getObjectRoute(fx.db, pack.uri, fx.owner.id);
     assert.equal(allowed.status, 200);
-    assert.equal(allowed.body.pack.itemCount, 1);
-    assert.equal(allowed.body.pack.items[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(allowed.body.result.pack.itemCount, 1);
+    assert.equal(allowed.body.result.pack.items[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
   } finally {
     await fx.db.close();
   }
@@ -141,10 +145,10 @@ test("AF-SEC-00: REST object reads deny cross-workspace private artifacts", asyn
     });
     const allowed = await getObjectRoute(fx.db, `skelet://artifact/${priv.id}`, fx.owner.id);
     assert.equal(allowed.status, 200);
-    assert.equal(allowed.body.object.title, "AF REST private");
+    assert.equal(allowed.body.result.object.title, "AF REST private");
     const denied = await getObjectRoute(fx.db, `skelet://artifact/${priv.id}`, fx.outsider.id);
     assert.equal(denied.status, 404);
-    assert.deepEqual(denied.body, { error: "Object was not found." });
+    assert.equal(denied.body.error.code, "FORBIDDEN_OR_NOT_FOUND");
     // Unknown and denied answer alike: no existence oracle.
     const missing = await getObjectRoute(
       fx.db,
@@ -152,7 +156,8 @@ test("AF-SEC-00: REST object reads deny cross-workspace private artifacts", asyn
       fx.outsider.id,
     );
     assert.equal(missing.status, 404);
-    assert.deepEqual(missing.body, denied.body);
+    assert.equal(missing.body.error.code, denied.body.error.code);
+    assert.equal(missing.body.error.message, denied.body.error.message);
   } finally {
     await fx.db.close();
   }
