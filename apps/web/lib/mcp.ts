@@ -1,8 +1,8 @@
 import type { DbClient } from "../../../packages/db/src/db.ts";
 import { validateSession } from "../../../packages/db/src/auth.ts";
-import { getArtifact } from "../../../packages/db/src/graph.ts";
+import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { saveReference } from "../../../packages/db/src/collections.ts";
-import { searchAssets, resolveAsset } from "../../../packages/assets/src/registry.ts";
+import { resolveAssetForActor, searchAssetsForActor } from "../../../packages/assets/src/registry.ts";
 import { buildRegistryItem } from "./registry.ts";
 import {
   createReferencePack,
@@ -184,6 +184,7 @@ async function callTool(
     if (typeof params.query !== "string") {
       throw { code: -32602, message: "search_assets.query is invalid." };
     }
+    const actorId = requireUser(ctx);
     const search: {
       query: string;
       kinds?: ("icon" | "logo" | "font")[];
@@ -205,14 +206,19 @@ async function callTool(
       }
       search.limit = limit as number;
     }
-    const records = await searchAssets(db, search);
+    const records = await searchAssetsForActor(db, search, actorId);
     return { assets: records.map(toAgentAsset) };
   }
   if (name === "get_asset") {
     if (typeof params.artifactId !== "string") {
       throw { code: -32602, message: "get_asset.artifactId is invalid." };
     }
-    return { asset: toAgentAsset(await resolveAsset(db, params.artifactId)) };
+    const actorId = requireUser(ctx);
+    try {
+      return { asset: toAgentAsset(await resolveAssetForActor(db, params.artifactId, actorId)) };
+    } catch {
+      throw { code: -32000, message: "Tool execution failed." };
+    }
   }
   if (name === "get_registry_item") {
     if (typeof params.name !== "string") {
@@ -283,7 +289,8 @@ async function callTool(
     try {
       const parsed = parseSkeletUri(params.uri);
       if (parsed.type === "artifact") {
-        const artifact = await getArtifact(db, parsed.id);
+        const actorId = requireUser(ctx);
+        const artifact = await getArtifactForActor(db, parsed.id, actorId);
         if (artifact === null) {
           throw { code: -32000, message: "Tool execution failed." };
         }

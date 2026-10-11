@@ -1,5 +1,6 @@
 import type { DbClient, DbTransaction } from "./db.ts";
 import { AuthError } from "./auth.ts";
+import { getArtifactForActor } from "./artifact-access.ts";
 import { getMembership, type WorkspaceRole } from "./workspaces.ts";
 
 /**
@@ -264,8 +265,12 @@ export async function deleteCollection(
 
 /**
  * Save a canonical artifact reference into a collection. Idempotent:
- * re-saving returns the existing reference. Unknown or malformed
- * artifacts fail closed without revealing collection state.
+ * re-saving returns the existing reference. Unknown, malformed, or
+ * unreadable artifacts fail closed without revealing collection state.
+ *
+ * AF-SEC-00: the saver must already be authorized to read the artifact.
+ * This closes the laundering path where a member of workspace A saves a
+ * private artifact from workspace B by guessed ID and then re-exports it.
  */
 export async function saveReference(
   client: DbClient,
@@ -276,10 +281,8 @@ export async function saveReference(
   }
   return client.transaction(async (tx) => {
     const collection = await authorizeItemWrite(tx, input.collectionId, input.actorId);
-    const artifact = await tx.query("select id from artifacts where id = $1", [
-      input.artifactId,
-    ]);
-    if (artifact.rows.length === 0) {
+    const readable = await getArtifactForActor(tx, input.artifactId, input.actorId);
+    if (readable === null) {
       throw new AuthError("auth/artifact-not-found", "Artifact was not found.");
     }
     // ON CONFLICT keeps the transaction healthy: a duplicate raises no

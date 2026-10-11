@@ -1,7 +1,8 @@
 import type { DbClient, DbTransaction } from "../../../packages/db/src/db.ts";
-import { getArtifact } from "../../../packages/db/src/graph.ts";
+import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import {
   createCollection,
+  getCollection,
   listReferences,
   saveReference,
 } from "../../../packages/db/src/collections.ts";
@@ -104,24 +105,23 @@ export async function createReferencePack(
   return { collectionId: collection.id, uri: `skelet://collection/${collection.id}` };
 }
 
-/** Export a pack: read-gated collection plus resolved evidence entries. */
+/** Export a pack: read-gated collection plus resolved evidence entries.
+ *
+ * AF-SEC-00: collection authorization runs first via getCollection (no
+ * header oracle), then every item resolves through the actor gate.
+ * Denied or missing items are skipped so a stale or retracted reference
+ * can never leak metadata through an otherwise authorized pack export.
+ */
 export async function exportReferencePack(
   tx: DbTransaction,
   collectionId: string,
   callerId: string,
 ): Promise<ReferencePackExport> {
-  const header = await tx.query(
-    "select id, workspace_id, title, visibility from collections where id = $1",
-    [collectionId],
-  );
-  const row = header.rows[0];
-  if (row === undefined) {
-    throw new PackError("packs/not-found", "Reference pack was not found.");
-  }
-  const refs = await listReferences(tx, collectionId, callerId);
+  const collection = await getCollection(tx, collectionId, callerId);
+  const refs = await listReferences(tx, collection.id, callerId);
   const items: PackReference[] = [];
   for (const ref of refs) {
-    const artifact = await getArtifact(tx, ref.artifactId);
+    const artifact = await getArtifactForActor(tx, ref.artifactId, callerId);
     if (artifact === null) continue;
     items.push({
       uri: `skelet://artifact/${artifact.id}`,
@@ -132,10 +132,10 @@ export async function exportReferencePack(
   }
   return {
     schema: REFERENCE_PACK_SCHEMA,
-    uri: `skelet://collection/${String(row.id)}`,
-    title: String(row.title),
-    visibility: String(row.visibility),
-    workspaceId: String(row.workspace_id),
+    uri: `skelet://collection/${collection.id}`,
+    title: collection.title,
+    visibility: collection.visibility,
+    workspaceId: collection.workspaceId,
     itemCount: items.length,
     exportedAt: new Date().toISOString(),
     items,

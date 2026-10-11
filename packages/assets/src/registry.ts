@@ -282,6 +282,8 @@ export async function registerAsset(
     contentHash: string;
     rightsClassification: string;
     visibility?: string;
+    workspaceId?: string;
+    ownerSubject?: string;
     metadata?: unknown;
     asset?: {
       sha256: string;
@@ -341,6 +343,8 @@ export async function registerAsset(
     productId: input.productId,
     summary: input.summary,
     visibility: visibility as "private" | "workspace" | "public",
+    workspaceId: input.workspaceId,
+    ownerSubject: input.ownerSubject,
     metadata: metadata as Record<string, unknown>,
   });
   const record = await tx.query(
@@ -371,10 +375,34 @@ const SEARCH_MAX_LIMIT = 50;
  * Unified search across icons, logos, and fonts. Text matches titles,
  * summaries, canonical text, collections, refs, and tags; every result
  * carries provenance and a serving policy.
+ *
+ * AF-SEC-00: the unscoped search is the public-corpus search only. It
+ * never returns private or workspace-visible rows, so guessed IDs and
+ * search facets cannot leak restricted metadata. Authenticated callers
+ * that need workspace evidence must use searchAssetsForActor.
  */
 export async function searchAssets(
   tx: DbTransaction,
   search: AssetSearch,
+): Promise<AssetRecord[]> {
+  return searchAssetsScoped(tx, search, null);
+}
+
+export async function searchAssetsForActor(
+  tx: DbTransaction,
+  search: AssetSearch,
+  actorId: string,
+): Promise<AssetRecord[]> {
+  if (typeof actorId !== "string" || actorId.length === 0) {
+    throw new RegistryError("assets/invalid-record", "Actor is invalid.");
+  }
+  return searchAssetsScoped(tx, search, actorId);
+}
+
+async function searchAssetsScoped(
+  tx: DbTransaction,
+  search: AssetSearch,
+  actorId: string | null,
 ): Promise<AssetRecord[]> {
   if (typeof search.query !== "string" || search.query.trim().length === 0) {
     throw new RegistryError("assets/invalid-record", "Search query is invalid.");
@@ -437,6 +465,26 @@ export async function searchAssets(
     params.push(search.collection);
     collectionFilter = `and coalesce(a.metadata->>'collection', '') = $${params.length}`;
   }
+  // AF-SEC-00: scope filter BEFORE rank/facets/caching. The unscoped
+  // search serves the global corpus only (workspace_id IS NULL, any
+  // visibility — the curated Iconify/Fontsource-like registry). New
+  // workspace-bound rows never leak into it. Actor callers additionally
+  // see workspace rows they are authorized for (membership +
+  // private-owner match).
+  let scopeFilter = `and a.workspace_id is null`;
+  if (actorId !== null) {
+    params.push(actorId);
+    const memberParam = `$${params.length}`;
+    params.push(actorId);
+    const ownerParam = `$${params.length}`;
+    scopeFilter =
+      `and (a.workspace_id is null or (a.workspace_id is not null and exists (` +
+      `select 1 from workspace_members m where m.workspace_id = a.workspace_id ` +
+      `and m.user_id = ${memberParam} and (` +
+      `a.visibility = 'workspace' or a.visibility = 'public' or ` +
+      `(a.visibility = 'private' and a.owner_subject = ${ownerParam})` +
+      `))))`;
+  }
   params.push(limit);
   const result = await tx.query(
     `select ${RECORD_COLUMNS} from artifacts a join sources s on s.id = a.source_id
@@ -449,7 +497,7 @@ export async function searchAssets(
            case when jsonb_typeof(a.metadata->'tags') = 'array'
              then a.metadata->'tags' else '[]'::jsonb end) as tag
            where lower(tag) like $1 ${likeEscape}))
-       ${rightsFilter} ${licenseFilter} ${trademarkFilter} ${collectionFilter}
+       ${rightsFilter} ${licenseFilter} ${trademarkFilter} ${collectionFilter} ${scopeFilter}
      order by a.title, a.id limit $${params.length}`,
     params,
   );
@@ -460,6 +508,11 @@ export async function searchAssets(
  * Resolve one record by artifact ID with its serving policy. Downloadable
  * records include the content hash for byte retrieval; metadata-only
  * records never do.
+ *
+ * AF-SEC-00: the unscoped resolver serves global corpus rows only
+ * (workspace_id IS NULL). Workspace-bound rows require
+ * resolveAssetForActor. Use resolveAssetForActor for every authenticated
+ * metadata path.
  */
 export async function resolveAsset(
   tx: DbTransaction,
@@ -470,8 +523,35 @@ export async function resolveAsset(
   }
   const result = await tx.query(
     `select ${RECORD_COLUMNS} from artifacts a join sources s on s.id = a.source_id
-     where a.id = $1 and a.kind in ('icon', 'logo', 'font')`,
+     where a.id = $1 and a.kind in ('icon', 'logo', 'font') and a.workspace_id is null`,
     [artifactId],
+  );
+  const row = result.rows[0];
+  if (row === undefined) {
+    throw new RegistryError("assets/not-found", "Asset record was not found.");
+  }
+  return toRecord(row);
+}
+
+export async function resolveAssetForActor(
+  tx: DbTransaction,
+  artifactId: string,
+  actorId: string,
+): Promise<AssetRecord> {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(artifactId)) {
+    throw new RegistryError("assets/not-found", "Asset record was not found.");
+  }
+  if (typeof actorId !== "string" || actorId.length === 0) {
+    throw new RegistryError("assets/invalid-record", "Actor is invalid.");
+  }
+  const result = await tx.query(
+    `select ${RECORD_COLUMNS} from artifacts a join sources s on s.id = a.source_id
+     where a.id = $1 and a.kind in ('icon', 'logo', 'font')
+       and (a.workspace_id is null or (a.workspace_id is not null and exists (
+         select 1 from workspace_members m where m.workspace_id = a.workspace_id
+           and m.user_id = $2 and (a.visibility = 'workspace' or a.visibility = 'public' or
+             (a.visibility = 'private' and a.owner_subject = $3)))))`,
+    [artifactId, actorId, actorId],
   );
   const row = result.rows[0];
   if (row === undefined) {

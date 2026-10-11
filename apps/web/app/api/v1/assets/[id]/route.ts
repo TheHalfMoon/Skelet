@@ -22,9 +22,9 @@ export async function GET(
     return NextResponse.json({ error: "Internal error." }, { status: 500 });
   }
   try {
-    await resolveRequestUser(db, token);
+    const userId = await resolveRequestUser(db, token);
     const { id } = await context.params;
-    const result = await getAssetRoute(db, id);
+    const result = await getAssetRoute(db, id, userId);
     return NextResponse.json(result.body, { status: result.status });
   } catch {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });

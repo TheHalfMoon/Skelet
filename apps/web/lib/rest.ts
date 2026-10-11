@@ -1,6 +1,6 @@
 import type { DbClient } from "../../../packages/db/src/db.ts";
-import { searchAssets, resolveAsset } from "../../../packages/assets/src/registry.ts";
-import { getArtifact } from "../../../packages/db/src/graph.ts";
+import { resolveAssetForActor, searchAssetsForActor } from "../../../packages/assets/src/registry.ts";
+import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
 
 /**
@@ -54,10 +54,16 @@ function agentAssetView(record: {
 
 const REGISTRY_KINDS = ["icon", "logo", "font"] as const;
 
-/** GET /api/v1/assets — unified search with facet filters. */
+/** GET /api/v1/assets — unified search with facet filters.
+ *
+ * AF-SEC-00: actor-scoped. The caller identity is server-resolved by the
+ * route; public rows plus workspace rows readable by that actor are
+ * returned. Scope filters before rank/facets/caching.
+ */
 export async function searchAssetsRoute(
   db: DbClient,
   query: Record<string, string | string[] | undefined>,
+  actorId: string,
 ): Promise<RestResult> {
   const rawQuery = query.query;
   if (typeof rawQuery !== "string" || rawQuery.trim().length === 0 || rawQuery.trim().length > 200) {
@@ -89,17 +95,27 @@ export async function searchAssetsRoute(
     if (kinds !== undefined) {
       search.kinds = kinds.map((kind) => kind.trim()) as ("icon" | "logo" | "font")[];
     }
-    const records = await searchAssets(db, search);
+    const records = await searchAssetsForActor(db, search, actorId);
     return { status: 200, body: { assets: records.map(agentAssetView) } };
   } catch {
     return opaque();
   }
 }
 
-/** GET /api/v1/assets/[id] — resolve one record with policy. */
-export async function getAssetRoute(db: DbClient, artifactId: string): Promise<RestResult> {
+/** GET /api/v1/assets/[id] — resolve one record with policy.
+ *
+ * AF-SEC-00: actor-scoped. Unknown and denied identifiers answer alike.
+ */
+export async function getAssetRoute(
+  db: DbClient,
+  artifactId: string,
+  actorId: string,
+): Promise<RestResult> {
   try {
-    return { status: 200, body: { asset: agentAssetView(await resolveAsset(db, artifactId)) } };
+    return {
+      status: 200,
+      body: { asset: agentAssetView(await resolveAssetForActor(db, artifactId, actorId)) },
+    };
   } catch (error) {
     // Unknown and malformed identifiers answer alike; unexpected
     // persistence failures stay opaque for operators.
@@ -127,7 +143,7 @@ export async function getObjectRoute(
   }
   try {
     if (parsed.type === "artifact") {
-      const artifact = await getArtifact(db, parsed.id);
+      const artifact = await getArtifactForActor(db, parsed.id, userId);
       if (artifact === null) {
         return notFound();
       }
