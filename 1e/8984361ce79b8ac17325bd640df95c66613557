@@ -1,0 +1,37 @@
+packages/lens/src/starter-synthesis.ts
+  s_b04f256be53f52::t_7bc3395d660744 1-44,51-124,128-233,236-245
+  s_b04f256be53f52::t_bd0c2bee1a7f90 234-235
+  s_b04f256be53f52::t_7af8ac7eca26d2 45-50
+  s_b04f256be53f52::t_3759f32151e45a 125-127
+.github/workflows/ci.yml
+  s_b04f256be53f52::t_1fc27bad37e21d 432
+docs/reviews/G09b-07_PSTACK_PANELS.md
+  s_b04f256be53f52::t_85fb4890c02798 1-55
+docs/reviews/G09b-07_JEV_REVIEW.json
+  s_b04f256be53f52::t_7490d8f129f2ad 1
+docs/reviews/G09b-07_JEV_SPEC.json
+  s_b04f256be53f52::t_dfe89f77beb481 54
+  s_b04f256be53f52::t_b57dff5133d52b 56
+  s_b04f256be53f52::t_d392b05a658c3a 1-53,55,57-58
+packages/lens/tests/starter-synthesis.test.mjs
+  s_b04f256be53f52::t_3bc0b2b45d9efa 113
+  s_b04f256be53f52::t_17b00da5417d15 1-45,47-52,54-91,114-134
+  s_b04f256be53f52::t_250976d098a53e 46,53
+  s_b04f256be53f52::t_68c97433db890d 92-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1e8984361ce79b8ac17325bd640df95c66613557",
+  "prompts": {},
+  "sessions": {
+    "s_b04f256be53f52": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7a22755ffetWqi4lfvlFLbnF",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
