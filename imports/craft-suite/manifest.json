@@ -1,0 +1,225 @@
+{
+  "schema_version": "1",
+  "grain": "AF-01",
+  "source": "craft-suite",
+  "base_sha": "d07a8ea0b5073a4dda205a797084d2af3f730ba8",
+  "verification_date": "2026-10-11",
+  "state": "ready-audit-only",
+  "activation_allowed": false,
+  "next_grain_allowed": true,
+  "authorization_record": "docs/provenance/authorizations/craft-suite-2026-10-11.json",
+  "donor_pins": "imports/craft-suite/donor-pins.json",
+  "audit_record": "docs/provenance/CRAFT_SUITE_AUDIT_AF01_2026-10-11.md",
+  "rights_gate": {
+    "status": "resolved-code-only",
+    "resolution": "founder-authorization-plus-upstream-license",
+    "restricted_scope": ["datasets", "bundled-media", "model-weights", "hosted-services", "brands/trademarks", "provider-credentials"]
+  },
+  "rights_quarantine": {
+    "prefixes": [
+      "frontend/apps/artcraft/app/public/resources/sound/",
+      "frontend/apps/artcraft/app/public/resources/memes/",
+      "frontend/apps/artcraft/app/public/resources/skybox/",
+      "frontend/apps/artcraft/app/public/resources/pose/",
+      "frontend/apps/artcraft/app/public/resources/characters_gif/",
+      "frontend/apps/artcraft/app/public/resources/images/services/",
+      "frontend/apps/artcraft/app/public/resources/fonts/",
+      "artcraft-native/assets/fonts/",
+      "assets/icons/",
+      "assets/fonts/",
+      "assets/dict/",
+      "assets/hyphenation/",
+      "docs/brand/",
+      "docs/images/",
+      "crates/segment/",
+      "frontend/apps/artcraft/app/src/styles/normalize.css",
+      "frontend/apps/artcraft/app/src/styles/base.css"
+    ],
+    "note": "Quarantined paths are never admitted by AF-01 manifests. Fonts under OFL, Lucide icons under ISC, SCOWL lists, Adobe CMaps under BSD-3-Clause, SAM3 port notes, and all brand marks require separate rights records before any byte redistribution."
+  },
+  "notices_to_preserve": [
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "NOTICE",
+    "ATTRIBUTION.md",
+    "ASSETS.md",
+    "assets/icons/LICENSE-lucide.txt",
+    "assets/fonts/OFL-*.txt",
+    "assets/dict/LICENSE-SCOWL.txt",
+    "docs/brand/LICENSE-brand.txt",
+    "frontend/libs/icons third-party attributions"
+  ],
+  "import_manifests": {
+    "P10-video-frame-capture": {
+      "destination_phase": "P10",
+      "source_id": "artcraft-services",
+      "include_exact": [
+        "frontend/apps/artcraft-webapp/src/pages/frame-extractor/lib/extract-frames.ts"
+      ],
+      "include_optional": [
+        "frontend/apps/artcraft-webapp/src/pages/frame-extractor/lib/frame-actions.ts"
+      ],
+      "exclude_prefixes": [
+        "frontend/apps/artcraft-webapp/src/pages/frame-extractor/components/",
+        "frontend/apps/artcraft-webapp/src/api/",
+        "frontend/apps/artcraft-webapp/src/gallery/",
+        "frontend/apps/artcraft-webapp/src/subscription/"
+      ],
+      "dependency_closure": "Browser DOM plus canvas 2D only. No npm runtime dependency. Timeouts METADATA_TIMEOUT_MS 5000, SEEK_TIMEOUT_MS 3000, PAINT_WAIT_MS 300. AbortSignal cancellation, CORS SecurityError mapped to cors kind, blob URL ownership by caller, original playhead restored. Skelet must add frame count/time/byte caps, deterministic timestamp labels, source video hash, and rights classification around this narrow module.",
+      "reject": ["ArtCraft API clients", "paywalled media", "user-gallery subscription", "server round-trips", "model services"],
+      "strongest_implementation": "extract-frames.ts captureFrameAt plus extractFrames burst with ensureVideoReady, seekTo with epsilon skip, bounded paint wait, drawFrame with taint handling, and finally-restore playhead. Strongest because it is dependency-free, cancellable, CORS-aware, and restores player state."
+    },
+    "P12-reference-board-core": {
+      "destination_phase": "P12",
+      "source_id": "artcraft",
+      "include_prefixes": [
+        "frontend/libs/components/moodboard/src/lib/boards/",
+        "frontend/libs/components/moodboard/src/lib/canvas/",
+        "frontend/libs/components/moodboard/src/lib/grid/",
+        "frontend/libs/components/moodboard/src/lib/persistence/"
+      ],
+      "include_exact": [
+        "frontend/libs/components/moodboard/src/lib/adapter.ts",
+        "frontend/libs/components/moodboard/src/lib/MoodboardWorkspace.tsx",
+        "frontend/libs/components/moodboard/src/lib/galleryDrop.ts",
+        "frontend/libs/components/moodboard/package.json"
+      ],
+      "exclude_prefixes": [
+        "frontend/apps/artcraft/",
+        "frontend/apps/artcraft-native/",
+        "frontend/libs/components/moodboard/src/lib/ui/SmartSearchBar",
+        "crates/",
+        "frontend/libs/components/pagescene/",
+        "frontend/libs/components/video-editor/"
+      ],
+      "dependency_closure": "React plus Konva canvas plus local stores. Must map @storyteller/* aliases to Skelet, replace MoodboardPersistenceAdapter cloud sync with Skelet Collection-backed layout projection, keep localStorage only as offline draft, enforce client-only Next.js dynamic import, keyboard focus, reduced motion, mobile viewport. Tauri, hosted media, brand tokens, and private datasets excluded.",
+      "reject": ["ArtCraft cloud sync", "hosted media URLs", "brand/design tokens", "private media datasets", "model-list provider calls", "Tauri APIs"],
+      "strongest_implementation": "Board model plus BoardLibraryStore plus documents.ts plus moodboardSync.ts plus grid layout plus Konva canvas plus PresentationView plus history/snap/selection/grouping. Strongest because the typed board model, virtualized grid, canvas interactions, presentation view, and sync/conflict handling are the only mature board system among the donors."
+    },
+    "P14-pagedraw-primitives": {
+      "destination_phase": "P14-optional",
+      "source_id": "artcraft",
+      "include_prefixes": [
+        "frontend/libs/components/pagedraw/src/lib/stores/",
+        "frontend/libs/components/pagedraw/src/lib/utilities/",
+        "frontend/libs/components/pagedraw/src/lib/hooks/"
+      ],
+      "include_exact": [
+        "frontend/libs/components/pagedraw/src/lib/adapter.ts",
+        "frontend/libs/components/pagedraw/src/lib/Node.ts",
+        "frontend/libs/components/pagedraw/src/lib/types.ts",
+        "frontend/libs/components/pagedraw/src/lib/HistoryStack.tsx",
+        "frontend/libs/components/pagedraw/src/lib/PageDraw.tsx",
+        "frontend/libs/components/pagedraw/src/lib/PaintSurface.tsx"
+      ],
+      "exclude_prefixes": [
+        "frontend/libs/components/pagedraw/src/lib/PromptEditor/",
+        "frontend/libs/components/pagedraw/src/lib/components/generation/",
+        "frontend/apps/"
+      ],
+      "dependency_closure": "Local canvas layer/mask/2D edit primitives only. Hosted generation calls and provider model lists excluded and replaced by Skelet capability adapter at import time.",
+      "reject": ["hosted generation endpoints", "provider tokens", "model lists", "paid inference"],
+      "strongest_implementation": "PageDraw local layers, masks, history stack, and paint surface. Conditional because Skelet must first prove VectorCraft/PhotoCraft adapters insufficient for the same edit."
+    },
+    "P14-vectorcraft-headless": {
+      "destination_phase": "P14",
+      "source_id": "vectorcraft",
+      "include_exact": [
+        "apps/vectorcraft-cli/Cargo.toml",
+        "apps/vectorcraft-cli/src/main.rs",
+        "crates/mcp/Cargo.toml",
+        "docs/mcp.md",
+        "Cargo.toml"
+      ],
+      "include_prefixes": [
+        "apps/vectorcraft-cli/src/",
+        "apps/vectorcraft-cli/tests/",
+        "crates/mcp/src/",
+        "crates/mcp/tests/"
+      ],
+      "exclude_prefixes": [
+        "apps/vectorcraft/",
+        "crates/ui-egui/",
+        "crates/testkit/",
+        "assets/",
+        "docs/brand/",
+        "packaging/"
+      ],
+      "dependency_closure": "Rust 1.95, edition 2024, workspace MIT OR Apache-2.0. CLI depends on vectorcraft-color/doc/engine/format/geom/svg/mcp/render/text plus serde_json and log. MCP crate adds image plus dev proptest/socket2. Workspace forbids unsafe_code and unwrap/expect/panic/todo in shipped code. External crates are permissive (kurbo, peniko, vello_cpu, usvg, skrifa, harfrust, egui/eframe for GUI only, wasmi/wat for plugins). Skelet must run the CLI as an explicitly installed, pinned, sandboxed per-job process with allowlisted ops and confined read/write roots. Never vendor the whole editor into Next.js.",
+      "reject": ["whole editor vendored into web", "unauthenticated TCP control", "unrestricted scripts", "GUI crates in server path", "craft-fonts embedded builds without separate OFL record"],
+      "strongest_implementation": "vectorcraft-cli headless batch plus vectorcraft-mcp JSON-RPC 2.0 over stdio. Strongest vector path because it is the only donor with a purpose-built CLI/MCP batch surface, deny-unsafe lints, and SVG/format/render crates."
+    },
+    "P14-photocraft-headless": {
+      "destination_phase": "P14-optional",
+      "source_id": "photocraft",
+      "include_exact": [
+        "apps/photocraft-cli/Cargo.toml",
+        "apps/photocraft-cli/src/main.rs",
+        "apps/photocraft-cli/src/lib.rs",
+        "crates/automation/Cargo.toml",
+        "Cargo.toml"
+      ],
+      "include_prefixes": [
+        "apps/photocraft-cli/src/",
+        "apps/photocraft-cli/tests/",
+        "crates/automation/src/",
+        "crates/automation/tests/"
+      ],
+      "exclude_prefixes": [
+        "apps/photocraft/",
+        "assets/",
+        "docs/brand/",
+        "packaging/"
+      ],
+      "dependency_closure": "Headless convert/inspect/batch plus rmcp 3.5 MCP server over engine/io/format/codecs with tokio multi-thread, serde/schemars, base64, cap-std sandbox capability, getrandom. HEIF via optional photocraft-heif feature only. Windows winresource is build-only. Skelet must sandbox per job with explicit roots, CPU/memory/time limits, idempotent output registration, and no ambient network.",
+      "reject": ["GPU/cloud requirement", "arbitrary shell", "HEIF default enablement without rights review", "GUI app vendoring"],
+      "strongest_implementation": "photocraft-cli convert plus photocraft-automation MCP bridge. Strongest raster path because it exposes deterministic convert plus automation without requiring the full Photoshop-class GUI."
+    },
+    "post-launch-evaluate": {
+      "destination_phase": "post-launch",
+      "sources": ["designcraft", "effectcraft", "filmcraft", "lightcraft"],
+      "designcraft_include": ["apps/designcraft-cli/Cargo.toml", "apps/designcraft-cli/src/main.rs", "crates/mcp/Cargo.toml", "docs/mcp.md"],
+      "effectcraft_include": ["crates/lottie/Cargo.toml", "crates/export/Cargo.toml"],
+      "filmcraft_include": ["selected ingest/frames/timeline helpers only if P10 shows a quantified gap"],
+      "lightcraft_include": ["selected image metadata helpers only if Skelet image pipeline lacks the capability"],
+      "note": "No launch-blocking runtime. designcraft document layout and effectcraft Lottie export are optional handoffs behind tested provider interfaces. filmcraft timeline and lightcraft RAW/segment/AI paths are deferred. lightcraft crates/segment is Apache-2.0-only and SAM3 weights plus RawNIND checkpoints are never distributed with the donor and require separate user-accepted terms."
+    },
+    "rejected-from-core": {
+      "paths": [
+        "frontend/libs/components/pagescene/",
+        "frontend/libs/components/video-editor/",
+        "frontend/apps/artcraft/",
+        "frontend/apps/artcraft-native/",
+        "artcraft-services API/server/subscription/billing/model marketplace"
+      ],
+      "reason": "Large 3D, full video editor, hosted model marketplace, and credit systems are not launch-critical and would invert Skelet architecture."
+    }
+  },
+  "performance_baseline": {
+    "note": "AF-01 sets caps, not claims. Later grains must measure on constrained local hardware and roll back on regression.",
+    "caps": {
+      "board_layout_json_bytes": 524288,
+      "board_nodes": 2000,
+      "board_depth": 8,
+      "video_frames_per_job": 24,
+      "video_frame_bytes": 8388608,
+      "video_job_seconds": 120,
+      "editor_job_seconds": 300,
+      "editor_memory_mb": 1024,
+      "editor_cpu_seconds": 240
+    }
+  },
+  "cve_and_dependency_notes": {
+    "artcraft_moodboard": "package.json declares no runtime dependencies; transitive React/Konva versions must be resolved from the app shell at transplant time and scanned then. No new npm dependency is added by AF-01.",
+    "artcraft_services_frame": "No npm runtime dependency; browser DOM plus canvas 2D only. No new dependency added by AF-01.",
+    "rust_workspaces": "All six Rust workspaces declare MIT OR Apache-2.0 workspace license (lightcraft crates/segment Apache-only). Pinned external crates observed include kurbo 0.13, peniko 0.6, vello_cpu 0.2, usvg 0.48, skrifa 0.47, harfrust 0.13, image 0.25, tokio 1, serde 1, serde_json 1, rmcp 3.5, wasmi 2.0.0, egui/eframe 0.36 (GUI only, excluded from server path). No Rust code is vendored by AF-01; full cargo audit with pinned lockfiles is required at AF-10/AF-11 before any binary is accepted.",
+    "no_paid_services": "No OpenAI, Anthropic, Gemini, hosted embedding, vector SaaS, crawler SaaS, GPU host, or metered donor endpoint is required by any AF-01 manifest."
+  },
+  "skelet_authoritative": {
+    "collections_canonical": true,
+    "board_is_layout_projection": true,
+    "no_second_database": true,
+    "single_retrieval_service": true,
+    "agent_parity_required": true
+  }
+}

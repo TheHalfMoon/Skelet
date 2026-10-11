@@ -1,0 +1,147 @@
+{
+  "schema_version": "1",
+  "grain": "AF-01",
+  "base_sha": "d07a8ea0b5073a4dda205a797084d2af3f730ba8",
+  "verification_date": "2026-10-11",
+  "verification_method": "git ls-remote HEAD plus GitHub contents API at pinned commit",
+  "donors": [
+    {
+      "id": "artcraft",
+      "source_url": "https://github.com/storytold/artcraft",
+      "observed_commit": "28a39a0de4a2fc2eccc237df2046c24245bd12ab",
+      "observed_tree": "fea600155ae05c6a4c367b8fc98ce152e0c30196",
+      "commit_message": "artcraft-native: Create Audio, in-app playback, animated previews and @Characters (#2079)",
+      "commit_date": "2026-10-10T19:03:53Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "8c1729f68d4b6fd1e02e9c26a5f8e4346bdb9745", "size": 1100},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "c061efac171d45b3c078dae1b6e882aac9cc9570", "size": 2996}
+      },
+      "license_spdx": "MIT OR Apache-2.0",
+      "key_files": [
+        {"path": "frontend/libs/components/moodboard/src/lib/adapter.ts", "sha": "db8f4955fb6d9fb1da60942cfcde51fe5da1b893", "size": 3423},
+        {"path": "frontend/libs/components/moodboard/src/lib/boards/BoardLibraryStore.ts", "sha": "3603fe144604e8118845e57741c414d8532acb70", "size": 20269},
+        {"path": "frontend/libs/components/moodboard/src/lib/persistence/moodboardSync.ts", "sha": "2b022020ce82e8dd3961854083d696a7c96ee769", "size": 20841},
+        {"path": "frontend/libs/components/moodboard/src/lib/persistence/documents.ts", "sha": "c825129f321e8aa7f0d32ca23c9df00b734abb31", "size": 7524},
+        {"path": "frontend/libs/components/moodboard/src/lib/MoodboardWorkspace.tsx", "sha": "b46bf05dd581d348524e360d28eed66dc301c29c", "size": 7608},
+        {"path": "frontend/libs/components/pagedraw/src/lib/adapter.ts", "sha": "c2931de48500a5080317726b1a98373d41f8caf6", "size": 1968},
+        {"path": "frontend/libs/components/moodboard/package.json", "sha": "45f13bcc16ed21df1624a2efb5135043b5eebf97", "size": 398}
+      ]
+    },
+    {
+      "id": "artcraft-services",
+      "source_url": "https://github.com/storytold/artcraft-services",
+      "observed_commit": "02a3de2509662cfc7c12f51c09e7f4322618029a",
+      "observed_tree": "514284a65233a28620cfaf8eb69fdf45ce2a5de8",
+      "commit_message": "Bump ArtCraft Launcher downloads to 0.2.0 (#76)",
+      "commit_date": "2026-10-10T19:40:40Z",
+      "licenses": {
+        "LICENSE.md": {"sha": "619a6ef3d91f4b837c66a5dcc6a25fbe1f43ad26", "size": 4969}
+      },
+      "license_spdx": "Fair-Source-WIP (restrictive; reuse relies on founder authorization, not an open-source grant)",
+      "key_files": [
+        {"path": "frontend/apps/artcraft-webapp/src/pages/frame-extractor/lib/extract-frames.ts", "sha": "b7f40f26446ff04053fe231683af3f975359b755", "size": 8091},
+        {"path": "frontend/apps/artcraft-webapp/src/pages/frame-extractor/lib/frame-actions.ts", "sha": "cbe779a0410ed6e07ee5fb078d7d44f82b3e21c1", "size": 3246}
+      ]
+    },
+    {
+      "id": "vectorcraft",
+      "source_url": "https://github.com/storytold/vectorcraft",
+      "observed_commit": "6c3f9f60aa69ac151f9908b94cf00a387746eea4",
+      "observed_tree": "35f2a36fe76bef9a810bf77cd66f5738a516a693",
+      "commit_message": "Merge pull request #1113 from storytold/fix/width-point-index",
+      "commit_date": "2026-10-11T03:50:05Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "ac0ca44a4bfdf33240b8a5bcc76ae3b8df5ac388", "size": 1103},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "73e64928fb0f0a54ea3016212eda4e27e79b6524", "size": 4375},
+        "Cargo.toml": {"sha": "748ecb6e3f8403bf10a977d035d527ccbfb67469", "size": 4092},
+        "docs/mcp.md": {"sha": "92ac77bedb3b115d040a23acdd84388270400748", "size": 244842}
+      },
+      "license_spdx": "MIT OR Apache-2.0"
+    },
+    {
+      "id": "photocraft",
+      "source_url": "https://github.com/storytold/photocraft",
+      "observed_commit": "97136485f0743251ab330d096ca6c9d0f0f6f54c",
+      "observed_tree": "484b12daeb9e99b38d37545737dbeccb6ff127cc",
+      "commit_message": "Merge pull request #3097 from skylartaylor/codex/ui-suite-integration-20261010",
+      "commit_date": "2026-10-11T03:40:26Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "68facca4cf24f653b6656bccd8a31609deea88c8", "size": 1102},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "887010d4a61e83397f30e78a10973920896bafc9", "size": 1399},
+        "Cargo.toml": {"sha": "7502ff4fd59224b80d95e05bb3d0d420611f9c0c", "size": 4013},
+        "docs/mcp.md": {"sha": "b3e46f67c3b58ccee0cfec6537b144f3bff7f3bc", "size": 4669}
+      },
+      "license_spdx": "MIT OR Apache-2.0"
+    },
+    {
+      "id": "designcraft",
+      "source_url": "https://github.com/storytold/designcraft",
+      "observed_commit": "16a7365701f9ce8f93ca77a27a8dc2fffb807869",
+      "observed_tree": "f102022e5ed9c6f9bb990731d8346d4b08fdeb8f",
+      "commit_message": "Merge pull request #409 from skylartaylor/codex/ui-suite-integration-20261010",
+      "commit_date": "2026-10-11T01:46:47Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "cb4104315291e51e47bcbee0b6008429dd2c8113", "size": 1103},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "8b67a99e183c7aad26c5d181a1824f3900b9adb4", "size": 3246},
+        "Cargo.toml": {"sha": "35a1ed711b4dc81a1efcedfb0568b5a2796cb49e", "size": 3179},
+        "docs/mcp.md": {"sha": "772f8a91f7a6ae09bfcf454def24fd97edec22d8", "size": 7254}
+      },
+      "license_spdx": "MIT OR Apache-2.0"
+    },
+    {
+      "id": "effectcraft",
+      "source_url": "https://github.com/storytold/effectcraft",
+      "observed_commit": "9a7d3e76991d5372448033b473dc12c2480a6a04",
+      "observed_tree": "8271189ed4c16fdccc1cecbe556b77ee99b3ebfa",
+      "commit_message": "Merge pull request #689 from skylartaylor/codex/ui-suite-integration-20261010",
+      "commit_date": "2026-10-11T02:10:35Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "633fe3051018fd6d2d94f45ea2ea63d99801f922", "size": 1103},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "65ce4c42cf045c2bf11354f8b43a94bd069c3a77", "size": 907},
+        "Cargo.toml": {"sha": "38ba10a0e491bf545cc4401011bd166ca88ac9e1", "size": 8138},
+        "docs/mcp.md": {"sha": "1104927acbcfa741ac658f1c79676e168cb0e80b", "size": 5461}
+      },
+      "license_spdx": "MIT OR Apache-2.0"
+    },
+    {
+      "id": "filmcraft",
+      "source_url": "https://github.com/storytold/filmcraft",
+      "observed_commit": "4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe",
+      "observed_tree": "d951dfcfdc344f0e7f78aeb54df380e29d56001b",
+      "commit_message": "Merge pull request #881 from skylartaylor/codex/ui-suite-integration-20261010",
+      "commit_date": "2026-10-11T01:46:53Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "458ff62022ecffd3e32cf31895c96bd79e89875f", "size": 1101},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "221a0acc65d14c9546909909ce6fd736b9890695", "size": 1296},
+        "Cargo.toml": {"sha": "fd94dd6322cc5d0254a5960de1ecff78879541ed", "size": 3913}
+      },
+      "license_spdx": "MIT OR Apache-2.0"
+    },
+    {
+      "id": "lightcraft",
+      "source_url": "https://github.com/storytold/lightcraft",
+      "observed_commit": "0ba118de92a81f7463ca0e6d79e1323137b1adae",
+      "observed_tree": "7657bd036f8eaa7c7e94268b2846dca4ae90a961",
+      "commit_message": "Merge pull request #869 from skylartaylor/codex/ui-suite-integration-20261010",
+      "commit_date": "2026-10-11T01:57:59Z",
+      "licenses": {
+        "LICENSE-MIT": {"sha": "d050b29c63de85bfd6eb683fb27245b9dbbe80e3", "size": 1102},
+        "LICENSE-APACHE": {"sha": "f433b1a53f5b830a205fd2df78e2b34974656c7b", "size": 10174},
+        "NOTICE": {"sha": "5fd60227f27960a0ab33b4c640e1530cb2a7872a", "size": 3275},
+        "Cargo.toml": {"sha": "b9a511e260935a33f4cef7d03255f262396e60e2", "size": 5606},
+        "docs/mcp.md": {"sha": "81cbc4bd8622aca65ce065eaabe03fd3146c1c9d", "size": 17591}
+      },
+      "license_spdx": "MIT OR Apache-2.0 with crates/segment Apache-2.0-only exception"
+    }
+  ],
+  "equivalence_note": "Issue #62 reports 8 sampled library blobs match exactly between artcraft and artcraft-services. AF-01 does not presume whole-tree equivalence. The listed artcraft key-file SHAs are the authoritative dual-licensed source for identical modules. Any services-only import must re-verify exact blob equality at import time.",
+  "rights_separation": "Code reuse is authorized per docs/provenance/authorizations/craft-suite-2026-10-11.json. Data, bundled assets, model weights, hosted services, and trademarks remain restricted. See manifest rights_quarantine and audit sections 3-4.",
+  "no_runtime_import": true,
+  "no_paid_dependency": true
+}

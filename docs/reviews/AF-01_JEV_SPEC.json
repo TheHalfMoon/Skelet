@@ -1,0 +1,59 @@
+{
+  "description": "Skelet AF-01 immutable craft-suite donor audit",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the UPSTREAMS.lock.yml addition of 8 ready donors, the frozen donor-pins fixture, or the manifest break the provenance lock schema, existing ready donors, or CI validators?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are any of the 8 pinned commits, trees, license/NOTICE blob SHAs, candidate paths, dependency inventories, include/exclude manifests, performance caps, or strongest-implementation claims factually wrong against the observed donor state at verification time?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the 9 conformance tests sufficient for immutable pins, lock-manifest-fixture consistency, founder authorization scope, rights quarantine, audit-only state with no runtime import, and no paid AI/GPU/cloud dependency?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterministic pin, mutable ref, future verification date, unresolved VERIFY_AT_IMPORT, missing imported_paths invariant, or unrepeatable ls-remote plus API verification?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond source-only audit: runtime donor code, reimplementation, migration, UI, provider activation, billing, or unrelated refactors?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the audit leak secrets, grant asset/model/service/trademark rights, admit quarantined media bytes, introduce paid egress, weaken actor-scoped reads, or misrepresent Fair Source versus open-source grants?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "d07a8ea0b5073a4dda205a797084d2af3f730ba8",
+    "branch": "skelet/af01-craft-audit",
+    "change": "AF-01 source-only craft-suite audit: adds 8 ready donors (artcraft 28a39a0de4a2fc2eccc237df2046c24245bd12ab, artcraft-services 02a3de2509662cfc7c12f51c09e7f4322618029a, vectorcraft 6c3f9f60aa69ac151f9908b94cf00a387746eea4, photocraft 97136485f0743251ab330d096ca6c9d0f0f6f54c, designcraft 16a7365701f9ce8f93ca77a27a8dc2fffb807869, effectcraft 9a7d3e76991d5372448033b473dc12c2480a6a04, filmcraft 4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe, lightcraft 0ba118de92a81f7463ca0e6d79e1323137b1adae) with trees, MIT/Apache plus Fair-Source-WIP license records, NOTICE blob SHAs, verified P10 frame-extractor, P12 moodboard, P14 pagedraw/vector/photocraft candidate paths, dependency closures, include/exclude manifests, rights quarantine, performance caps, strongest-implementation selection, founder code-only authorization, and 9-test conformance suite. No runtime donor code. No paid AI/GPU/cloud. Skelet collections remain canonical with boards as layout projections. Follow-up evidence-only commit adds Jev spec/review, OCR delegation, and PStack panels with no product change.",
+    "head_sha": "f4290a649340205b521a3d08abca8d2bc1006edc"
+  }
+}

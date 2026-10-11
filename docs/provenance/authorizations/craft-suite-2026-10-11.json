@@ -1,0 +1,46 @@
+{
+  "schema_version": "1",
+  "authorization_id": "skelet-founder-2026-10-11-craft-suite",
+  "authorization_date": "2026-10-11",
+  "recorded_date": "2026-10-11",
+  "project": "Skelet",
+  "source_ids": [
+    "artcraft",
+    "artcraft-services",
+    "vectorcraft",
+    "photocraft",
+    "designcraft",
+    "effectcraft",
+    "filmcraft",
+    "lightcraft"
+  ],
+  "repositories": [
+    "https://github.com/storytold/artcraft",
+    "https://github.com/storytold/artcraft-services",
+    "https://github.com/storytold/vectorcraft",
+    "https://github.com/storytold/photocraft",
+    "https://github.com/storytold/designcraft",
+    "https://github.com/storytold/effectcraft",
+    "https://github.com/storytold/filmcraft",
+    "https://github.com/storytold/lightcraft"
+  ],
+  "basis": "user_authorization",
+  "evidence_summary": "The founder confirms that all previously authorized donor source code may be copied, modified, integrated, and rebranded into Skelet. This record scopes that authorization to source-code paths admitted by the AF-01 import manifests. It does not grant rights to third-party datasets, bundled media, model weights, hosted services, brand marks, or trademarks.",
+  "authorized_scope": {
+    "code": "authorized",
+    "code_scope": "Only source-code paths admitted by imports/craft-suite/manifest.json for each donor. Excluded and quarantined paths remain forbidden unless a later governed rights record explicitly admits them.",
+    "data": "restricted",
+    "assets": "restricted",
+    "models": "restricted",
+    "services": "restricted",
+    "trademarks": "restricted"
+  },
+  "conditions": [
+    "Applicable upstream legal notices (LICENSE-MIT, LICENSE-APACHE, NOTICE, ATTRIBUTION, OFL texts, third-party license files) must be preserved for any copied source.",
+    "Code rights are distinct from third-party asset rights: Nintendo game sounds, meme images, skybox textures, MMD motion data, Mixamo renders, provider logos, bundled fonts under OFL, Lucide icons under ISC, SCOWL word lists, Adobe CMaps under BSD-3-Clause, SAM3 model code port notes, and all trademarks remain under their own terms.",
+    "artcraft-services upstream LICENSE.md is a restrictive Fair Source/WIP grant; reuse relies solely on this founder authorization for the listed narrow code paths, not on an open-source license.",
+    "No mandatory paid AI API, GPU hosting, paid cloud service, or founder-funded customer workload may be introduced by any import under this authorization.",
+    "Immutable source identity (full 40-hex commit plus tree SHA) must be verified again immediately before any copy. Historical pins are not sufficient evidence at import time.",
+    "Skelet PostgreSQL canonical graph, storage, providers, auth, quota, MCP/REST, and rights remain authoritative. No MySQL/Redis/Elasticsearch stack transplant and no second canonical collections database."
+  ]
+}
