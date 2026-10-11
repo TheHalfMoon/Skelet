@@ -1,0 +1,21 @@
+docs/reviews/AF-03c_PSTACK_PANELS.md
+  s_daded718642165::t_f9cdf704c3ca5f 1-82
+docs/reviews/AF-03c_OCR_DELEGATION.md
+  s_daded718642165::t_83ddeeaaa60f3a 1-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b263f557b19b062719aedb80dcb447a7d95417f7",
+  "prompts": {},
+  "sessions": {
+    "s_daded718642165": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed481ea6bffechceIWsJOBBnIi",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
