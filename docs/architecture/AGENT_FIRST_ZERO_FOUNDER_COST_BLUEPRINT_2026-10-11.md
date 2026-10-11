@@ -34,6 +34,8 @@ The live examination found:
 
 Current security and gap-register P0 items remain OPEN until their own required tests and evidence demonstrate closure. This document only closes **planning ambiguity**, not those engineering risks.
 
+**Concrete R2 audit concern from live code reading:** Canonical artifact lookup in packages/db/src/graph.ts currently accepts an artifact ID without caller identity, while the MCP and REST get_object paths invoke it to read object metadata. Do not infer tenant authorization from a preceding session check: before any remote-agent expansion, write denied cross-workspace/private-artifact regression fixtures and enforce server-side object visibility for every retrieval path. Treat exposure of a title or rights metadata as a privacy breach, even when bytes are not served. This is a blocking remediation grain, not a reason to replicate a second database or bypass the central domain services.
+
 ## 2. Deployment / cost contract
 
 | Mode | Who hosts storage, jobs, inference | What Skelet guarantees | Scope |
@@ -129,15 +131,15 @@ Source/use scope is based on verified code presence, not marketing. Existing Art
 
 | Donor | Decision | Proposed implementation | Exclusions |
 | --- | --- | --- | --- |
-| storyTold/artcraft frontend/libs/components/moodboard | SELECTIVE TRANSPLANT at P12 | Shared board model, grid/canvas/presentation, drag/snap/history, serialization behind SkeletAdapter. Preserve copyright/NOTICE. | ArtCraft cloud sync, hosted media, brand/design tokens, private media datasets |
-| storyTold/artcraft-services frame-extractor/lib/extract-frames.ts | NARROW TRANSPLANT at P10 | Client-side bounded seek/capture with cancel, CORS/decode/timeouts, restore playhead; attach source video hash/timestamps | ArtCraft API, paywalled media, user-gallery subscription |
-| storyTold/artcraft frontend/libs/components/pagedraw | CONDITIONAL TRANSPLANT at P14 | Only local draw/mask/layer primitives that pass dependency and browser SSR audit | ArtCraft hosted generation calls and model-list/provider tokens |
-| storyTold/vectorcraft CLI/MCP | OPTIONAL HEADLESS ADAPTER at P14 | Explicitly installed per host with exact binary pin and root-constrained file access; SVG and editable vector output | Whole engine vendored into web, unauthenticated TCP control and unrestricted scripts |
-| storyTold/photocraft CLI/automation | OPTIONAL HEADLESS ADAPTER at P14 | Explicit local raster/mask editing and artifact export with sandbox | GPU/cloud requirement, arbitrary shell access |
-| storyTold/designcraft / effectcraft | POST-LAUNCH EVALUATE | Optional document-layout and animation/Lottie handoff behind tested provider interface | Launch-blocking bulky runtimes |
-| storyTold/filmcraft / lightcraft | DEFER | Only benchmark-justified codec/image metadata utility; check existing pipeline first | Default video/editor or raw-photo stack |
-| storyTold/artcraft pagescene/video-editor | REJECT FROM CORE | Reference only until a real independent need is demonstrated | Large 3D/film studio, hosted model marketplace, credit system |
-| storyTold/craft-libs | REFERENCE ONLY | Shared egui UI conventions potentially useful to independently packaged Rust tools | Import into Next.js React UI; no relevant runtime win |
+| storytold/artcraft frontend/libs/components/moodboard | SELECTIVE TRANSPLANT at P12 | Shared board model, grid/canvas/presentation, drag/snap/history, serialization behind SkeletAdapter. Preserve copyright/NOTICE. | ArtCraft cloud sync, hosted media, brand/design tokens, private media datasets |
+| storytold/artcraft-services frame-extractor/lib/extract-frames.ts | NARROW TRANSPLANT at P10 | Client-side bounded seek/capture with cancel, CORS/decode/timeouts, restore playhead; attach source video hash/timestamps | ArtCraft API, paywalled media, user-gallery subscription |
+| storytold/artcraft frontend/libs/components/pagedraw | CONDITIONAL TRANSPLANT at P14 | Only local draw/mask/layer primitives that pass dependency and browser SSR audit | ArtCraft hosted generation calls and model-list/provider tokens |
+| storytold/vectorcraft CLI/MCP | OPTIONAL HEADLESS ADAPTER at P14 | Explicitly installed per host with exact binary pin and root-constrained file access; SVG and editable vector output | Whole engine vendored into web, unauthenticated TCP control and unrestricted scripts |
+| storytold/photocraft CLI/automation | OPTIONAL HEADLESS ADAPTER at P14 | Explicit local raster/mask editing and artifact export with sandbox | GPU/cloud requirement, arbitrary shell access |
+| storytold/designcraft / effectcraft | POST-LAUNCH EVALUATE | Optional document-layout and animation/Lottie handoff behind tested provider interface | Launch-blocking bulky runtimes |
+| storytold/filmcraft / lightcraft | DEFER | Only benchmark-justified codec/image metadata utility; check existing pipeline first | Default video/editor or raw-photo stack |
+| storytold/artcraft pagescene/video-editor | REJECT FROM CORE | Reference only until a real independent need is demonstrated | Large 3D/film studio, hosted model marketplace, credit system |
+| storytold/craft-libs | REFERENCE ONLY | Shared egui UI conventions potentially useful to independently packaged Rust tools | Import into Next.js React UI; no relevant runtime win |
 
 Before transplant: list file-level manifest, complete transitive imports (including CSS, fonts, bundled WASM), exact source commit and blob hash, license/attribution, data/asset/model/trademark exclusions, security and dependency vulnerabilities, cold-load/asset-size benchmark, target tests and rollback. Use existing UPSTREAMS.lock.yml and CODE_PROVENANCE.md; **no code is authorized to activate solely from this plan**.
 
@@ -161,9 +163,10 @@ Every grain: exact current-main preflight, bounded contracts and fixtures BEFORE
 | Grain | Dependency | Implementation | Proof / exit |
 | --- | --- | --- | --- |
 | AF-00 Plan and priorities | #62 + #34 | This document, source decisions, no-cloud contract, no dual implementations | Plan reviewer reconciles P00-P15 and preexisting P0 gap register; no runtime claim |
+| AF-SEC-00 Actor-scoped object reads | AF-00, R2 | Centralize artifact access checks for REST/MCP and all render/asset metadata paths; avoid ID-based visibility bypass | User A cannot retrieve private/workspace-B metadata by forged URI/ID via any interface; no leak in search, caches, object URLs |
 | AF-01 Immutable donor audit | AF-00 | Source/permission matrix; per-file include/exclude, hashes/NOTICE, license and CVE scan, dependencies, baseline sizes | Source-only exact pin; code and third-party assets separated; frozen donor fixture |
 | AF-02 Zero-model/egress conformance | AF-00; no conflicts with ongoing P09b | CI toggle denies model/cloud credentials and unapproved egress; explicit config/feature states | Clean environment with all model/provider secrets missing starts local web/worker/search/MCP and existing Lens fixture; fail closed |
-| AF-03 Agent contract audit + parity | AF-02 and current P08/P09b checks | Versioned tool envelopes; OAuth remote, stdio scope boundary, error map, search/get/pack API parity | 3 actual clients; write scopes; cursor/version tests; unauthorized/revoked denied |
+| AF-03 Agent contract audit + parity | AF-SEC-00, AF-02 and current P08/P09b checks | Versioned tool envelopes; OAuth remote, stdio scope boundary, error map, search/get/pack API parity | 3 actual clients; write scopes; cursor/version tests; unauthorized/revoked denied |
 | AF-04 Deterministic research search | R3, AF-03 | SearchDocument projection FTS/facets, evidence ranking, frozen relevance dataset, zero-vector path | API/MCP/UI same ranked rights-filtered fixtures, no vectors/GPU; tenant denial |
 | AF-05 P09b Build Kit closeout | In-flight canonical G09b program | Continue current G09b successors with no scope hijack | Real 3-page rightscleared ZIP, clean install/typecheck/build, responsive/keyboard, cancellation and rights-denial |
 | AF-06 P10 Video-to-Evidence | AF-01 + AF-04 + P10 corpus | Extract bounded frame engine; artifact and observed FlowStep mapping, video player evidence UX | Synthetic video->frames->artifact->MCP->flow; cancel/CORS/corrupt/size/rights negatives |
@@ -224,6 +227,7 @@ Rollback by module: feature flag off, block new jobs, expire/revoke its old reso
 ## 12. Ready-to-implement checklist for first engineering PR (AF-01)
 
 - [ ] Revalidate HEAD on main, #34 frontier, #9, #62 and any active PRs. Create exact-base non-overlapping grain.
+- [ ] Prioritize AF-SEC-00 before exposing additional MCP/REST capabilities; check actor-bound read access tests and file a narrow security follow-up with least disclosure needed.
 - [ ] Freeze donors' full 40-char commits and per-file SHA; compare ArtCraft main/services overlapping blobs before selecting source.
 - [ ] Generate dependency closure inventories for Moodboard and FrameExtractor; enumerate internal packages, CSS/fonts/WASM/assets/API calls. Record alternative existing Skelet implementation.
 - [ ] Prepare include/exclude manifests and permissions for code vs data/assets/models/services/marks; preserve NOTICE and copyright.
