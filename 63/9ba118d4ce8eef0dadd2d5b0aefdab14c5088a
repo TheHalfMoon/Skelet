@@ -1,0 +1,37 @@
+tests/test_no_model.py
+  s_b4795a6f23ce5e::t_3008ccc6eda900 1-110
+apps/worker/src/cli.ts
+  s_b4795a6f23ce5e::t_5268f42de25f0a 51-52,61-62
+packages/no-model/eslint.config.mjs
+  s_b4795a6f23ce5e::t_58bdcf6fe048f7 1-3
+apps/worker/src/env.ts
+  s_b4795a6f23ce5e::t_954f78c41776fe 8
+  s_b4795a6f23ce5e::t_3f539ea95b375b 49-63,71-72,95
+packages/no-model/tsconfig.json
+  s_b4795a6f23ce5e::t_78e6fb86b0915f 1-17
+.github/workflows/ci.yml
+  s_b4795a6f23ce5e::t_b8136880c367ad 89-165
+apps/worker/tests/env.test.mjs
+  s_b4795a6f23ce5e::t_c5a875321c77bc 11,19,24-28
+  s_b4795a6f23ce5e::t_68268aecdc2c7d 42-44
+scripts/check_no_model.py
+  s_b4795a6f23ce5e::t_532c7a8cf6f636 1-178
+apps/worker/tests/cli.test.mjs
+  s_b4795a6f23ce5e::t_fb6295c7340cb9 15-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "639ba118d4ce8eef0dadd2d5b0aefdab14c5088a",
+  "prompts": {},
+  "sessions": {
+    "s_b4795a6f23ce5e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed6960fe0ffe5jTrNIjwywBjkR",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
