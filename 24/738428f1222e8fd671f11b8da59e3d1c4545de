@@ -1,0 +1,23 @@
+docs/reviews/AF-SEC-00_JEV_REVIEW.json
+  s_d4e0db4b86a77e::t_4ff7935045cd16 1
+docs/reviews/AF-SEC-00_JEV_SPEC.json
+  s_d4e0db4b86a77e::t_4ff7935045cd16 4-51,53-59
+docs/reviews/AF-SEC-00_OCR_DELEGATION.md
+  s_d4e0db4b86a77e::t_6f7a39b4ae8292 8,26-27,29-36,38-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "24738428f1222e8fd671f11b8da59e3d1c4545de",
+  "prompts": {},
+  "sessions": {
+    "s_d4e0db4b86a77e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7561532ffeoG305zWTUWtzKX",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}
