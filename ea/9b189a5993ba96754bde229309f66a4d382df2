@@ -1,0 +1,19 @@
+docs/reviews/G09b-05_OCR_DELEGATION.md
+  s_b04f256be53f52::t_f73c8e0d07fc73 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ea9b189a5993ba96754bde229309f66a4d382df2",
+  "prompts": {},
+  "sessions": {
+    "s_b04f256be53f52": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7a22755ffetWqi4lfvlFLbnF",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
