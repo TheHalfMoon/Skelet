@@ -39,3 +39,11 @@
     fixtures and the Python conformance tests that parse them. No finding.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
+- Recount on evidence head `f4290a649340205b521a3d08abca8d2bc1006edc`:
+  `ocr delegate preview` reports 6 reviewable / 10 total. The 2 added
+  reviewable files are `docs/reviews/AF-01_JEV_REVIEW.json` and
+  `docs/reviews/AF-01_JEV_SPEC.json` (same JSON key-spelling rule group,
+  no finding). Excluded remain the 3 markdown panels (`unsupported_ext`)
+  and the Python test (`default_path`), covered by the PStack four-bar
+  panel and the green unittest suites. Jev was rerun on the evidence head
+  with zero blocking findings.
