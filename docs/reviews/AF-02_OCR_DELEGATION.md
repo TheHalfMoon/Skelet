@@ -44,3 +44,11 @@
     (names only), no path traversal join. No finding.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
+- Recount on evidence head `784ad2126db0617f9d631b2d08ca2bf088cb1fa1`:
+  `ocr delegate preview` reports 13 reviewable / 17 total. The 2 added
+  reviewable files are `docs/reviews/AF-02_JEV_REVIEW.json` and
+  `docs/reviews/AF-02_JEV_SPEC.json` (same JSON key-spelling rule group,
+  no finding). Excluded remain the 2 markdown panels (`unsupported_ext`)
+  and the lockfile plus Python test (`default_path`), covered by the
+  PStack four-bar panel and the green unittest suites. Jev was rerun on
+  the evidence head with zero blocking findings.

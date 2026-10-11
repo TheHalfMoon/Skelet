@@ -54,6 +54,6 @@
     "base_sha": "09eb5e25d5ccf661ed6ae0878298f8bdedec5fcc",
     "branch": "skelet/af02-no-model-egress",
     "change": "AF-02 zero-model conformance: new packages/no-model policy with strict default SKELET_NO_MODEL 1/0 states, 30 forbidden credential names, 26 unapproved egress hosts with subdomain denial, redacted inspect/validate/status helpers, provider external-egress guard, worker env plus CLI health explicit no-model and deny-unapproved fields with extended tests, Python check_no_model gate with runtime egress scan plus fixture checks, 12 Node plus 12 Python conformance tests, CI no-model job with pass and fail-closed proofs, pnpm lockfile importer. No model integration. No paid cloud requirement. No MCP or Lens contract change. Follow-up evidence-only commit adds Jev spec/review, OCR delegation, and PStack panels with no product change.",
-    "head_sha": "639ba118d4ce8eef0dadd2d5b0aefdab14c5088a"
+    "head_sha": "784ad2126db0617f9d631b2d08ca2bf088cb1fa1"
   }
 }
