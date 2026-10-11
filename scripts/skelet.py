@@ -28,12 +28,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Bearer token; prefer SKELET_TOKEN over flags and shell history.",
     )
     parser.add_argument("--timeout", type=float, default=30.0)
+    # AF-03c: stable request identifiers for retry correlation. The value is
+    # sent as X-Request-Id and echoed in the envelope; retries with the same
+    # ID share one trace without duplicating canonical state (reads) or
+    # requiring a ledger (save_reference) / via ledger (packs, MCP only).
+    parser.add_argument("--request-id", default=None, help="Optional request ID (1..128 chars) for retry correlation.")
     sub = parser.add_subparsers(dest="command", required=True)
 
     search = sub.add_parser("search", help="Search icons, logos, and fonts.")
     search.add_argument("--query", required=True)
     search.add_argument("--kinds", default=None)
     search.add_argument("--limit", type=int, default=None)
+    search.add_argument("--cursor", default=None, help="Opaque pagination cursor from a prior search page.")
 
     get = sub.add_parser("get", help="Resolve one asset by artifact ID.")
     get.add_argument("artifact_id")
@@ -53,12 +59,18 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--timeout must be within (0, 300] seconds.")
     try:
         client = SkeletClient(args.base_url, args.token, timeout=args.timeout)
+        request_id = args.request_id
         if args.command == "search":
-            result = {"assets": client.search_assets(args.query, kinds=args.kinds, limit=args.limit)}
+            page = client.search_assets_page(args.query, kinds=args.kinds, limit=args.limit, cursor=args.cursor, request_id=request_id)
+            result = {"assets": page["assets"]}
+            if page.get("cursor"):
+                result["cursor"] = page["cursor"]
+            if page.get("request_id"):
+                result["request_id"] = page["request_id"]
         elif args.command == "get":
-            result = {"asset": client.get_asset(args.artifact_id)}
+            result = {"asset": client.get_asset(args.artifact_id, request_id=request_id)}
         elif args.command == "object":
-            result = client.get_object(args.uri)
+            result = client.get_object(args.uri, request_id=request_id)
         else:
             return 2
     except SdkError as error:

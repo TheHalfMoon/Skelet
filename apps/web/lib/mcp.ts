@@ -20,9 +20,12 @@ import {
   observedProvenance,
   parseSearchLimit,
   requireCapability,
+  sanitizeIdempotencyKey,
+  sanitizeRequestId,
   successEnvelope,
 } from "./agent-contract.ts";
 import type { AgentEnvelope } from "./agent-contract.ts";
+import { claimPackIdempotency, findPackForIdempotencyKey } from "../../../packages/db/src/idempotency.ts";
 
 /**
  * G08-01 remote agent transport: MCP Streamable HTTP (JSON-RPC 2.0) with
@@ -83,10 +86,27 @@ function error(id: unknown, code: number, message: string, data?: unknown): Json
   return response;
 }
 
-function negotiateVersion(requested: unknown): string | null {
+export function negotiateVersion(requested: unknown): string | null {
   if (typeof requested !== "string") return MCP_PROTOCOL_VERSIONS[0] ?? null;
   if (MCP_PROTOCOL_VERSIONS.includes(requested)) return requested;
   return MCP_PROTOCOL_VERSIONS[0] ?? null;
+}
+
+/**
+ * AF-03c capability advertisement. Mirrors describeCapabilities() so HTTP
+ * and stdio clients negotiate without calling a disabled tool first.
+ * Unknown capability names are ignored by design.
+ */
+export function getSkeletCapabilities(): { packs: boolean; registry: boolean } {
+  const raw = process.env.SKELET_DISABLED_CAPABILITIES;
+  if (typeof raw !== "string" || raw.trim().length === 0) {
+    return { packs: true, registry: true };
+  }
+  const disabled = raw
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter((entry) => entry.length > 0);
+  return { packs: !disabled.includes("packs"), registry: !disabled.includes("registry") };
 }
 
 function requireUser(ctx: McpContext): string {
@@ -97,6 +117,14 @@ function requireUser(ctx: McpContext): string {
 }
 
 function toolSchemas(): unknown[] {
+  // AF-03c: every tool accepts an optional requestId for retry correlation
+  // and the two write tools accept an optional idempotencyKey for safe
+  // retries. Both are additive: older clients that omit them keep working.
+  const requestIdProp = { type: "string", description: "Optional client request ID (1..128 chars) for retry correlation." };
+  const idempotencyProp = {
+    type: "string",
+    description: "Optional idempotency key (1..128 chars, no whitespace) for safe write retries.",
+  };
   return [
     {
       name: "search_assets",
@@ -108,6 +136,7 @@ function toolSchemas(): unknown[] {
           kinds: { type: "array", items: { type: "string" } },
           limit: { type: "number" },
           cursor: { type: "string" },
+          requestId: requestIdProp,
         },
         required: ["query"],
       },
@@ -117,7 +146,7 @@ function toolSchemas(): unknown[] {
       description: "Resolve one asset record with provenance and serving policy.",
       inputSchema: {
         type: "object",
-        properties: { artifactId: { type: "string" } },
+        properties: { artifactId: { type: "string" }, requestId: requestIdProp },
         required: ["artifactId"],
       },
     },
@@ -126,7 +155,7 @@ function toolSchemas(): unknown[] {
       description: "Fetch a shadcn-compatible registry item document.",
       inputSchema: {
         type: "object",
-        properties: { name: { type: "string" } },
+        properties: { name: { type: "string" }, requestId: requestIdProp },
         required: ["name"],
       },
     },
@@ -138,6 +167,8 @@ function toolSchemas(): unknown[] {
         properties: {
           collectionId: { type: "string" },
           artifactId: { type: "string" },
+          requestId: requestIdProp,
+          idempotencyKey: idempotencyProp,
         },
         required: ["collectionId", "artifactId"],
       },
@@ -152,6 +183,8 @@ function toolSchemas(): unknown[] {
           title: { type: "string" },
           artifactIds: { type: "array", items: { type: "string" } },
           visibility: { type: "string" },
+          requestId: requestIdProp,
+          idempotencyKey: idempotencyProp,
         },
         required: ["workspaceId", "title"],
       },
@@ -161,7 +194,7 @@ function toolSchemas(): unknown[] {
       description: "Retrieve a canonical object by Skelet URI (skelet://artifact/{id}, skelet://collection/{id}).",
       inputSchema: {
         type: "object",
-        properties: { uri: { type: "string" } },
+        properties: { uri: { type: "string" }, requestId: requestIdProp },
         required: ["uri"],
       },
     },
@@ -205,11 +238,34 @@ async function callTool(
   name: unknown,
   args: unknown,
 ): Promise<AgentEnvelope> {
-  const requestId = newRequestId();
+  const params = isRecord(args) ? args : {};
+  // AF-03c stable request identifiers: callers may supply requestId for
+  // retry correlation; malformed supplied IDs fail INVALID_INPUT so client
+  // bugs surface instead of silently forking traces.
+  let requestId: string;
+  if (params.requestId !== undefined) {
+    const sanitized = sanitizeRequestId(params.requestId);
+    if (sanitized === undefined) {
+      throw invalidInput("requestId is invalid.", newRequestId());
+    }
+    requestId = sanitized;
+  } else {
+    requestId = newRequestId();
+  }
+  // AF-03c idempotency keys: opaque client tokens for safe write retries.
+  // save_reference is naturally idempotent; create_reference_pack dedupes
+  // via the pack_idempotency ledger. Malformed keys fail INVALID_INPUT.
+  let idempotencyKey: string | undefined;
+  if (params.idempotencyKey !== undefined) {
+    const sanitized = sanitizeIdempotencyKey(params.idempotencyKey);
+    if (sanitized === undefined) {
+      throw invalidInput("idempotencyKey is invalid.", requestId);
+    }
+    idempotencyKey = sanitized;
+  }
   if (typeof name !== "string") {
     throw invalidInput("Tool name is invalid.", requestId);
   }
-  const params = isRecord(args) ? args : {};
   if (name === "search_assets") {
     if (typeof params.query !== "string") {
       throw invalidInput("search_assets.query is invalid.", requestId);
@@ -334,6 +390,9 @@ async function callTool(
     const actorId = requireUser(ctx);
     try {
       requireCapability("packs", requestId);
+      // IdempotencyKey is accepted and validated but needs no ledger:
+      // re-saving the same pair is a no-op via ON CONFLICT, so safe
+      // retries with the same key return the same saved URI.
       await saveReference(db, {
         collectionId: params.collectionId,
         artifactId: params.artifactId,
@@ -383,7 +442,31 @@ async function callTool(
     }
     try {
       requireCapability("packs", requestId);
+      // AF-03c idempotent pack creation: sequential retries with the same
+      // (user, idempotencyKey) return the same canonical collection URI
+      // instead of duplicating packs. Keys are per-user so one actor can
+      // never recover another actor's pack through a guessed key.
+      if (idempotencyKey !== undefined) {
+        const existing = await findPackForIdempotencyKey(db, actorId, idempotencyKey);
+        if (existing !== null) {
+          const exported = await exportReferencePack(db, existing, actorId);
+          const requested = packInput.artifactIds?.length ?? 0;
+          const partial = requested > 0 && exported.itemCount < requested;
+          return successEnvelope(
+            requestId,
+            { pack: exported },
+            {
+              provenance: observedProvenance(exported.uri),
+              warnings: partial ? ["Some references were withheld by rights or visibility."] : undefined,
+              partial,
+            },
+          );
+        }
+      }
       const pack = await createReferencePack(db, packInput);
+      if (idempotencyKey !== undefined) {
+        await claimPackIdempotency(db, actorId, idempotencyKey, pack.collectionId);
+      }
       const exported = await exportReferencePack(db, pack.collectionId, actorId);
       const requested = packInput.artifactIds?.length ?? 0;
       const partial = requested > 0 && exported.itemCount < requested;
@@ -490,6 +573,10 @@ async function handleOne(
     const version = negotiateVersion(
       isRecord(params) ? (params as { protocolVersion?: unknown }).protocolVersion : undefined,
     );
+    // AF-03c: advertise operator-gated Skelet capabilities alongside the
+    // standard MCP capabilities so independent clients negotiate without
+    // calling a disabled tool first. Unknown future fields are ignored by
+    // older clients; the core protocolVersion/tools contract is unchanged.
     return {
       jsonrpc: "2.0",
       id,
@@ -497,6 +584,7 @@ async function handleOne(
         protocolVersion: version,
         serverInfo: { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
         capabilities: { tools: {} },
+        skelet: { agentContract: AGENT_SCHEMA_VERSION, capabilities: getSkeletCapabilities() },
       },
     };
   }

@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { bearerToken, dispatchMcp, MCP_MAX_BODY_CHARS, resolveRequestUser } from "../../../lib/mcp";
+import {
+  bearerToken,
+  dispatchMcp,
+  MCP_MAX_BODY_CHARS,
+  MCP_PROTOCOL_VERSIONS,
+  negotiateVersion,
+  resolveRequestUser,
+} from "../../../lib/mcp";
 import { getSharedDb } from "../../../lib/mcp-db";
 import { checkRateLimit } from "../../../lib/rate-limit";
-import { AgentContractError } from "../../../lib/agent-contract";
+import { AgentContractError, newRequestId } from "../../../lib/agent-contract";
 
 function clientKey(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -22,12 +29,28 @@ function unauthorized(): NextResponse {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
+  // AF-03c: Streamable HTTP version negotiation. Official MCP clients send
+  // MCP-Protocol-Version as a header; older Skelet clients send it only in
+  // initialize params. Both are accepted; the negotiated version is echoed
+  // so independent clients can assert compatibility without forking logic.
+  const headerVersion = request.headers.get("mcp-protocol-version");
+  const negotiatedHeader = headerVersion === null ? null : negotiateVersion(headerVersion);
+  const headerOut: Record<string, string> = {};
+  if (negotiatedHeader !== null) {
+    headerOut["MCP-Protocol-Version"] = negotiatedHeader;
+  } else {
+    headerOut["MCP-Protocol-Version"] = MCP_PROTOCOL_VERSIONS[0] ?? "2026-07-28";
+  }
+  const httpRequestId = request.headers.get("x-request-id");
+  if (httpRequestId !== null && httpRequestId.trim().length > 0) {
+    headerOut["X-Request-Id"] = newRequestId(httpRequestId);
+  }
   const limit = checkRateLimit(`mcp:${clientKey(request)}`);
   if (!limit.allowed) {
     const err = new AgentContractError("RATE_LIMITED");
     return NextResponse.json(
       { jsonrpc: "2.0", id: null, error: { code: err.mcpCode, message: err.safeMessage, data: { envelope: err.toFailureEnvelope() } } },
-      { status: err.httpStatus, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+      { status: err.httpStatus, headers: { "Retry-After": String(limit.retryAfterSeconds), ...headerOut } },
     );
   }
   let text: string;
@@ -36,13 +59,13 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch {
     return NextResponse.json(
       { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error." } },
-      { status: 400 },
+      { status: 400, headers: headerOut },
     );
   }
   if (text.length > MCP_MAX_BODY_CHARS) {
     return NextResponse.json(
       { jsonrpc: "2.0", id: null, error: { code: -32600, message: "Invalid request." } },
-      { status: 413 },
+      { status: 413, headers: headerOut },
     );
   }
   let body: unknown = null;
@@ -51,12 +74,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch {
     return NextResponse.json(
       { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error." } },
-      { status: 400 },
+      { status: 400, headers: headerOut },
     );
   }
   const token = bearerToken(request.headers.get("authorization"));
   if (token === null) {
-    return unauthorized();
+    const unauthorizedBody = unauthorized();
+    for (const [key, value] of Object.entries(headerOut)) {
+      unauthorizedBody.headers.set(key, value);
+    }
+    return unauthorizedBody;
   }
   let db;
   try {
@@ -65,7 +92,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const err = new AgentContractError("INTERNAL_OPAQUE");
     return NextResponse.json(
       { jsonrpc: "2.0", id: null, error: { code: err.mcpCode, message: err.safeMessage, data: { envelope: err.toFailureEnvelope() } } },
-      { status: err.httpStatus },
+      { status: err.httpStatus, headers: headerOut },
     );
   }
   // The bearer credential IS a Skelet session token: the actor identity
@@ -75,11 +102,15 @@ export async function POST(request: Request): Promise<NextResponse> {
     const userId = await resolveRequestUser(db, token);
     const response = await dispatchMcp(db, { userId }, body);
     if (response === null) {
-      return new NextResponse(null, { status: 202 });
+      return new NextResponse(null, { status: 202, headers: headerOut });
     }
-    return NextResponse.json(response);
+    return NextResponse.json(response, { headers: headerOut });
   } catch {
-    return unauthorized();
+    const unauthorizedBody = unauthorized();
+    for (const [key, value] of Object.entries(headerOut)) {
+      unauthorizedBody.headers.set(key, value);
+    }
+    return unauthorizedBody;
   }
 }
 

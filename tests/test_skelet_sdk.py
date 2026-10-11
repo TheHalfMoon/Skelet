@@ -136,6 +136,47 @@ class SdkClientTests(unittest.TestCase):
                 make_client().search_assets("q")
         self.assertEqual(caught.exception.code, "sdk/transport")
 
+    def test_envelope_unwrap_with_cursor_and_request_id(self) -> None:
+        envelope = {
+            "schema_version": "skelet.agent.v1",
+            "request_id": "req-py-001",
+            "status": "complete",
+            "result": {"assets": [ASSET]},
+            "cursor": "Y3Vyc29y",
+        }
+        with stubbed({"https://skelet.test/api/v1/assets": envelope}):
+            page = make_client().search_assets_page("arrow", cursor="Y3Vyc29y", request_id="req-py-001")
+        self.assertEqual(page["assets"], [ASSET])
+        self.assertEqual(page["cursor"], "Y3Vyc29y")
+        self.assertEqual(page["request_id"], "req-py-001")
+        with stubbed({"https://skelet.test/api/v1/assets": {"assets": [ASSET]}}):
+            self.assertEqual(make_client().search_assets("arrow"), [ASSET])
+
+    def test_envelope_errors_map_with_retryable(self) -> None:
+        cases = (
+            (401, {"schema_version": "skelet.agent.v1", "request_id": "r1", "status": "complete", "result": {},
+                    "error": {"code": "UNAUTHENTICATED", "message": "Unauthorized.", "retryable": False}},
+             "sdk/unauthorized", False),
+            (403, {"schema_version": "skelet.agent.v1", "request_id": "r2", "status": "complete", "result": {},
+                    "error": {"code": "RIGHTS_RESTRICTED", "message": "Content is rights-restricted.", "retryable": False}},
+             "sdk/forbidden", False),
+            (429, {"schema_version": "skelet.agent.v1", "request_id": "r3", "status": "complete", "result": {},
+                    "error": {"code": "RATE_LIMITED", "message": "Rate limited.", "retryable": True}},
+             "sdk/rate-limited", True),
+        )
+        for status, body, code, retryable in cases:
+            with self.subTest(status=status):
+                payload = json.dumps(body).encode("utf-8")
+                error = urllib.error.HTTPError(
+                    "https://skelet.test/api/v1/assets", status, "boom", {}, io.BytesIO(payload)
+                )
+                with stubbed({}, error=error):
+                    with self.assertRaises(SdkError) as caught:
+                        make_client().search_assets("q")
+                self.assertEqual(caught.exception.code, code)
+                self.assertEqual(caught.exception.retryable, retryable)
+                self.assertIsInstance(caught.exception.request_id, str)
+
 
 class StubApiHandler(BaseHTTPRequestHandler):
     """Minimal in-process API double for CLI end-to-end proof."""
@@ -161,14 +202,32 @@ class StubApiHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
+        # AF-03c: the stub speaks the same skelet.agent.v1 envelope as the
+        # real REST routes so the CLI E2E proves envelope interop, not just
+        # bare-shape parsing. The SDK unwraps both shapes.
         if self.path.startswith("/api/v1/assets?"):
-            self._send(200, {"assets": [ASSET]})
+            self._send(200, {
+                "schema_version": "skelet.agent.v1",
+                "request_id": "req-cli-001",
+                "status": "complete",
+                "result": {"assets": [ASSET]},
+            })
         elif self.path.startswith("/api/v1/assets/"):
-            self._send(200, {"asset": ASSET})
+            self._send(200, {
+                "schema_version": "skelet.agent.v1",
+                "request_id": "req-cli-002",
+                "status": "complete",
+                "result": {"asset": ASSET},
+            })
         elif self.path.startswith("/api/v1/objects"):
             self._send(
                 200,
-                {"pack": {"schema": "skelet/reference-pack/1", "uri": "skelet://collection/1", "items": []}},
+                {
+                    "schema_version": "skelet.agent.v1",
+                    "request_id": "req-cli-003",
+                    "status": "complete",
+                    "result": {"pack": {"schema": "skelet/reference-pack/1", "uri": "skelet://collection/1", "items": []}},
+                },
             )
         else:
             self._send(404, {"error": "Object was not found."})

@@ -28,7 +28,7 @@ const SIX = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope",
+  "010_artifact_actor_scope", "011_pack_idempotency",
 ];
 const HASH = "c".repeat(64);
 

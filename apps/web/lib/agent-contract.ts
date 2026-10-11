@@ -360,6 +360,41 @@ export function requireCapability(capability: string, requestId?: string): void 
   }
 }
 
+/**
+ * AF-03c capability advertisement. The two operator-gated capabilities are
+ * packs (save_reference, create_reference_pack, collection get_object) and
+ * registry (get_registry_item). Clients negotiate via initialize.skelet and
+ * must handle PROVIDER_DISABLED with a REST or degraded fallback instead
+ * of retrying the same disabled tool.
+ */
+export const SKELET_CAPABILITIES = ["packs", "registry"] as const;
+export type SkeletCapability = (typeof SKELET_CAPABILITIES)[number];
+
+export function describeCapabilities(): Record<SkeletCapability, boolean> {
+  return { packs: isCapabilityEnabled("packs"), registry: isCapabilityEnabled("registry") };
+}
+
+export function isRetryableCode(code: AgentErrorCode): boolean {
+  return AGENT_ERROR_CATALOG[code].retryable;
+}
+
+export const IDEMPOTENCY_KEY_MAX = 128;
+
+/**
+ * AF-03c idempotency keys: client-supplied opaque tokens (1..128 chars, no
+ * control characters or whitespace) that let safe retries of write tools
+ * return the same canonical state instead of duplicating it. Reads are
+ * naturally idempotent; save_reference is idempotent via ON CONFLICT;
+ * create_reference_pack deduplicates via the pack_idempotency ledger.
+ */
+export function sanitizeIdempotencyKey(input: unknown): string | undefined {
+  if (typeof input !== "string") return undefined;
+  const trimmed = input.trim();
+  if (trimmed.length === 0 || trimmed.length > IDEMPOTENCY_KEY_MAX) return undefined;
+  if (/[\u0000-\u001f\u007f\s]/.test(trimmed)) return undefined;
+  return trimmed;
+}
+
 export function observedProvenance(sourceUri?: string): AgentProvenance {
   const out: AgentProvenance = { evidence_mode: "observed", captured_at: new Date().toISOString() };
   if (typeof sourceUri === "string" && sourceUri.length > 0 && sourceUri.length <= 2048) {

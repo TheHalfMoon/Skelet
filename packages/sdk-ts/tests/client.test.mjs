@@ -147,3 +147,46 @@ test("requests time out fail-closed", async () => {
     return error instanceof SdkError && error.code === "sdk/transport";
   });
 });
+
+test("AF-03c: versioned envelopes unwrap with cursor, request ID, and retry hints", async () => {
+  const envelope = {
+    schema_version: "skelet.agent.v1",
+    request_id: "req-sdk-001",
+    status: "complete",
+    result: { assets: [ASSET] },
+    cursor: "Y3Vyc29y",
+  };
+  const { fetchImpl, calls } = stubFetch(async (url, options) => {
+    assert.ok(url.includes("cursor=Y3Vyc29y") || url.includes("query=arrow"));
+    assert.equal(options.headers["x-request-id"], "req-sdk-001");
+    return jsonResponse(200, envelope);
+  });
+  const client = new SkeletClient({ baseUrl: "https://skelet.test", token: "secret", fetchImpl });
+  const page = await client.searchAssetsPage({ query: "arrow", cursor: "Y3Vyc29y", requestId: "req-sdk-001" });
+  assert.equal(page.items.length, 1);
+  assert.equal(page.cursor, "Y3Vyc29y");
+  assert.equal(page.requestId, "req-sdk-001");
+  assert.equal(calls[0]?.options.headers.authorization, "Bearer secret");
+  const bare = await new SkeletClient({
+    baseUrl: "https://skelet.test",
+    token: "secret",
+    fetchImpl: stubFetch(async () => jsonResponse(200, { assets: [ASSET] })).fetchImpl,
+  }).searchAssets({ query: "arrow" });
+  assert.equal(bare.length, 1);
+});
+
+test("AF-03c: envelope error codes map with retryable and request ID", async () => {
+  const cases = [
+    [401, { schema_version: "skelet.agent.v1", request_id: "r1", status: "complete", result: {}, error: { code: "UNAUTHENTICATED", message: "Unauthorized.", retryable: false } }, "sdk/unauthorized", false],
+    [403, { schema_version: "skelet.agent.v1", request_id: "r2", status: "complete", result: {}, error: { code: "RIGHTS_RESTRICTED", message: "Content is rights-restricted.", retryable: false } }, "sdk/forbidden", false],
+    [404, { schema_version: "skelet.agent.v1", request_id: "r3", status: "complete", result: {}, error: { code: "FORBIDDEN_OR_NOT_FOUND", message: "Object was not found.", retryable: false } }, "sdk/not-found", false],
+    [429, { schema_version: "skelet.agent.v1", request_id: "r4", status: "complete", result: {}, error: { code: "RATE_LIMITED", message: "Rate limited.", retryable: true } }, "sdk/rate-limited", true],
+  ];
+  for (const [status, body, code, retryable] of cases) {
+    const { fetchImpl } = stubFetch(async () => jsonResponse(status, body));
+    const client = new SkeletClient({ baseUrl: "https://x", token: "t", fetchImpl });
+    await assert.rejects(() => client.searchAssets({ query: "q" }), (error) => {
+      return error instanceof SdkError && error.code === code && error.status === status && error.retryable === retryable && typeof error.requestId === "string";
+    });
+  }
+});

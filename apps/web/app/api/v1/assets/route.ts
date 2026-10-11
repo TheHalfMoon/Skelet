@@ -50,9 +50,17 @@ export async function GET(request: Request): Promise<NextResponse> {
       userId,
       request.headers.get("x-request-id"),
     );
-    return NextResponse.json(result.body, { status: result.status });
+    // AF-03c: echo the canonical envelope request_id so independent REST
+    // clients correlate retries without parsing the body first.
+    return NextResponse.json(result.body, {
+      status: result.status,
+      headers: { "X-Request-Id": result.body.request_id },
+    });
   } catch {
     const err = new AgentContractError("UNAUTHENTICATED", { requestId });
-    return NextResponse.json(err.toFailureEnvelope(), { status: err.httpStatus });
+    return NextResponse.json(err.toFailureEnvelope(), {
+      status: err.httpStatus,
+      headers: { "X-Request-Id": requestId },
+    });
   }
 }
