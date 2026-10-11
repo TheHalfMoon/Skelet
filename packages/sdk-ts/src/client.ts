@@ -84,6 +84,31 @@ function statusToCode(status: number): SdkErrorCode {
   return "sdk/transport";
 }
 
+/**
+ * AF-03b: unwrap the skelet.agent.v1 envelope. Accepts the versioned
+ * envelope (result object) and the pre-AF-03b bare shape for backward
+ * compatibility during migration; prefers the envelope when present.
+ */
+function envelopeResult(body: unknown): Record<string, unknown> | null {
+  if (typeof body !== "object" || body === null) return null;
+  const record = body as Record<string, unknown>;
+  if (record.schema_version === "skelet.agent.v1" && typeof record.result === "object" && record.result !== null) {
+    return record.result as Record<string, unknown>;
+  }
+  return record;
+}
+
+function extractResultField(body: unknown, field: string): unknown {
+  const result = envelopeResult(body);
+  if (result === null) return undefined;
+  return (result as Record<string, unknown>)[field];
+}
+
+function extractResultArray(body: unknown, field: string): unknown[] | null {
+  const value = extractResultField(body, field);
+  return Array.isArray(value) ? value : null;
+}
+
 export class SkeletClient {
   private readonly baseUrl: string;
   private readonly token: string;
@@ -161,11 +186,12 @@ export class SkeletClient {
     const query: Record<string, string> = { query: input.query };
     if (input.kinds !== undefined) query.kinds = input.kinds;
     if (input.limit !== undefined) query.limit = String(input.limit);
-    const body = await this.request<{ assets: SdkAsset[] }>("/api/v1/assets", query);
-    if (!Array.isArray(body?.assets)) {
+    const body = await this.request<unknown>("/api/v1/assets", query);
+    const assets = extractResultArray(body, "assets");
+    if (assets === null) {
       throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
     }
-    return body.assets;
+    return assets as SdkAsset[];
   }
 
   /** Resolve one asset record with provenance and policy. */
@@ -173,13 +199,14 @@ export class SkeletClient {
     if (typeof artifactId !== "string" || artifactId.length === 0) {
       throw new SdkError("sdk/invalid", 0, "Artifact ID is invalid.");
     }
-    const body = await this.request<{ asset: SdkAsset }>(
+    const body = await this.request<unknown>(
       `/api/v1/assets/${encodeURIComponent(artifactId)}`,
     );
-    if (typeof body?.asset !== "object" || body.asset === null) {
+    const asset = extractResultField(body, "asset");
+    if (typeof asset !== "object" || asset === null) {
       throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
     }
-    return body.asset;
+    return asset as SdkAsset;
   }
 
   /** Retrieve a canonical object by stable Skelet URI. */
@@ -187,15 +214,17 @@ export class SkeletClient {
     if (typeof uri !== "string" || uri.length === 0) {
       throw new SdkError("sdk/invalid", 0, "URI is invalid.");
     }
-    const body = await this.request<{ object?: SdkObject; pack?: SdkPack }>(
+    const body = await this.request<unknown>(
       "/api/v1/objects",
       { uri },
     );
-    const hasObject = typeof body?.object === "object" && body.object !== null;
-    const hasPack = typeof body?.pack === "object" && body.pack !== null;
+    const object = extractResultField(body, "object");
+    const pack = extractResultField(body, "pack");
+    const hasObject = typeof object === "object" && object !== null;
+    const hasPack = typeof pack === "object" && pack !== null;
     if (hasObject === hasPack) {
       throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
     }
-    return (hasObject ? body.object : body.pack) as SdkObject | SdkPack;
+    return (hasObject ? object : pack) as SdkObject | SdkPack;
   }
 }

@@ -1,0 +1,59 @@
+{
+  "description": "Skelet AF-03b MCP/REST envelope and error parity",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Do the MCP tool names, REST routes, Skelet URI patterns, auth model, or SDK shapes break qualified existing interfaces beyond the versioned skelet.agent.v1 envelope migration? Are old success payloads still reachable via result, and do failure transport codes stay compatible?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the versioned envelopes, request IDs, typed success/failure results, 13 error codes, HTTP/MCP mapping, pagination cursors, partial/warnings, capability-disabled, job-state helpers, and URI/provenance fields factually correct against the frozen skelet.agent.v1 schema and the implemented MCP/REST code?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the 13 new parity tests plus 15 updated MCP/REST tests, 6 SDK tests, 164 Python tests, contract validator pass, typecheck, lint, and Graft isolation sufficient for the envelope parity behavior change with real DB-backed interoperability (no mocked handlers)?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterminism in request IDs, cursors, provenance timestamps, pagination ordering, or partial logic that breaks reproducibility? Any unhandled envelope shape, malformed cursor, or missing error branch that fails open?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond bounded envelope/error parity: search ranking changes, donor imports, billing, UI, migrations, or unrelated refactors? Is the frozen schema unchanged?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the change leak stack traces, secrets, filesystem paths, database details, or unauthorized existence via messages, warnings, provenance, cursors, or HTTP/MCP status splits? Do cross-workspace denial and unknown IDs answer alike? Is rights-restricted gated after the actor check?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "12e0fe1d82ae2690bf945961b0cea79472762a57",
+    "branch": "skelet/af03b-envelope-parity",
+    "change": "AF-03b envelope parity: new apps/web/lib/agent-contract.ts canonical envelope/error/catalog/cursor/capability/provenance module; MCP tools/call returns skelet.agent.v1 envelopes with failure envelopes in error.data; REST v1 assets/objects return envelopes with mapped HTTP statuses and X-Request-Id support; registry search adds offset for cursor pagination; SDK unwraps envelopes with bare-shape fallback; 13 new envelope-parity tests plus updated MCP/REST suites; transport codes preserved for backward compatibility.",
+    "head_sha": "e7daab7f0ecc92b1136107351c32c021dc6e46ac"
+  }
+}
