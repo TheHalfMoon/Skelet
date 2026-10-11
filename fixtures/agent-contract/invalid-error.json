@@ -1,0 +1,10 @@
+{
+  "error": {
+    "code": "MADE_UP_CODE",
+    "message": "Invented error class."
+  },
+  "request_id": "req-af03a-0004",
+  "result": {},
+  "schema_version": "skelet.agent.v1",
+  "status": "complete"
+}

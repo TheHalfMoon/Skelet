@@ -1,0 +1,21 @@
+{
+  "cursor": "opaque-cursor-001",
+  "provenance": {
+    "captured_at": "2026-10-11T00:00:00Z",
+    "evidence_mode": "observed",
+    "source_uri": "skelet://artifact/icon-set-001"
+  },
+  "request_id": "req-af03a-0001",
+  "result": {
+    "assets": [
+      {
+        "rights": "permitted",
+        "title": "Valid asset",
+        "uri": "skelet://artifact/icon-set-001"
+      }
+    ]
+  },
+  "schema_version": "skelet.agent.v1",
+  "status": "complete",
+  "warnings": []
+}

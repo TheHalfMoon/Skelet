@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TheHalfMoon/Skelet/schemas/agent-contract.schema.json",
+  "title": "Skelet agent contract (AF-03a frozen v1)",
+  "description": "Versioned agent result envelope, stable Skelet URI patterns, and typed error classes shared by MCP, REST, SDK, and CLI. Additive contract freeze before any parity behavior change. No existing route or tool changes behavior by adopting this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "status",
+    "result"
+  ],
+  "properties": {
+    "schema_version": { "const": "skelet.agent.v1" },
+    "request_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "status": { "enum": ["complete", "partial"] },
+    "result": { "type": "object" },
+    "cursor": { "type": "string", "maxLength": 256 },
+    "warnings": {
+      "type": "array",
+      "maxItems": 16,
+      "items": { "type": "string", "maxLength": 512 }
+    },
+    "error": { "$ref": "#/$defs/error" },
+    "provenance": { "$ref": "#/$defs/provenance" }
+  },
+  "$defs": {
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "enum": [
+            "INVALID_INPUT",
+            "UNAUTHENTICATED",
+            "FORBIDDEN_OR_NOT_FOUND",
+            "NOT_AVAILABLE",
+            "RIGHTS_RESTRICTED",
+            "STALE_REVISION",
+            "RATE_LIMITED",
+            "QUOTA_EXCEEDED",
+            "PROVIDER_DISABLED",
+            "JOB_PENDING",
+            "JOB_FAILED",
+            "TIMEOUT",
+            "INTERNAL_OPAQUE"
+          ]
+        },
+        "message": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "retryable": { "type": "boolean" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_mode"],
+      "properties": {
+        "evidence_mode": {
+          "enum": [
+            "observed",
+            "deterministic-computation",
+            "heuristic-inference",
+            "generated-by-external-agent",
+            "unknown"
+          ]
+        },
+        "source_uri": { "type": "string", "maxLength": 2048 },
+        "captured_at": { "type": "string", "maxLength": 64 }
+      }
+    },
+    "uri": {
+      "type": "string",
+      "pattern": "^skelet://(product|version|artifact|flow|collection|lens|reference-pack)/[A-Za-z0-9_\\-]{1,128}$"
+    }
+  }
+}

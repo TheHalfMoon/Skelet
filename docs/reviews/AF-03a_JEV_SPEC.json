@@ -1,0 +1,59 @@
+{
+  "description": "Skelet AF-03a versioned agent contract freeze",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the new agent-contract schema, validator, fixtures, or CI bootstrap line break existing validators, hygiene, or workflow schema?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the envelope fields, 13 error codes, URI patterns, evidence modes, tool-name list, or valid/invalid fixture verdicts factually wrong against the implemented validator and the existing MCP/REST surface?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the 7 contract tests, gate pass proof, hygiene, and Graft isolation sufficient for an additive schema freeze with no behavior change?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterminism, unhandled fixture shape, or traversal URI that validates as in-contract?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond additive contract freeze: MCP/REST behavior change, migration, UI, billing, donor import, or unrelated refactors?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the change weaken URI validation, admit invented error codes, or leak secrets in fixtures or messages?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "97ac8196749edbff6261c01eaa62be80e64f7b40",
+    "branch": "skelet/af03-agent-parity",
+    "change": "AF-03a additive contract freeze: schemas/agent-contract.schema.json with skelet.agent.v1 envelope, 13 typed error codes, stable URI patterns, evidence modes; scripts/validate_agent_contract.py gate; 4 fixtures with valid and invalid verdicts; 7-test suite; 1-line CI bootstrap wiring. No MCP, REST, Lens, search, or DB behavior change. Follow-up evidence-only commit adds Jev spec/review, OCR delegation, and PStack panels with no product change.",
+    "head_sha": "3fa6ef9341e9566f3b63162c463cfab1234911b7"
+  }
+}

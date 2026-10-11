@@ -56,6 +56,9 @@ jobs:
       - name: Validate agent skills
         run: python scripts/validate_skills.py
 
+      - name: Validate agent contract
+        run: python scripts/validate_agent_contract.py
+
   graft:
     name: graft
     runs-on: ubuntu-24.04
