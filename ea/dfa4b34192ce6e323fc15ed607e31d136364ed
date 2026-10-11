@@ -1,0 +1,19 @@
+tests/test_validate_agent_contract.py
+  s_b4795a6f23ce5e::t_fae479e789b73c 96-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "eadfa4b34192ce6e323fc15ed607e31d136364ed",
+  "prompts": {},
+  "sessions": {
+    "s_b4795a6f23ce5e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed6960fe0ffe5jTrNIjwywBjkR",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
