@@ -920,3 +920,20 @@ The detailed decisions, source matrix and prioritized acceptance ledger below ar
 - [Gap Register and Mandatory Acceptance](operations/PLAN_GAP_REGISTER_2026-10-08.md)
 
 These documents authorize **planning and evaluation** only. They do not activate source material, update existing upstream locks, or claim any P01/P15 product completion.
+
+## 24. 2026-10-11 Founder Direction — Agent-First, No Founder-Funded AI/Cloud
+
+Status: PROPOSED planning amendment. This section becomes normative after its documentation PR has passed the existing exact-head review/CI and ordinary merge policy; it does not complete a runtime grain.
+
+Founder clarifies: Skelet must maximize verifiable design-workflow value for **external AI agents** without Skelet hosting or financing model inference, GPU compute, paid search/vector SaaS, or cloud workloads. The user supplies their own agent/model and, for the zero-founder-compute product mode, runs Skelet on local/customer-hosted infrastructure. A public managed SaaS cannot claim zero infrastructure cost and is out of scope absent an approved unit-economic budget and quotas.
+
+Implementation consequences:
+
+1. All mandatory user journeys (research, Lens, Build Kit, rights-qualified assets, REST/MCP, collections/packs) must pass with no model API key, no GPU, and no paid cloud subscription. URL capture may contact authorized public target websites but no paid model service.
+2. The existing P11 reference to pgvector and local text/visual embeddings is a **future opt-in enhancement** rather than a mandatory prerequisite for the no-model core or local self-hosted launch. PostgreSQL FTS, typed facets, deterministic metadata and perceptual/layout/color features supply the testable baseline; never falsely advertise these as full semantic embeddings. Optional customer-installed local embedding adapters require their own pinned model/rights/performance acceptance and CPU budget.
+3. Restore P08/REST/MCP actor-specific object authorization before extending remote read surfaces; global sessions do not grant access to all artifacts. Enforce rights and workspace visibility at canonical retrieval, search, cache, preview, board, export and editor handoff boundaries.
+4. Integrate ArtCraft/Craft capabilities *selectively*: P10 narrow local video frame capture; P12 collections-backed portable Moodboard; optional P14 headless VectorCraft/PhotoCraft or PageDraw primitives. No mandatory ArtCraft API, proprietary media services, GPU, full 3D/film suite, or second datastore. Donor file rights/provenance/commit pins remain separate from third-party assets, datasets, models and trademarks.
+5. Default commercial delivery is local or customer self-hosted with deterministic quotas, no silent egress, recovery/upgrade support and optional offline commercial entitlements. A managed hosting offer is a separate future business decision.
+6. Keep existing P00-P15 sequence, active grain frontier, P09b launch-critical status, R0-R7 gates, P0 gap register, Jev/OCR/PStack/Graft review, exact-head CI, normal merges and post-merge qualification. No completion claim arises from this amendment.
+
+Detailed contracts, migration boundaries, cost/security matrices, acceptance tasks and AF-SEC-00 through AF-12 implementation grains are recorded in [Agent-First, Zero Founder Cost Execution Blueprint](architecture/AGENT_FIRST_ZERO_FOUNDER_COST_BLUEPRINT_2026-10-11.md), tracked in issue #62 and the live execution frontier #34.
