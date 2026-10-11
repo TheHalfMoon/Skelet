@@ -8,6 +8,7 @@ test("loadEnv applies documented defaults", () => {
   assert.equal(env.SKELET_ENV, "development");
   assert.equal(env.SKELET_WORKER_CONCURRENCY, 4);
   assert.equal(env.SKELET_LOG_LEVEL, "info");
+  assert.equal(env.SKELET_NO_MODEL, true);
 });
 
 test("loadEnv accepts valid overrides", () => {
@@ -15,10 +16,16 @@ test("loadEnv accepts valid overrides", () => {
     SKELET_ENV: "production",
     SKELET_WORKER_CONCURRENCY: "8",
     SKELET_LOG_LEVEL: "warn",
+    SKELET_NO_MODEL: "0",
   });
   assert.equal(env.SKELET_ENV, "production");
   assert.equal(env.SKELET_WORKER_CONCURRENCY, 8);
   assert.equal(env.SKELET_LOG_LEVEL, "warn");
+  assert.equal(env.SKELET_NO_MODEL, false);
+});
+
+test("loadEnv accepts explicit strict flag", () => {
+  assert.equal(loadEnv({ SKELET_NO_MODEL: "1" }).SKELET_NO_MODEL, true);
 });
 
 test("loadEnv rejects invalid values", () => {
@@ -32,6 +39,9 @@ test("loadEnv rejects invalid values", () => {
     /SKELET_WORKER_CONCURRENCY/,
   );
   assert.throws(() => loadEnv({ SKELET_LOG_LEVEL: "verbose" }), /SKELET_LOG_LEVEL/);
+  assert.throws(() => loadEnv({ SKELET_NO_MODEL: "strict" }), /SKELET_NO_MODEL/);
+  assert.throws(() => loadEnv({ SKELET_NO_MODEL: "true" }), /SKELET_NO_MODEL/);
+  assert.throws(() => loadEnv({ SKELET_NO_MODEL: "" }), /SKELET_NO_MODEL/);
 });
 
 test("loadEnv enforces concurrency boundaries strictly", () => {

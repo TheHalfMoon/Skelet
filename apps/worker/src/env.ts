@@ -5,6 +5,7 @@ export interface WorkerEnv {
   SKELET_ENV: SkeletEnvName;
   SKELET_WORKER_CONCURRENCY: number;
   SKELET_LOG_LEVEL: LogLevel;
+  SKELET_NO_MODEL: boolean;
 }
 
 const ENV_NAMES: readonly string[] = ["development", "test", "production"];
@@ -45,6 +46,21 @@ function parseName(
   return raw;
 }
 
+function parseNoModelFlag(raw: string | undefined): boolean {
+  if (raw === undefined) {
+    return true;
+  }
+  if (raw === "1") {
+    return true;
+  }
+  if (raw === "0") {
+    return false;
+  }
+  throw new Error(
+    `SKELET_NO_MODEL must be "1" or "0", got ${JSON.stringify(raw)}`,
+  );
+}
+
 /** Validate the worker environment. Unknown SKELET_* keys fail closed. */
 export function loadEnv(source: NodeJS.ProcessEnv): WorkerEnv {
   const unknown = Object.keys(source).filter(
@@ -52,7 +68,8 @@ export function loadEnv(source: NodeJS.ProcessEnv): WorkerEnv {
       key.startsWith("SKELET_") &&
       key !== "SKELET_ENV" &&
       key !== "SKELET_WORKER_CONCURRENCY" &&
-      key !== "SKELET_LOG_LEVEL",
+      key !== "SKELET_LOG_LEVEL" &&
+      key !== "SKELET_NO_MODEL",
   );
   if (unknown.length > 0) {
     throw new Error(
@@ -75,5 +92,6 @@ export function loadEnv(source: NodeJS.ProcessEnv): WorkerEnv {
       LOG_LEVELS,
       "info",
     ) as LogLevel,
+    SKELET_NO_MODEL: parseNoModelFlag(source.SKELET_NO_MODEL),
   };
 }
