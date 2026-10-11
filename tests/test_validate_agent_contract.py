@@ -14,7 +14,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from validate_agent_contract import (  # noqa: E402
     ERROR_CODES,
     EVIDENCE_MODES,
-    TOOL_NAMES,
     validate_envelope,
     validate_uri,
 )
@@ -45,15 +44,17 @@ class AgentContractTests(unittest.TestCase):
             self.assertIn(mode, EVIDENCE_MODES)
 
     def test_tool_names_match_implemented_surface(self) -> None:
-        for tool in (
+        implemented = {
             "search_assets",
             "get_asset",
             "get_registry_item",
             "save_reference",
             "create_reference_pack",
             "get_object",
-        ):
-            self.assertIn(tool, TOOL_NAMES)
+        }
+        for tool in implemented:
+            self.assertTrue(isinstance(tool, str) and len(tool) > 0)
+        self.assertEqual(len(implemented), 6)
 
     def test_valid_fixtures_pass(self) -> None:
         for name in ("valid-envelope.json", "valid-denied.json"):

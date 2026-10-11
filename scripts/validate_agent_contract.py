@@ -41,14 +41,6 @@ EVIDENCE_MODES = {
 URI_RE = re.compile(
     r"^skelet://(product|version|artifact|flow|collection|lens|reference-pack)/[A-Za-z0-9_\-]{1,128}$"
 )
-TOOL_NAMES = {
-    "search_assets",
-    "get_asset",
-    "get_registry_item",
-    "save_reference",
-    "create_reference_pack",
-    "get_object",
-}
 
 
 def fail(errors: list[str], location: str, message: str) -> None:
