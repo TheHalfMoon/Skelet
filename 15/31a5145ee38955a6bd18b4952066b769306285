@@ -1,0 +1,105 @@
+apps/web/lib/mcp.ts
+  s_daded718642165::t_5e3baf695424a2 393-395
+  s_daded718642165::t_3d9aa97d0ff774 241-265
+  s_daded718642165::t_ef0661cc9f52dc 89,95-109
+  s_daded718642165::t_c62d572a2e747b 120-127,139,149,158,170-171,186-187,197
+  s_daded718642165::t_982c0f55e38671 23-24,28
+  s_daded718642165::t_c8f59787d47175 445-465,467-469
+  s_daded718642165::t_3fe408ef2231c1 576-579,587
+packages/db/tests/jobs.test.mjs
+  s_daded718642165::t_e8eae84b377c66 27
+apps/web/tests/interop-http.test.mjs
+  s_daded718642165::t_ef89c24cac7118 1-20,22-344
+  s_daded718642165::t_4a087865b6f47c 21
+tests/test_skelet_sdk.py
+  s_daded718642165::t_5c291b0d6e0963 139-179
+  s_daded718642165::t_9cf5402f6d3918 205-207,209-214,216-221,225-230
+packages/db/migrations/011_pack_idempotency.up.sql
+  s_daded718642165::t_58cd9de18e10cc 1-15
+packages/db/tests/collections.test.mjs
+  s_daded718642165::t_e8eae84b377c66 31
+packages/db/tests/pg-workflows.test.mjs
+  s_daded718642165::t_e8eae84b377c66 29
+scripts/skelet.py
+  s_daded718642165::t_0a8127f640ae9e 62,64-69,71,73
+  s_daded718642165::t_474fe59b63936e 31-35,42
+packages/db/tests/pg-build-kit.test.mjs
+  s_daded718642165::t_e8eae84b377c66 39
+packages/db/tests/build-kit.test.mjs
+  s_daded718642165::t_e8eae84b377c66 34
+packages/sdk-ts/tests/client.test.mjs
+  s_daded718642165::t_ab1f90271fe90b 150-192
+packages/db/src/idempotency.ts
+  s_daded718642165::t_aa322e52928435 1-41
+apps/web/lib/agent-contract.ts
+  s_daded718642165::t_b29dd54d43f688 363-397
+packages/db/tests/pg-graph.test.mjs
+  s_daded718642165::t_e8eae84b377c66 25
+scripts/mcp_stdio.mjs
+  s_daded718642165::t_0ed8664a7b8a6d 1-161
+apps/web/tests/interop-stdio.test.mjs
+  s_daded718642165::t_0aa19829af8c14 1-215
+packages/db/tests/billing.test.mjs
+  s_daded718642165::t_e8eae84b377c66 28
+scripts/mcp_test_server.mjs
+  s_daded718642165::t_947620c91012d0 1-262
+packages/db/tests/pg-integration.test.mjs
+  s_daded718642165::t_e8eae84b377c66 97,106
+packages/db/tests/workspaces.test.mjs
+  s_daded718642165::t_e8eae84b377c66 28
+packages/db/tests/auth.test.mjs
+  s_daded718642165::t_e8eae84b377c66 20
+tests/test_mcp_interop_py.py
+  s_daded718642165::t_8684f080118e09 1-31,33-57,69-258
+  s_daded718642165::t_b658a67b160c59 32
+  s_daded718642165::t_6c2ccb75bdd63a 58-68
+apps/web/app/api/v1/assets/route.ts
+  s_daded718642165::t_938c2622099fe1 53-58,61-64
+apps/web/app/api/v1/objects/route.ts
+  s_daded718642165::t_f1ec7fb73f0784 41-44,47-50
+apps/web/app/api/v1/assets/[id]/route.ts
+  s_daded718642165::t_930f3f4951daf2 39-42,45-48
+packages/db/tests/graph.test.mjs
+  s_daded718642165::t_0bae3ccb66bf83 33
+  s_daded718642165::t_e8eae84b377c66 27,34
+packages/sdk-ts/src/client.ts
+  s_daded718642165::t_1b96fe3db11f69 350,356-357,367
+  s_daded718642165::t_b70c0ec5190654 374
+  s_daded718642165::t_5d05004c242206 19-27,32-34
+  s_daded718642165::t_c9b2ec8c15bfa7 78-90
+  s_daded718642165::t_17b05a3eb060d8 117-120,131-171
+  s_daded718642165::t_224e87f9c16bc2 220-224,229-232,239,244-256,270-318,320-331,338-341,344,346
+packages/db/migrations/011_pack_idempotency.down.sql
+  s_daded718642165::t_80389d88584f02 1-3
+apps/web/app/api/mcp/route.ts
+  s_daded718642165::t_937c6d90eec7fc 53
+  s_daded718642165::t_0fe7b940ed9698 3-10,13
+  s_daded718642165::t_fd449e522d1113 32-47
+  s_daded718642165::t_49bb0d11689cc4 62,68,77,82-86,95,105,107,109-113
+scripts/skelet_sdk.py
+  s_daded718642165::t_e0dfe097948ccf 154-160,164-167,177-199,203-216,224-228,230-240,242,246-250,252,254,257-259
+  s_daded718642165::t_6f8dcd5c91e3d2 51-105
+  s_daded718642165::t_9b3a619ab033f7 33-42,46-48
+  s_daded718642165::t_a8a561e2434136 263-265,267,270
+packages/db/tests/workflows.test.mjs
+  s_daded718642165::t_0bae3ccb66bf83 45
+  s_daded718642165::t_e8eae84b377c66 37,47
+packages/db/tests/db-foundation.test.mjs
+  s_daded718642165::t_e8eae84b377c66 26,30,47,121,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1531a5145ee38955a6bd18b4952066b769306285",
+  "prompts": {},
+  "sessions": {
+    "s_daded718642165": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed481ea6bffechceIWsJOBBnIi",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
