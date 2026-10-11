@@ -1,0 +1,59 @@
+{
+  "description": "Skelet AF-02 zero-model and egress conformance",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the new no-model package, worker SKELET_NO_MODEL extension, CI no-model job, or lockfile importer break existing worker env defaults, health contract consumers, CI workflow schema, or pnpm workspace resolution?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the strict default, explicit 1/0 states, forbidden credential list, egress deny list with subdomain matching, provider guard, redacted status, worker env parsing, CLI health fields, Python gate scan scope, or offline fixture requirements factually wrong against the implemented code and tests?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the 12 Node no-model tests, 12 Python no-model tests, extended worker env/CLI tests, gate pass and fail-closed proofs, hygiene, typecheck, lint, and Graft isolation sufficient for no-model config, credential denial, egress denial, local fallback, and CI regression?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterministic behavior, unhandled invalid SKELET_NO_MODEL, secret value leakage in errors or status, subdomain bypass, non-http(s) bypass, or unrepeatable gate scan?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond AF-02 conformance: runtime model integration, search ranking, MCP contract change, Lens evidence change, donor import, migration, UI, billing, or unrelated refactors?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the change leak secret values, weaken worker unknown-key rejection, weaken actor-scoped reads, admit paid egress in the mandatory path, or misrepresent opt-out as launch-qualified?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "09eb5e25d5ccf661ed6ae0878298f8bdedec5fcc",
+    "branch": "skelet/af02-no-model-egress",
+    "change": "AF-02 zero-model conformance: new packages/no-model policy with strict default SKELET_NO_MODEL 1/0 states, 30 forbidden credential names, 26 unapproved egress hosts with subdomain denial, redacted inspect/validate/status helpers, provider external-egress guard, worker env plus CLI health explicit no-model and deny-unapproved fields with extended tests, Python check_no_model gate with runtime egress scan plus fixture checks, 12 Node plus 12 Python conformance tests, CI no-model job with pass and fail-closed proofs, pnpm lockfile importer. No model integration. No paid cloud requirement. No MCP or Lens contract change. Follow-up evidence-only commit adds Jev spec/review, OCR delegation, and PStack panels with no product change.",
+    "head_sha": "639ba118d4ce8eef0dadd2d5b0aefdab14c5088a"
+  }
+}
