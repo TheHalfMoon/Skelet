@@ -1,0 +1,34 @@
+docs/reviews/G09b-04_PSTACK_PANELS.md
+  s_b04f256be53f52::t_1e18420c9ed489 1-58
+docs/reviews/G09b-04_JEV_REVIEW.json
+  s_b04f256be53f52::t_44b032473c9ae7 1
+packages/lens/src/capture-traversal.ts
+  s_b04f256be53f52::t_9aa53c85e119c8 1-12,21-107,113-254
+  s_b04f256be53f52::t_54b7906fae15ce 13-20
+  s_b04f256be53f52::t_0978d933d00781 108-112
+.github/workflows/ci.yml
+  s_b04f256be53f52::t_afe23f9b14cb20 429
+docs/reviews/G09b-04_JEV_SPEC.json
+  s_b04f256be53f52::t_78ae4657624db1 56
+  s_b04f256be53f52::t_eb9cecf249cba6 1-55,57-58
+packages/lens/tests/capture-traversal.test.mjs
+  s_b04f256be53f52::t_7c928cb13a6a89 146
+  s_b04f256be53f52::t_7028328ab536f3 1-145,147-151,153-164,196
+  s_b04f256be53f52::t_f4fc1b723874df 152,165-195
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b98504da76b13c7d0bb0fe60e1ba1d0da39380d3",
+  "prompts": {},
+  "sessions": {
+    "s_b04f256be53f52": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7a22755ffetWqi4lfvlFLbnF",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
