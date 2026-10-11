@@ -54,6 +54,6 @@
     "base_sha": "97ac8196749edbff6261c01eaa62be80e64f7b40",
     "branch": "skelet/af03-agent-parity",
     "change": "AF-03a additive contract freeze: schemas/agent-contract.schema.json with skelet.agent.v1 envelope, 13 typed error codes, stable URI patterns, evidence modes; scripts/validate_agent_contract.py gate; 4 fixtures with valid and invalid verdicts; 7-test suite; 1-line CI bootstrap wiring. No MCP, REST, Lens, search, or DB behavior change. Follow-up evidence-only commit adds Jev spec/review, OCR delegation, and PStack panels with no product change.",
-    "head_sha": "b4dfaf3458d3698520af8c8e97690c0c6a771730"
+    "head_sha": "3fa6ef9341e9566f3b63162c463cfab1234911b7"
   }
 }

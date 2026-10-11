@@ -32,3 +32,11 @@
     removed structurally before the evidence commit. No finding.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
+- Recount on evidence head `3fa6ef9341e9566f3b63162c463cfab1234911b7`:
+  `ocr delegate preview` reports 5 reviewable / 12 total. The 2 added
+  reviewable files are `docs/reviews/AF-03a_JEV_REVIEW.json` and
+  `docs/reviews/AF-03a_JEV_SPEC.json` (same JSON key-spelling rule group,
+  no finding). Excluded remain the 2 markdown panels (`unsupported_ext`)
+  and the fixtures plus Python test (`default_path`), covered by the
+  PStack four-bar panel and the green unittest suites. Jev was rerun on
+  the evidence head with zero blocking findings.
