@@ -40,6 +40,9 @@
     `python -m unittest tests.test_mcp_interop_py tests.test_skelet_sdk`.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
-- Recount on the evidence head (after this record plus the PStack panels) is
-  documented in the re-qualify commit; markdown panels are `unsupported_ext`
-  and remain excluded by OCR itself.
+- Recount on evidence head `b263f557b19b062719aedb80dcb447a7d95417f7`:
+  `ocr delegate preview` reports 32 reviewable / 36 total. The 2 added
+  non-reviewable files are this record and `docs/reviews/AF-03c_PSTACK_PANELS.md`
+  (both markdown `unsupported_ext`), covered by the PStack four-bar panel and
+  the green test suites. Jev was rerun on the evidence head with zero blocking
+  findings.
