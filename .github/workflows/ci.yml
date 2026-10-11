@@ -427,6 +427,7 @@ jobs:
           packages/lens/tests/analyze-url.test.mjs
           packages/lens/tests/capture-scope.test.mjs
           packages/lens/tests/capture-traversal.test.mjs
+          packages/lens/tests/kit-manifest.test.mjs
 
   db-foundation:
     name: db-foundation
