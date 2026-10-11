@@ -30,6 +30,8 @@ export interface ArtifactInput {
   contentHash: string;
   rightsClassification: Rights;
   visibility?: Visibility | undefined;
+  workspaceId?: string | undefined;
+  ownerSubject?: string | undefined;
   productId?: string | undefined;
   productVersionId?: string | undefined;
   summary?: string | undefined;
@@ -124,7 +126,7 @@ export function uuidV7(now = Date.now()): string {
 }
 const artifactColumns = `id,kind,product_id,product_version_id,title,summary,
   canonical_text,metadata,source_id,source_record_id,captured_at,created_at,
-  updated_at,content_hash,rights_classification,visibility`;
+  updated_at,content_hash,rights_classification,visibility,workspace_id,owner_subject`;
 const assetColumns = `id,sha256,media_type,byte_length,width,height,duration_ms,
   storage_key,source_url,source_id,rights_classification,metadata,created_at`;
 
@@ -139,20 +141,51 @@ function toArtifact(row: Record<string, unknown>): Artifact {
     createdAt: time(row.created_at), updatedAt: time(row.updated_at),
     contentHash: String(row.content_hash), rightsClassification: row.rights_classification as Rights,
     visibility: row.visibility as Visibility,
+    workspaceId: optional(row.workspace_id), ownerSubject: optional(row.owner_subject),
   };
 }
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateArtifactScope(input: ArtifactInput): void {
+  const visibility = input.visibility ?? "private";
+  if (input.workspaceId !== undefined && !UUID_PATTERN.test(input.workspaceId)) {
+    throw new Error("Artifact workspace is invalid.");
+  }
+  if (input.ownerSubject !== undefined) {
+    const owner = input.ownerSubject.trim();
+    if (owner.length === 0 || owner.length > 128) {
+      throw new Error("Artifact owner is invalid.");
+    }
+    if (input.workspaceId === undefined) {
+      throw new Error("Artifact owner requires a workspace.");
+    }
+  }
+  // AF-SEC-00 creation rule: workspace-bound private rows require an
+  // owner so the read gate can enforce owner match. Global rows
+  // (no workspace) keep the legacy curated-corpus shape — including
+  // private global registry rows — and the actor gate (plus kind check)
+  // decides readability: global icon/logo/font rows stay readable,
+  // every other non-public global is denied by ID.
+  if (visibility === "private" && input.workspaceId !== undefined && input.ownerSubject === undefined) {
+    throw new Error("Private artifact requires an owner.");
+  }
+}
 export async function createArtifact(tx: DbTransaction, input: ArtifactInput): Promise<Artifact> {
+  validateArtifactScope(input);
   const id = uuidV7();
   const result = await tx.query(`insert into artifacts
     (id,kind,product_id,product_version_id,title,summary,canonical_text,metadata,
-     source_id,source_record_id,captured_at,content_hash,rights_classification,visibility)
-    values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11,$12,$13,$14)
+     source_id,source_record_id,captured_at,content_hash,rights_classification,visibility,
+     workspace_id,owner_subject)
+    values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11,$12,$13,$14,$15,$16)
     returning ${artifactColumns}`, [
     id,input.kind,input.productId ?? null,input.productVersionId ?? null,
     input.title,input.summary ?? null,input.canonicalText ?? null,
     JSON.stringify(input.metadata ?? {}),input.sourceId,input.sourceRecordId ?? null,
     input.capturedAt ?? null,input.contentHash,input.rightsClassification,
-    input.visibility ?? "private",
+    input.visibility ?? "private",input.workspaceId ?? null,
+    input.ownerSubject?.trim() ?? null,
   ]);
   return toArtifact(rowRequired(result.rows));
 }

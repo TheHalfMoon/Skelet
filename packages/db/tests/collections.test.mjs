@@ -28,6 +28,7 @@ const SIX = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
+  "010_artifact_actor_scope",
 ];
 const HASH = "c".repeat(64);
 
@@ -50,10 +51,12 @@ async function workspaceWithOwner(db, index) {
   return { owner, workspaceId: created.workspace.id };
 }
 
-async function artifactFixture(db) {
+async function artifactFixture(db, workspaceId, ownerId) {
   const source = await createSource(db, { key: "collection-source", kind: "synthetic" });
   const product = await createProduct(db, { sourceId: source.id, title: "Collection app" });
   const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
+  // AF-SEC-00: workspace-visible artifact bound to the calling workspace so
+  // workspace members can read it through the actor gate.
   return createArtifact(db, {
     sourceId: source.id,
     productId: product.id,
@@ -62,6 +65,9 @@ async function artifactFixture(db) {
     title: "Save target",
     contentHash: HASH,
     rightsClassification: "metadata_only",
+    visibility: "workspace",
+    workspaceId,
+    ownerSubject: ownerId,
   });
 }
 
@@ -191,7 +197,7 @@ test("save-reference path persists canonical artifacts idempotently", async () =
     const { owner, workspaceId } = await workspaceWithOwner(db, "refs");
     const fellow = await member(db, "fellow-refs");
     await addMember(db, { workspaceId, userId: fellow.id, role: "member", actorId: owner.id });
-    const screen = await artifactFixture(db);
+    const screen = await artifactFixture(db, workspaceId, owner.id);
     const collection = await createCollection(db, {
       workspaceId,
       title: "Evidence",
@@ -287,7 +293,7 @@ test("collections are isolated across workspaces and cascade on delete", async (
       () => getCollection(db, collectionA.id, teamB.owner.id),
       (error) => error instanceof AuthError && error.code === "auth/forbidden",
     );
-    const screen = await artifactFixture(db);
+    const screen = await artifactFixture(db, teamA.workspaceId, teamA.owner.id);
     await saveReference(db, { collectionId: collectionA.id, artifactId: screen.id, actorId: teamA.owner.id });
     await deleteCollection(db, { collectionId: collectionA.id, actorId: teamA.owner.id });
     await assert.rejects(

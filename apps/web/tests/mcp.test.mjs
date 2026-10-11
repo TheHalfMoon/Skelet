@@ -172,6 +172,9 @@ test("agent write round-trip preserves references across sessions", async () => 
       title: "Writer screen",
       contentHash: "b".repeat(64),
       rightsClassification: "metadata_only",
+      visibility: "workspace",
+      workspaceId: space.workspace.id,
+      ownerSubject: owner.id,
     });
     const ownerCtx = { userId: owner.id };
     const outsiderCtx = { userId: outsider.id };
@@ -276,3 +279,58 @@ test("rate limiter fails closed at the window edge", () => {
   assert.equal(checkRateLimit("other", at + 120).allowed, true);
   resetRateLimits();
 });
+
+test("AF-SEC-00: forged cross-workspace artifact reads and saves fail closed", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const { createWorkspace } = await import("../../../packages/db/src/workspaces.ts");
+    const ownerA = await signUp(db, { email: "af-mcp-a@skelet.example", password: "af-password-01" });
+    const ownerB = await signUp(db, { email: "af-mcp-b@skelet.example", password: "af-password-01" });
+    const spaceA = await createWorkspace(db, { name: "AF MCP A", ownerId: ownerA.id });
+    const source = await createSource(db, { key: "af-mcp-source", kind: "synthetic" });
+    const priv = await createArtifact(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "AF MCP private",
+      contentHash: "d".repeat(64),
+      rightsClassification: "metadata_only",
+      visibility: "private",
+      workspaceId: spaceA.workspace.id,
+      ownerSubject: ownerA.id,
+    });
+    const ctxA = { userId: ownerA.id };
+    const ctxB = { userId: ownerB.id };
+    const allowed = await call(db, ctxA, "tools/call", {
+      name: "get_object",
+      arguments: { uri: `skelet://artifact/${priv.id}` },
+    });
+    assert.equal(JSON.parse(allowed.result.content[0].text).object.title, "AF MCP private");
+    const denied = await call(db, ctxB, "tools/call", {
+      name: "get_object",
+      arguments: { uri: `skelet://artifact/${priv.id}` },
+    });
+    // Opaque failure: identical to a missing object, no existence oracle.
+    assert.equal(denied.error.code, -32000);
+    const packB = await createReferencePackForTest(db, ownerB);
+    const launder = await call(db, ctxB, "tools/call", {
+      name: "save_reference",
+      arguments: { collectionId: packB, artifactId: priv.id },
+    });
+    assert.equal(launder.error.code, -32000);
+  } finally {
+    await db.close();
+  }
+});
+
+async function createReferencePackForTest(db, owner) {
+  const { createWorkspace } = await import("../../../packages/db/src/workspaces.ts");
+  const { createReferencePack } = await import("../lib/reference-packs.ts");
+  const space = await createWorkspace(db, { name: `AF pack ${owner.id.slice(0, 8)}`, ownerId: owner.id });
+  const pack = await createReferencePack(db, {
+    workspaceId: space.workspace.id,
+    title: "AF attacker pack",
+    actorId: owner.id,
+  });
+  return pack.collectionId;
+}

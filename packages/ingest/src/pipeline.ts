@@ -83,6 +83,9 @@ export interface PublishInput {
   kind: string;
   title: string;
   rightsClassification: string;
+  visibility?: string;
+  workspaceId?: string;
+  ownerSubject?: string;
   productId?: string;
   productVersionId?: string;
   summary?: string;
@@ -334,6 +337,9 @@ export async function publishArtifact(
       sourceId: input.sourceId,
       contentHash,
       rightsClassification: rights,
+      visibility: (input.visibility ?? "private") as "private" | "workspace" | "public",
+      workspaceId: input.workspaceId,
+      ownerSubject: input.ownerSubject,
       productId: input.productId,
       productVersionId: input.productVersionId,
       summary,

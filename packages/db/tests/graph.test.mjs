@@ -24,14 +24,14 @@ async function context() {
 test("migration 002 creates canonical graph entities and is reversible", async () => {
   const db = await openDatabase();
   try {
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope"]);
     assert.deepEqual(await migrateUp(db), []);
     for (const table of ["artifacts", "assets", "relations", "patterns"]) {
       const result = await db.query("select to_regclass($1) as id", ["public." + table]);
       assert.ok(result.rows[0].id !== null, "missing " + table);
     }
-    assert.deepEqual(await migrateDown(db), ["009_lens_build_kit_runs", "008_jobs", "007_billing", "006_collections_auth", "005_workspaces", "004_auth", "003_workflows", "002_design_graph", "001_sources_products"]);
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs"]);
+    assert.deepEqual(await migrateDown(db), ["010_artifact_actor_scope", "009_lens_build_kit_runs", "008_jobs", "007_billing", "006_collections_auth", "005_workspaces", "004_auth", "003_workflows", "002_design_graph", "001_sources_products"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope"]);
   } finally {
     await db.close();
   }
@@ -51,14 +51,19 @@ test("all common artifact kinds are stored with verified source identity", async
     const kinds = ["screen","page","section","component","icon","logo",
       "font","illustration","resource","brief","design"];
     for (const kind of kinds) {
+      // AF-SEC-00: global rows without a workspace binding must be public
+      // (public requires permitted rights), so the kinds matrix uses the
+      // public corpus shape. Workspace-bound private rows are covered by
+      // the dedicated actor-scope suite.
       const created = await createArtifact(db,{
         kind,title:"Example " + kind,sourceId:source.id,
-        contentHash:HASH,rightsClassification:"unknown",
+        contentHash:HASH,rightsClassification:"permitted",
+        visibility:"public",
         metadata:{category:kind},
       });
       assert.match(created.id, /-7[0-9a-f]{3}-/);
       assert.equal(created.kind,kind);
-      assert.equal(created.visibility,"private");
+      assert.equal(created.visibility,"public");
       assert.deepEqual((await getArtifact(db,created.id)).metadata,{category:kind});
     }
     assert.equal(await getArtifact(db,missing),null);
@@ -74,7 +79,7 @@ test("rejects rights, metadata, hashes, and mismatched ProductVersion provenance
     const second = await createProduct(db,{sourceId:source.id,title:"two"});
     const version = await createProductVersion(db,{productId:first.id,versionNo:1});
     const base = {kind:"screen",title:"Evidence",sourceId:source.id,
-      contentHash:HASH,rightsClassification:"permitted"};
+      contentHash:HASH,rightsClassification:"permitted",visibility:"public"};
     await assert.rejects(
       () => createArtifact(db,{...base,productId:second.id,productVersionId:version.id}),
       /foreign key|violates/i,
@@ -90,6 +95,14 @@ test("rejects rights, metadata, hashes, and mismatched ProductVersion provenance
     await assert.rejects(
       () => createArtifact(db,{...base,metadata:["not an object"]}),
       /check|violates/i,
+    );
+    // AF-SEC-00 creation rules: an owner claim requires a workspace
+    // binding, and workspace-bound private rows require an owner.
+    // Global rows keep the legacy curated-corpus shape; readability is
+    // enforced by the actor gate, not by rejecting the write.
+    await assert.rejects(
+      () => createArtifact(db,{...base,ownerSubject:"some-owner"}),
+      /workspace/i,
     );
     const ok=await createArtifact(db,{...base,productId:first.id,productVersionId:version.id});
     assert.equal(ok.productVersionId,version.id);
@@ -162,7 +175,7 @@ test("patterns and typed graph relations round-trip with endpoint integrity", as
   const {db,source}=await context();
   try {
     const a=await createArtifact(db,{kind:"component",title:"Nav",sourceId:source.id,
-      contentHash:HASH,rightsClassification:"metadata_only"});
+      contentHash:HASH,rightsClassification:"permitted",visibility:"public"});
     const pattern=await createPattern(db,{slug:"global-navigation",title:"Global navigation",
       sourceId:source.id,metadata:{tags:["navigation"]}});
     const relation=await createRelation(db,{fromType:"artifact",fromId:a.id,
@@ -200,7 +213,8 @@ test("graph endpoints cannot be deleted before the referencing edges are removed
   const {db,source}=await context();
   try {
     const artifact=await createArtifact(db,{kind:"component",title:"Linked",
-      sourceId:source.id,contentHash:HASH,rightsClassification:"permitted"});
+      sourceId:source.id,contentHash:HASH,rightsClassification:"permitted",
+      visibility:"public"});
     const pattern=await createPattern(db,{slug:"linked",title:"Linked",sourceId:source.id});
     const edge=await createRelation(db,{fromType:"artifact",fromId:artifact.id,
       relationType:"uses",toType:"pattern",toId:pattern.id});

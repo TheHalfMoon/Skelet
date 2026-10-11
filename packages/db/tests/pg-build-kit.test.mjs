@@ -36,7 +36,7 @@ test("real PostgreSQL migration ledger includes the kit lifecycle",{
   assert.deepEqual(await migrateUp(db),
    ["001_sources_products","002_design_graph","003_workflows","004_auth",
     "005_workspaces","006_collections_auth","007_billing","008_jobs",
-    "009_lens_build_kit_runs"]);
+    "009_lens_build_kit_runs", "010_artifact_actor_scope"]);
  } finally {await migrateDown(db);await db.close();}
 });
 

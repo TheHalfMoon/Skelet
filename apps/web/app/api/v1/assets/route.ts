@@ -30,10 +30,10 @@ export async function GET(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Internal error." }, { status: 500 });
   }
   try {
-    // Identity gate: corpus reads are global, but every call must be
-    // attributable to a validated session.
-    await resolveRequestUser(db, token);
-    const result = await searchAssetsRoute(db, searchParams(request));
+    // AF-SEC-00: identity is server-resolved and threaded as the actor so
+    // search scope filters before rank/facets/caching.
+    const userId = await resolveRequestUser(db, token);
+    const result = await searchAssetsRoute(db, searchParams(request), userId);
     return NextResponse.json(result.body, { status: result.status });
   } catch {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
