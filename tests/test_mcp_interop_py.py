@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import subprocess
-import sys
 import time
 import unittest
 import urllib.error

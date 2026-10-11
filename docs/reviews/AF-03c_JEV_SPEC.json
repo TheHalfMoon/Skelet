@@ -1,0 +1,59 @@
+{
+  "description": "Skelet AF-03c agent interoperability with three independent MCP clients",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Do the MCP tool names, REST routes, Skelet URI patterns, auth model, SDK shapes, or migration 011 break qualified AF-03a/AF-03b interfaces beyond additive skelet.agent.v1 interop (requestId/idempotencyKey/cursor/capability/header fields)? Are bare-shape SDK payloads still readable, and do failure transport codes stay compatible?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are version negotiation across 4 MCP revisions (param + header), bearer auth with server-resolved identities, TS/Python SDK envelope unwrap with cursor/requestId/retryable, opaque cursor pagination, requestId echo, idempotent save_reference (ON CONFLICT) and create_reference_pack (pack_idempotency ledger), capability advertisement with PROVIDER_DISABLED fallback, unsupported-method -32601, and canonical URI cross-client recovery factually correct against the frozen contract and implemented code?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the 8 Node fetch HTTP interop tests, 4 Python urllib interop tests, 3 stdio pipe tests, 2 new TS SDK envelope tests, 2 new Python SDK envelope tests with envelope CLI stub, migration 011 ledger assertions across 13 DB test files, contract validator pass, typecheck, lint, and Graft isolation sufficient for the interop behavior change with real PGlite-backed wire interoperability (no mocked handlers, no three-wrappers-of-one-client)?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterminism in request IDs, cursors, idempotency keys, pack URIs, pagination ordering, or capability env reads that breaks reproducibility? Any unhandled envelope shape, malformed cursor/key, missing error branch, concurrent same-key race, or subprocess teardown that fails open or leaks orphaned packs?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond bounded agent interop: search ranking changes, donor imports, billing, UI, Lens, board, vector/raster editors, or unrelated refactors? Is the frozen skelet.agent.v1 schema unchanged and migration 011 limited to the pack_idempotency ledger?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the change leak stack traces, secrets, tokens, filesystem paths, database details, or unauthorized existence via messages, warnings, provenance, cursors, idempotency keys, headers, or HTTP/MCP status splits? Do cross-workspace denial and unknown IDs answer alike with FORBIDDEN_OR_NOT_FOUND? Is rights-restricted gated after the actor check? Are idempotency keys per-user so one actor cannot recover another's pack?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "27d6b3a341859adb3a09781061465ac249313d79",
+    "branch": "skelet/af03c-interop",
+    "change": "AF-03c interop: TS/Python SDK envelope unwrap with cursor pages, X-Request-Id, typed errors with retryable; MCP requestId passthrough, idempotencyKey for writes with pack_idempotency ledger (migration 011), capability advertisement in initialize, header version negotiation, X-Request-Id echo; REST X-Request-Id response headers; CLI cursor/request-id with envelope stub; three independent wire clients (Node fetch HTTP subprocess server, Python urllib HTTP subprocess server, Node stdio pipes) with version/auth/pagination/idempotency/capability/denial/URI-handoff coverage on real PGlite dispatch. Concurrent same-key creates converge on the ledger winner with best-effort orphan cleanup.",
+    "head_sha": "cf5499fbe01d4d0643cfcb0a9a974485ac2cd856"
+  }
+}

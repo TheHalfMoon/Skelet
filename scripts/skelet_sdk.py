@@ -184,7 +184,8 @@ class SkeletClient:
                 envelope_code = meta.get("error_code")
                 retryable = meta.get("retryable")
                 response_request_id = meta.get("request_id")
-            except Exception:
+            except (ValueError, OSError):
+                # Non-JSON error bodies fall back to status mapping below.
                 pass
             code = _sdk_code_for_envelope(envelope_code, error.code)
             if retryable is None:
