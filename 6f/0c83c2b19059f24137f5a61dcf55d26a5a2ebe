@@ -1,0 +1,24 @@
+scripts/skelet_sdk.py
+  s_daded718642165::t_9937e5a8910099 187-188
+docs/reviews/AF-03c_JEV_SPEC.json
+  s_daded718642165::t_41c10f36970df0 1-55,58-59
+  s_daded718642165::t_c36cb5545268a1 56-57
+docs/reviews/AF-03c_JEV_REVIEW.json
+  s_daded718642165::t_ea27561fdb9f20 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6f0c83c2b19059f24137f5a61dcf55d26a5a2ebe",
+  "prompts": {},
+  "sessions": {
+    "s_daded718642165": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed481ea6bffechceIWsJOBBnIi",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
