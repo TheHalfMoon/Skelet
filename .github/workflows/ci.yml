@@ -425,6 +425,7 @@ jobs:
           packages/lens/tests/tech-signal-evidence.test.mjs
           packages/lens/tests/tech-clue-matcher.test.mjs
           packages/lens/tests/analyze-url.test.mjs
+          packages/lens/tests/capture-scope.test.mjs
 
   db-foundation:
     name: db-foundation
