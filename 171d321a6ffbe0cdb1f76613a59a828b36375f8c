@@ -1,0 +1,21 @@
+docs/reviews/AF-SEC-00_OCR_DELEGATION.md
+  s_d4e0db4b86a77e::t_c6b5ff0d8805b2 1-49
+docs/reviews/AF-SEC-00_PSTACK_PANELS.md
+  s_d4e0db4b86a77e::t_65cbfddd90bb59 1-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "171d321a6ffbe0cdb1f76613a59a828b36375f8c",
+  "prompts": {},
+  "sessions": {
+    "s_d4e0db4b86a77e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7561532ffeoG305zWTUWtzKX",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}

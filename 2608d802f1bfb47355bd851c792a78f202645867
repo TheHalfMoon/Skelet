@@ -1,0 +1,93 @@
+apps/web/tests/mcp.test.mjs
+  s_d4e0db4b86a77e::t_96ae02aad9123c 175-177
+  s_d4e0db4b86a77e::t_e56dea00c036d9 282-336
+packages/db/migrations/010_artifact_actor_scope.up.sql
+  s_d4e0db4b86a77e::t_4c47cefe505243 1-16
+packages/assets/src/registry.ts
+  s_d4e0db4b86a77e::t_d835c9c3504909 285-286
+  s_d4e0db4b86a77e::t_3641d888471006 475-476,480,482,486-487,500
+  s_d4e0db4b86a77e::t_8ce082e49decc0 477-479,483,485
+  s_d4e0db4b86a77e::t_4968985c74f2fd 553-554
+  s_d4e0db4b86a77e::t_3caa93118da73e 512-515,526,550,552
+  s_d4e0db4b86a77e::t_c9f66a62fdb68f 511,535-549,551
+  s_d4e0db4b86a77e::t_060e300ea7116a 468-474,481,484
+  s_d4e0db4b86a77e::t_117a99828373b6 346-347
+  s_d4e0db4b86a77e::t_537b8923779b52 378-382,387-405
+packages/db/src/artifact-access.ts
+  s_d4e0db4b86a77e::t_467650ada461f3 1-9,22-31,34-43,49-56
+  s_d4e0db4b86a77e::t_b350f88be71cf9 10-21,32-33,44-48
+packages/db/tests/graph.test.mjs
+  s_d4e0db4b86a77e::t_c5574986286050 99-104
+  s_d4e0db4b86a77e::t_4f0b4c684c541d 82
+  s_d4e0db4b86a77e::t_46d43b234355a1 54-57,60-61,66
+  s_d4e0db4b86a77e::t_4967c1cb119d27 105-106
+  s_d4e0db4b86a77e::t_6d3f9b760a48cb 216-217
+  s_d4e0db4b86a77e::t_53815c763d013f 27,33-34
+  s_d4e0db4b86a77e::t_31d33d09dd3c10 178
+packages/db/src/graph.ts
+  s_d4e0db4b86a77e::t_b21e9c3d210f26 164-170
+  s_d4e0db4b86a77e::t_bf4380129ec867 129
+  s_d4e0db4b86a77e::t_5dccdfabc8c168 179-181,187-188
+  s_d4e0db4b86a77e::t_25b089dcae7055 144
+  s_d4e0db4b86a77e::t_24ccf32c1e8201 33-34
+  s_d4e0db4b86a77e::t_ae9958fbe20ae1 147-163,171-173,175
+packages/db/migrations/010_artifact_actor_scope.down.sql
+  s_d4e0db4b86a77e::t_52f587f9047cc2 1-6
+packages/db/src/collections.ts
+  s_d4e0db4b86a77e::t_52960b01cb994c 3
+  s_d4e0db4b86a77e::t_bd99d1cc0bdb4c 268-273,284-285
+apps/web/app/api/v1/assets/route.ts
+  s_d4e0db4b86a77e::t_7c9a02bffc8d69 33-36
+packages/db/tests/collections.test.mjs
+  s_d4e0db4b86a77e::t_e158abf42bebbd 200
+  s_d4e0db4b86a77e::t_96314587fcc96f 296
+  s_d4e0db4b86a77e::t_b580052aeb7358 31
+  s_d4e0db4b86a77e::t_128d2b5404850f 54,58-59,68-70
+packages/db/tests/artifact-access.test.mjs
+  s_d4e0db4b86a77e::t_2046ad9015a9d3 7,15,20-21,37-41,43-72,74,76-141,143-178
+  s_d4e0db4b86a77e::t_dba6e0cd53326d 1-6,8-14,16-19,22-36,42,73,75,142,179-182
+  s_d4e0db4b86a77e::t_004ef891d4173c 183-259
+apps/web/tests/rest.test.mjs
+  s_d4e0db4b86a77e::t_9e1714b871004f 125-159
+  s_d4e0db4b86a77e::t_852fac901e5e27 36,40-44,46,67,84,87,89
+apps/web/lib/rest.ts
+  s_d4e0db4b86a77e::t_706566813031cb 2-3
+  s_d4e0db4b86a77e::t_55106a82a38fef 146
+  s_d4e0db4b86a77e::t_1f20e03b6b551a 57-62,66
+  s_d4e0db4b86a77e::t_6d0f01d5a01fb6 98,105-113,115-118
+packages/ingest/src/pipeline.ts
+  s_d4e0db4b86a77e::t_9d553c6a00281e 86-88
+  s_d4e0db4b86a77e::t_2580e152422ff8 340-342
+apps/web/lib/reference-packs.ts
+  s_d4e0db4b86a77e::t_cb9736369d9854 2,5
+  s_d4e0db4b86a77e::t_4b5b9a7cbb7742 108-114,120-121,124,135-138
+docs/reviews/AF-SEC-00_JEV_SPEC.json
+  s_d4e0db4b86a77e::t_92e324131131ae 1-12
+apps/web/lib/mcp.ts
+  s_d4e0db4b86a77e::t_8cba3f62d17753 187
+  s_d4e0db4b86a77e::t_b0b21652cc154d 3,5
+  s_d4e0db4b86a77e::t_deea53a7f4da3e 209,216-221
+  s_d4e0db4b86a77e::t_870787b2a4f27a 292-293
+.github/workflows/ci.yml
+  s_d4e0db4b86a77e::t_65474607067c1d 489
+docs/reviews/AF-SEC-00_JEV_REVIEW.json
+  s_d4e0db4b86a77e::t_92e324131131ae 1
+apps/web/app/api/v1/assets/[id]/route.ts
+  s_d4e0db4b86a77e::t_56931b5e6b0127 25,27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2608d802f1bfb47355bd851c792a78f202645867",
+  "prompts": {},
+  "sessions": {
+    "s_d4e0db4b86a77e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7561532ffeoG305zWTUWtzKX",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": null
+    }
+  }
+}
