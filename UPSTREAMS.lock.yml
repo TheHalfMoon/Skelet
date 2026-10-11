@@ -780,6 +780,214 @@
       },
       "imported_paths": [],
       "modifications": []
+    },
+    {
+      "id": "artcraft",
+      "source_url": "https://github.com/storytold/artcraft",
+      "source_kind": "git",
+      "role": "transplant",
+      "status": "ready",
+      "capability": "Selective Moodboard board model/grid/canvas/presentation/history/snap/serialization plus conditional PageDraw local primitives; pagescene and video-editor rejected from core.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11 for selective code reuse. See docs/provenance/authorizations/craft-suite-2026-10-11.json and docs/provenance/CRAFT_SUITE_AUDIT_AF01_2026-10-11.md."
+      },
+      "license": "MIT OR Apache-2.0",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "28a39a0de4a2fc2eccc237df2046c24245bd12ab",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "restricted",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "artcraft-services",
+      "source_url": "https://github.com/storytold/artcraft-services",
+      "source_kind": "git",
+      "role": "transplant",
+      "status": "ready",
+      "capability": "Narrow browser-only video-to-PNG frame extraction (extract-frames.ts) with cancellation, CORS and timeout handling; ArtCraft API and paywalled media excluded.",
+      "permission_basis": {
+        "type": "user_authorization",
+        "note": "Upstream LICENSE.md is restrictive Fair Source/WIP, not an open-source grant. Reuse relies solely on founder authorization 2026-10-11 for the narrow frame-extractor code paths. See docs/provenance/authorizations/craft-suite-2026-10-11.json and AF-01 audit."
+      },
+      "license": "USER_AUTHORIZATION:skelet-founder-2026-10-11-craft-suite",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "02a3de2509662cfc7c12f51c09e7f4322618029a",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "restricted",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "vectorcraft",
+      "source_url": "https://github.com/storytold/vectorcraft",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "ready",
+      "capability": "Headless VectorCraft CLI and MCP stdio adapter for allowlisted SVG and vector batch operations; whole editor vendoring forbidden.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11 for adapter-scoped code reuse. See craft-suite authorization and AF-01 audit."
+      },
+      "license": "MIT OR Apache-2.0",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "6c3f9f60aa69ac151f9908b94cf00a387746eea4",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "photocraft",
+      "source_url": "https://github.com/storytold/photocraft",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "ready",
+      "capability": "Headless PhotoCraft CLI and automation MCP adapter for sandboxed raster convert and batch export; GPU and cloud paths excluded.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11 for adapter-scoped code reuse. See craft-suite authorization and AF-01 audit."
+      },
+      "license": "MIT OR Apache-2.0",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "97136485f0743251ab330d096ca6c9d0f0f6f54c",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "designcraft",
+      "source_url": "https://github.com/storytold/designcraft",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "ready",
+      "capability": "Post-launch document layout and export adapter candidate; launch-blocking runtimes excluded.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11. Post-launch evaluate only. See AF-01 audit."
+      },
+      "license": "MIT OR Apache-2.0",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "16a7365701f9ce8f93ca77a27a8dc2fffb807869",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "effectcraft",
+      "source_url": "https://github.com/storytold/effectcraft",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "ready",
+      "capability": "Post-launch Lottie and motion export adapter candidate; bulky runtimes excluded from launch.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11. Post-launch evaluate only. See AF-01 audit."
+      },
+      "license": "MIT OR Apache-2.0",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "9a7d3e76991d5372448033b473dc12c2480a6a04",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "filmcraft",
+      "source_url": "https://github.com/storytold/filmcraft",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "ready",
+      "capability": "Deferred ingest, frames, and timeline helper candidate; full film studio excluded from core.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11. Deferred until P10 shows a quantified gap. See AF-01 audit."
+      },
+      "license": "MIT OR Apache-2.0",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
+    },
+    {
+      "id": "lightcraft",
+      "source_url": "https://github.com/storytold/lightcraft",
+      "source_kind": "git",
+      "role": "adapter",
+      "status": "ready",
+      "capability": "Deferred image metadata helper candidate; RAW, segment, SAM weights, and GPU paths excluded from launch.",
+      "permission_basis": {
+        "type": "both",
+        "note": "Upstream MIT OR Apache-2.0 with NOTICE verified 2026-10-11 at pinned commit plus founder authorization 2026-10-11. crates/segment is Apache-2.0-only; SAM3 weights and RawNIND checkpoints are never distributed and require separate user terms. Deferred. See AF-01 audit."
+      },
+      "license": "MIT OR Apache-2.0 with Apache-2.0-only crates/segment",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "0ba118de92a81f7463ca0e6d79e1323137b1adae",
+      "verification_date": "2026-10-11",
+      "rights_scope": {
+        "code": "authorized",
+        "data": "restricted",
+        "assets": "restricted",
+        "models": "restricted",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [],
+      "modifications": []
     }
   ]
 }
