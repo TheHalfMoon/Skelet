@@ -1,7 +1,7 @@
 import type { DbClient } from "../../../packages/db/src/db.ts";
 import { validateSession } from "../../../packages/db/src/auth.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
-import { saveReference } from "../../../packages/db/src/collections.ts";
+import { deleteCollection, saveReference } from "../../../packages/db/src/collections.ts";
 import { resolveAssetForActor, searchAssetsForActor } from "../../../packages/assets/src/registry.ts";
 import { buildRegistryItem } from "./registry.ts";
 import {
@@ -466,6 +466,31 @@ async function callTool(
       const pack = await createReferencePack(db, packInput);
       if (idempotencyKey !== undefined) {
         await claimPackIdempotency(db, actorId, idempotencyKey, pack.collectionId);
+        // Close the concurrent same-key race: if a sibling call claimed the
+        // key first, our insert did nothing and the ledger points at the
+        // winner. Delete our orphaned duplicate (best effort; we own it) and
+        // return the winner so concurrent retries still converge on one URI.
+        const winner = await findPackForIdempotencyKey(db, actorId, idempotencyKey);
+        if (winner !== null && winner !== pack.collectionId) {
+          try {
+            await deleteCollection(db, { collectionId: pack.collectionId, actorId });
+          } catch {
+            // Orphan cleanup is best effort; the canonical answer is still
+            // the winner's pack below.
+          }
+          const exportedWinner = await exportReferencePack(db, winner, actorId);
+          const requested = packInput.artifactIds?.length ?? 0;
+          const partial = requested > 0 && exportedWinner.itemCount < requested;
+          return successEnvelope(
+            requestId,
+            { pack: exportedWinner },
+            {
+              provenance: observedProvenance(exportedWinner.uri),
+              warnings: partial ? ["Some references were withheld by rights or visibility."] : undefined,
+              partial,
+            },
+          );
+        }
       }
       const exported = await exportReferencePack(db, pack.collectionId, actorId);
       const requested = packInput.artifactIds?.length ?? 0;
