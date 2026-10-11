@@ -1,0 +1,33 @@
+.github/workflows/ci.yml
+  s_b4795a6f23ce5e::t_929e64ca476d5c 59-61
+fixtures/agent-contract/invalid-uri.json
+  s_b4795a6f23ce5e::t_74a02bd0893d4a 1-7
+fixtures/agent-contract/invalid-error.json
+  s_b4795a6f23ce5e::t_fa0bb3b85fb890 1-10
+scripts/validate_agent_contract.py
+  s_b4795a6f23ce5e::t_da8aa0c9ce3c3e 1-168
+fixtures/agent-contract/valid-envelope.json
+  s_b4795a6f23ce5e::t_c55fbb99167631 1-21
+schemas/agent-contract.schema.json
+  s_b4795a6f23ce5e::t_411e963e4743ac 1-78
+tests/test_validate_agent_contract.py
+  s_b4795a6f23ce5e::t_0034f93d476452 1-98
+fixtures/agent-contract/valid-denied.json
+  s_b4795a6f23ce5e::t_5d97950e9f732e 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "f91e5206f5bdd58288655608c32b2a195b0daab7",
+  "prompts": {},
+  "sessions": {
+    "s_b4795a6f23ce5e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed6960fe0ffe5jTrNIjwywBjkR",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
