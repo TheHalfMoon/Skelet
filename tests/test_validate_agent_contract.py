@@ -93,6 +93,22 @@ class AgentContractTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("AGENT_CONTRACT_PASSED", result.stdout)
 
+    def test_checked_in_schema_matches_validator_contract(self) -> None:
+        import re as re_module
+
+        schema = json.loads(
+            (ROOT / "schemas" / "agent-contract.schema.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(schema["properties"]["schema_version"], {"const": "skelet.agent.v1"})
+        error_enum = schema["$defs"]["error"]["properties"]["code"]["enum"]
+        self.assertEqual(set(error_enum), ERROR_CODES)
+        self.assertEqual(len(error_enum), 13)
+        pattern = schema["$defs"]["uri"]["pattern"]
+        compiled = re_module.compile(pattern)
+        self.assertTrue(compiled.match("skelet://artifact/icon-set-001"))
+        self.assertFalse(compiled.match("skelet://artifact/../../etc/passwd"))
+        self.assertFalse(compiled.match("skelet://unknown/abc"))
+
 
 if __name__ == "__main__":
     unittest.main()
