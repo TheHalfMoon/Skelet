@@ -1,0 +1,58 @@
+apps/web/lib/mcp.ts
+  s_66255ee849b83b::t_4f3d27e202a723 12-24,37-42,78-83,94,110,198-201,207-208,210,215-218,224-226,232,236-245,248-276,280,284-303,308-327,332,336,342-344,346-350,354,357,364,385,388-401,406,414-420,422-430,432-433,437-457,460,463,465,510-512,522-523,526,532,534-539,543-546,600-602
+  s_66255ee849b83b::t_247479074bf946 25
+apps/web/tests/mcp.test.mjs
+  s_66255ee849b83b::t_9287e8c167229d 107-112,118-119,124
+  s_66255ee849b83b::t_ebc2520f88f00e 314
+  s_66255ee849b83b::t_b148269bc0c0d6 193-195,203,208
+apps/web/lib/agent-contract.ts
+  s_66255ee849b83b::t_7b1d44d4aab3a6 111-112,118-123
+  s_66255ee849b83b::t_daa6f64b5478a9 224-229
+  s_66255ee849b83b::t_73c0a9afd4e9f8 1-110,113-117,124-223,230-254,262-380
+  s_66255ee849b83b::t_bb4e361e10c93a 255-261
+apps/web/tests/rest.test.mjs
+  s_66255ee849b83b::t_c9fc62d18c2a47 106
+  s_66255ee849b83b::t_4afc5a0eaf173a 90
+  s_66255ee849b83b::t_0bd4e00162b960 123-124
+  s_66255ee849b83b::t_945eaa2db707ce 148,151,159-160
+  s_66255ee849b83b::t_4425ac0d398d92 38-42,49
+  s_66255ee849b83b::t_6cd1d87d7b693f 72-73
+apps/web/app/api/v1/assets/route.ts
+  s_66255ee849b83b::t_837fce98d3f8f8 8,21-24,26,30-34,40-41,47-52,55-56
+packages/assets/src/registry.ts
+  s_66255ee849b83b::t_2243abba7f531e 499-501,514
+  s_66255ee849b83b::t_169985adbbcb09 364-369,375
+  s_66255ee849b83b::t_af8a32610850eb 370-374
+  s_66255ee849b83b::t_f3eba22b11e043 420-423
+packages/sdk-ts/src/client.ts
+  s_66255ee849b83b::t_53fa2c6a8716e8 87-111
+  s_66255ee849b83b::t_63ac425043cbd3 189-191,194,202,205-206,209,217,221-224,228
+apps/web/app/api/v1/assets/[id]/route.ts
+  s_66255ee849b83b::t_91f6fc27492764 8-12,18,22-26,32-33,38,41-42
+apps/web/app/api/v1/objects/route.ts
+  s_66255ee849b83b::t_6862173cb2e3cb 8-12,15,19-23,29-30,35-40,43-44
+apps/web/tests/envelope-parity.test.mjs
+  s_66255ee849b83b::t_c57910de73e6cd 343-345,353-355
+  s_66255ee849b83b::t_433c549be2e79f 1-342,346-352,356-559
+apps/web/lib/rest.ts
+  s_66255ee849b83b::t_ebe8dd2a8b1369 4,6-18,22-30,35,64-74,79-81,87,89,92,100,103-124,132-133,138-162,169-170,176,178,180-198,200-203,207-208,210,219,221,223,229,235-236,238-247,255-257,260-285,287-290,293-298,300,302-307,310-313
+  s_66255ee849b83b::t_75ac60058065a4 19
+apps/web/app/api/mcp/route.ts
+  s_66255ee849b83b::t_c96ec894b3071a 6,17,19-20,27,29-30,65,67-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e7daab7f0ecc92b1136107351c32c021dc6e46ac",
+  "prompts": {},
+  "sessions": {
+    "s_66255ee849b83b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed4bf0db3ffefqBeizJBEiL2HO",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
