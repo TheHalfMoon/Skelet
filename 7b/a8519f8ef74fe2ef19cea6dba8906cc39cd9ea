@@ -1,0 +1,45 @@
+docs/reviews/G09b-06_JEV_SPEC.json
+  s_b04f256be53f52::t_099e7bc5b41d58 1-53,55,57-58
+  s_b04f256be53f52::t_053e7b7b384540 54
+  s_b04f256be53f52::t_9bbb0127b7f1a7 56
+packages/lens/src/kit-package.ts
+  s_b04f256be53f52::t_06f10a62ea6d58 4,7,19-31
+  s_b04f256be53f52::t_7847329a63e822 1-3,5-6,8-18,32-74,80-95,131-187,202-311,318-333
+  s_b04f256be53f52::t_bd72338198a6c8 188-201
+  s_b04f256be53f52::t_bd44937a51d221 96-130
+  s_b04f256be53f52::t_68045b8510cfdf 312-317
+  s_b04f256be53f52::t_b39f7124d59c2f 75-79
+.github/workflows/ci.yml
+  s_b04f256be53f52::t_5a6b521592dabb 431
+docs/reviews/G09b-06_PSTACK_PANELS.md
+  s_b04f256be53f52::t_1a278233ed53e0 1-62
+docs/reviews/G09b-06_JEV_REVIEW.json
+  s_b04f256be53f52::t_3ff7e7a04f5097 1
+packages/lens/tests/kit-package.test.mjs
+  s_b04f256be53f52::t_9027cebebf1b58 22-42,45-46
+  s_b04f256be53f52::t_1c314403ea65aa 9,11
+  s_b04f256be53f52::t_ac1368fcb27d2a 43-44,47
+  s_b04f256be53f52::t_91e453398c68a0 163-165
+  s_b04f256be53f52::t_325a2740db458d 171-184
+  s_b04f256be53f52::t_99aa99f04950d5 1-8,10,12-21,48-49,51-52,54-62,64-67,70-162,166-170,217,219-222
+  s_b04f256be53f52::t_d40686998893e7 185-216
+  s_b04f256be53f52::t_98481f256dd915 68-69
+  s_b04f256be53f52::t_59fbcaefa0803a 218
+  s_b04f256be53f52::t_1663cd69b81b33 50,53,63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "7ba8519f8ef74fe2ef19cea6dba8906cc39cd9ea",
+  "prompts": {},
+  "sessions": {
+    "s_b04f256be53f52": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7a22755ffetWqi4lfvlFLbnF",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": null
+    }
+  }
+}
