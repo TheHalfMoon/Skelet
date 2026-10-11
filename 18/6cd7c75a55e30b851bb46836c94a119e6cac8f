@@ -1,0 +1,40 @@
+packages/db/tests/db-foundation.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 26,30,121,129
+  s_d4e0db4b86a77e::t_48437f658fb7bd 47
+packages/db/tests/auth.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 20
+packages/db/tests/pg-integration.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 97,106
+packages/db/tests/jobs.test.mjs
+  s_d4e0db4b86a77e::t_d4f93dae389516 27
+packages/db/tests/billing.test.mjs
+  s_d4e0db4b86a77e::t_d4f93dae389516 28
+packages/db/tests/build-kit.test.mjs
+  s_d4e0db4b86a77e::t_d4f93dae389516 34
+packages/db/tests/workflows.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 37,45,47
+packages/db/tests/pg-graph.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 25
+packages/db/tests/pg-build-kit.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 39
+packages/db/tests/workspaces.test.mjs
+  s_d4e0db4b86a77e::t_d4f93dae389516 28
+packages/db/tests/pg-workflows.test.mjs
+  s_d4e0db4b86a77e::t_280c55c1a25cb9 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "186cd7c75a55e30b851bb46836c94a119e6cac8f",
+  "prompts": {},
+  "sessions": {
+    "s_d4e0db4b86a77e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed7561532ffeoG305zWTUWtzKX",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}
