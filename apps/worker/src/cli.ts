@@ -48,6 +48,8 @@ export function run(argv: string[], env: NodeJS.ProcessEnv): CliResult {
             service: "skelet-worker",
             version: version(),
             env: loaded.SKELET_ENV,
+            noModel: loaded.SKELET_NO_MODEL,
+            egress: "deny-unapproved",
           }) + "\n",
         stderr: "",
       };
@@ -56,7 +58,8 @@ export function run(argv: string[], env: NodeJS.ProcessEnv): CliResult {
       exitCode: 0,
       stdout:
         `skelet-worker ready (env=${loaded.SKELET_ENV}, ` +
-        `concurrency=${loaded.SKELET_WORKER_CONCURRENCY}): ` +
+        `concurrency=${loaded.SKELET_WORKER_CONCURRENCY}, ` +
+        `no-model=${loaded.SKELET_NO_MODEL ? "1" : "0"}): ` +
         `no jobs registered\n`,
       stderr: "",
     };

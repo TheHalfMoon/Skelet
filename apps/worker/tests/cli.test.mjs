@@ -12,6 +12,22 @@ test("health command reports the worker contract", () => {
   assert.equal(typeof payload.version, "string");
   assert.ok(payload.version.length > 0);
   assert.equal(payload.env, "development");
+  assert.equal(payload.noModel, true);
+  assert.equal(payload.egress, "deny-unapproved");
+});
+
+test("health reports explicit opt-out when disabled", () => {
+  const result = run(["health"], { SKELET_NO_MODEL: "0" });
+  assert.equal(result.exitCode, 0);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.noModel, false);
+  assert.equal(payload.egress, "deny-unapproved");
+});
+
+test("health fails closed on invalid no-model flag", () => {
+  const result = run(["health"], { SKELET_NO_MODEL: "strict" });
+  assert.equal(result.exitCode, 1);
+  assert.match(result.stderr, /SKELET_NO_MODEL/);
 });
 
 test("health fails closed on invalid env", () => {
