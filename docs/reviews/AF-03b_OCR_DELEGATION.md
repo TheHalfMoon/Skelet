@@ -32,3 +32,10 @@
     destructuring; no unchecked deep access in routes.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
+- Recount on evidence head `a1b00146a2caf18d3fc5fd29b96333182bd657c5`:
+  `ocr delegate preview` reports 14 reviewable / 16 total. The 2 added
+  reviewable files are `docs/reviews/AF-03b_JEV_REVIEW.json` and
+  `docs/reviews/AF-03b_JEV_SPEC.json` (same JSON key-spelling rule group,
+  no finding). Excluded remain the 2 markdown panels (`unsupported_ext`),
+  covered by the PStack four-bar panel and the green test suites. Jev was
+  rerun on the evidence head with zero blocking findings.
