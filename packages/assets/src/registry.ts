@@ -373,44 +373,47 @@ export interface AssetSearch {
    * apps/web/lib/agent-contract.ts; raw offsets are an internal detail.
    */
   offset?: number | undefined;
+  /** Add access-scoped facet counts to the response. */
+  includeFacets?: boolean | undefined;
+}
+
+export interface AssetFacetCount {
+  value: string;
+  count: number;
+}
+
+export interface AssetSearchFacets {
+  kinds: AssetFacetCount[];
+  rights: AssetFacetCount[];
+  licenses: AssetFacetCount[];
+  collections: AssetFacetCount[];
+}
+
+export type AssetSearchMode = "postgres-fts" | "literal-like";
+
+export interface AssetSearchDetailedResult {
+  assets: AssetRecord[];
+  searchMode: AssetSearchMode;
+  facets?: AssetSearchFacets | undefined;
 }
 
 const SEARCH_MAX_LIMIT = 50;
+const SEARCH_MAX_OFFSET = 1_000_000;
+const SEARCH_VECTOR =
+  "to_tsvector('simple', coalesce(a.title, '') || ' ' || coalesce(a.summary, '') || ' ' || " +
+  "coalesce(a.canonical_text, '') || ' ' || coalesce(a.metadata->>'collection', '') || ' ' || " +
+  "coalesce(a.metadata->>'ref', ''))";
+const SEARCH_LIKE_ESCAPE = "escape E'\\\\'";
 
-/**
- * Unified search across icons, logos, and fonts. Text matches titles,
- * summaries, canonical text, collections, refs, and tags; every result
- * carries provenance and a serving policy.
- *
- * AF-SEC-00: the unscoped search is the public-corpus search only. It
- * never returns private or workspace-visible rows, so guessed IDs and
- * search facets cannot leak restricted metadata. Authenticated callers
- * that need workspace evidence must use searchAssetsForActor.
- */
-export async function searchAssets(
-  tx: DbTransaction,
-  search: AssetSearch,
-): Promise<AssetRecord[]> {
-  return searchAssetsScoped(tx, search, null);
+interface AssetSearchPlan {
+  params: unknown[];
+  ftsWhere: string;
+  literalWhere: string;
+  searchText: string;
 }
 
-export async function searchAssetsForActor(
-  tx: DbTransaction,
-  search: AssetSearch,
-  actorId: string,
-): Promise<AssetRecord[]> {
-  if (typeof actorId !== "string" || actorId.length === 0) {
-    throw new RegistryError("assets/invalid-record", "Actor is invalid.");
-  }
-  return searchAssetsScoped(tx, search, actorId);
-}
-
-async function searchAssetsScoped(
-  tx: DbTransaction,
-  search: AssetSearch,
-  actorId: string | null,
-): Promise<AssetRecord[]> {
-  if (typeof search.query !== "string" || search.query.trim().length === 0) {
+function buildAssetSearchPlan(search: AssetSearch, actorId: string | null): AssetSearchPlan {
+  if (typeof search.query !== "string" || search.query.trim().length === 0 || search.query.trim().length > 200) {
     throw new RegistryError("assets/invalid-record", "Search query is invalid.");
   }
   const limit = search.limit ?? 20;
@@ -418,103 +421,256 @@ async function searchAssetsScoped(
     throw new RegistryError("assets/invalid-record", "Search limit is invalid.");
   }
   const offset = search.offset ?? 0;
-  if (!Number.isInteger(offset) || offset < 0 || offset > 1_000_000) {
+  if (!Number.isInteger(offset) || offset < 0 || offset > SEARCH_MAX_OFFSET) {
     throw new RegistryError("assets/invalid-record", "Search cursor is invalid.");
   }
+  if (search.includeFacets !== undefined && typeof search.includeFacets !== "boolean") {
+    throw new RegistryError("assets/invalid-record", "Facet option is invalid.");
+  }
+  if (search.trademarkFree !== undefined && typeof search.trademarkFree !== "boolean") {
+    throw new RegistryError("assets/invalid-record", "Trademark filter is invalid.");
+  }
+  if (search.collection !== undefined &&
+      (typeof search.collection !== "string" || search.collection.trim().length === 0 ||
+       search.collection.length > 200)) {
+    throw new RegistryError("assets/invalid-record", "Collection filter is invalid.");
+  }
+
   const kinds = search.kinds ?? (["icon", "logo", "font"] as RegistryKind[]);
   for (const kind of kinds) validateKind(kind);
-  if (kinds.length === 0) {
+  if (kinds.length === 0 || kinds.length > REGISTRY_KINDS.length || new Set(kinds).size !== kinds.length) {
     throw new RegistryError("assets/invalid-record", "Asset kinds are invalid.");
   }
-  // Escape LIKE wildcards so queries match literally instead of
-  // over-matching the catalog.
-  const escaped = search.query.trim().toLowerCase().replace(/[\\%_]/g, (char) => `\\${char}`);
-  const pattern = `%${escaped}%`;
-  const likeEscape = "escape '\\'";
-  const params: unknown[] = [pattern];
+
+  const searchText = search.query.trim();
+  const escaped = searchText.toLowerCase().replace(/[\\%_]/g, (char) => "\\" + char);
+  const params: unknown[] = [searchText, "%" + escaped + "%"];
   const kindPlaceholders = kinds.map((kind) => {
     params.push(kind);
-    return `$${params.length}`;
+    return "$" + params.length;
   });
-  let rightsFilter = "";
+  const filters: string[] = ["a.kind in (" + kindPlaceholders.join(", ") + ")"];
+
   if (search.rights !== undefined) {
-    if (
-      search.rights.length === 0 ||
-      search.rights.some(
-        (right) => !["unknown", "metadata_only", "permitted", "restricted"].includes(right),
-      )
-    ) {
+    const allowedRights = ["unknown", "metadata_only", "permitted", "restricted"];
+    if (search.rights.length === 0 || search.rights.length > allowedRights.length ||
+        search.rights.some((right) => typeof right !== "string" || !allowedRights.includes(right)) ||
+        new Set(search.rights).size !== search.rights.length) {
       throw new RegistryError("assets/invalid-record", "Rights filter is invalid.");
     }
     const placeholders = search.rights.map((right) => {
       params.push(right);
-      return `$${params.length}`;
+      return "$" + params.length;
     });
-    rightsFilter = `and a.rights_classification in (${placeholders.join(", ")})`;
+    filters.push("a.rights_classification in (" + placeholders.join(", ") + ")");
   }
-  let licenseFilter = "";
+
   if (search.licenses !== undefined) {
-    if (
-      search.licenses.length === 0 ||
-      search.licenses.some((license) => typeof license !== "string" || license.length === 0 || license.length > 64)
-    ) {
+    if (search.licenses.length === 0 || search.licenses.length > 32 ||
+        search.licenses.some((license) => typeof license !== "string" ||
+          license.length === 0 || license.length > 64) ||
+        new Set(search.licenses).size !== search.licenses.length) {
       throw new RegistryError("assets/invalid-record", "License filter is invalid.");
     }
     const placeholders = search.licenses.map((license) => {
       params.push(license);
-      return `$${params.length}`;
+      return "$" + params.length;
     });
-    licenseFilter = `and coalesce(a.metadata->>'license', 'unknown') in (${placeholders.join(", ")})`;
+    filters.push("coalesce(a.metadata->>'license', 'unknown') in (" + placeholders.join(", ") + ")");
   }
-  let trademarkFilter = "";
-  if (search.trademarkFree === true) {
-    trademarkFilter = `and coalesce((a.metadata->>'trademark')::boolean, false) = false`;
+
+  if (search.trademarkFree !== undefined) {
+    params.push(!search.trademarkFree);
+    filters.push("coalesce((a.metadata->>'trademark')::boolean, false) = $" + params.length);
   }
-  let collectionFilter = "";
+
   if (search.collection !== undefined) {
-    params.push(search.collection);
-    collectionFilter = `and coalesce(a.metadata->>'collection', '') = $${params.length}`;
+    params.push(search.collection.trim());
+    filters.push("coalesce(a.metadata->>'collection', '') = $" + params.length);
   }
-  // AF-SEC-00: scope filter BEFORE rank/facets/caching. The unscoped
-  // search serves the global corpus only (workspace_id IS NULL, any
-  // visibility — the curated Iconify/Fontsource-like registry). New
-  // workspace-bound rows never leak into it. Actor callers additionally
-  // see workspace rows they are authorized for (membership +
-  // private-owner match).
-  let scopeFilter = `and a.workspace_id is null`;
+
+  // Access control is part of the SQL predicate before row ranking, facets,
+  // counts, or pagination. Never compute facets from an unscoped corpus.
+  let scopeFilter = "a.workspace_id is null";
   if (actorId !== null) {
     params.push(actorId);
-    const memberParam = `$${params.length}`;
+    const memberParam = "$" + params.length;
     params.push(actorId);
-    const ownerParam = `$${params.length}`;
+    const ownerParam = "$" + params.length;
     scopeFilter =
-      `and (a.workspace_id is null or (a.workspace_id is not null and exists (` +
-      `select 1 from workspace_members m where m.workspace_id = a.workspace_id ` +
-      `and m.user_id = ${memberParam} and (` +
-      `a.visibility = 'workspace' or a.visibility = 'public' or ` +
-      `(a.visibility = 'private' and a.owner_subject = ${ownerParam})` +
-      `))))`;
+      "(a.workspace_id is null or (a.workspace_id is not null and exists (" +
+      "select 1 from workspace_members m where m.workspace_id = a.workspace_id " +
+      "and m.user_id = " + memberParam + " and (" +
+      "a.visibility = 'workspace' or a.visibility = 'public' or " +
+      "(a.visibility = 'private' and a.owner_subject = " + ownerParam + ")" +
+      "))))";
   }
-  params.push(limit);
-  const limitParam = `$${params.length}`;
-  params.push(offset);
-  const offsetParam = `$${params.length}`;
-  const result = await tx.query(
-    `select ${RECORD_COLUMNS} from artifacts a join sources s on s.id = a.source_id
-     where a.kind in (${kindPlaceholders.join(", ")})
-       and (lower(a.title) like $1 ${likeEscape} or lower(coalesce(a.summary, '')) like $1 ${likeEscape}
-         or lower(coalesce(a.canonical_text, '')) like $1 ${likeEscape}
-         or lower(coalesce(a.metadata->>'collection', '')) like $1 ${likeEscape}
-         or lower(coalesce(a.metadata->>'ref', '')) like $1 ${likeEscape}
-         or exists (select 1 from jsonb_array_elements_text(
-           case when jsonb_typeof(a.metadata->'tags') = 'array'
-             then a.metadata->'tags' else '[]'::jsonb end) as tag
-           where lower(tag) like $1 ${likeEscape}))
-       ${rightsFilter} ${licenseFilter} ${trademarkFilter} ${collectionFilter} ${scopeFilter}
-     order by a.title, a.id limit ${limitParam} offset ${offsetParam}`,
+  filters.push(scopeFilter);
+
+  // FTS gives token relevance; literal matching preserves historic substring
+  // behavior and searches JSON tags. Literal matching is also the fallback.
+  const literalWhere =
+    "(lower(a.title) like $2 " + SEARCH_LIKE_ESCAPE + " or " +
+    "lower(coalesce(a.summary, '')) like $2 " + SEARCH_LIKE_ESCAPE + " or " +
+    "lower(coalesce(a.canonical_text, '')) like $2 " + SEARCH_LIKE_ESCAPE + " or " +
+    "lower(coalesce(a.metadata->>'collection', '')) like $2 " + SEARCH_LIKE_ESCAPE + " or " +
+    "lower(coalesce(a.metadata->>'ref', '')) like $2 " + SEARCH_LIKE_ESCAPE + " or " +
+    "exists (select 1 from jsonb_array_elements_text(" +
+    "case when jsonb_typeof(a.metadata->'tags') = 'array' " +
+    "then a.metadata->'tags' else '[]'::jsonb end) as tag " +
+    "where lower(tag) like $2 " + SEARCH_LIKE_ESCAPE + "))";
+  const ftsWhere = "((" + SEARCH_VECTOR + " @@ plainto_tsquery('simple', $1)) or " +
+    literalWhere + ")";
+  const suffix = filters.join(" and ");
+  return {
     params,
+    searchText,
+    ftsWhere: ftsWhere + " and " + suffix,
+    literalWhere: literalWhere + " and " + suffix,
+  };
+}
+
+function ftsCapabilityUnavailable(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /(?:to_tsvector|plainto_tsquery|ts_rank|tsvector|GIN).{0,160}(?:does not exist|not supported|unsupported|unavailable)|(?:does not exist|not supported|unsupported|unavailable).{0,160}(?:to_tsvector|plainto_tsquery|ts_rank|tsvector|GIN)/i.test(message);
+}
+
+/**
+ * Unified deterministic lexical search across icons, logos, and fonts.
+ * PostgreSQL full-text search ranks token matches; literal matching
+ * preserves substring queries and JSON-tag search. This is lexical search,
+ * not semantic search, and never silently enables embeddings.
+ *
+ * AF-SEC-00: authorization is applied in the database predicate before
+ * ranking and facet aggregation. The unscoped search only sees global rows.
+ */
+export async function searchAssetsDetailed(
+  tx: DbTransaction,
+  search: AssetSearch,
+): Promise<AssetSearchDetailedResult> {
+  return searchAssetsScopedDetailed(tx, search, null);
+}
+
+export async function searchAssetsForActorDetailed(
+  tx: DbTransaction,
+  search: AssetSearch,
+  actorId: string,
+): Promise<AssetSearchDetailedResult> {
+  if (typeof actorId !== "string" || actorId.length === 0) {
+    throw new RegistryError("assets/invalid-record", "Actor is invalid.");
+  }
+  return searchAssetsScopedDetailed(tx, search, actorId);
+}
+
+export async function searchAssets(
+  tx: DbTransaction,
+  search: AssetSearch,
+): Promise<AssetRecord[]> {
+  return (await searchAssetsDetailed(tx, search)).assets;
+}
+
+export async function searchAssetsForActor(
+  tx: DbTransaction,
+  search: AssetSearch,
+  actorId: string,
+): Promise<AssetRecord[]> {
+  return (await searchAssetsForActorDetailed(tx, search, actorId)).assets;
+}
+
+async function searchAssetsScopedDetailed(
+  tx: DbTransaction,
+  search: AssetSearch,
+  actorId: string | null,
+): Promise<AssetSearchDetailedResult> {
+  const plan = buildAssetSearchPlan(search, actorId);
+  const limit = search.limit ?? 20;
+  const offset = search.offset ?? 0;
+  let rows: Record<string, unknown>[];
+  let searchMode: AssetSearchMode = "postgres-fts";
+  try {
+    if (/[%_\\]/.test(plan.searchText)) {
+      // Preserve legacy literal semantics when punctuation is meaningful
+      // (for example, an underscore must not normalize to a space).
+      searchMode = "literal-like";
+      const params = [...plan.params, limit, offset];
+      const limitParam = "$" + (params.length - 1);
+      const offsetParam = "$" + params.length;
+      const result = await tx.query(
+        "select " + RECORD_COLUMNS + " from artifacts a join sources s on s.id = a.source_id " +
+        "where $1::text is not null and " + plan.literalWhere + " order by a.title, a.id limit " +
+        limitParam + " offset " + offsetParam,
+        params,
+      );
+      rows = result.rows;
+    } else {
+      const params = [...plan.params, limit, offset];
+      const limitParam = "$" + (params.length - 1);
+      const offsetParam = "$" + params.length;
+      const result = await tx.query(
+        "select " + RECORD_COLUMNS + " from artifacts a join sources s on s.id = a.source_id " +
+        "where " + plan.ftsWhere + " " +
+        "order by case when " + SEARCH_VECTOR + " @@ plainto_tsquery('simple', $1) " +
+        "then ts_rank(" + SEARCH_VECTOR + ", plainto_tsquery('simple', $1)) " +
+        "else 0::real end desc, a.title, a.id " +
+        "limit " + limitParam + " offset " + offsetParam,
+        params,
+      );
+      rows = result.rows;
+    }
+  } catch (error) {
+    if (!ftsCapabilityUnavailable(error)) throw error;
+    searchMode = "literal-like";
+    const params = [...plan.params, limit, offset];
+    const limitParam = "$" + (params.length - 1);
+    const offsetParam = "$" + params.length;
+    const result = await tx.query(
+      "select " + RECORD_COLUMNS + " from artifacts a join sources s on s.id = a.source_id " +
+      "where $1::text is not null and " + plan.literalWhere + " order by a.title, a.id limit " +
+      limitParam + " offset " + offsetParam,
+      params,
+    );
+    rows = result.rows;
+  }
+
+  const response: AssetSearchDetailedResult = {
+    assets: rows.map(toRecord),
+    searchMode,
+  };
+  if (search.includeFacets === true) {
+    response.facets = await queryAssetSearchFacets(tx, plan, searchMode);
+  }
+  return response;
+}
+
+async function queryAssetSearchFacets(
+  tx: DbTransaction,
+  plan: AssetSearchPlan,
+  searchMode: AssetSearchMode,
+): Promise<AssetSearchFacets> {
+  const where = searchMode === "postgres-fts" ? plan.ftsWhere : "$1::text is not null and " + plan.literalWhere;
+  const result = await tx.query(
+    "with matched as (" +
+    " select a.kind, a.rights_classification, a.metadata " +
+    " from artifacts a join sources s on s.id = a.source_id where " + where +
+    ") " +
+    "select f.facet, f.value, count(*)::int as count from matched a " +
+    "cross join lateral (values " +
+    "('kinds'::text, a.kind::text), " +
+    "('rights'::text, a.rights_classification::text), " +
+    "('licenses'::text, coalesce(a.metadata->>'license', 'unknown')), " +
+    "('collections'::text, nullif(a.metadata->>'collection', '')) " +
+    ") as f(facet, value) where f.value is not null " +
+    "group by f.facet, f.value order by f.facet, f.value",
+    plan.params,
   );
-  return result.rows.map(toRecord);
+  const facets: AssetSearchFacets = { kinds: [], rights: [], licenses: [], collections: [] };
+  for (const row of result.rows) {
+    const facet = String(row.facet) as keyof AssetSearchFacets;
+    if (facet in facets) {
+      facets[facet].push({ value: String(row.value), count: Number(row.count) });
+    }
+  }
+  return facets;
 }
 
 /**

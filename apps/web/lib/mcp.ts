@@ -2,7 +2,7 @@ import type { DbClient } from "../../../packages/db/src/db.ts";
 import { validateSession } from "../../../packages/db/src/auth.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { deleteCollection, saveReference } from "../../../packages/db/src/collections.ts";
-import { resolveAssetForActor, searchAssetsForActor } from "../../../packages/assets/src/registry.ts";
+import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
 import { buildRegistryItem } from "./registry.ts";
 import {
   createReferencePack,
@@ -132,8 +132,13 @@ function toolSchemas(): unknown[] {
       inputSchema: {
         type: "object",
         properties: {
-          query: { type: "string" },
-          kinds: { type: "array", items: { type: "string" } },
+          query: { type: "string", maxLength: 200 },
+          kinds: { type: "array", items: { type: "string", enum: ["icon", "logo", "font"] } },
+          rights: { type: "array", items: { type: "string", enum: ["unknown", "metadata_only", "permitted", "restricted"] } },
+          licenses: { type: "array", items: { type: "string", maxLength: 64 } },
+          trademarkFree: { type: "boolean" },
+          collection: { type: "string", maxLength: 200 },
+          facets: { type: "boolean", description: "Include access-scoped deterministic facet counts." },
           limit: { type: "number" },
           cursor: { type: "string" },
           requestId: requestIdProp,
@@ -277,17 +282,75 @@ async function callTool(
     const search: {
       query: string;
       kinds?: ("icon" | "logo" | "font")[];
+      rights?: string[];
+      licenses?: string[];
+      trademarkFree?: boolean;
+      collection?: string;
+      includeFacets?: boolean;
       limit: number;
       offset: number;
     } = { query: params.query.trim(), limit: 20, offset: 0 };
     if (params.kinds !== undefined) {
       if (
         !Array.isArray(params.kinds) ||
-        params.kinds.some((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind))
+        params.kinds.length === 0 ||
+        params.kinds.length > REGISTRY_KINDS.length ||
+        params.kinds.some((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind)) ||
+        new Set(params.kinds).size !== params.kinds.length
       ) {
         throw invalidInput("search_assets.kinds is invalid.", requestId);
       }
       search.kinds = params.kinds as ("icon" | "logo" | "font")[];
+    }
+    {
+      const value = params.rights;
+      if (value !== undefined) {
+        const allowedRights = ["unknown", "metadata_only", "permitted", "restricted"] as const;
+        if (
+          !Array.isArray(value) ||
+          value.length === 0 ||
+          value.length > allowedRights.length ||
+          value.some((item) => typeof item !== "string" || !(allowedRights as readonly string[]).includes(item)) ||
+          new Set(value).size !== value.length
+        ) {
+          throw invalidInput("search_assets.rights is invalid.", requestId);
+        }
+        search.rights = value as string[];
+      }
+    }
+    {
+      const value = params.licenses;
+      if (value !== undefined) {
+        if (
+          !Array.isArray(value) ||
+          value.length === 0 ||
+          value.length > 32 ||
+          value.some((item) => typeof item !== "string" || item.length === 0 || item.length > 64) ||
+          new Set(value).size !== value.length
+        ) {
+          throw invalidInput("search_assets.licenses is invalid.", requestId);
+        }
+        search.licenses = value as string[];
+      }
+    }
+    if (params.trademarkFree !== undefined) {
+      if (typeof params.trademarkFree !== "boolean") {
+        throw invalidInput("search_assets.trademarkFree is invalid.", requestId);
+      }
+      search.trademarkFree = params.trademarkFree;
+    }
+    if (params.collection !== undefined) {
+      if (typeof params.collection !== "string" || params.collection.trim().length === 0 ||
+          params.collection.length > 200) {
+        throw invalidInput("search_assets.collection is invalid.", requestId);
+      }
+      search.collection = params.collection.trim();
+    }
+    if (params.facets !== undefined) {
+      if (typeof params.facets !== "boolean") {
+        throw invalidInput("search_assets.facets is invalid.", requestId);
+      }
+      search.includeFacets = params.facets;
     }
     try {
       search.limit = parseSearchLimit(params.limit);
@@ -303,16 +366,22 @@ async function callTool(
     }
     try {
       const fetchLimit = search.limit + 1;
-      const records = await searchAssetsForActor(
+      const detailed = await searchAssetsForActorDetailed(
         db,
-        { query: search.query, kinds: search.kinds, limit: fetchLimit, offset: search.offset },
+        { ...search, limit: fetchLimit, offset: search.offset },
         actorId,
       );
+      const records = detailed.assets;
       const hasMore = records.length > search.limit;
       const page = hasMore ? records.slice(0, search.limit) : records;
+      const result: Record<string, unknown> = {
+        assets: page.map(toAgentAsset),
+        search_mode: detailed.searchMode,
+      };
+      if (detailed.facets !== undefined) result.facets = detailed.facets;
       return successEnvelope(
         requestId,
-        { assets: page.map(toAgentAsset) },
+        result,
         {
           cursor: hasMore ? encodeCursor(search.offset + search.limit) : undefined,
           provenance: computedProvenance(),

@@ -31,7 +31,7 @@ const NINE = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts",
 ];
 const BASE = new Date("2026-10-10T04:00:00.000Z");
 
