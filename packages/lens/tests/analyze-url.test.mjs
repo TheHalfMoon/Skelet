@@ -33,6 +33,7 @@ async function stubCapture() {
     htmlBytes: rendered.htmlBytes,
     redirects: rendered.redirects,
     title: rendered.title,
+    viewport: rendered.viewport,
     sections: rendered.sections,
     assets: rendered.assets,
     declarations: rendered.declarations,

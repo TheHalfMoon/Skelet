@@ -114,6 +114,7 @@ function validText(value: unknown, maximum: number): value is string {
 
 function validHtmlSource(capture: CaptureResult): void {
   if (capture.status !== "partial" ||
+      (capture.viewport !== "desktop" && capture.viewport !== "mobile") ||
       !validText(capture.sourceUrl, 2_048) ||
       !validText(capture.sourceSha256, 64) || !HASH.test(capture.sourceSha256) ||
       !Number.isSafeInteger(capture.htmlBytes) || capture.htmlBytes < 0 ||
