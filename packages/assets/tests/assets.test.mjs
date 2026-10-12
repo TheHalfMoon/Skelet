@@ -9,6 +9,7 @@ import {
   registerAsset,
   resolveAsset,
   searchAssets,
+  searchAssetsDetailed,
   servingPolicy,
 } from "../src/registry.ts";
 
@@ -101,6 +102,39 @@ test("one query searches icons, logos, and fonts", async () => {
     assert.equal(mit.length, 1);
     const collection = await searchAssets(fx.db, { query: "arrow", collection: "fontsource" });
     assert.equal(collection.length, 1);
+
+    const detailed = await searchAssetsDetailed(fx.db, { query: "arrow", includeFacets: true });
+    assert.equal(detailed.searchMode, "postgres-fts");
+    assert.equal(detailed.assets.length, 3);
+    assert.deepEqual(detailed.facets?.kinds.map((facet) => facet.value), ["font", "icon", "logo"]);
+    assert.deepEqual(detailed.facets?.kinds.map((facet) => facet.count), [1, 1, 1]);
+    assert.deepEqual(detailed.facets?.licenses.map((facet) => facet.value), ["Apache-2.0", "OFL-1.1", "proprietary"]);
+
+    const rights = await searchAssets(fx.db, { query: "arrow", rights: ["restricted"] });
+    assert.deepEqual(rights.map((entry) => entry.kind), ["logo"]);
+    const trademarked = await searchAssets(fx.db, { query: "arrow", trademarkFree: false });
+    assert.deepEqual(trademarked.map((entry) => entry.kind), ["logo"]);
+    const exactPhrase = await searchAssets(fx.db, { query: "arrow right" });
+    assert.deepEqual(exactPhrase.map((entry) => entry.title), ["Arrow right"]);
+
+    await assert.rejects(
+      () => searchAssets(fx.db, { query: "arrow", rights: [] }),
+      (error) => error instanceof RegistryError && error.code === "assets/invalid-record",
+    );
+
+    const fallbackTx = {
+      query: (sql, params) => {
+        if (sql.includes("to_tsvector") || sql.includes("plainto_tsquery") || sql.includes("ts_rank")) {
+          throw new Error("function to_tsvector(regconfig, text) does not exist");
+        }
+        return fx.db.query(sql, params);
+      },
+      exec: (sql) => fx.db.exec(sql),
+    };
+    const fallback = await searchAssetsDetailed(fallbackTx, { query: "arrow", includeFacets: true });
+    assert.equal(fallback.searchMode, "literal-like");
+    assert.equal(fallback.assets.length, 3);
+    assert.equal(fallback.facets?.kinds.reduce((sum, facet) => sum + facet.count, 0), 3);
   } finally {
     await fx.db.close();
   }

@@ -1,5 +1,5 @@
 import type { DbClient } from "../../../packages/db/src/db.ts";
-import { resolveAssetForActor, searchAssetsForActor } from "../../../packages/assets/src/registry.ts";
+import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
 import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
@@ -91,14 +91,76 @@ export async function searchAssetsRoute(
   if (typeof rawQuery !== "string" || rawQuery.trim().length === 0 || rawQuery.trim().length > 200) {
     return invalidInput(requestId, "Search query is invalid.");
   }
-  const kinds = query.kinds === undefined ? undefined : String(query.kinds).split(",");
+  const csvFilter = (value: string | string[] | undefined): string[] | undefined => {
+    if (value === undefined) return undefined;
+    const values = (Array.isArray(value) ? value.join(",") : value).split(",").map((item) => item.trim());
+    if (values.length === 0 || values.some((item) => item.length === 0 || item.length > 64)) {
+      throw new Error("filter-invalid");
+    }
+    return values;
+  };
+  let kinds: string[] | undefined;
+  let rights: string[] | undefined;
+  let licenses: string[] | undefined;
+  try {
+    kinds = csvFilter(query.kinds);
+    rights = csvFilter(query.rights);
+    licenses = csvFilter(query.licenses);
+  } catch {
+    return invalidInput(requestId, "Search filters are invalid.");
+  }
   if (kinds !== undefined) {
+    const allowedKinds = REGISTRY_KINDS as readonly string[];
     if (
       kinds.length === 0 ||
-      kinds.some((kind) => !(REGISTRY_KINDS as readonly string[]).includes(kind.trim()))
+      kinds.length > allowedKinds.length ||
+      kinds.some((kind) => !allowedKinds.includes(kind)) ||
+      new Set(kinds).size !== kinds.length
     ) {
       return invalidInput(requestId, "Search kinds are invalid.");
     }
+  }
+  const allowedRights = ["unknown", "metadata_only", "permitted", "restricted"] as const;
+  if (rights !== undefined) {
+    if (
+      rights.length === 0 ||
+      rights.length > allowedRights.length ||
+      rights.some((right) => !(allowedRights as readonly string[]).includes(right)) ||
+      new Set(rights).size !== rights.length
+    ) {
+      return invalidInput(requestId, "Search filters are invalid.");
+    }
+  }
+  if (licenses !== undefined) {
+    if (
+      licenses.length === 0 ||
+      licenses.length > 32 ||
+      new Set(licenses).size !== licenses.length
+    ) {
+      return invalidInput(requestId, "Search filters are invalid.");
+    }
+  }
+  let trademarkFree: boolean | undefined;
+  if (query.trademarkFree !== undefined) {
+    if (query.trademarkFree !== "true" && query.trademarkFree !== "false") {
+      return invalidInput(requestId, "Trademark filter is invalid.");
+    }
+    trademarkFree = query.trademarkFree === "true";
+  }
+  let includeFacets: boolean | undefined;
+  if (query.facets !== undefined) {
+    if (query.facets !== "true" && query.facets !== "false") {
+      return invalidInput(requestId, "Facet option is invalid.");
+    }
+    includeFacets = query.facets === "true";
+  }
+  let collection: string | undefined;
+  if (query.collection !== undefined) {
+    if (typeof query.collection !== "string" || query.collection.trim().length === 0 ||
+        query.collection.length > 200) {
+      return invalidInput(requestId, "Collection filter is invalid.");
+    }
+    collection = query.collection.trim();
   }
   let limit: number;
   try {
@@ -128,18 +190,32 @@ export async function searchAssetsRoute(
     const search: {
       query: string;
       kinds?: ("icon" | "logo" | "font")[];
+      rights?: string[];
+      licenses?: string[];
+      trademarkFree?: boolean;
+      collection?: string;
+      includeFacets?: boolean;
       limit: number;
       offset: number;
     } = { query: rawQuery.trim(), limit: limit + 1, offset };
-    if (kinds !== undefined) {
-      search.kinds = kinds.map((kind) => kind.trim()) as ("icon" | "logo" | "font")[];
-    }
-    const records = await searchAssetsForActor(db, search, actorId);
+    if (kinds !== undefined) search.kinds = kinds as ("icon" | "logo" | "font")[];
+    if (rights !== undefined) search.rights = rights;
+    if (licenses !== undefined) search.licenses = licenses;
+    if (trademarkFree !== undefined) search.trademarkFree = trademarkFree;
+    if (collection !== undefined) search.collection = collection;
+    if (includeFacets !== undefined) search.includeFacets = includeFacets;
+    const detailed = await searchAssetsForActorDetailed(db, search, actorId);
+    const records = detailed.assets;
     const hasMore = records.length > limit;
     const page = hasMore ? records.slice(0, limit) : records;
+    const result: Record<string, unknown> = {
+      assets: page.map(agentAssetView),
+      search_mode: detailed.searchMode,
+    };
+    if (detailed.facets !== undefined) result.facets = detailed.facets;
     const body = successEnvelope(
       requestId,
-      { assets: page.map(agentAssetView) },
+      result,
       {
         cursor: hasMore ? encodeCursor(offset + limit) : undefined,
         provenance: computedProvenance(),

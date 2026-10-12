@@ -1,0 +1,98 @@
+{
+  "dataset": "skelet-af04-synthetic-relevance-v1",
+  "description": "Frozen synthetic relevance fixtures for deterministic lexical search. No embeddings, no external models. Each case lists the query, filters, expected top titles in order, and minimum expected counts. Used by packages/assets/tests/search.test.mjs and scripts/bench_search.mjs.",
+  "records": [
+    {
+      "kind": "icon",
+      "title": "Arrow right",
+      "collection": "iconify:mdi",
+      "ref": "arrow-right",
+      "tags": ["arrow", "direction"],
+      "license": "Apache-2.0",
+      "rights": "permitted",
+      "trademark": false
+    },
+    {
+      "kind": "logo",
+      "title": "Arrow brand mark",
+      "collection": "brand-corpus",
+      "ref": "arrow-inc",
+      "tags": ["arrow", "brand"],
+      "license": "proprietary",
+      "rights": "restricted",
+      "trademark": true
+    },
+    {
+      "kind": "font",
+      "title": "Arrow Sans",
+      "collection": "fontsource",
+      "ref": "arrow-sans",
+      "tags": ["arrow", "sans"],
+      "license": "OFL-1.1",
+      "rights": "permitted",
+      "trademark": false
+    },
+    {
+      "kind": "icon",
+      "title": "Sans serif",
+      "collection": "iconify:mdi",
+      "ref": "sans-serif",
+      "tags": ["arrow"],
+      "license": "MIT",
+      "rights": "permitted",
+      "trademark": false
+    }
+  ],
+  "cases": [
+    {
+      "name": "single-token-ranks-title-before-tag-only",
+      "query": "arrow",
+      "expected_order_first": ["Arrow Sans", "Arrow brand mark", "Arrow right"],
+      "expected_order_last": "Sans serif",
+      "min_results": 4
+    },
+    {
+      "name": "multi-token-requires-all-tokens-or-substring",
+      "query": "arrow right",
+      "expected_titles": ["Arrow right"],
+      "min_results": 1,
+      "max_results": 1
+    },
+    {
+      "name": "punctuation-is-literal",
+      "query": "arrow_right",
+      "expected_titles": [],
+      "max_results": 0
+    },
+    {
+      "name": "wildcard-is-literal",
+      "query": "%",
+      "expected_titles": [],
+      "max_results": 0
+    },
+    {
+      "name": "kind-filter",
+      "query": "arrow",
+      "kinds": ["icon"],
+      "expected_kinds": ["icon"]
+    },
+    {
+      "name": "rights-filter",
+      "query": "arrow",
+      "rights": ["restricted"],
+      "expected_kinds": ["logo"]
+    },
+    {
+      "name": "trademark-free-filter",
+      "query": "arrow",
+      "trademarkFree": true,
+      "expected_trademark": false
+    },
+    {
+      "name": "collection-filter",
+      "query": "arrow",
+      "collection": "fontsource",
+      "expected_collections": ["fontsource"]
+    }
+  ]
+}
