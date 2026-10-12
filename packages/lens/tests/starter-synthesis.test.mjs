@@ -132,3 +132,35 @@ test("malformed requests fail closed", () => {
   );
   assert.throws(() => synthesizeStarterArtifacts(request({ unknownField: 1 })), StarterError);
 });
+
+test("clean-build configs ship pinned and wired", () => {
+  const contents = byPath(synthesizeStarterArtifacts(request()));
+  assert.deepEqual([...STARTER_FILES].sort(), [
+    "starter/README.md",
+    "starter/app/globals.css",
+    "starter/app/layout.tsx",
+    "starter/app/page.tsx",
+    "starter/next.config.mjs",
+    "starter/package.json",
+    "starter/postcss.config.js",
+    "starter/tailwind.config.js",
+    "starter/tsconfig.json",
+  ].sort());
+  const pkg = JSON.parse(contents.get("starter/package.json") ?? "{}");
+  assert.equal(pkg.scripts.typecheck, "tsc --noEmit");
+  assert.ok(typeof pkg.devDependencies["@types/node"] === "string");
+  assert.ok(typeof pkg.devDependencies["@types/react"] === "string");
+  assert.ok(typeof pkg.devDependencies.postcss === "string");
+  assert.ok(typeof pkg.devDependencies.autoprefixer === "string");
+  const tsconfig = JSON.parse(contents.get("starter/tsconfig.json") ?? "{}");
+  assert.equal(tsconfig.compilerOptions.strict, true);
+  assert.equal(tsconfig.compilerOptions.jsx, "preserve");
+  assert.ok((contents.get("starter/tailwind.config.js") ?? "").includes("./app/**/*"));
+  assert.ok((contents.get("starter/postcss.config.js") ?? "").includes("tailwindcss"));
+  assert.ok((contents.get("starter/app/globals.css") ?? "").includes("@tailwind base;"));
+  const layout = contents.get("starter/app/layout.tsx") ?? "";
+  assert.ok(layout.includes("./globals.css"));
+  assert.ok(layout.includes("../../shadcn-theme.css"));
+  const nextConfig = contents.get("starter/next.config.mjs") ?? "";
+  assert.ok(nextConfig.includes(SYNTHESIS_HEADER));
+});
