@@ -4,7 +4,8 @@
   `27d6b3a341859adb3a09781061465ac249313d79`, implementation heads
   `1531a5145ee38955a6bd18b4952066b769306285` (interop),
   `cf5499fbe01d4d0643cfcb0a9a974485ac2cd856` (concurrent-key convergence),
-  `6f0c83c2b19059f24137f5a61dcf55d26a5a2ebe` (OCR scope fix + Jev evidence).
+  `6f0c83c2b19059f24137f5a61dcf55d26a5a2ebe` (OCR scope fix + Jev evidence),
+  `ac62967c5a918fc2b70a31dcc057d9a32ca135f4` (bootstrap Node for wire tests).
 - OCR version: open-code-review v1.12.13 (fabbdb29) darwin/arm64. No OCR LLM
   provider credential is configured in this environment, so the official
   `ocr delegate` workflow was used per `GOVERNANCE.md`.
@@ -40,9 +41,17 @@
     `python -m unittest tests.test_mcp_interop_py tests.test_skelet_sdk`.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
-- Recount on evidence head `b263f557b19b062719aedb80dcb447a7d95417f7`:
-  `ocr delegate preview` reports 32 reviewable / 36 total. The 2 added
-  non-reviewable files are this record and `docs/reviews/AF-03c_PSTACK_PANELS.md`
-  (both markdown `unsupported_ext`), covered by the PStack four-bar panel and
-  the green test suites. Jev was rerun on the evidence head with zero blocking
-  findings.
+- Workflow group (`ocr delegate rule` on `.github/workflows/ci.yml`):
+  no `pull_request_target` misuse, no secrets in logs, `permissions:
+  contents: read` least-privilege, third-party actions pinned to full SHA
+  (`actions/setup-node@82076278...`), no script injection, no hardcoded
+  credentials, `fetch-depth: 0` preserved, `timeout-minutes: 10` and
+  concurrency group preserved. The 11-line bootstrap addition (setup-node
+  22.23.1 + pnpm 9.12.0 + frozen install) enables Python urllib wire tests
+  on exact-head CI with no other workflow change.
+- Recount on evidence head `ac62967c5a918fc2b70a31dcc057d9a32ca135f4`:
+  `ocr delegate preview` reports 33 reviewable / 37 total. The 4 excluded
+  by OCR itself are this record + `AF-03c_PSTACK_PANELS.md` (markdown
+  `unsupported_ext`) + `tests/test_mcp_interop_py.py` +
+  `tests/test_skelet_sdk.py` (`default_path`; Python group covered above).
+  Jev was rerun on the evidence head with zero blocking findings.

@@ -53,7 +53,7 @@
   "state": {
     "base_sha": "27d6b3a341859adb3a09781061465ac249313d79",
     "branch": "skelet/af03c-interop",
-    "change": "AF-03c interop: TS/Python SDK envelope unwrap with cursor pages, X-Request-Id, typed errors with retryable; MCP requestId passthrough, idempotencyKey for writes with pack_idempotency ledger (migration 011), capability advertisement in initialize, header version negotiation, X-Request-Id echo; REST X-Request-Id response headers; CLI cursor/request-id with envelope stub; three independent wire clients (Node fetch HTTP subprocess server, Python urllib HTTP subprocess server, Node stdio pipes) with version/auth/pagination/idempotency/capability/denial/URI-handoff coverage on real PGlite dispatch. Concurrent same-key creates converge on the ledger winner with best-effort orphan cleanup.",
-    "head_sha": "b263f557b19b062719aedb80dcb447a7d95417f7"
+    "change": "AF-03c interop: TS/Python SDK envelope unwrap with cursor pages, X-Request-Id, typed errors with retryable; MCP requestId passthrough, idempotencyKey for writes with pack_idempotency ledger (migration 011), capability advertisement in initialize, header version negotiation, X-Request-Id echo; REST X-Request-Id response headers; CLI cursor/request-id with envelope stub; three independent wire clients (Node fetch HTTP subprocess server, Python urllib HTTP subprocess server, Node stdio pipes) with version/auth/pagination/idempotency/capability/denial/URI-handoff coverage on real PGlite dispatch. Concurrent same-key creates converge on the ledger winner with best-effort orphan cleanup. CI bootstrap provisions Node 22.23.1 + pnpm 9.12.0 + frozen install so Python urllib wire tests run on exact-head CI.",
+    "head_sha": "ac62967c5a918fc2b70a31dcc057d9a32ca135f4"
   }
 }
