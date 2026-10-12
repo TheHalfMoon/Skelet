@@ -1,0 +1,41 @@
+{
+  "description": "Skelet AF-05c kit chain: fixture report to validated shippable package",
+  "questions": {
+    "compatibility": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Does the new kit-fixture-chain test plus CI listing break qualified export/manifest/package/starter interfaces? Is the CI change one test-list line and does the test use only existing qualified entrypoints with no contract change?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Is the chain factually correct: fixture render to report to export bundle to starter synthesis (no observed copy in starter), manifest finalize with self digest, assemble parity, partition shippable/withheld, build ZIP with exact bytes, parse round-trip with path match, unknown-rights withheld with redistributable false?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Are the 2 new chain tests sufficient: happy shippable package with parse round-trip plus unknown-rights withheld negative, using real Chromium renders and no mocked handlers for proven behavior? Is CI extended?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Any nondeterminism in starter synthesis, manifest digest, ZIP build, or parse that breaks reproducibility? Any malformed artifact, tampered bytes, or withheld path that fails open?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Anything beyond the fixture-to-package chain: new capture logic, billing, embeddings, paid services, donor imports, or unrelated refactors? Is the change one test file plus CI listing?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Does the chain leak observed site copy into starter, or unknown/restricted bytes into shippable ZIP? Are rights derived (permitted only) and withheld enforced at partition and packaging? Do errors fail closed?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "b76ff518ce212a1eb9f6c0c2badd3f3390eacd55",
+    "branch": "skelet/af05c-kit-chain",
+    "change": "AF-05c kit chain: fixture report to export to starter to manifest finalize to ZIP build to parse round-trip plus unknown-rights withheld negative, CI +1 line.",
+    "head_sha": "WORKTREE"
+  }
+}
