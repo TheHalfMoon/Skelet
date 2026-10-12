@@ -1,0 +1,25 @@
+packages/lens/tests/starter-synthesis.test.mjs
+  s_aa579cbff99963::t_6ecec966310d01 135-166
+packages/lens/src/starter-synthesis.ts
+  s_aa579cbff99963::t_db67b1617cacf3 23-27
+  s_aa579cbff99963::t_2ac67962f000cf 46-50
+  s_aa579cbff99963::t_4207d742106dbc 180,187-191,199-266,273
+packages/lens/tests/kit-fixture-chain.test.mjs
+  s_aa579cbff99963::t_1cb40769e0afbe 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "838227621cc1d1a6efa98ac0c9cab8f26d8ffdb3",
+  "prompts": {},
+  "sessions": {
+    "s_aa579cbff99963": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed1e2a167ffe7QR528oaHYpcli",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
