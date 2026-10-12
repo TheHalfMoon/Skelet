@@ -24,14 +24,14 @@ async function context() {
 test("migration 002 creates canonical graph entities and is reversible", async () => {
   const db = await openDatabase();
   try {
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency"]);
     assert.deepEqual(await migrateUp(db), []);
     for (const table of ["artifacts", "assets", "relations", "patterns"]) {
       const result = await db.query("select to_regclass($1) as id", ["public." + table]);
       assert.ok(result.rows[0].id !== null, "missing " + table);
     }
-    assert.deepEqual(await migrateDown(db), ["010_artifact_actor_scope", "009_lens_build_kit_runs", "008_jobs", "007_billing", "006_collections_auth", "005_workspaces", "004_auth", "003_workflows", "002_design_graph", "001_sources_products"]);
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope"]);
+    assert.deepEqual(await migrateDown(db), ["011_pack_idempotency", "010_artifact_actor_scope", "009_lens_build_kit_runs", "008_jobs", "007_billing", "006_collections_auth", "005_workspaces", "004_auth", "003_workflows", "002_design_graph", "001_sources_products"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency"]);
   } finally {
     await db.close();
   }

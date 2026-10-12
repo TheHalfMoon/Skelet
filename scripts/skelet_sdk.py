@@ -30,10 +30,79 @@ _ERROR_CODES = {
 
 
 class SdkError(Exception):
-    def __init__(self, code: str, status: int, message: str) -> None:
+    def __init__(
+        self,
+        code: str,
+        status: int,
+        message: str,
+        *,
+        retryable: bool | None = None,
+        request_id: str | None = None,
+        envelope_code: str | None = None,
+    ) -> None:
         super().__init__(message)
         self.code = code
         self.status = status
+        self.retryable = retryable if retryable is not None else (code == "sdk/rate-limited")
+        self.request_id = request_id
+        self.envelope_code = envelope_code
+
+
+def _envelope_result(body: object) -> dict | None:
+    """Unwrap skelet.agent.v1 envelope, else accept bare pre-AF-03b shape."""
+    if not isinstance(body, dict):
+        return None
+    if body.get("schema_version") == "skelet.agent.v1" and isinstance(body.get("result"), dict):
+        result = body["result"]
+        return result if isinstance(result, dict) else None
+    return body
+
+
+def _envelope_meta(body: object) -> dict:
+    """Extract request_id, cursor, warnings, and typed error from an envelope."""
+    meta: dict = {"warnings": []}
+    if not isinstance(body, dict):
+        return meta
+    request_id = body.get("request_id")
+    if isinstance(request_id, str) and request_id:
+        meta["request_id"] = request_id
+    cursor = body.get("cursor")
+    if isinstance(cursor, str) and cursor:
+        meta["cursor"] = cursor
+    warnings = body.get("warnings")
+    if isinstance(warnings, list):
+        meta["warnings"] = [w for w in warnings if isinstance(w, str) and w]
+    error = body.get("error")
+    if isinstance(error, dict):
+        if isinstance(error.get("code"), str):
+            meta["error_code"] = error["code"]
+        if isinstance(error.get("message"), str):
+            meta["error_message"] = error["message"]
+        if isinstance(error.get("retryable"), bool):
+            meta["retryable"] = error["retryable"]
+    return meta
+
+
+_ENVELOPE_TO_SDK = {
+    "UNAUTHENTICATED": "sdk/unauthorized",
+    "RIGHTS_RESTRICTED": "sdk/forbidden",
+    "FORBIDDEN_OR_NOT_FOUND": "sdk/not-found",
+    "RATE_LIMITED": "sdk/rate-limited",
+    "QUOTA_EXCEEDED": "sdk/rate-limited",
+    "INVALID_INPUT": "sdk/invalid",
+}
+
+
+def _sdk_code_for_envelope(envelope_code: str | None, status: int) -> str:
+    if isinstance(envelope_code, str) and envelope_code in _ENVELOPE_TO_SDK:
+        mapped = _ENVELOPE_TO_SDK[envelope_code]
+        return mapped if isinstance(mapped, str) else "sdk/transport"
+    if status in _ERROR_CODES:
+        mapped = _ERROR_CODES[status]
+        return mapped if isinstance(mapped, str) else "sdk/transport"
+    if 400 <= status < 500:
+        return "sdk/invalid"
+    return "sdk/transport"
 
 
 class _RefuseRedirects(urllib.request.HTTPRedirectHandler):
@@ -82,13 +151,20 @@ class SkeletClient:
         self._timeout = float(timeout)
         self._opener = _build_opener()
 
-    def _request(self, path: str, query: dict[str, str] | None = None):
+    def _request(
+        self,
+        path: str,
+        query: dict[str, str] | None = None,
+        *,
+        request_id: str | None = None,
+    ):
         url = self.base_url + path
         if query:
             url += "?" + urllib.parse.urlencode(query)
-        request = urllib.request.Request(
-            url, headers={"Authorization": f"Bearer {self._token}"}
-        )
+        headers = {"Authorization": f"Bearer {self._token}"}
+        if isinstance(request_id, str) and request_id:
+            headers["X-Request-Id"] = request_id[:128]
+        request = urllib.request.Request(url, headers=headers)
         try:
             with self._opener.open(request, timeout=self._timeout) as response:
                 raw = response.read(RESPONSE_MAX_BYTES + 1)
@@ -98,15 +174,47 @@ class SkeletClient:
         except SdkError:
             raise
         except urllib.error.HTTPError as error:
-            code = _ERROR_CODES.get(error.code)
-            if code is None:
-                code = "sdk/invalid" if 400 <= error.code < 500 else "sdk/transport"
-            raise SdkError(code, error.code, f"Request failed with status {error.code}.") from error
+            envelope_code: str | None = None
+            retryable: bool | None = None
+            response_request_id: str | None = None
+            try:
+                raw_error = error.read(RESPONSE_MAX_BYTES + 1)
+                error_body = json.loads(raw_error.decode("utf-8")) if raw_error else None
+                meta = _envelope_meta(error_body)
+                envelope_code = meta.get("error_code")
+                retryable = meta.get("retryable")
+                response_request_id = meta.get("request_id")
+            except (ValueError, OSError):
+                # Non-JSON error bodies fall back to status mapping below.
+                pass
+            code = _sdk_code_for_envelope(envelope_code, error.code)
+            if retryable is None:
+                retryable = code == "sdk/rate-limited"
+            raise SdkError(
+                code,
+                error.code,
+                f"Request failed with status {error.code}.",
+                retryable=retryable,
+                request_id=response_request_id,
+                envelope_code=envelope_code,
+            ) from error
         except (urllib.error.URLError, TimeoutError, ValueError, OSError, http.client.HTTPException) as error:
             raise SdkError("sdk/transport", 0, "Request failed.") from error
 
-    def search_assets(self, query: str, kinds: str | None = None, limit: int | None = None):
-        """Unified search across icons, logos, and fonts."""
+    def search_assets_page(
+        self,
+        query: str,
+        kinds: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        request_id: str | None = None,
+    ) -> dict:
+        """Cursor-aware search page.
+
+        Reads are safe to retry: the same cursor and limit deterministically
+        return the same slice. Returns {"assets", "cursor", "request_id",
+        "warnings"} so independent clients share one pagination policy.
+        """
         if not isinstance(query, str) or not query.strip():
             raise SdkError("sdk/invalid", 0, "Query is invalid.")
         params: dict[str, str] = {"query": query}
@@ -114,32 +222,50 @@ class SkeletClient:
             params["kinds"] = kinds
         if limit is not None:
             params["limit"] = str(limit)
-        _status, body = self._request("/api/v1/assets", params)
-        if not isinstance(body, dict) or not isinstance(body.get("assets"), list):
+        if cursor is not None:
+            params["cursor"] = cursor
+        _status, body = self._request("/api/v1/assets", params, request_id=request_id)
+        result = _envelope_result(body)
+        if not isinstance(result, dict) or not isinstance(result.get("assets"), list):
             raise SdkError("sdk/transport", 0, "Response shape is invalid.")
-        return body["assets"]
+        meta = _envelope_meta(body)
+        return {
+            "assets": result["assets"],
+            "cursor": meta.get("cursor"),
+            "request_id": meta.get("request_id"),
+            "warnings": meta.get("warnings", []),
+        }
 
-    def get_asset(self, artifact_id: str):
+    def search_assets(self, query: str, kinds: str | None = None, limit: int | None = None, cursor: str | None = None, request_id: str | None = None):
+        """Unified search across icons, logos, and fonts."""
+        return self.search_assets_page(query, kinds=kinds, limit=limit, cursor=cursor, request_id=request_id)["assets"]
+
+    def get_asset(self, artifact_id: str, request_id: str | None = None):
         """Resolve one asset record with provenance and policy."""
         if not isinstance(artifact_id, str) or not artifact_id:
             raise SdkError("sdk/invalid", 0, "Artifact ID is invalid.")
-        _status, body = self._request(f"/api/v1/assets/{urllib.parse.quote(artifact_id, safe='')}")
-        if not isinstance(body, dict) or not isinstance(body.get("asset"), dict):
+        _status, body = self._request(
+            f"/api/v1/assets/{urllib.parse.quote(artifact_id, safe='')}", request_id=request_id
+        )
+        result = _envelope_result(body)
+        if not isinstance(result, dict) or not isinstance(result.get("asset"), dict):
             raise SdkError("sdk/transport", 0, "Response shape is invalid.")
-        return body["asset"]
+        return result["asset"]
 
-    def get_object(self, uri: str):
+    def get_object(self, uri: str, request_id: str | None = None):
         """Retrieve a canonical object by stable Skelet URI.
 
-        Returns the server envelope unchanged ({object: ...} or {pack: ...})
-        so callers branch on envelope keys instead of heuristic fields.
+        Returns the server result object unchanged ({"object": ...} or
+        {"pack": ...}) unwrapped from the skelet.agent.v1 envelope so
+        callers branch on result keys instead of heuristic fields.
         """
         if not isinstance(uri, str) or not uri:
             raise SdkError("sdk/invalid", 0, "URI is invalid.")
-        _status, body = self._request("/api/v1/objects", {"uri": uri})
-        if not isinstance(body, dict):
+        _status, body = self._request("/api/v1/objects", {"uri": uri}, request_id=request_id)
+        result = _envelope_result(body)
+        if not isinstance(result, dict):
             raise SdkError("sdk/transport", 0, "Response shape is invalid.")
-        present = {key for key in ("object", "pack") if isinstance(body.get(key), dict)}
+        present = {key for key in ("object", "pack") if isinstance(result.get(key), dict)}
         if len(present) != 1:
             raise SdkError("sdk/transport", 0, "Response shape is invalid.")
-        return body
+        return result

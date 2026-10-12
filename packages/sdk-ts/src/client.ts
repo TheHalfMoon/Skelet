@@ -16,11 +16,22 @@ export type SdkErrorCode =
 export class SdkError extends Error {
   readonly code: SdkErrorCode;
   readonly status: number;
-  constructor(code: SdkErrorCode, status: number, message: string) {
+  readonly retryable: boolean;
+  readonly requestId?: string | undefined;
+  readonly envelopeCode?: string | undefined;
+  constructor(
+    code: SdkErrorCode,
+    status: number,
+    message: string,
+    options?: { retryable?: boolean | undefined; requestId?: string | undefined; envelopeCode?: string | undefined },
+  ) {
     super(message);
     this.name = "SdkError";
     this.code = code;
     this.status = status;
+    this.retryable = options?.retryable ?? code === "sdk/rate-limited";
+    if (options?.requestId !== undefined) this.requestId = options.requestId;
+    if (options?.envelopeCode !== undefined) this.envelopeCode = options.envelopeCode;
   }
 }
 
@@ -64,6 +75,21 @@ export interface SdkPack {
   items: SdkPackItem[];
 }
 
+export interface SdkPage<T> {
+  items: T[];
+  cursor?: string | undefined;
+  requestId?: string | undefined;
+  warnings: string[];
+}
+
+export interface SearchAssetsInput {
+  query: string;
+  kinds?: string | undefined;
+  limit?: number | undefined;
+  cursor?: string | undefined;
+  requestId?: string | undefined;
+}
+
 export interface SkeletClientOptions {
   baseUrl: string;
   token: string;
@@ -88,6 +114,10 @@ function statusToCode(status: number): SdkErrorCode {
  * AF-03b: unwrap the skelet.agent.v1 envelope. Accepts the versioned
  * envelope (result object) and the pre-AF-03b bare shape for backward
  * compatibility during migration; prefers the envelope when present.
+ *
+ * AF-03c: also surfaces envelope metadata (request_id, cursor, warnings,
+ * typed error with retryable) so independent clients share one retry and
+ * pagination policy without forking permission semantics.
  */
 function envelopeResult(body: unknown): Record<string, unknown> | null {
   if (typeof body !== "object" || body === null) return null;
@@ -96,6 +126,49 @@ function envelopeResult(body: unknown): Record<string, unknown> | null {
     return record.result as Record<string, unknown>;
   }
   return record;
+}
+
+interface EnvelopeMeta {
+  requestId?: string | undefined;
+  cursor?: string | undefined;
+  warnings: string[];
+  errorCode?: string | undefined;
+  errorMessage?: string | undefined;
+  retryable?: boolean | undefined;
+}
+
+function envelopeMeta(body: unknown): EnvelopeMeta {
+  const meta: EnvelopeMeta = { warnings: [] };
+  if (typeof body !== "object" || body === null || Array.isArray(body)) return meta;
+  const record = body as Record<string, unknown>;
+  if (typeof record.request_id === "string" && record.request_id.length > 0) {
+    meta.requestId = record.request_id;
+  }
+  if (typeof record.cursor === "string" && record.cursor.length > 0) {
+    meta.cursor = record.cursor;
+  }
+  if (Array.isArray(record.warnings)) {
+    for (const entry of record.warnings) {
+      if (typeof entry === "string" && entry.length > 0) meta.warnings.push(entry);
+    }
+  }
+  if (typeof record.error === "object" && record.error !== null && !Array.isArray(record.error)) {
+    const error = record.error as Record<string, unknown>;
+    if (typeof error.code === "string") meta.errorCode = error.code;
+    if (typeof error.message === "string") meta.errorMessage = error.message;
+    if (typeof error.retryable === "boolean") meta.retryable = error.retryable;
+  }
+  return meta;
+}
+
+/** Map a canonical envelope error code to the SDK taxonomy. */
+function envelopeCodeToSdk(code: string, status: number): SdkErrorCode {
+  if (code === "UNAUTHENTICATED") return "sdk/unauthorized";
+  if (code === "RIGHTS_RESTRICTED") return "sdk/forbidden";
+  if (code === "FORBIDDEN_OR_NOT_FOUND") return "sdk/not-found";
+  if (code === "RATE_LIMITED" || code === "QUOTA_EXCEEDED") return "sdk/rate-limited";
+  if (code === "INVALID_INPUT") return "sdk/invalid";
+  return statusToCode(status);
 }
 
 function extractResultField(body: unknown, field: string): unknown {
@@ -144,10 +217,18 @@ export class SkeletClient {
     this.timeoutMs = timeoutMs;
   }
 
-  private async request<T>(path: string, query?: Record<string, string>): Promise<T> {
+  private async request<T>(
+    path: string,
+    query?: Record<string, string>,
+    options?: { requestId?: string | undefined },
+  ): Promise<T> {
     const url = new URL(`${this.baseUrl}${path}`);
     for (const [key, value] of Object.entries(query ?? {})) {
       url.searchParams.set(key, value);
+    }
+    const headers: Record<string, string> = { authorization: `Bearer ${this.token}` };
+    if (typeof options?.requestId === "string" && options.requestId.length > 0) {
+      headers["x-request-id"] = options.requestId.slice(0, 128);
     }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
@@ -155,16 +236,24 @@ export class SkeletClient {
       // Redirects are rejected, never followed: following would forward
       // the bearer token to wherever the server points.
       const response = await this.fetchImpl(url, {
-        headers: { authorization: `Bearer ${this.token}` },
+        headers,
         signal: controller.signal,
         redirect: "error",
       });
       if (!response.ok) {
-        throw new SdkError(
-          statusToCode(response.status),
-          response.status,
-          `Request failed with status ${response.status}.`,
-        );
+        let meta: EnvelopeMeta = { warnings: [] };
+        try {
+          meta = envelopeMeta(await response.json());
+        } catch {
+          // Non-JSON error bodies stay mapped by status alone.
+        }
+        const code =
+          meta.errorCode !== undefined ? envelopeCodeToSdk(meta.errorCode, response.status) : statusToCode(response.status);
+        throw new SdkError(code, response.status, `Request failed with status ${response.status}.`, {
+          retryable: meta.retryable ?? code === "sdk/rate-limited",
+          requestId: meta.requestId,
+          envelopeCode: meta.errorCode,
+        });
       }
       return (await response.json()) as T;
     } catch (error) {
@@ -178,29 +267,94 @@ export class SkeletClient {
     }
   }
 
+  private async requestWithMeta<T>(
+    path: string,
+    query?: Record<string, string>,
+    options?: { requestId?: string | undefined },
+  ): Promise<{ body: T; meta: EnvelopeMeta }> {
+    const url = new URL(`${this.baseUrl}${path}`);
+    for (const [key, value] of Object.entries(query ?? {})) {
+      url.searchParams.set(key, value);
+    }
+    const headers: Record<string, string> = { authorization: `Bearer ${this.token}` };
+    if (typeof options?.requestId === "string" && options.requestId.length > 0) {
+      headers["x-request-id"] = options.requestId.slice(0, 128);
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const response = await this.fetchImpl(url, {
+        headers,
+        signal: controller.signal,
+        redirect: "error",
+      });
+      let body: unknown = null;
+      try {
+        body = await response.json();
+      } catch {
+        throw new SdkError("sdk/transport", response.status, "Response shape is invalid.");
+      }
+      const meta = envelopeMeta(body);
+      if (!response.ok) {
+        const code =
+          meta.errorCode !== undefined ? envelopeCodeToSdk(meta.errorCode, response.status) : statusToCode(response.status);
+        throw new SdkError(code, response.status, `Request failed with status ${response.status}.`, {
+          retryable: meta.retryable ?? code === "sdk/rate-limited",
+          requestId: meta.requestId,
+          envelopeCode: meta.errorCode,
+        });
+      }
+      return { body: body as T, meta };
+    } catch (error) {
+      if (error instanceof SdkError) throw error;
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new SdkError("sdk/transport", 0, "Request timed out.");
+      }
+      throw new SdkError("sdk/transport", 0, "Request failed.");
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   /** Unified search across icons, logos, and fonts. */
-  async searchAssets(input: { query: string; kinds?: string; limit?: number }): Promise<SdkAsset[]> {
+  async searchAssets(input: { query: string; kinds?: string; limit?: number; cursor?: string; requestId?: string }): Promise<SdkAsset[]> {
+    const page = await this.searchAssetsPage(input);
+    return page.items;
+  }
+
+  /**
+   * AF-03c cursor-aware search page. Reads are safe to retry: the same
+   * cursor and limit deterministically return the same slice, and the
+   * envelope request_id lets callers correlate retries without duplicating
+   * canonical state.
+   */
+  async searchAssetsPage(input: SearchAssetsInput): Promise<SdkPage<SdkAsset>> {
     if (typeof input.query !== "string" || input.query.trim().length === 0) {
       throw new SdkError("sdk/invalid", 0, "Query is invalid.");
     }
     const query: Record<string, string> = { query: input.query };
     if (input.kinds !== undefined) query.kinds = input.kinds;
     if (input.limit !== undefined) query.limit = String(input.limit);
-    const body = await this.request<unknown>("/api/v1/assets", query);
+    if (input.cursor !== undefined) query.cursor = input.cursor;
+    const { body, meta } = await this.requestWithMeta<unknown>("/api/v1/assets", query, {
+      requestId: input.requestId,
+    });
     const assets = extractResultArray(body, "assets");
     if (assets === null) {
-      throw new SdkError("sdk/transport", 0, "Response shape is invalid.");
+      throw new SdkError("sdk/transport", 0, "Response shape is invalid.", { requestId: meta.requestId });
     }
-    return assets as SdkAsset[];
+    return { items: assets as SdkAsset[], cursor: meta.cursor, requestId: meta.requestId, warnings: meta.warnings };
   }
 
   /** Resolve one asset record with provenance and policy. */
-  async getAsset(artifactId: string): Promise<SdkAsset> {
+  async getAsset(artifactId: string, options?: { requestId?: string | undefined }): Promise<SdkAsset> {
     if (typeof artifactId !== "string" || artifactId.length === 0) {
       throw new SdkError("sdk/invalid", 0, "Artifact ID is invalid.");
     }
     const body = await this.request<unknown>(
       `/api/v1/assets/${encodeURIComponent(artifactId)}`,
+      undefined,
+      options,
     );
     const asset = extractResultField(body, "asset");
     if (typeof asset !== "object" || asset === null) {
@@ -210,13 +364,14 @@ export class SkeletClient {
   }
 
   /** Retrieve a canonical object by stable Skelet URI. */
-  async getObject(uri: string): Promise<SdkObject | SdkPack> {
+  async getObject(uri: string, options?: { requestId?: string | undefined }): Promise<SdkObject | SdkPack> {
     if (typeof uri !== "string" || uri.length === 0) {
       throw new SdkError("sdk/invalid", 0, "URI is invalid.");
     }
     const body = await this.request<unknown>(
       "/api/v1/objects",
       { uri },
+      options,
     );
     const object = extractResultField(body, "object");
     const pack = extractResultField(body, "pack");
