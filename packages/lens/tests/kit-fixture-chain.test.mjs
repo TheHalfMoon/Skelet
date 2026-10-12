@@ -44,7 +44,7 @@ test("fixture report chains to a validated shippable kit package", async () => {
     hasTypography: report.designDna.tokens.typography.sizes.length > 0,
     truncated: false,
   });
-  assert.equal(starter.length, 4);
+  assert.equal(starter.length, 9);
   assert.ok(starter.every((file) => file.path.startsWith("starter/")));
   // Observed copy never enters starter bytes.
   assert.ok(!starter.some((file) => file.content.includes("Home paragraph")));

@@ -1,0 +1,41 @@
+{
+  "description": "Skelet AF-05d starter clean-consumer: generated starter installs typechecks builds starts",
+  "questions": {
+    "compatibility": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Does extending STARTER_FILES from 4 to 9 plus pinned devDeps and layout import change break qualified starter/manifest/package interfaces? Is the kit manifest starter prefix open-ended (any starter/* path) so no frozen contract version bump is needed, and do existing callers keep working?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Are the 5 new starter files factually correct: tsconfig strict with bundler resolution and next plugin, next.config.mjs strict mode, tailwind.config.js with app content globs, postcss with tailwind+autoprefixer, globals.css directives, layout imports both globals.css and kit sibling, package.json typecheck script plus 4 new pinned devDeps? Does the clean-consumer proof (npm install 108 pkgs, tsc exit 0, next build static, next start 200 with placeholders) support the claim?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Is the new clean-build configs test plus real /tmp clean-consumer run (install/typecheck/build/start with honest warnings) sufficient? Are pinned versions recorded and is the Next 14.2.5 vuln warning plus Tailwind content warning preserved as negative evidence rather than hidden?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Any nondeterminism in synthesis (byte-identical rebuilds preserved), pinned versions, or kit-sibling import that breaks reproducibility or fails open when siblings are absent?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Anything beyond starter clean-consumer: new capture, traversal, billing, embeddings, paid services, donor imports, or unrelated refactors? Is the change limited to starter synthesis plus 2 test files?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Do new configs introduce secrets, remote code, or observed-copy leakage? Are all files Skelet synthesis with headers and placeholders, and does the kit-sibling import stay a static CSS reference (no executable trust)?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "a288358a6054d3ccc15cff8962145f15b655cac4",
+    "branch": "skelet/af05d-starter-clean",
+    "change": "AF-05d starter clean-consumer: 5 new config files, pinned devDeps, layout globals import, clean install/typecheck/build/start proof with honest warnings.",
+    "head_sha": "WORKTREE"
+  }
+}
