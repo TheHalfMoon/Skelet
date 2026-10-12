@@ -1,0 +1,31 @@
+.github/workflows/ci.yml
+  s_aa579cbff99963::t_f8eb43d971f6b9 525
+docs/reviews/AF-05c_OCR_DELEGATION.md
+  s_aa579cbff99963::t_078029d0cb19d7 1-9
+packages/lens/tests/kit-fixture-chain.test.mjs
+  s_aa579cbff99963::t_224dd14e181f49 1-200
+docs/reviews/AF-05c_JEV_SPEC.json
+  s_aa579cbff99963::t_078029d0cb19d7 1-41
+docs/reviews/AF-05c_PSTACK_PANELS.md
+  s_aa579cbff99963::t_078029d0cb19d7 1-20
+docs/reviews/AF-05c_JEV_REVIEW.json
+  s_aa579cbff99963::t_078029d0cb19d7 1
+docs/reviews/AF-05c_JEV_REVIEW.md
+  s_aa579cbff99963::t_078029d0cb19d7 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0df77eaba5cb9299f8dddf98883f2d22a0126682",
+  "prompts": {},
+  "sessions": {
+    "s_aa579cbff99963": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed1e2a167ffe7QR528oaHYpcli",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
