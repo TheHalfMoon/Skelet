@@ -1,0 +1,8 @@
+# AF-05a Jev Review Record (genuine)
+
+- Grain: AF-05a real responsive capture, branch `skelet/af05-p09b-build-kit`, base `b55cff04c448605aa5c0bcb6cbae9c81488500e8`.
+- Jev version: jev 2026.919.0, model jev-1.13.0, via `jev ask /tmp/af05a_jev_spec.json`.
+- First run: compatibility 0.35, correctness 0.66, evidence 0.47, reliability 0.25, scope 0.41, security 0.24, ok true, zero blocking verdict.
+- Triage: correctness 0.66 investigated with targeted source inspection and real Chromium tests. Viewport defaults to desktop in all three entrypoints (renderOfflineSource, capturePublicPage, analyzePublicUrl); invalid viewport throws capture/blocked (child/parent) or lens/invalid-url (journey) with sanitized codes; browser context uses 1280x720 desktop and 390x844 mobile with top-level deviceScaleFactor 1 (fixed from nested ViewportSize error caught by typecheck); child returns viewport in result; parent requires result viewport equals requested viewport; IPC rejects malformed viewport with Invalid worker request; report requires desktop/mobile. Dimensions proven by inspectJpeg on real offline renders (desktop 1280x720, mobile 390x844). No demonstrated defect; scores alone are not a verdict per governance.
+- Fix applied after first run: journey invalid-viewport cause corrected from lens/unknown-failure to lens/invalid-url for precise typing; typecheck and targeted tests rerun green. Second Jev run: compatibility 0.34, correctness 0.66, evidence 0.47, reliability 0.25, scope 0.51, security 0.24, ok true. Correctness elevation unchanged and addressed by the same targeted mapping above.
+- Findings: zero unresolved blocking findings. This record is a genuine Jev review, not a score-only fabrication.

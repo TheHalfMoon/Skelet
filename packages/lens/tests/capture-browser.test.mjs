@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { renderOfflineSource } from "../src/capture-child.ts";
+import { inspectJpeg } from "../src/jpeg-evidence.ts";
 
 test("Chromium capture remains offline, script-free, and honest about missing resources", async () => {
   const fixture = {
@@ -32,6 +33,81 @@ test("Chromium capture remains offline, script-free, and honest about missing re
   const image = Buffer.from(result.screenshotBase64, "base64");
   assert.ok(image.length > 500 && image.length <= 2_000_000);
   assert.equal(image.subarray(0, 2).toString("hex"), "ffd8");
+  assert.equal(result.viewport, "desktop");
+  const dimensions = inspectJpeg(image);
+  assert.ok(dimensions !== null);
+  assert.equal(dimensions.width, 1280);
+  assert.equal(dimensions.height, 720);
+});
+
+test("mobile viewport reaches the isolated worker with its intended dimensions", async () => {
+  const fixture = {
+    href: "https://example.org/catalog",
+    html: `<!doctype html><html><head><title>Mobile Fixture</title></head><body><main><section><p>Observed</p></section></main></body></html>`,
+    sha256: "b".repeat(64),
+    byteCount: 200,
+    redirects: 0,
+  };
+  const result = await renderOfflineSource(fixture, "mobile");
+  assert.equal(result.viewport, "mobile");
+  assert.deepEqual(result.coverageGaps, [
+    "javascript-disabled", "external-resources-blocked", "viewport-only-screenshot",
+  ]);
+  const image = Buffer.from(result.screenshotBase64, "base64");
+  const dimensions = inspectJpeg(image);
+  assert.ok(dimensions !== null);
+  assert.equal(dimensions.width, 390);
+  assert.equal(dimensions.height, 844);
+});
+
+test("unsupported viewport fails closed without launching a browser", async () => {
+  const fixture = {
+    href: "https://example.org/catalog",
+    html: `<!doctype html><html><head><title>Bad</title></head><body></body></html>`,
+    sha256: "c".repeat(64),
+    byteCount: 100,
+    redirects: 0,
+  };
+  await assert.rejects(
+    renderOfflineSource(fixture, "watch"),
+    (error) => error.code === "capture/blocked",
+  );
+});
+
+test("capture entrypoint validates the viewport before forking", async () => {
+  const { capturePublicPage } = await import("../src/capture-worker.ts");
+  await assert.rejects(
+    capturePublicPage("https://example.org/", { viewport: "watch" }),
+    (error) => error.code === "capture/blocked",
+  );
+});
+
+test("journey service passes the requested viewport to the capture stage", async () => {
+  const { analyzePublicUrl } = await import("../src/analyze-url.ts");
+  let seenViewport;
+  const stub = async (url, viewport) => {
+    seenViewport = viewport;
+    const rendered = await renderOfflineSource({
+      href: "https://example.org/journey",
+      html: `<!doctype html><html><head><title>Journey</title></head><body><main><section><p>Observed</p></section></main></body></html>`,
+      sha256: "3".repeat(64),
+      byteCount: 200,
+      redirects: 0,
+    }, viewport ?? "desktop");
+    const { readFileSync } = await import("node:fs");
+    const jpeg = readFileSync(new URL("./fixtures/valid.jpeg", import.meta.url)).toString("base64");
+    return { ...rendered, screenshotBase64: jpeg };
+  };
+  const desktop = await analyzePublicUrl("https://example.org/journey", { capture: stub }, { viewport: "desktop" });
+  assert.equal(seenViewport, "desktop");
+  assert.equal(desktop.report.status, "partial");
+  const mobile = await analyzePublicUrl("https://example.org/journey", { capture: stub }, { viewport: "mobile" });
+  assert.equal(seenViewport, "mobile");
+  assert.equal(mobile.report.status, "partial");
+  await assert.rejects(
+    analyzePublicUrl("https://example.org/journey", { capture: stub }, { viewport: "watch" }),
+    (error) => error.code === "lens/invalid-url",
+  );
 });
 
 test("isolated child can launch the pinned headless browser without inheriting HOME", async () => {

@@ -60,9 +60,13 @@ export interface AnalyzeUrlResult {
 }
 
 export interface AnalyzeUrlDeps {
-  capture?: (url: string) => Promise<CaptureResult>;
+  capture?: (url: string, viewport?: "desktop" | "mobile") => Promise<CaptureResult>;
   assemble?: (capture: CaptureResult) => LensReport;
   exportArtifacts?: (report: LensReport) => LensExportBundle;
+}
+
+export interface AnalyzeUrlOptions {
+  viewport?: "desktop" | "mobile";
 }
 
 function causeOf(error: unknown): AnalyzeUrlCauseCode {
@@ -81,10 +85,19 @@ function causeOf(error: unknown): AnalyzeUrlCauseCode {
  * stages default to the real qualified implementations; tests inject a
  * stubbed network edge while keeping real assembly and export.
  */
-export async function analyzePublicUrl(input: string, deps: AnalyzeUrlDeps = {}): Promise<AnalyzeUrlResult> {
-  const capture = deps.capture ?? capturePublicPage;
+export async function analyzePublicUrl(
+  input: string,
+  deps: AnalyzeUrlDeps = {},
+  options: AnalyzeUrlOptions = {},
+): Promise<AnalyzeUrlResult> {
+  const capture = deps.capture ?? ((url: string, vp?: "desktop" | "mobile") =>
+    capturePublicPage(url, { viewport: vp ?? "desktop" }));
   const assemble = deps.assemble ?? assembleLensReportFromCapture;
   const exportArtifacts = deps.exportArtifacts ?? exportLensArtifacts;
+  const viewport = options.viewport ?? "desktop";
+  if (viewport !== "desktop" && viewport !== "mobile") {
+    throw new AnalyzeUrlError("lens/invalid-url", "lens/invalid-url");
+  }
   try {
     validateCaptureUrl(input);
   } catch (error) {
@@ -92,7 +105,7 @@ export async function analyzePublicUrl(input: string, deps: AnalyzeUrlDeps = {})
   }
   let captured: CaptureResult;
   try {
-    captured = await capture(input);
+    captured = await capture(input, viewport);
   } catch (error) {
     throw new AnalyzeUrlError("lens/capture-failed", causeOf(error));
   }

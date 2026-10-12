@@ -1,0 +1,41 @@
+{
+  "description": "Skelet AF-05a real responsive capture: viewport reaches isolated Playwright worker with binding",
+  "questions": {
+    "compatibility": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Do the CaptureResult viewport addition, capturePublicPage options, analyzePublicUrl options, and report-assembly viewport gate break qualified G09-03/G09-08/G09-09/G09-13 interfaces beyond additive optional viewport fields? Do older callers that omit viewport still default to desktop and pass validation?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Is viewport plumbing factually correct: request viewport defaults desktop, invalid viewport fails closed with capture/blocked, browser context uses 1280x720 desktop and 390x844 mobile with deviceScaleFactor 1, child returns viewport in result, parent requires result viewport equals requested viewport, IPC rejects malformed viewport, report requires desktop/mobile, journey passes viewport to capture?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Are the 4 new capture-browser viewport tests plus extended report-assembly negatives sufficient: desktop/mobile renders with inspectJpeg dimension checks, invalid viewport rejection without browser launch, entrypoint validation before fork, journey pass-through for both viewports with invalid rejection? Is real Chromium used for dimension proof with no mocked handlers for the behavior proven?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Any nondeterminism in viewport defaulting, screenshot dimensions, IPC viewport handling, or journey option handling that breaks reproducibility? Any malformed viewport, missing viewport, or mismatched result viewport that fails open or leaks data?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Anything beyond bounded responsive capture: new crawl, traversal, manifest, ZIP, starter, billing, embeddings, paid services, donor imports, or unrelated refactors? Is the change limited to viewport binding plus tests and fixtures?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Does the change leak stack traces, secrets, paths, HTML, or credentials via viewport errors, IPC errors, or journey errors? Is offline JS-disabled route-blocked render preserved for both viewports? Do invalid viewports fail closed with sanitized capture/blocked codes?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "b55cff04c448605aa5c0bcb6cbae9c81488500e8",
+    "branch": "skelet/af05-p09b-build-kit",
+    "change": "AF-05a responsive capture: viewport param reaches isolated worker, desktop 1280x720 mobile 390x844, result carries viewport with strict request binding, IPC validation, report gate, journey viewport option, 4 new Chromium dimension tests plus viewport negatives, fixture updates to desktop.",
+    "head_sha": "WORKTREE"
+  }
+}

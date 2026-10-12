@@ -34,6 +34,7 @@ export interface CaptureResult {
   htmlBytes: number;
   redirects: number;
   title: string;
+  viewport: "desktop" | "mobile";
   sections: { tag: string; text: string }[];
   assets: { tag: string; href: string }[];
   declarations: CaptureDeclaration[];
@@ -88,8 +89,15 @@ export function isolatedWorkerEnv(home: string): NodeJS.ProcessEnv {
   };
 }
 
-export async function capturePublicPage(input: string): Promise<CaptureResult> {
+export async function capturePublicPage(
+  input: string,
+  options: { viewport?: "desktop" | "mobile" } = {},
+): Promise<CaptureResult> {
   const validated = validateCaptureUrl(input);
+  const viewport = options.viewport ?? "desktop";
+  if (viewport !== "desktop" && viewport !== "mobile") {
+    throw new CaptureError("capture/blocked", "Unsupported viewport.");
+  }
   const home = mkdtempSync(join(tmpdir(), "skelet-lens-"));
   const script = fileURLToPath(new URL("./capture-child.ts", import.meta.url));
 
@@ -152,6 +160,8 @@ export async function capturePublicPage(input: string): Promise<CaptureResult> {
             validTechSignals(result.techSignals) &&
             (result.techSignals.length <= TECH_SIGNAL_BUDGET.maxSignals);
           if (result.status !== "partial" || result.screenshotMime !== "image/jpeg" ||
+              (result.viewport !== "desktop" && result.viewport !== "mobile") ||
+              result.viewport !== viewport ||
               typeof result.screenshotBase64 !== "string" ||
               result.screenshotBase64.length > Math.ceil(CAPTURE_BUDGET.maxScreenshotBytes * 4 / 3) + 4 ||
               typeof result.title !== "string" || result.title.length > 240 ||
@@ -164,7 +174,7 @@ export async function capturePublicPage(input: string): Promise<CaptureResult> {
           settle(new CaptureError("capture/browser", "Unknown worker response."));
         }
       });
-      child.send({ kind: "capture", url: validated.href }, (error) => {
+      child.send({ kind: "capture", url: validated.href, viewport }, (error) => {
         if (error) settle(new CaptureError("capture/browser", "Worker IPC failed."));
       });
     });

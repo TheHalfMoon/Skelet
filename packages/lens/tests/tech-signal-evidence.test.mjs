@@ -31,6 +31,7 @@ function captured(overrides = {}) {
     htmlBytes: 187,
     redirects: 0,
     title: "Evidence",
+    viewport: "desktop",
     sections: [{ tag: "main", text: "Observed" }],
     assets: [{ tag: "img", href: "https://example.org/logo.svg" }],
     declarations: [],

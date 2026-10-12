@@ -19,20 +19,32 @@ import {
 interface CaptureRequest {
   kind: "capture";
   url: string;
+  viewport?: "desktop" | "mobile";
 }
+
+export type CaptureViewport = "desktop" | "mobile";
 
 async function capture(request: CaptureRequest) {
   const sourcePage = await fetchGuardedHtml(request.url);
-  return renderOfflineSource(sourcePage);
+  return renderOfflineSource(sourcePage, request.viewport ?? "desktop");
 }
 
-export async function renderOfflineSource(sourcePage: GuardedHtml) {
+export async function renderOfflineSource(
+  sourcePage: GuardedHtml,
+  viewport: CaptureViewport = "desktop",
+) {
   const browser = await chromium.launch({
     headless: true,
   });
   try {
+    if (viewport !== "desktop" && viewport !== "mobile") {
+      throw new CaptureError("capture/blocked", "Unsupported viewport.");
+    }
     const context = await browser.newContext({
-      viewport: { width: 1280, height: 720 },
+      viewport: viewport === "mobile"
+        ? { width: 390, height: 844 }
+        : { width: 1280, height: 720 },
+      deviceScaleFactor: 1,
       javaScriptEnabled: false,
       serviceWorkers: "block",
       acceptDownloads: false,
@@ -298,6 +310,7 @@ export async function renderOfflineSource(sourcePage: GuardedHtml) {
         htmlBytes: sourcePage.byteCount,
         redirects: sourcePage.redirects,
         title: extracted.title,
+        viewport,
         sections: extracted.sections,
         assets: extracted.assets,
         declarations,
@@ -330,7 +343,10 @@ process.on("message", async (message: unknown) => {
     if (
       typeof message !== "object" || message === null ||
       !("kind" in message) || message.kind !== "capture" ||
-      !("url" in message) || typeof message.url !== "string"
+      !("url" in message) || typeof message.url !== "string" ||
+      ("viewport" in message && (message as { viewport?: unknown }).viewport !== undefined &&
+        (message as { viewport?: unknown }).viewport !== "desktop" &&
+        (message as { viewport?: unknown }).viewport !== "mobile")
     ) {
       throw new CaptureError("capture/blocked", "Invalid worker request.");
     }
