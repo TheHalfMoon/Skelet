@@ -51,3 +51,11 @@
     records and cases with no secrets, matching the registry test suite. No finding.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
+- Recount on evidence head `6e904fc0f7f5e4b89f9b64e83070c4963433ab18`:
+  `ocr delegate preview` reports 11 reviewable / 15 total. The 4 excluded
+  by OCR itself are this record + `AF-04_PSTACK_PANELS.md` +
+  `docs/search.md` (markdown `unsupported_ext`) +
+  `packages/assets/tests/fixtures/search-relevance.json` (`default_path`;
+  fixture data covered by the search test suite above). The 2 added
+  reviewable files are the Jev JSON pair (same key-spelling rule group, no
+  finding). Jev was rerun on the evidence head with zero blocking findings.
