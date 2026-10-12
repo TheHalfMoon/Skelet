@@ -1,0 +1,46 @@
+packages/db/tests/auth.test.mjs
+  s_c3d38cb2cec9ee::t_45744e2a066db6 20
+packages/db/tests/collections.test.mjs
+  s_c3d38cb2cec9ee::t_2e39477d8ca5a8 31
+packages/db/tests/pg-build-kit.test.mjs
+  s_c3d38cb2cec9ee::t_8b7a6631de5c1b 39
+packages/db/tests/pg-integration.test.mjs
+  s_c3d38cb2cec9ee::t_f51424f070eaeb 97,106
+packages/db/tests/graph.test.mjs
+  s_c3d38cb2cec9ee::t_a91558a961c9e5 33
+  s_c3d38cb2cec9ee::t_708218cd8a070b 27,34
+packages/db/tests/workflows.test.mjs
+  s_c3d38cb2cec9ee::t_fd0147b46b6918 37,47
+  s_c3d38cb2cec9ee::t_5d9ce5aaa16787 45
+packages/db/tests/db-foundation.test.mjs
+  s_c3d38cb2cec9ee::t_f8c9abca5a4499 47
+  s_c3d38cb2cec9ee::t_b37541ba8a832a 26,30,121,129
+packages/db/tests/jobs.test.mjs
+  s_c3d38cb2cec9ee::t_2379d035644403 27
+packages/db/tests/pg-workflows.test.mjs
+  s_c3d38cb2cec9ee::t_53eb8b4fb45fe4 29
+packages/db/tests/pg-graph.test.mjs
+  s_c3d38cb2cec9ee::t_f8d7ac0385a758 25
+packages/db/tests/workspaces.test.mjs
+  s_c3d38cb2cec9ee::t_634f691f117706 28
+packages/db/tests/billing.test.mjs
+  s_c3d38cb2cec9ee::t_1f3765219a44db 28
+packages/db/tests/build-kit.test.mjs
+  s_c3d38cb2cec9ee::t_030a907a5dcbad 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c48c887eea306a24793a68327db9d0210c9851d3",
+  "prompts": {},
+  "sessions": {
+    "s_c3d38cb2cec9ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed21490b1ffeTx5LT08HOHgK68",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
