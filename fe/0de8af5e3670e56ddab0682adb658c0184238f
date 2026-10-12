@@ -1,0 +1,23 @@
+docs/reviews/AF-04_JEV_SPEC.json
+  s_c3d38cb2cec9ee::t_b793f0881b196a 1-59
+docs/reviews/AF-04_JEV_REVIEW.json
+  s_c3d38cb2cec9ee::t_b793f0881b196a 1
+docs/reviews/AF-04_OCR_DELEGATION.md
+  s_c3d38cb2cec9ee::t_1bf535108e40b4 54-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "fe0de8af5e3670e56ddab0682adb658c0184238f",
+  "prompts": {},
+  "sessions": {
+    "s_c3d38cb2cec9ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed21490b1ffeTx5LT08HOHgK68",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
