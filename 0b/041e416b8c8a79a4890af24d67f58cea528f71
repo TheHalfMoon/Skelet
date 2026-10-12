@@ -1,0 +1,31 @@
+docs/reviews/AF-05b_OCR_DELEGATION.md
+  s_aa579cbff99963::t_b18250c67414ee 1-11
+.github/workflows/ci.yml
+  s_aa579cbff99963::t_2824f39d7538dd 524
+docs/reviews/AF-05b_JEV_SPEC.json
+  s_aa579cbff99963::t_5a7eb352d684b0 1-41
+docs/reviews/AF-05b_JEV_REVIEW.md
+  s_aa579cbff99963::t_5094daafc461e7 1-7
+packages/lens/tests/three-page-fixture.test.mjs
+  s_aa579cbff99963::t_9007824db8a558 1-133
+docs/reviews/AF-05b_JEV_REVIEW.json
+  s_aa579cbff99963::t_5a7eb352d684b0 1
+docs/reviews/AF-05b_PSTACK_PANELS.md
+  s_aa579cbff99963::t_7717f5ce24ace3 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0b041e416b8c8a79a4890af24d67f58cea528f71",
+  "prompts": {},
+  "sessions": {
+    "s_aa579cbff99963": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ed1e2a167ffe7QR528oaHYpcli",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
