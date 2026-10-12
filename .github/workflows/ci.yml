@@ -521,6 +521,7 @@ jobs:
           packages/lens/tests/kit-manifest.test.mjs
           packages/lens/tests/kit-package.test.mjs
           packages/lens/tests/starter-synthesis.test.mjs
+          packages/lens/tests/three-page-fixture.test.mjs
 
   db-foundation:
     name: db-foundation

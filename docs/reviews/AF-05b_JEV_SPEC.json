@@ -1,0 +1,41 @@
+{
+  "description": "Skelet AF-05b three-page deterministic fixture with desktop/mobile captures",
+  "questions": {
+    "compatibility": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Does the new three-page fixture test plus CI lens listing change break qualified lens interfaces? Is the CI change limited to one test-list line and does the fixture use only existing qualified capture/scope/traversal/report entrypoints with no contract change?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Is the fixture factually correct: 3 synthetic example.org pages, scope selected-pages with both viewports deterministic hash, traversal completed under budget via offline stub, each page desktop+mobile real Chromium renders with 1280x720 and 390x844 dimension proof, viewport binding, coverage gaps, report partial status with unknown-rights assets, 6 distinct analysisIds?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Are the 3 new fixture tests sufficient: scope determinism, traversal completion, and 6-render integration with dimension/binding/report checks using real Chromium and no mocked handlers for proven behavior? Is CI coverage extended to the new file?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Any nondeterminism in scope hash, traversal order, render dimensions, or analysisId uniqueness that breaks reproducibility? Any fixture page, viewport, or budget path that fails open or silently drops coverage?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Anything beyond a deterministic fixture: new capture logic, manifest/ZIP/starter changes, billing, embeddings, paid services, donor imports, or unrelated refactors? Is the change limited to one test file plus CI listing?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {"false": "No demonstrated material issue", "true": "Material issue exists"},
+      "instructions": "Does the fixture leak secrets, paths, HTML, or credentials? Are all pages synthetic example.org with offline JS-disabled blocked-resources renders and unknown-rights assets? Do scope/traversal/report gates stay fail-closed?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "701c23e7f122e0413986741449d124176633ca67",
+    "branch": "skelet/af05b-three-page-fixture",
+    "change": "AF-05b three-page fixture: synthetic example.org home/catalog/about, scope both viewports deterministic, traversal completed stub, 6 real Chromium renders with dimension proof and report binding, CI listing +1 line.",
+    "head_sha": "WORKTREE"
+  }
+}
