@@ -59,3 +59,10 @@
   fixture data covered by the search test suite above). The 2 added
   reviewable files are the Jev JSON pair (same key-spelling rule group, no
   finding). Jev was rerun on the evidence head with zero blocking findings.
+- Recount on fix head `c48c887eea306a24793a68327db9d0210c9851d3`
+  (migration-ledger test maintenance): `ocr delegate preview` reports
+  24 reviewable / 28 total. New reviewables are the 13 `packages/db/tests`
+  ledger assertions (single-token `"012_asset_search_fts"` additions, same
+  key-spelling rule group, no finding) plus the 2 Jev JSON files. Markdown
+  and fixture exclusions unchanged. Jev rerun on the fix head holds zero
+  blocking findings.

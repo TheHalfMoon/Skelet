@@ -54,6 +54,6 @@
     "base_sha": "d1bb6437ccee7cb7a47a03ab65749316d30d9cc9",
     "branch": "skelet/af04-deterministic-search",
     "change": "AF-04 lexical search: PostgreSQL FTS with ts_rank relevance OR literal matching, literal fallback for punctuation and FTS capability failures, typed filters for kinds/rights/licenses/trademark/collection, access-scoped facets, stable rank/title/id ordering with cursor pagination, parameterized SQL, migration 012 FTS GIN index with narrow rollback, strict REST/MCP validation, synthetic relevance fixtures, benchmark, and documentation. No embeddings, no models, no paid services.",
-    "head_sha": "6e904fc0f7f5e4b89f9b64e83070c4963433ab18"
+    "head_sha": "c48c887eea306a24793a68327db9d0210c9851d3"
   }
 }
