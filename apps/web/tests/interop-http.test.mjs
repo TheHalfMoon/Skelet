@@ -140,7 +140,7 @@ test("AF-03c: authentication binds tokens and denies forged identities", async (
     const bogus = await mcp(info.baseUrl, "bogus-token", { jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
     assert.equal(bogus.json.error.code, -32001);
     const allowed = await mcp(info.baseUrl, info.ownerToken, { jsonrpc: "2.0", id: 3, method: "tools/list", params: {} });
-    assert.equal(allowed.json.result.tools.length, 6);
+    assert.equal(allowed.json.result.tools.length, 13);
   } finally {
     await stopServer(proc);
   }

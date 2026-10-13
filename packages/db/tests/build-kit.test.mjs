@@ -31,7 +31,7 @@ const NINE = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge",
 ];
 const BASE = new Date("2026-10-10T04:00:00.000Z");
 
@@ -1032,6 +1032,76 @@ test("expiry cancels active runs and purges payloads while keeping audits", asyn
     });
     assert.equal(progress.purged, true);
     assert.deepEqual(progress.resultEvidence, {});
+  } finally {
+    await db.close();
+  }
+});
+
+test("expiry purges terminal payloads while preserving the audit trail", async () => {
+  // AF-05e-i regression: migration 009 permitted the purge transition in
+  // the trigger but the completed/partial CHECKs rejected the resulting
+  // rows, so expiring a completed or evidence-only partial run always
+  // failed. Migration 013 exempts purged rows; live rows keep the
+  // original guarantees.
+  const db = await fixtureDb();
+  const pastExpiry = (days) => new Date(BASE.getTime() + days * 86400000);
+  async function drive(tenant, overrides, terminal, options) {
+    const run = await makeRun(db, tenant, { retentionDays: 1, ...overrides });
+    let revision = 0;
+    const chain = {
+      completed: ["capturing", "extracting", "generating", "validating", "completed"],
+      partial: ["capturing", "extracting", "generating", "partial"],
+      failed: ["capturing", "failed"],
+    }[terminal];
+    for (const next of chain) {
+      const advanced = await advanceKitRun(db, {
+        workspaceId: tenant.workspaceId,
+        kitId: run.kitId,
+        workerId: "worker-purge",
+        expectedRevision: revision,
+        next,
+        options: next === terminal ? { ...options, now: BASE } : { now: BASE },
+      });
+      revision = advanced.run.revision;
+    }
+    return run;
+  }
+  try {
+    const { a } = await tenants(db);
+    const done = await drive(a, { idempotencyKey: "purge-done" }, "completed", {
+      evidence: { analysis_id: "x", checks: ["schema"] },
+      artifactManifest: { entries: [{ path: "manifest.json", sha256: "e".repeat(64), bytes: 9 }] },
+    });
+    const gaps = await drive(a, { idempotencyKey: "purge-gaps" }, "partial", {
+      evidence: { coverage_gaps: ["page-2-timeout"] },
+    });
+    const broken = await drive(a, { idempotencyKey: "purge-broken" }, "failed", {
+      errorClass: "lens/capture",
+    });
+    for (const [run, status] of [[done, "completed"], [gaps, "partial"], [broken, "failed"]]) {
+      const expired = await expireKitRun(db, {
+        workspaceId: a.workspaceId,
+        actorId: a.actorId,
+        kitId: run.kitId,
+        now: pastExpiry(2),
+      });
+      assert.equal(expired.applied, true);
+      assert.equal(expired.run.status, status);
+      assert.notEqual(expired.run.purgedAt, null);
+      assert.deepEqual(expired.run.artifactManifest, {});
+      assert.deepEqual(expired.run.resultEvidence, {});
+      assert.equal(expired.run.checkpoint, null);
+      assert.equal(expired.run.kitId, run.kitId);
+      assert.equal(expired.run.analysisId, run.analysisId);
+    }
+    // Error classifications survive the purge for post-mortem audit.
+    const kept = await getKitRun(db, {
+      workspaceId: a.workspaceId,
+      actorId: a.actorId,
+      kitId: broken.kitId,
+    });
+    assert.equal(kept.errorClass, "lens/capture");
+    assert.equal(kept.attemptHistory.length, 0);
   } finally {
     await db.close();
   }
