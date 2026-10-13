@@ -24,7 +24,7 @@ const EIGHT = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order",
 ];
 const BASE = new Date("2026-10-09T04:00:00.000Z");
 
