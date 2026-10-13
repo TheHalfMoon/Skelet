@@ -21,6 +21,8 @@ export default function Home() {
         <Link href="/api/registry">Component registry</Link>
         {" · "}
         <Link href="/lens">Lens Build Kit jobs</Link>
+        {" · "}
+        <Link href="/boards">Reference boards</Link>
       </p>
     </main>
   );
