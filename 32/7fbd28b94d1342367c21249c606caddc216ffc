@@ -1,0 +1,48 @@
+apps/web/app/api/v1/boards/[id]/move/route.ts
+  s_f025532227d5b3::t_cfa7a08f2277d0 1-63
+apps/web/app/api/v1/boards/[id]/items/[artifactId]/route.ts
+  ai_agent 1-55
+docs/reviews/AF-08-i_PSTACK_PANELS.md
+  s_f025532227d5b3::t_72077e919621ad 1-21
+docs/reviews/AF-08-i_OCR_DELEGATION.md
+  s_f025532227d5b3::t_567fbacfbbb612 1-21
+apps/web/tests/boards.test.mjs
+  s_f025532227d5b3::t_b80bf66d51bcf4 182-202
+  s_f025532227d5b3::t_9c559a4a33921b 11-22
+  s_f025532227d5b3::t_8420c9a2e33260 1-10,23-181,203-213
+docs/reviews/AF-08-i_JEV_SPEC.json
+  s_f025532227d5b3::t_63a373f506cb23 1
+docs/reviews/AF-08-i_JEV_REVIEW.json
+  s_f025532227d5b3::t_f4454e091e06e6 1
+apps/web/app/api/v1/boards/[id]/items/route.ts
+  ai_agent 1-62
+apps/web/app/api/v1/boards/[id]/route.ts
+  ai_agent 1-116
+docs/reviews/AF-08-i_JEV_REVIEW.md
+  s_f025532227d5b3::t_df8f148f18867f 3
+  s_f025532227d5b3::t_bf11c6a23cfbfe 1-2,4-6
+apps/web/lib/boards.ts
+  s_f025532227d5b3::t_88f761fa1733b5 425-426,437
+  s_f025532227d5b3::t_f97025bb6e2a5e 278-281
+  s_f025532227d5b3::t_1127a87a9066f6 1-46,48-199,201-277,282-424,427-436,438-454
+  s_f025532227d5b3::t_0a477e34fd10de 200
+  s_f025532227d5b3::t_e50463647e2788 47
+apps/web/app/api/v1/boards/route.ts
+  ai_agent 1-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "327fbd28b94d1342367c21249c606caddc216ffc",
+  "prompts": {},
+  "sessions": {
+    "s_f025532227d5b3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecd280162ffeUaY8jn0i7avw3M",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
