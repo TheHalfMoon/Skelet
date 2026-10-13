@@ -1,0 +1,20 @@
+scripts/prove_starter_consumer.mjs
+  s_f025532227d5b3::t_f08caa2cd287d4 178-211
+  s_f025532227d5b3::t_add120923fa0e3 148-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "63bf8d9ade3eac1cbc22ba4b3c9a6e601695437e",
+  "prompts": {},
+  "sessions": {
+    "s_f025532227d5b3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecd280162ffeUaY8jn0i7avw3M",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
