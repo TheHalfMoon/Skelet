@@ -28,6 +28,13 @@ IMPLEMENTED_TOOLS = frozenset(
         "save_reference",
         "create_reference_pack",
         "get_object",
+        "lens_create_job",
+        "lens_poll_job",
+        "lens_get_job",
+        "lens_cancel_job",
+        "lens_retry_job",
+        "lens_resume_job",
+        "lens_read_artifact",
     }
 )
 UPCOMING_TOOLS = frozenset(

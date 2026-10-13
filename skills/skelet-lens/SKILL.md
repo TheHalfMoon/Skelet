@@ -19,7 +19,16 @@ URL capture (`analyze_url`) and image analysis (`analyze_image`) land with the L
 
 - Submit bounded, authorized `http(s)` captures and poll the analysis job; never present partial results as complete coverage.
 - Per-page evidence gaps, rights classifications, and observed-vs-generated labels travel with every export.
-- This skill will reference `analyze_url` once its contract is qualified; until then, do not invoke or promise it.
+- Single-shot URL analysis (`analyze_url`) and image analysis (`analyze_image`) land with the Lens pipeline in a later phase; until then, do not invoke or promise them — drive the qualified job tools below instead.
+
+## Lens build-kit jobs (qualified)
+
+The durable URL-to-kit lifecycle is qualified on REST, MCP, and the operator UI. Address every job by its stable `skelet://lens/{id}` identifier and pass the owning `workspaceId` on each call:
+
+1. **Create.** Use `lens_create_job` with the source URL, capture mode, budgets, and an idempotency key; replays converge on one job.
+2. **Poll and inspect.** Use `lens_poll_job` for status and `lens_get_job` for evidence, artifact summary, and attempt history; watch until a terminal state instead of assuming completion.
+3. **Recover.** Use `lens_retry_job` within budget after failure, `lens_resume_job` with a worker label after interruption, and `lens_cancel_job` for active runs; repeat cancellation is explicit.
+4. **Download.** Use `lens_read_artifact` for the manifest or evidence document; withheld files are listed, never served.
 
 ## Rules
 
