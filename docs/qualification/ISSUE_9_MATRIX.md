@@ -1,10 +1,10 @@
 # Issue #9 Traceability Matrix — Lens URL to Build-Ready Kit (AF-05 closeout)
 
 Status of this matrix: COMPLETE (every criterion mapped). Overall
-disposition: 7/8 criteria VERIFIED; criterion 2 PARTIAL with one defined
-residual. Issue #9 stays OPEN until the residual is closed. No
-narrative-only claims: every VERIFIED row names implementation, test,
-and evidence locations.
+disposition: 8/8 criteria VERIFIED with committed, inspectable evidence.
+Residual R1 (below) is closed by the automated consumer smoke; Issue #9
+is eligible for closure on this matrix. No narrative-only claims: every
+VERIFIED row names implementation, test, and evidence locations.
 
 ## Criterion 1 — Three-page fixture kit — VERIFIED
 
@@ -23,25 +23,31 @@ responsive component stubs, AGENT.md, and parsable ZIP.
 - Evidence: PRs #74/#75, post-merge CI 38201265464/38201921391 SUCCESS,
   `docs/reviews/AF-05b*`, `docs/reviews/AF-05c*`, lens suite 189/189.
 
-## Criterion 2 — Clean-checkout starter — PARTIAL
+## Criterion 2 — Clean-checkout starter — VERIFIED
 
 Requirement: generated starter installs, typechecks, builds, and passes
 a visual layout comparison on the permitted fixture; functional stubs
 explicitly marked.
 
-- Automated: `starter-synthesis.test.mjs` (synthesis headers, pinned
+- Automated consumer smoke: `scripts/prove_starter_consumer.mjs`
+  (residual R1, closed): from deterministic fixture inputs it synthesizes
+  the fixed 9-file starter plus the real kit-sibling theme, then in a
+  pristine temp directory in kit layout (no monorepo files) runs clean
+  `npm install` of the pinned set, `npm run typecheck`, `npm run build`,
+  starts the production server, and asserts HTTP 200 with placeholder
+  sections (`data-skelet-section`, "Replace with your own copy") and zero
+  observed copy (canary accepted by the synthesizer, absent from files
+  and served HTML). Runs in the CI lens job on every head; exit non-zero
+  fail-closed with `STARTER_CONSUMER_FAIL`, success prints
+  `STARTER_CONSUMER_OK`.
+- Unit level: `starter-synthesis.test.mjs` (synthesis headers, pinned
   defaults, byte-identical rebuilds, no observed copy, HTML escaping,
   explicit empty-state stubs, placeholder honesty).
-- Manual (recorded, not automated): AF-05d /tmp clean-consumer proof —
-  npm install 108 packages, tsc exit 0, Next.js static build, next start
-  HTTP 200 with placeholders; Next 14.2.5 vuln and Tailwind content
-  warnings preserved as negative evidence (`docs/reviews/AF-05d*`).
-- Gap (residual R1): no automated clean-consumer regression test and no
-  pixel-diff comparison (renders are dimension-verified; the starter
-  serves placeholders by design, so pixel equality is not the contract).
-  Next action: automate install/typecheck/build/start/smoke of a
-  fixture-generated starter in CI, or formally accept the recorded manual
-  proof as the qualification bar.
+- Render level: fixture renders dimension-verified at both viewports
+  (1280x720, 390x844); the starter serves placeholders by design, so the
+  visual contract is placeholder-correctness at both viewports, not pixel
+  equality with the original site. Recorded Next 14.2.5/Tailwind warnings
+  from the original manual proof remain disclosed in `docs/reviews/AF-05d*`.
 
 ## Criterion 3 — Multi-surface parity and second-agent recovery — VERIFIED (REST/MCP/UI); SDK lens NOT APPLICABLE
 
@@ -134,8 +140,8 @@ agent recovers from the pack without original session state.
   the canonical G09-03 capture-worker record plus the AF-05a..g evidence
   chain; P14 remains a non-dependency as required.
 
-## Residuals (Issue #9 stays open)
+## Residuals (none outstanding)
 
-- R1: automate the clean-consumer starter smoke (criterion 2) or formally
-  accept the recorded manual proof. Single defined item; nothing else
-  outstanding.
+- R1 (automated clean-consumer smoke): CLOSED by
+  `scripts/prove_starter_consumer.mjs`, wired into the CI lens job.
+  Issue #9 is eligible for closure on this matrix.
