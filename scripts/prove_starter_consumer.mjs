@@ -145,7 +145,14 @@ async function main() {
     await run(starter, NPM, ["run", "typecheck"], "npm run typecheck");
     await run(starter, NPM, ["run", "build"], "npm run build");
 
-    server = spawn(NPM, ["run", "start", "--", "-p", String(port)], { cwd: starter, stdio: ["ignore", "pipe", "pipe"] });
+    server = spawn(NPM, ["run", "start", "--", "-p", String(port)], {
+      cwd: starter,
+      stdio: ["ignore", "pipe", "pipe"],
+      // Own process group so SIGTERM/SIGKILL reaches the grandchild
+      // next-server too: killing only npm orphans it with stdio pipes
+      // open, which hangs CI steps indefinitely (observed 9+ minutes).
+      detached: process.platform !== "win32",
+    });
     server.stdout.on("data", (chunk) => process.stdout.write(`[starter] ${chunk}`));
     server.stderr.on("data", (chunk) => process.stderr.write(`[starter] ${chunk}`));
     const deadline = Date.now() + 90_000;
@@ -168,8 +175,40 @@ async function main() {
     console.log(`STARTER_CONSUMER_OK files=9 port=${port} placeholders=yes canary=absent`);
   } finally {
     if (server !== null) {
-      server.kill("SIGTERM");
-      setTimeout(() => server.kill("SIGKILL"), 5000).unref();
+      // Group kill first (detached group above); fall back to the direct
+      // child on Windows. Destroy stdio so orphaned grandchildren cannot
+      // hold this process open after the kill.
+      try {
+        if (server.pid !== undefined && process.platform !== "win32") {
+          process.kill(-server.pid, "SIGTERM");
+        } else {
+          server.kill("SIGTERM");
+        }
+      } catch {
+        // Already exited; the exit wait below still applies.
+      }
+      const reaper = setTimeout(() => {
+        try {
+          if (server !== null && server.pid !== undefined && process.platform !== "win32") {
+            process.kill(-server.pid, "SIGKILL");
+          } else if (server !== null) {
+            server.kill("SIGKILL");
+          }
+        } catch {
+          // Best effort; streams are destroyed next regardless.
+        }
+      }, 5000);
+      reaper.unref();
+      server.stdout?.destroy();
+      server.stderr?.destroy();
+      await new Promise((resolve) => {
+        const done = setTimeout(resolve, 8000);
+        done.unref();
+        server?.once("exit", () => {
+          clearTimeout(done);
+          resolve(undefined);
+        });
+      });
     }
     await rm(sandbox, { recursive: true, force: true });
   }
