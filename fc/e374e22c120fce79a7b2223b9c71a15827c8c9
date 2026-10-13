@@ -1,0 +1,69 @@
+docs/reviews/AF-07-i_JEV_REVIEW.json
+  s_f025532227d5b3::t_da6d29fe580bf0 1
+packages/db/tests/db-foundation.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 26,30,47,121,129
+packages/db/tests/pg-workflows.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 29
+docs/reviews/AF-07-i_JEV_SPEC.json
+  s_f025532227d5b3::t_96ec785467b953 1
+docs/reviews/AF-07-i_PSTACK_PANELS.md
+  s_f025532227d5b3::t_fcd9fc9f993008 1-21
+packages/db/tests/collections.test.mjs
+  s_f025532227d5b3::t_f3127a5feab179 16
+  s_f025532227d5b3::t_883eed4fc69c0d 32
+  s_f025532227d5b3::t_7b56ee63ebdd18 319-511
+packages/db/tests/jobs.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 27
+packages/db/tests/pg-build-kit.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 39
+packages/db/tests/pg-graph.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 25
+docs/reviews/AF-07-i_OCR_DELEGATION.md
+  s_f025532227d5b3::t_769ebc104ec7ec 1-20
+packages/db/tests/build-kit.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 35
+docs/reviews/AF-07-i_JEV_REVIEW.md
+  s_f025532227d5b3::t_6040e7df5e07c9 1-6
+packages/db/migrations/014_collection_item_order.up.sql
+  s_f025532227d5b3::t_852b729dfd60ca 1-17
+packages/db/migrations/014_collection_item_order.down.sql
+  s_f025532227d5b3::t_d7437324b1a76b 1-5
+packages/db/tests/workflows.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 37,47
+  s_f025532227d5b3::t_b01a900e1aa0e6 45
+packages/db/tests/workspaces.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 28
+packages/db/tests/graph.test.mjs
+  s_f025532227d5b3::t_b01a900e1aa0e6 33
+  s_f025532227d5b3::t_883eed4fc69c0d 27,34
+packages/db/tests/pg-integration.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 97,106
+packages/db/src/workflows.ts
+  s_f025532227d5b3::t_ab2e8c1bb01528 91,94-96
+packages/db/src/collections.ts
+  s_f025532227d5b3::t_fdcb08b987bb32 290,294-295,297-300,308
+  s_f025532227d5b3::t_7946bb60bfcbff 422,430-431
+  s_f025532227d5b3::t_ca8eba55dc661e 316,323,328-378
+  s_f025532227d5b3::t_80f523629d78d5 383-386,391,395-419
+  s_f025532227d5b3::t_f3d799fb9cf755 38-39
+packages/db/tests/auth.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 20
+packages/db/tests/billing.test.mjs
+  s_f025532227d5b3::t_883eed4fc69c0d 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "fce374e22c120fce79a7b2223b9c71a15827c8c9",
+  "prompts": {},
+  "sessions": {
+    "s_f025532227d5b3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecd280162ffeUaY8jn0i7avw3M",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
