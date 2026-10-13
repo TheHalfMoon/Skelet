@@ -1200,3 +1200,77 @@ export async function expireKitRun(
     return { run: toRow(row), applied: true };
   });
 }
+
+export interface ReapedKitRun {
+  workspaceId: string;
+  kitId: string;
+  from: KitStatus;
+  errorClass: string;
+}
+
+const REAP_LIMIT = { min: 1, max: 100, def: 25 };
+
+/**
+ * Server-only stale-run reaper (operator path, never tenant-facing: no
+ * REST/MCP surface). A crashed or wedged worker leaves an active run
+ * holding quota and a dead lease; without reaping, the concurrency slot
+ * stays wedged until retention expiry (default 30 days) or a manual
+ * resume. This sweep fails active non-queued runs whose lease is stale
+ * (absent or expired: no heartbeat) or whose scope time budget is spent
+ * (started_at + timeBudgetMs elapsed), clears the lease, stamps
+ * finished_at, releases quota, and preserves the audit trail. Live-lease
+ * runs within budget, queued runs awaiting dispatch, terminal runs, and
+ * purged runs are untouched. Rows are locked with SKIP LOCKED so
+ * duplicate concurrent sweeps converge instead of double-reaping; the
+ * revision guard fails closed if a worker advances mid-sweep. The
+ * deterministic deadline (timeout) wins when both conditions fire.
+ */
+export async function reapStaleKitRuns(
+  client: DbClient,
+  input: { now?: Date; limit?: number },
+): Promise<{ reaped: ReapedKitRun[]; scanned: number }> {
+  const at = input.now ?? new Date();
+  if (Number.isNaN(at.getTime())) throw invalid("Timestamp is invalid.");
+  const limit = input.limit === undefined ? REAP_LIMIT.def : input.limit;
+  if (!Number.isInteger(limit) || limit < REAP_LIMIT.min || limit > REAP_LIMIT.max) {
+    throw invalid("Reap limit is invalid.");
+  }
+  return client.transaction(async (tx) => {
+    const found = await tx.query(
+      `select ${KIT_COLUMNS} from lens_build_kit_runs
+       where status in ('capturing', 'extracting', 'generating', 'validating')
+         and purged_at is null
+       order by updated_at asc, kit_id asc
+       limit $1 for update skip locked`,
+      [limit],
+    );
+    const reaped: ReapedKitRun[] = [];
+    for (const row of found.rows) {
+      const run = toRow(row as Record<string, unknown>);
+      const leaseStale = run.leaseOwner === null || run.leaseExpiresAt === null ||
+        Date.parse(run.leaseExpiresAt) <= at.getTime();
+      const startedAt = run.startedAt === null ? null : Date.parse(run.startedAt);
+      const overBudget = startedAt !== null &&
+        startedAt + run.scopeBudgets.timeBudgetMs <= at.getTime();
+      if (!leaseStale && !overBudget) continue;
+      const errorClass = overBudget ? "buildkit/timeout" : "buildkit/worker-lost";
+      const updated = await tx.query(
+        `update lens_build_kit_runs set
+           status = 'failed', revision = revision + 1,
+           error_class = $3,
+           lease_owner = null, lease_expires_at = null,
+           finished_at = $4::timestamptz
+         where kit_id = $1 and workspace_id = $2 and revision = $5
+         returning ${KIT_COLUMNS}`,
+        [run.kitId, run.workspaceId, errorClass, at.toISOString(), run.revision],
+      );
+      const next = updated.rows[0];
+      if (next === undefined) {
+        throw new BuildKitError("buildkit/stale-revision", "Run revision is stale.");
+      }
+      await releaseQuota(tx, run.workspaceId, run.scopeBudgets);
+      reaped.push({ workspaceId: run.workspaceId, kitId: run.kitId, from: run.status, errorClass });
+    }
+    return { reaped, scanned: found.rows.length };
+  });
+}

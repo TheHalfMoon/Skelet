@@ -16,6 +16,7 @@ import {
   getKitRun,
   isTransitionAllowed,
   pollKitRun,
+  reapStaleKitRuns,
   resumeKitRun,
   retryKitRun,
   sha256Hex,
@@ -1243,4 +1244,152 @@ test("canonical serialization is deterministic across key order", () => {
   assert.equal(left, right);
   assert.equal(left, '{"a":{"x":"s","y":[1,2]},"b":1}');
   assert.match(sha256Hex(left), /^[0-9a-f]{64}$/);
+});
+
+test("reaper fails expired-lease runs and releases quota", async () => {
+  const db = await fixtureDb();
+  try {
+    const { a } = await tenants(db);
+    // Generous budget so only the dead lease fires, never the deadline.
+    const run = await makeRun(db, a, { timeBudgetMs: 600000 }, "reap-lost");
+    await advanceKitRun(db, {
+      workspaceId: a.workspaceId,
+      kitId: run.kitId,
+      workerId: "worker-crashed",
+      expectedRevision: 0,
+      next: "capturing",
+      options: { now: BASE },
+    });
+    // Lease runs BASE..BASE+300s; the sweep lands one second later.
+    const sweep = await reapStaleKitRuns(db, { now: new Date(BASE.getTime() + 301000) });
+    assert.equal(sweep.scanned, 1);
+    assert.equal(sweep.reaped.length, 1);
+    assert.equal(sweep.reaped[0]?.kitId, run.kitId);
+    assert.equal(sweep.reaped[0]?.from, "capturing");
+    assert.equal(sweep.reaped[0]?.errorClass, "buildkit/worker-lost");
+    const failed = await getKitRun(db, { workspaceId: a.workspaceId, actorId: a.actorId, kitId: run.kitId });
+    assert.equal(failed.status, "failed");
+    assert.equal(failed.errorClass, "buildkit/worker-lost");
+    assert.equal(failed.leaseOwner, null);
+    assert.ok(failed.finishedAt !== null);
+    assert.equal(failed.kitId, run.kitId);
+    assert.equal(failed.analysisId, run.analysisId);
+    // Quota is released: wedge the plan to its 2-slot cap, then show the
+    // reaped slot accepts a fresh submission while a live slot still blocks.
+    const live = await makeRun(db, a, { timeBudgetMs: 600000 }, "reap-slot-live");
+    await advanceKitRun(db, {
+      workspaceId: a.workspaceId,
+      kitId: live.kitId,
+      workerId: "worker-steady",
+      expectedRevision: 0,
+      next: "capturing",
+      options: { now: new Date(BASE.getTime() + 301000) },
+    });
+    const filler = await makeRun(db, a, {}, "reap-slot-full");
+    assert.ok(filler.kitId.length === 64);
+    await assert.rejects(
+      () => makeRun(db, a, {}, "reap-slot-blocked"),
+      (error) => error instanceof BuildKitError && error.code === "buildkit/quota-exhausted",
+    );
+    // Re-reaping is deterministic and free.
+    const again = await reapStaleKitRuns(db, { now: new Date(BASE.getTime() + 301000) });
+    assert.equal(again.reaped.length, 0);
+  } finally {
+    await db.close();
+  }
+});
+
+test("reaper enforces the scope time budget ahead of the lease signal", async () => {
+  const db = await fixtureDb();
+  try {
+    const { a } = await tenants(db);
+    const run = await makeRun(db, a, { timeBudgetMs: 60000 }, "reap-timeout");
+    // Long lease (live for an hour) but a 60s budget spent 61s ago.
+    await advanceKitRun(db, {
+      workspaceId: a.workspaceId,
+      kitId: run.kitId,
+      workerId: "worker-slow",
+      expectedRevision: 0,
+      next: "capturing",
+      options: { now: new Date(BASE.getTime() - 61000), leaseTtlSeconds: 3600 },
+    });
+    const sweep = await reapStaleKitRuns(db, { now: BASE });
+    assert.equal(sweep.reaped.length, 1);
+    assert.equal(sweep.reaped[0]?.errorClass, "buildkit/timeout");
+    const failed = await getKitRun(db, { workspaceId: a.workspaceId, actorId: a.actorId, kitId: run.kitId });
+    assert.equal(failed.status, "failed");
+    assert.equal(failed.errorClass, "buildkit/timeout");
+  } finally {
+    await db.close();
+  }
+});
+
+test("reaper leaves live, queued, terminal, and purged runs untouched", async () => {
+  const db = await fixtureDb();
+  try {
+    // One workspace per run: the free plan caps concurrency at two, and
+    // each tenant below holds at most one active run.
+    const liveTenant = await soloTenant(db, "reap-live");
+    const queuedTenant = await soloTenant(db, "reap-queued");
+    const doneTenant = await soloTenant(db, "reap-done");
+    const live = await makeRun(db, liveTenant, { timeBudgetMs: 600000 }, "reap-live");
+    await advanceKitRun(db, {
+      workspaceId: liveTenant.workspaceId,
+      kitId: live.kitId,
+      workerId: "worker-live",
+      expectedRevision: 0,
+      next: "capturing",
+      options: { now: BASE },
+    });
+    const queued = await makeRun(db, queuedTenant, {}, "reap-queued");
+    const done = await makeRun(db, doneTenant, {}, "reap-done");
+    await cancelKitRun(db, { workspaceId: doneTenant.workspaceId, actorId: doneTenant.actorId, kitId: done.kitId, now: BASE });
+    // Sweep 30s after BASE: live lease (300s) and budget (600s) both hold.
+    const sweep = await reapStaleKitRuns(db, { now: new Date(BASE.getTime() + 30000) });
+    assert.equal(sweep.scanned, 1);
+    assert.equal(sweep.reaped.length, 0);
+    const kept = await getKitRun(db, { workspaceId: liveTenant.workspaceId, actorId: liveTenant.actorId, kitId: live.kitId });
+    assert.equal(kept.status, "capturing");
+    assert.equal(kept.leaseOwner, "worker-live");
+    void queued;
+  } finally {
+    await db.close();
+  }
+});
+
+test("reaper is bounded, ordered, and spans tenants as an operator sweep", async () => {
+  const db = await fixtureDb();
+  try {
+    const { a, b } = await tenants(db);
+    const ids = [];
+    for (const [tenant, tag] of [[a, "reap-x"], [b, "reap-y"]]) {
+      const run = await makeRun(db, tenant, { timeBudgetMs: 600000 }, `${tag}`);
+      await advanceKitRun(db, {
+        workspaceId: tenant.workspaceId,
+        kitId: run.kitId,
+        workerId: "worker-gone",
+        expectedRevision: 0,
+        next: "capturing",
+        options: { now: BASE },
+      });
+      ids.push(run.kitId);
+    }
+    const first = await reapStaleKitRuns(db, { now: new Date(BASE.getTime() + 301000), limit: 1 });
+    assert.equal(first.scanned, 1);
+    assert.equal(first.reaped.length, 1);
+    const second = await reapStaleKitRuns(db, { now: new Date(BASE.getTime() + 301000), limit: 1 });
+    assert.equal(second.reaped.length, 1);
+    assert.notEqual(first.reaped[0]?.kitId, second.reaped[0]?.kitId);
+    assert.deepEqual([first.reaped[0]?.kitId, second.reaped[0]?.kitId].sort(), [...ids].sort());
+    await assert.rejects(
+      () => reapStaleKitRuns(db, { now: BASE, limit: 0 }),
+      (error) => error instanceof BuildKitError && error.code === "buildkit/invalid-request",
+    );
+    await assert.rejects(
+      () => reapStaleKitRuns(db, { now: new Date("not-a-date") }),
+      (error) => error instanceof BuildKitError && error.code === "buildkit/invalid-request",
+    );
+  } finally {
+    await db.close();
+  }
 });
