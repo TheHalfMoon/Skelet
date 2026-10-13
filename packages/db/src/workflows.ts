@@ -88,11 +88,12 @@ export async function createCollection(tx:DbTransaction,input:{
  [input.workspaceId,input.ownerSubject,input.title,input.visibility??"private"]);
  return collection(requireRow(r.rows));
 }
-/** DB-only mutation: future authenticated service MUST authorize collection ownership. */
+/** DB-only mutation: future authenticated service MUST authorize collection ownership. Appends at max(position) + 1 so board ranks stay dense. */
 export async function saveCollectionArtifact(tx:DbTransaction,collectionId:string,artifactId:string):
  Promise<boolean> {
- const r=await tx.query(`insert into collection_items(collection_id,artifact_id)
- values($1,$2) on conflict(collection_id,artifact_id) do nothing returning id`,
+ await tx.query(`select id from collections where id=$1 for update`,[collectionId]);
+ const r=await tx.query(`insert into collection_items(collection_id,artifact_id,position)
+ values($1,$2,(select coalesce(max(position)+1,0) from collection_items where collection_id=$1)) on conflict(collection_id,artifact_id) do nothing returning id`,
  [collectionId,artifactId]);
  return r.rows.length>0;
 }

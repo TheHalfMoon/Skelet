@@ -35,6 +35,8 @@ export interface CollectionReference {
   collectionId: string;
   artifactId: string;
   savedAt: string;
+  /** Dense zero-based board rank; contiguous per collection (AF-07-i). */
+  position: number;
 }
 
 const UUID_PATTERN =
@@ -285,13 +287,17 @@ export async function saveReference(
     if (readable === null) {
       throw new AuthError("auth/artifact-not-found", "Artifact was not found.");
     }
+    await lockCollectionItems(tx, collection.id);
     // ON CONFLICT keeps the transaction healthy: a duplicate raises no
     // error, so the follow-up read runs on a live transaction on both
     // PostgreSQL and PGlite (a caught unique violation would abort it).
+    // Appends take max(position) + 1 under the parent lock, so concurrent
+    // savers converge instead of sharing a rank.
     const saved = await tx.query(
-      `insert into collection_items (collection_id, artifact_id)
-       values ($1, $2) on conflict (collection_id, artifact_id) do nothing
-       returning collection_id, artifact_id, saved_at`,
+      `insert into collection_items (collection_id, artifact_id, position)
+       values ($1, $2, (select coalesce(max(position) + 1, 0) from collection_items where collection_id = $1))
+       on conflict (collection_id, artifact_id) do nothing
+       returning collection_id, artifact_id, saved_at, position`,
       [collection.id, input.artifactId],
     );
     const inserted = saved.rows[0];
@@ -299,7 +305,7 @@ export async function saveReference(
       return toReference(inserted);
     }
     const existing = await tx.query(
-      `select collection_id, artifact_id, saved_at from collection_items
+      `select collection_id, artifact_id, saved_at, position from collection_items
        where collection_id = $1 and artifact_id = $2`,
       [collection.id, input.artifactId],
     );
@@ -307,29 +313,113 @@ export async function saveReference(
   });
 }
 
-/** Remove a saved reference; removing an absent reference succeeds. */
+/** Remove a saved reference; removing an absent reference succeeds. Gaps close so ranks stay dense. */
 export async function removeReference(
   client: DbClient,
   input: { collectionId: string; artifactId: string; actorId: string },
 ): Promise<void> {
   await client.transaction(async (tx) => {
     const collection = await authorizeItemWrite(tx, input.collectionId, input.actorId);
+    await lockCollectionItems(tx, collection.id);
     await tx.query(
       `delete from collection_items where collection_id = $1 and artifact_id = $2`,
       [collection.id, input.artifactId],
     );
+    await renumberPositions(tx, collection.id);
+  });
+}
+
+/**
+ * Move a saved board item to an explicit zero-based rank. The rank must
+ * exist (0..count-1): out-of-range ranks fail closed instead of clamping,
+ * so callers observe the board they actually changed. Siblings shift in
+ * one transaction; ranks stay dense 0..n-1 afterwards. Moving an absent
+ * item fails closed as not-found, never as a silent no-op.
+ */
+export async function moveReference(
+  client: DbClient,
+  input: { collectionId: string; artifactId: string; actorId: string; toPosition: number },
+): Promise<CollectionReference[]> {
+  if (!Number.isInteger(input.toPosition) || input.toPosition < 0) {
+    throw new AuthError("auth/invalid-collection", "Board position is invalid.");
+  }
+  return client.transaction(async (tx) => {
+    const collection = await authorizeItemWrite(tx, input.collectionId, input.actorId);
+    await lockCollectionItems(tx, collection.id);
+    const ordered = await tx.query(
+      `select artifact_id from collection_items
+       where collection_id = $1 order by position, saved_at, artifact_id`,
+      [collection.id],
+    );
+    const ids = ordered.rows.map((row) => String((row as Record<string, unknown>).artifact_id));
+    const from = ids.indexOf(input.artifactId);
+    if (from < 0) {
+      throw notFound();
+    }
+    if (input.toPosition >= ids.length) {
+      throw new AuthError("auth/invalid-collection", "Board position is invalid.");
+    }
+    const [moved] = ids.splice(from, 1);
+    ids.splice(input.toPosition, 0, moved as string);
+    let position = 0;
+    for (const artifactId of ids) {
+      await tx.query(
+        `update collection_items set position = $3
+         where collection_id = $1 and artifact_id = $2`,
+        [collection.id, artifactId, position],
+      );
+      position += 1;
+    }
+    const result = await tx.query(
+      `select collection_id, artifact_id, saved_at, position from collection_items
+       where collection_id = $1 order by position, saved_at, artifact_id`,
+      [collection.id],
+    );
+    return result.rows.map(toReference);
   });
 }
 
 function toReference(row: Record<string, unknown>): CollectionReference {
+  const position = Number(row.position);
+  if (!Number.isInteger(position) || position < 0) {
+    throw new Error("Invalid collection item position in database");
+  }
   return {
     collectionId: String(row.collection_id),
     artifactId: String(row.artifact_id),
     savedAt: toIsoTimestamp(row.saved_at),
+    position,
   };
 }
 
-/** List saved references in save order; read authority applies. */
+/**
+ * Serialize writers of one collection on its parent row so concurrent
+ * appends converge on distinct positions instead of racing max(position).
+ * Call inside the writer transaction after authorization.
+ */
+async function lockCollectionItems(tx: DbTransaction, collectionId: string): Promise<void> {
+  await tx.query("select id from collections where id = $1 for update", [collectionId]);
+}
+
+/** Renumber one collection's items to dense 0..n-1 in board order. */
+async function renumberPositions(tx: DbTransaction, collectionId: string): Promise<void> {
+  const ordered = await tx.query(
+    `select artifact_id from collection_items
+     where collection_id = $1 order by position, saved_at, artifact_id for update`,
+    [collectionId],
+  );
+  let position = 0;
+  for (const row of ordered.rows) {
+    await tx.query(
+      `update collection_items set position = $3
+       where collection_id = $1 and artifact_id = $2`,
+      [collectionId, String((row as Record<string, unknown>).artifact_id), position],
+    );
+    position += 1;
+  }
+}
+
+/** List saved references in board order; read authority applies. */
 export async function listReferences(
   tx: DbTransaction,
   collectionId: string,
@@ -337,8 +427,8 @@ export async function listReferences(
 ): Promise<CollectionReference[]> {
   const collection = await authorizeRead(tx, collectionId, callerId);
   const result = await tx.query(
-    `select collection_id, artifact_id, saved_at from collection_items
-     where collection_id = $1 order by saved_at, artifact_id`,
+    `select collection_id, artifact_id, saved_at, position from collection_items
+     where collection_id = $1 order by position, saved_at, artifact_id`,
     [collection.id],
   );
   return result.rows.map(toReference);

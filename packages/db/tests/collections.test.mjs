@@ -13,6 +13,7 @@ import {
   getCollection,
   listCollections,
   listReferences,
+  moveReference,
   removeReference,
   saveReference,
   updateCollection,
@@ -28,7 +29,7 @@ const SIX = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order",
 ];
 const HASH = "c".repeat(64);
 
@@ -311,6 +312,199 @@ test("collections are isolated across workspaces and cascade on delete", async (
       () => getCollection(db, doomed.id, teamB.owner.id),
       (error) => error instanceof AuthError && error.code === "auth/collection-not-found",
     );
+  } finally {
+    await db.close();
+  }
+});
+
+test("board saves append dense positions in save order", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "board-append");
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Board",
+      visibility: "workspace",
+      actorId: owner.id,
+    });
+    const ids = [];
+    for (let index = 0; index < 3; index += 1) {
+      const source = await createSource(db, { key: `board-source-${index}`, kind: "synthetic" });
+      const product = await createProduct(db, { sourceId: source.id, title: "Board app" });
+      const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
+      const screen = await createArtifact(db, {
+        sourceId: source.id,
+        productId: product.id,
+        productVersionId: version.id,
+        kind: "screen",
+        title: `Board screen ${index}`,
+        contentHash: String(index).repeat(64).slice(0, 64),
+        rightsClassification: "metadata_only",
+        visibility: "workspace",
+        workspaceId,
+        ownerSubject: owner.id,
+      });
+      const saved = await saveReference(db, {
+        collectionId: collection.id,
+        artifactId: screen.id,
+        actorId: owner.id,
+      });
+      assert.equal(saved.position, index);
+      ids.push(screen.id);
+    }
+    const refs = await listReferences(db, collection.id, owner.id);
+    assert.deepEqual(refs.map((entry) => entry.artifactId), ids);
+    assert.deepEqual(refs.map((entry) => entry.position), [0, 1, 2]);
+    // Duplicate saves converge without moving the original rank.
+    const replay = await saveReference(db, {
+      collectionId: collection.id,
+      artifactId: ids[0],
+      actorId: owner.id,
+    });
+    assert.equal(replay.position, 0);
+    assert.deepEqual((await listReferences(db, collection.id, owner.id)).map((entry) => entry.position), [0, 1, 2]);
+  } finally {
+    await db.close();
+  }
+});
+
+test("board moves reorder with dense ranks", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "board-move");
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Board",
+      visibility: "workspace",
+      actorId: owner.id,
+    });
+    const ids = [];
+    for (let index = 0; index < 4; index += 1) {
+      const source = await createSource(db, { key: `move-source-${index}`, kind: "synthetic" });
+      const product = await createProduct(db, { sourceId: source.id, title: "Move app" });
+      const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
+      const screen = await createArtifact(db, {
+        sourceId: source.id,
+        productId: product.id,
+        productVersionId: version.id,
+        kind: "screen",
+        title: `Move screen ${index}`,
+        contentHash: `b${index}`.repeat(32).slice(0, 64),
+        rightsClassification: "metadata_only",
+        visibility: "workspace",
+        workspaceId,
+        ownerSubject: owner.id,
+      });
+      await saveReference(db, { collectionId: collection.id, artifactId: screen.id, actorId: owner.id });
+      ids.push(screen.id);
+    }
+    const move = (artifactId, toPosition) => moveReference(db, {
+      collectionId: collection.id,
+      artifactId,
+      actorId: owner.id,
+      toPosition,
+    });
+    let order = await move(ids[2], 0);
+    assert.deepEqual(order.map((entry) => entry.artifactId), [ids[2], ids[0], ids[1], ids[3]]);
+    assert.deepEqual(order.map((entry) => entry.position), [0, 1, 2, 3]);
+    order = await move(ids[2], 3);
+    assert.deepEqual(order.map((entry) => entry.artifactId), [ids[0], ids[1], ids[3], ids[2]]);
+    order = await move(ids[0], 0);
+    assert.deepEqual(order.map((entry) => entry.artifactId), [ids[0], ids[1], ids[3], ids[2]]);
+    const listed = await listReferences(db, collection.id, owner.id);
+    assert.deepEqual(listed.map((entry) => entry.artifactId), [ids[0], ids[1], ids[3], ids[2]]);
+    assert.deepEqual(listed.map((entry) => entry.position), [0, 1, 2, 3]);
+  } finally {
+    await db.close();
+  }
+});
+
+test("board moves reject invalid operations without side effects", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "board-invalid");
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Board",
+      visibility: "workspace",
+      actorId: owner.id,
+    });
+    const screen = await artifactFixture(db, workspaceId, owner.id);
+    await saveReference(db, { collectionId: collection.id, artifactId: screen.id, actorId: owner.id });
+    const before = await listReferences(db, collection.id, owner.id);
+    for (const toPosition of [1, 99, -1, 1.5, "0", null]) {
+      await assert.rejects(
+        () => moveReference(db, { collectionId: collection.id, artifactId: screen.id, actorId: owner.id, toPosition }),
+        (error) => error instanceof AuthError,
+        `position ${String(toPosition)} fails closed`,
+      );
+    }
+    await assert.rejects(
+      () => moveReference(db, {
+        collectionId: collection.id,
+        artifactId: "11111111-2222-4333-8444-555555555555",
+        actorId: owner.id,
+        toPosition: 0,
+      }),
+      (error) => error instanceof AuthError && error.code === "auth/collection-not-found",
+    );
+    assert.deepEqual(await listReferences(db, collection.id, owner.id), before);
+  } finally {
+    await db.close();
+  }
+});
+
+test("board removal closes gaps and moves respect the write gate", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "board-gate");
+    const fellow = await member(db, "fellow-board-gate");
+    await addMember(db, { workspaceId, userId: fellow.id, role: "member", actorId: owner.id });
+    const outsider = await member(db, "outsider-board-gate");
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Board",
+      visibility: "workspace",
+      actorId: owner.id,
+    });
+    const ids = [];
+    for (let index = 0; index < 3; index += 1) {
+      const source = await createSource(db, { key: `gate-source-${index}`, kind: "synthetic" });
+      const product = await createProduct(db, { sourceId: source.id, title: "Gate app" });
+      const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
+      const screen = await createArtifact(db, {
+        sourceId: source.id,
+        productId: product.id,
+        productVersionId: version.id,
+        kind: "screen",
+        title: `Gate screen ${index}`,
+        contentHash: `c${index}`.repeat(32).slice(0, 64),
+        rightsClassification: "metadata_only",
+        visibility: "workspace",
+        workspaceId,
+        ownerSubject: owner.id,
+      });
+      await saveReference(db, { collectionId: collection.id, artifactId: screen.id, actorId: owner.id });
+      ids.push(screen.id);
+    }
+    // A workspace member shares the write gate and may reorder.
+    const moved = await moveReference(db, {
+      collectionId: collection.id,
+      artifactId: ids[0],
+      actorId: fellow.id,
+      toPosition: 2,
+    });
+    assert.deepEqual(moved.map((entry) => entry.artifactId), [ids[1], ids[2], ids[0]]);
+    // Outsiders fail closed with no reorder.
+    await assert.rejects(
+      () => moveReference(db, { collectionId: collection.id, artifactId: ids[1], actorId: outsider.id, toPosition: 0 }),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
+    // Removal closes the gap; ranks stay dense.
+    await removeReference(db, { collectionId: collection.id, artifactId: ids[2], actorId: owner.id });
+    const refs = await listReferences(db, collection.id, owner.id);
+    assert.deepEqual(refs.map((entry) => entry.artifactId), [ids[1], ids[0]]);
+    assert.deepEqual(refs.map((entry) => entry.position), [0, 1]);
   } finally {
     await db.close();
   }
