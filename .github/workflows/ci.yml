@@ -525,6 +525,7 @@ jobs:
           packages/lens/tests/kit-fixture-chain.test.mjs
           packages/lens/tests/no-paid-path.test.mjs
           packages/lens/tests/video-frame-evidence.test.mjs
+          packages/lens/tests/video-evidence-attachment.test.mjs
 
       - name: Clean-consumer starter smoke
         run: node --experimental-strip-types scripts/prove_starter_consumer.mjs --port=3127

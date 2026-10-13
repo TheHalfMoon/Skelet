@@ -30,6 +30,10 @@ import {
   type StyleDeclaration,
   type TokenObservation,
 } from "./design-tokens.ts";
+import {
+  validateVideoEvidenceRecord,
+  type VideoEvidence,
+} from "./video-frame-evidence.ts";
 import { validateCaptureUrl } from "./url-guard.ts";
 
 export class ReportError extends Error {
@@ -79,6 +83,8 @@ export interface LensReport {
     screenshot: { mime: "image/jpeg"; sha256: string; bytes: number; width: number; height: number; base64: string };
     assets: Array<{ tag: string; href: string; rights: "unknown"; downloadable: false }>;
     techSignals: TechSignal[];
+    /** Optional replay/video evidence attached post-assembly (AF-06-ii). */
+    videoEvidence?: VideoEvidence;
   };
   designDna: {
     tokens: DesignTokens;
@@ -362,4 +368,46 @@ function assemble(
     .update(JSON.stringify(report))
     .digest("hex");
   return report;
+}
+
+/**
+ * AF-06-ii: attach optional video-frame evidence to an assembled report.
+ * The evidence record is re-authenticated (schema, shapes, mapping,
+ * digests) before attachment; the input report is never mutated. A
+ * report that already carries video evidence is rejected instead of
+ * silently overwritten, and the report identity is recomputed over the
+ * complete new report with the same domain separation.
+ */
+export function attachVideoEvidence(report: LensReport, evidence: unknown): LensReport {
+  if (
+    typeof report !== "object" || report === null || Array.isArray(report) ||
+    report.schemaVersion !== "skelet.lens.report.v1" ||
+    typeof report.observed !== "object" || report.observed === null ||
+    typeof report.provenance !== "object" || report.provenance === null
+  ) {
+    throw new ReportError();
+  }
+  let authenticated: VideoEvidence;
+  try {
+    authenticated = validateVideoEvidenceRecord(evidence);
+  } catch {
+    throw new ReportError();
+  }
+  if (report.observed.videoEvidence !== undefined) {
+    throw new ReportError();
+  }
+  const next: LensReport = JSON.parse(JSON.stringify(report)) as LensReport;
+  next.observed.videoEvidence = authenticated;
+  if (!next.provenance.observed.includes("video-frames")) {
+    next.provenance.observed = [...next.provenance.observed, "video-frames"];
+  }
+  if (!next.provenance.deterministic.includes("video-frame-evidence-mapping")) {
+    next.provenance.deterministic = [...next.provenance.deterministic, "video-frame-evidence-mapping"];
+  }
+  next.analysisId = "";
+  next.analysisId = createHash("sha256")
+    .update("skelet.lens.report.v1\0")
+    .update(JSON.stringify(next))
+    .digest("hex");
+  return next;
 }

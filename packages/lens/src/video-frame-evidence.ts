@@ -169,6 +169,87 @@ function sha256HexBytes(bytes: Uint8Array): string {
 }
 
 /**
+ * Re-authenticate an assembled evidence record presented as unknown input
+ * (e.g. crossing a worker boundary or arriving with a report attach
+ * request). Verifies the schema tag, field shapes and budgets, mapping
+ * consistency, uniform frame dimensions, and the record digest itself.
+ * Anything off fails closed; valid records return typed as-is.
+ */
+export function validateVideoEvidenceRecord(value: unknown): VideoEvidence {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence must be an object.");
+  }
+  const candidate = value as Record<string, unknown>;
+  if (candidate.schema !== "skelet/video-frame-evidence/1") {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence schema is unsupported.");
+  }
+  if (typeof candidate.videoSha256 !== "string" || !HEX64.test(candidate.videoSha256.toLowerCase())) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video identity must be a 64-hex SHA-256.");
+  }
+  if (typeof candidate.fps !== "number" || !(candidate.fps > 0) || candidate.fps > VIDEO_FRAME_BUDGET.maxFps) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video fps is out of bounds.");
+  }
+  if (!isPositiveInt(candidate.durationMs) || candidate.durationMs > VIDEO_FRAME_BUDGET.maxDurationMs) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video duration is out of bounds.");
+  }
+  // Upper index bound from fps x duration (partial selections are
+  // legitimate evidence, so the count is a ceiling, not an identity).
+  const declaredCount = Math.round((candidate.fps * candidate.durationMs) / 1000);
+  if (!Array.isArray(candidate.frames) || candidate.frames.length === 0) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence needs at least one frame.");
+  }
+  if (candidate.frames.length > VIDEO_FRAME_BUDGET.maxFrames) {
+    throw new VideoFrameError("video-frame/over-budget", "Video evidence exceeds the frame budget.");
+  }
+  const first = candidate.frames[0] as Record<string, unknown>;
+  if (!isPositiveInt(first.width) || (first.width as number) > VIDEO_FRAME_BUDGET.maxSide ||
+      !isPositiveInt(first.height) || (first.height as number) > VIDEO_FRAME_BUDGET.maxSide) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Frame dimensions are out of bounds.");
+  }
+  if ((first.width as number) * (first.height as number) > VIDEO_FRAME_BUDGET.maxPixels) {
+    throw new VideoFrameError("video-frame/over-budget", "Video frame area exceeds the pixel budget.");
+  }
+  let previous = -1;
+  for (const entry of candidate.frames) {
+    if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+      throw new VideoFrameError("video-frame/corrupt-frame", "Video frame must be an object.");
+    }
+    const frame = entry as Record<string, unknown>;
+    if (!isPositiveInt((frame.index as number) + 1) || (frame.index as number) <= previous) {
+      throw new VideoFrameError("video-frame/corrupt-frame", "Video frame order is invalid.");
+    }
+    previous = frame.index as number;
+    if ((frame.index as number) > declaredCount) {
+      throw new VideoFrameError("video-frame/corrupt-frame", "Frame index exceeds the declared duration.");
+    }
+    if (frame.tMs !== Math.round(((frame.index as number) * 1000) / (candidate.fps as number))) {
+      throw new VideoFrameError("video-frame/corrupt-frame", "Frame timestamp disagrees with the mapping.");
+    }
+    if (typeof frame.sha256 !== "string" || !HEX64.test(frame.sha256.toLowerCase())) {
+      throw new VideoFrameError("video-frame/corrupt-frame", "Frame digest is invalid.");
+    }
+    if (frame.width !== first.width || frame.height !== first.height) {
+      throw new VideoFrameError("video-frame/corrupt-frame", "Frame dimensions disagree with the source.");
+    }
+    if (!isPositiveInt(frame.bytes as number) || (frame.bytes as number) > VIDEO_FRAME_BUDGET.maxFrameBytes) {
+      throw new VideoFrameError("video-frame/over-budget", "Frame bytes exceed the frame budget.");
+    }
+  }
+  if (typeof candidate.capturedAt !== "string" || Number.isNaN(Date.parse(candidate.capturedAt))) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence timestamp is invalid.");
+  }
+  if (typeof candidate.evidenceSha256 !== "string" || !HEX64.test(candidate.evidenceSha256.toLowerCase())) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence digest is invalid.");
+  }
+  const { evidenceSha256, ...body } = candidate as unknown as VideoEvidence & { evidenceSha256: string };
+  const recomputed = createHash("sha256").update(JSON.stringify(body)).digest("hex");
+  if (recomputed !== (evidenceSha256 as string).toLowerCase()) {
+    throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence digest does not match its body.");
+  }
+  return candidate as unknown as VideoEvidence;
+}
+
+/**
  * Authenticate one decoded candidate frame against the declared source:
  * JPEG structure, declared dimensions, and byte budget. Returns evidence
  * bound to the source identity and timestamp.
