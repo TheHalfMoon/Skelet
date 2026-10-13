@@ -2,7 +2,7 @@
 
 - PStack binary unavailable (`which pstack` not found). No paid provider activated. Manual fresh-context four-bar fallback. MUST NOT be described as an independent-model review.
 - Jev final: compatibility 0.17, correctness 0.42, evidence 0.26, reliability 0.49, scope 0.68, security 0.28 (model `jev-1.13.0`, ok true).
-- Proof: `STARTER_CONSUMER_OK files=9 port=3127 placeholders=yes canary=absent` on a full local run (install/typecheck/build/start/HTTP200); CI lens job extended with the same command. Graft `check .` green locally; CI graft job re-verifies at the exact head.
+- Proof: `STARTER_CONSUMER_OK files=9 port=3127 placeholders=yes canary=absent` on a full local run (install/typecheck/build/start/HTTP200); CI lens job extended with the same command. CI first run then exposed a teardown hang (orphaned next-server, step canceled after 9+ min despite OK); fixed with group kill + stdio destroy + exit wait, local exit prompt. Graft `check .` green locally; CI graft job re-verifies at the exact head.
 
 ## Correctness — PASS
 

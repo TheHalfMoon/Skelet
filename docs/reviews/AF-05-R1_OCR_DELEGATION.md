@@ -23,3 +23,7 @@
   the grain record, not hidden.
 - Findings: zero unresolved blocking findings. This record MUST NOT be
   described as an LLM-backed OCR scan.
+- Addendum (teardown fix): CI proved STARTER_CONSUMER_OK but hung 9+
+  minutes on an orphaned next-server holding stdio; fixed with a detached
+  process-group kill plus stdio destroy and exit wait (script +42/-3),
+  verified by a prompt local exit and Jev rerun ok:true above.
