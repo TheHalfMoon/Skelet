@@ -434,6 +434,155 @@ export async function listReferences(
   return result.rows.map(toReference);
 }
 
+/** One ownership transfer in the append-only handoff ledger. */
+export interface CollectionHandoff {
+  id: string;
+  collectionId: string;
+  fromSubject: string;
+  toSubject: string;
+  actorId: string;
+  createdAt: string;
+}
+
+function toHandoff(row: Record<string, unknown>): CollectionHandoff {
+  return {
+    id: String(row.id),
+    collectionId: String(row.collection_id),
+    fromSubject: String(row.from_subject),
+    toSubject: String(row.to_subject),
+    actorId: String(row.actor_id),
+    createdAt: toIsoTimestamp(row.created_at),
+  };
+}
+
+/**
+ * Hand a board to another workspace member. Only the current owner hands
+ * off (admins cannot seize ownership, matching the owner-only visibility
+ * rule); the recipient must already belong to the workspace, so boards
+ * never leak to outsiders through transfer. The transfer and its ledger
+ * row share one transaction; visibility is unchanged, so a private board
+ * stays visible to its new owner alone.
+ */
+export async function handOffCollection(
+  client: DbClient,
+  input: { collectionId: string; actorId: string; toSubjectId: string },
+): Promise<{ collection: Collection; handoff: CollectionHandoff }> {
+  if (typeof input.toSubjectId !== "string" || !isUuid(input.toSubjectId)) {
+    throw new AuthError("auth/invalid-collection", "Handoff recipient is invalid.");
+  }
+  return client.transaction(async (tx) => {
+    const collection = await loadCollection(tx, input.collectionId);
+    if (collection === null) {
+      throw notFound();
+    }
+    const role = await getMembership(tx, collection.workspaceId, input.actorId);
+    if (role === null) {
+      throw forbidden();
+    }
+    if (collection.ownerSubject !== input.actorId) {
+      throw forbidden();
+    }
+    if (input.toSubjectId === collection.ownerSubject) {
+      throw new AuthError("auth/invalid-collection", "Handoff recipient is invalid.");
+    }
+    const targetRole = await getMembership(tx, collection.workspaceId, input.toSubjectId);
+    if (targetRole === null) {
+      throw forbidden();
+    }
+    await lockCollectionItems(tx, collection.id);
+    const updated = await tx.query(
+      `update collections set owner_subject = $2, updated_at = now()
+       where id = $1
+       returning id, workspace_id, owner_subject, title, visibility, created_at, updated_at`,
+      [collection.id, input.toSubjectId],
+    );
+    const next = toCollection(requireRow(updated.rows));
+    const logged = await tx.query(
+      `insert into collection_handoffs (collection_id, from_subject, to_subject, actor_id)
+       values ($1, $2, $3, $4)
+       returning id, collection_id, from_subject, to_subject, actor_id, created_at`,
+      [collection.id, collection.ownerSubject, input.toSubjectId, input.actorId],
+    );
+    return { collection: next, handoff: toHandoff(requireRow(logged.rows)) };
+  });
+}
+
+/** Read the provenance chain of a board; same read gate as the board itself. */
+export async function listHandoffs(
+  tx: DbTransaction,
+  collectionId: string,
+  callerId: string,
+): Promise<CollectionHandoff[]> {
+  const collection = await authorizeRead(tx, collectionId, callerId);
+  const result = await tx.query(
+    `select id, collection_id, from_subject, to_subject, actor_id, created_at
+     from collection_handoffs where collection_id = $1 order by created_at, id`,
+    [collection.id],
+  );
+  return result.rows.map(toHandoff);
+}
+
+/** Per-item validation outcome for handoff inspection. */
+export interface CollectionItemStatus {
+  uri: string;
+  artifactId: string;
+  status: "ok" | "denied" | "missing";
+  kind?: string;
+  title?: string;
+  rights?: string;
+}
+
+/**
+ * Validate every board item for handoff: readable items resolve with
+ * kind/title/rights (the same metadata a pack export already reveals),
+ * while denied and missing items report their status without leaking
+ * anything beyond the already-listed identifier. Malformed or
+ * unauthorized boards fail closed before any item is touched.
+ */
+export async function validateCollectionItems(
+  tx: DbTransaction,
+  collectionId: string,
+  callerId: string,
+): Promise<{
+  collectionId: string;
+  items: CollectionItemStatus[];
+  summary: { ok: number; denied: number; missing: number };
+}> {
+  const collection = await authorizeRead(tx, collectionId, callerId);
+  const refs = await listReferences(tx, collection.id, callerId);
+  const items: CollectionItemStatus[] = [];
+  for (const ref of refs) {
+    const artifact = await getArtifactForActor(tx, ref.artifactId, callerId);
+    if (artifact !== null) {
+      const status: CollectionItemStatus = {
+        uri: `skelet://artifact/${ref.artifactId}`,
+        artifactId: ref.artifactId,
+        status: "ok",
+      };
+      status.kind = artifact.kind;
+      status.title = artifact.title;
+      status.rights = artifact.rightsClassification;
+      items.push(status);
+      continue;
+    }
+    const exists = await tx.query("select id from artifacts where id = $1", [ref.artifactId]);
+    items.push({
+      uri: `skelet://artifact/${ref.artifactId}`,
+      artifactId: ref.artifactId,
+      status: exists.rows[0] === undefined ? "missing" : "denied",
+    });
+  }
+  return {
+    collectionId: collection.id,
+    items,
+    summary: {
+      ok: items.filter((entry) => entry.status === "ok").length,
+      denied: items.filter((entry) => entry.status === "denied").length,
+      missing: items.filter((entry) => entry.status === "missing").length,
+    },
+  };
+}
+
 /**
  * List collections of a workspace visible to the caller: workspace-visible
  * collections plus the caller's own private ones. Membership required.

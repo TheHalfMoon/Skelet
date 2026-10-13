@@ -11,12 +11,15 @@ import {
   createCollection,
   deleteCollection,
   getCollection,
+  handOffCollection,
   listCollections,
+  listHandoffs,
   listReferences,
   moveReference,
   removeReference,
   saveReference,
   updateCollection,
+  validateCollectionItems,
 } from "../src/collections.ts";
 
 const SIX = [
@@ -29,7 +32,7 @@ const SIX = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs",
 ];
 const HASH = "c".repeat(64);
 
@@ -505,6 +508,169 @@ test("board removal closes gaps and moves respect the write gate", async () => {
     const refs = await listReferences(db, collection.id, owner.id);
     assert.deepEqual(refs.map((entry) => entry.artifactId), [ids[1], ids[0]]);
     assert.deepEqual(refs.map((entry) => entry.position), [0, 1]);
+  } finally {
+    await db.close();
+  }
+});
+
+test("handoff transfers ownership with a ledger chain", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "handoff");
+    const fellow = await member(db, "fellow-handoff");
+    await addMember(db, { workspaceId, userId: fellow.id, role: "member", actorId: owner.id });
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Handoff board",
+      visibility: "private",
+      actorId: owner.id,
+    });
+    const screen = await artifactFixture(db, workspaceId, owner.id);
+    await saveReference(db, { collectionId: collection.id, artifactId: screen.id, actorId: owner.id });
+    const { collection: moved, handoff } = await handOffCollection(db, {
+      collectionId: collection.id,
+      actorId: owner.id,
+      toSubjectId: fellow.id,
+    });
+    assert.equal(moved.ownerSubject, fellow.id);
+    assert.equal(handoff.collectionId, collection.id);
+    assert.equal(handoff.fromSubject, owner.id);
+    assert.equal(handoff.toSubject, fellow.id);
+    assert.equal(handoff.actorId, owner.id);
+    // New owner reads, manages, and sees the chain; old owner is out.
+    const chain = await listHandoffs(db, collection.id, fellow.id);
+    assert.equal(chain.length, 1);
+    assert.equal(chain[0]?.id, handoff.id);
+    await assert.rejects(
+      () => getCollection(db, collection.id, owner.id),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
+    const renamed = await updateCollection(db, {
+      collectionId: collection.id,
+      title: "Handed board",
+      actorId: fellow.id,
+    });
+    assert.equal(renamed.title, "Handed board");
+    // Second hop extends the chain; items survive the transfer.
+    const back = await handOffCollection(db, {
+      collectionId: collection.id,
+      actorId: fellow.id,
+      toSubjectId: owner.id,
+    });
+    assert.equal(back.collection.ownerSubject, owner.id);
+    const full = await listHandoffs(db, collection.id, owner.id);
+    assert.deepEqual(full.map((entry) => [entry.fromSubject, entry.toSubject]), [
+      [owner.id, fellow.id],
+      [fellow.id, owner.id],
+    ]);
+    const refs = await listReferences(db, collection.id, owner.id);
+    assert.deepEqual(refs.map((entry) => entry.artifactId), [screen.id]);
+  } finally {
+    await db.close();
+  }
+});
+
+test("handoff rejects non-owners, outsiders, and invalid recipients", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "handoff-deny");
+    const fellow = await member(db, "fellow-handoff-deny");
+    await addMember(db, { workspaceId, userId: fellow.id, role: "member", actorId: owner.id });
+    const outsider = await member(db, "outsider-handoff-deny");
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Handoff board",
+      visibility: "workspace",
+      actorId: owner.id,
+    });
+    // A member who does not own the board cannot hand it off.
+    await assert.rejects(
+      () => handOffCollection(db, { collectionId: collection.id, actorId: fellow.id, toSubjectId: fellow.id }),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
+    // Outsiders cannot hand off and cannot receive.
+    await assert.rejects(
+      () => handOffCollection(db, { collectionId: collection.id, actorId: outsider.id, toSubjectId: fellow.id }),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
+    await assert.rejects(
+      () => handOffCollection(db, { collectionId: collection.id, actorId: owner.id, toSubjectId: outsider.id }),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
+    // Self-handoff and malformed recipients fail closed as invalid.
+    for (const toSubjectId of [owner.id, "not-a-uuid", ""]) {
+      await assert.rejects(
+        () => handOffCollection(db, { collectionId: collection.id, actorId: owner.id, toSubjectId }),
+        (error) => error instanceof AuthError && error.code === "auth/invalid-collection",
+      );
+    }
+    // Unknown boards answer not-found, never forbidden-oracle detail.
+    await assert.rejects(
+      () => handOffCollection(db, {
+        collectionId: "11111111-2222-4333-8444-555555555555",
+        actorId: owner.id,
+        toSubjectId: fellow.id,
+      }),
+      (error) => error instanceof AuthError && error.code === "auth/collection-not-found",
+    );
+    assert.deepEqual(await listHandoffs(db, collection.id, owner.id), []);
+  } finally {
+    await db.close();
+  }
+});
+
+test("validation reports ok, denied, and missing items without leaking", async () => {
+  const db = await fixtureDb();
+  try {
+    const { owner, workspaceId } = await workspaceWithOwner(db, "handoff-validate");
+    const fellow = await member(db, "fellow-handoff-validate");
+    await addMember(db, { workspaceId, userId: fellow.id, role: "member", actorId: owner.id });
+    const collection = await createCollection(db, {
+      workspaceId,
+      title: "Handoff board",
+      visibility: "workspace",
+      actorId: owner.id,
+    });
+    const shared = await artifactFixture(db, workspaceId, owner.id);
+    await saveReference(db, { collectionId: collection.id, artifactId: shared.id, actorId: owner.id });
+    // A private artifact readable by its owner only: the owner validates
+    // ok, a fellow member validates denied (existence already listable,
+    // metadata never leaks beyond the status).
+    const source = await createSource(db, { key: "validate-private", kind: "synthetic" });
+    const product = await createProduct(db, { sourceId: source.id, title: "Private app" });
+    const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
+    const priv = await createArtifact(db, {
+      sourceId: source.id,
+      productId: product.id,
+      productVersionId: version.id,
+      kind: "screen",
+      title: "Private screen",
+      contentHash: "d".repeat(64),
+      rightsClassification: "metadata_only",
+      visibility: "private",
+      workspaceId,
+      ownerSubject: owner.id,
+    });
+    await saveReference(db, { collectionId: collection.id, artifactId: priv.id, actorId: owner.id });
+    const ownerView = await validateCollectionItems(db, collection.id, owner.id);
+    assert.deepEqual(ownerView.summary, { ok: 2, denied: 0, missing: 0 });
+    assert.ok(ownerView.items.every((entry) => entry.status === "ok" && typeof entry.title === "string"));
+    const fellowView = await validateCollectionItems(db, collection.id, fellow.id);
+    assert.deepEqual(fellowView.summary, { ok: 1, denied: 1, missing: 0 });
+    const denied = fellowView.items.find((entry) => entry.artifactId === priv.id);
+    assert.equal(denied?.status, "denied");
+    assert.equal(denied?.title, undefined);
+    assert.equal(denied?.kind, undefined);
+    // Unauthorized callers fail before any item is touched.
+    const outsider = await member(db, "outsider-handoff-validate");
+    await assert.rejects(
+      () => validateCollectionItems(db, collection.id, outsider.id),
+      (error) => error instanceof AuthError && error.code === "auth/forbidden",
+    );
+    await assert.rejects(
+      () => validateCollectionItems(db, "not-a-uuid", owner.id),
+      (error) => error instanceof AuthError && error.code === "auth/collection-not-found",
+    );
   } finally {
     await db.close();
   }
