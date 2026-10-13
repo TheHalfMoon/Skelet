@@ -1,0 +1,63 @@
+packages/db/src/collections.ts
+  s_f025532227d5b3::t_7b99a4b9e91605 437-585
+packages/db/tests/auth.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 20
+packages/db/tests/build-kit.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 35
+packages/db/tests/collections.test.mjs
+  s_f025532227d5b3::t_22fb13ffdc0223 515-677
+  s_f025532227d5b3::t_167bdf0861d4ed 14,16,22
+  s_f025532227d5b3::t_d842a87bd8c2fd 35
+docs/reviews/AF-09-i_PSTACK_PANELS.md
+  s_f025532227d5b3::t_e616edbd0cc4d4 1-21
+packages/db/tests/db-foundation.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 26,30,47,121,129
+packages/db/tests/pg-build-kit.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 39
+packages/db/tests/pg-integration.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 97,106
+docs/reviews/AF-09-i_JEV_REVIEW.md
+  s_f025532227d5b3::t_62b906e4fff57e 1-6
+packages/db/tests/pg-workflows.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 29
+packages/db/tests/workspaces.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 28
+packages/db/tests/workflows.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 37,47
+  s_f025532227d5b3::t_ef69ee93815269 45
+packages/db/tests/billing.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 28
+packages/db/migrations/015_collection_handoffs.down.sql
+  s_f025532227d5b3::t_5a15d1a9594654 1-4
+docs/reviews/AF-09-i_JEV_SPEC.json
+  s_f025532227d5b3::t_c7224c76100070 1
+docs/reviews/AF-09-i_OCR_DELEGATION.md
+  s_f025532227d5b3::t_6afb13a08c2f91 1-19
+packages/db/migrations/015_collection_handoffs.up.sql
+  s_f025532227d5b3::t_f45663fc7c73be 1-15
+packages/db/tests/graph.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 27,34
+  s_f025532227d5b3::t_ef69ee93815269 33
+packages/db/tests/jobs.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 27
+packages/db/tests/pg-graph.test.mjs
+  s_f025532227d5b3::t_d842a87bd8c2fd 25
+docs/reviews/AF-09-i_JEV_REVIEW.json
+  s_f025532227d5b3::t_b91c72b942df68 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "b2e35da2a285f644832c852ebe685d6207b2d841",
+  "prompts": {},
+  "sessions": {
+    "s_f025532227d5b3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecd280162ffeUaY8jn0i7avw3M",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
