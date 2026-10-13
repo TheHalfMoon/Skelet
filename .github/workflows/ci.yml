@@ -525,6 +525,9 @@ jobs:
           packages/lens/tests/kit-fixture-chain.test.mjs
           packages/lens/tests/no-paid-path.test.mjs
 
+      - name: Clean-consumer starter smoke
+        run: node --experimental-strip-types scripts/prove_starter_consumer.mjs --port=3127
+
   db-foundation:
     name: db-foundation
     runs-on: ubuntu-24.04
