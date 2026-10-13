@@ -523,6 +523,7 @@ jobs:
           packages/lens/tests/starter-synthesis.test.mjs
           packages/lens/tests/three-page-fixture.test.mjs
           packages/lens/tests/kit-fixture-chain.test.mjs
+          packages/lens/tests/no-paid-path.test.mjs
 
   db-foundation:
     name: db-foundation
