@@ -1,0 +1,118 @@
+docs/reviews/AF-05e_JEV_REVIEW.md
+  s_f025532227d5b3::t_1c43866da1e1da 1-6
+packages/db/tests/workspaces.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 28
+packages/db/tests/db-foundation.test.mjs
+  s_4b9afb43de9ea9::t_88d98f3211965f 47
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 26,30,121,129
+apps/web/tests/mcp.test.mjs
+  s_f025532227d5b3::t_66a40987cb1926 82,90-96
+docs/reviews/AF-05e_OCR_DELEGATION.md
+  s_f025532227d5b3::t_d509306d03771e 1-36
+apps/web/app/api/v1/lens/jobs/[id]/artifacts/route.ts
+  s_4b9afb43de9ea9::t_2b8407c25cbe4d 1-56,58-73
+  s_4b9afb43de9ea9::t_132c0cc4871604 57
+packages/db/migrations/013_lens_build_kit_purge.down.sql
+  s_4b9afb43de9ea9::t_b3d19abd62e894 1,4-10
+  s_4b9afb43de9ea9::t_d0163590596173 2-3
+packages/db/tests/pg-workflows.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 29
+apps/web/tests/mcp-lens.test.mjs
+  s_f025532227d5b3::t_8932287dc7b419 1-264,267-278,280-340
+  s_f025532227d5b3::t_8f6ce06d13cdf8 279
+  s_f025532227d5b3::t_baedc917b68881 265-266
+apps/web/app/api/v1/lens/jobs/route.ts
+  s_4b9afb43de9ea9::t_8c6da6bcdc8d1e 1-106
+packages/db/tests/build-kit.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 34
+  s_4b9afb43de9ea9::t_a91927f439f820 1040-1109
+apps/web/tests/lens-recovery.test.mjs
+  s_f025532227d5b3::t_9df02250a16bea 63-66
+  s_f025532227d5b3::t_f4dc330aaba60a 11
+  s_f025532227d5b3::t_a76f6fcd224282 1-10,12-62,67-124
+packages/db/tests/billing.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 28
+apps/web/app/api/v1/lens/jobs/[id]/route.ts
+  s_4b9afb43de9ea9::t_2b8407c25cbe4d 1-56
+packages/db/tests/collections.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 31
+apps/web/tests/lens-ui.test.mjs
+  s_f025532227d5b3::t_913f9865659062 19-21
+  s_f025532227d5b3::t_52a90d45daac1d 1-18,22-61
+packages/db/tests/pg-graph.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 25
+apps/web/tests/interop-stdio.test.mjs
+  s_f025532227d5b3::t_8f10bd2b44e1f5 112
+packages/db/tests/auth.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 20
+docs/reviews/AF-05e_JEV_SPEC.json
+  s_f025532227d5b3::t_1e155923e2e9d2 1
+apps/web/app/api/v1/lens/jobs/[id]/retry/route.ts
+  s_4b9afb43de9ea9::t_2b8407c25cbe4d 1-57
+apps/web/tests/interop-http.test.mjs
+  s_f025532227d5b3::t_8f10bd2b44e1f5 143
+apps/web/tests/lens-jobs.test.mjs
+  s_4b9afb43de9ea9::t_862b6a2163f983 1-268,276-427,435,441-442,444-541,543-553
+  s_4b9afb43de9ea9::t_aa04b2fb8dd407 542
+  s_4b9afb43de9ea9::t_28560b4a0ead08 428-434,436-440,443
+  s_4b9afb43de9ea9::t_08f3c1c7e37d8b 269-275
+packages/db/migrations/013_lens_build_kit_purge.up.sql
+  s_4b9afb43de9ea9::t_1014e55a15b30d 1-21
+packages/db/tests/pg-build-kit.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 39
+apps/web/lib/mcp.ts
+  s_f025532227d5b3::t_e84344878763aa 369,373,382
+  s_f025532227d5b3::t_1d7f2ebedfa593 817-851,853-900
+  s_f025532227d5b3::t_03f50e2d320702 29-39
+  s_f025532227d5b3::t_df64d21e9e15f1 217-325
+  s_f025532227d5b3::t_0963097309d5bd 852
+  s_f025532227d5b3::t_13aa4bdf39e2f6 360-368,370-372,374-381,383-409
+packages/db/tests/pg-integration.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 97,106
+apps/web/app/api/v1/lens/jobs/[id]/cancel/route.ts
+  s_4b9afb43de9ea9::t_2b8407c25cbe4d 1-57
+packages/db/tests/jobs.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 27
+apps/web/app/api/v1/lens/jobs/[id]/resume/route.ts
+  s_4b9afb43de9ea9::t_2b8407c25cbe4d 1-70
+apps/web/app/page.tsx
+  s_f025532227d5b3::t_47c341fd6c8018 22-23
+apps/web/lib/lens-jobs.ts
+  s_4b9afb43de9ea9::t_ca51ebed0bb01f 579
+  s_4b9afb43de9ea9::t_5ea235bf903aa4 1-578,580-652
+packages/db/tests/graph.test.mjs
+  s_4b9afb43de9ea9::t_2edf05bc3b9dc4 33
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 27,34
+packages/db/tests/workflows.test.mjs
+  s_4b9afb43de9ea9::t_6e4c4afcb291e6 37,47
+  s_4b9afb43de9ea9::t_2edf05bc3b9dc4 45
+docs/reviews/AF-05e_JEV_REVIEW.json
+  s_f025532227d5b3::t_e1896b964d6644 1
+docs/reviews/AF-05e_PSTACK_PANELS.md
+  s_f025532227d5b3::t_f42511e8f9a247 1-27
+  s_f025532227d5b3::t_4eaca1a13f247e 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d35a632549a9b46b14d88c2982ef891f0523b300",
+  "prompts": {},
+  "sessions": {
+    "s_4b9afb43de9ea9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecf1ba6f7ffeS31FeOdhjD3BTo",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    },
+    "s_f025532227d5b3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ecd280162ffeUaY8jn0i7avw3M",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
