@@ -26,6 +26,17 @@ import {
 } from "./agent-contract.ts";
 import type { AgentEnvelope } from "./agent-contract.ts";
 import { claimPackIdempotency, findPackForIdempotencyKey } from "../../../packages/db/src/idempotency.ts";
+import {
+  cancelLensJobRoute,
+  createLensJobRoute,
+  downloadLensArtifactRoute,
+  getLensJobRoute,
+  lensUriFor,
+  parseLensUri,
+  pollLensJobRoute,
+  resumeLensJobRoute,
+  retryLensJobRoute,
+} from "./lens-jobs.ts";
 
 /**
  * G08-01 remote agent transport: MCP Streamable HTTP (JSON-RPC 2.0) with
@@ -203,6 +214,115 @@ function toolSchemas(): unknown[] {
         required: ["uri"],
       },
     },
+    {
+      name: "lens_create_job",
+      description: "Create a durable Lens Build Kit job (URL to implementation kit). Idempotent on (workspace, idempotencyKey).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          sourceUrl: { type: "string" },
+          mode: { type: "string", enum: ["single-page", "selected-pages", "bounded-sitemap"] },
+          maxPages: { type: "number" },
+          maxDepth: { type: "number" },
+          maxBytes: { type: "number" },
+          timeBudgetMs: { type: "number" },
+          pages: { type: "array", items: { type: "string" } },
+          viewports: { type: "array", items: { type: "string", enum: ["desktop", "mobile"] } },
+          retentionDays: { type: "number" },
+          maxAttempts: { type: "number" },
+          requestId: requestIdProp,
+          idempotencyKey: idempotencyProp,
+        },
+        required: ["workspaceId", "sourceUrl", "mode", "maxPages", "maxDepth", "maxBytes", "timeBudgetMs", "idempotencyKey"],
+      },
+    },
+    {
+      name: "lens_poll_job",
+      description: "Read the current persisted progress of a Lens job by stable ID or skelet://lens/{id} URI.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          kitId: { type: "string" },
+          uri: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId"],
+      },
+    },
+    {
+      name: "lens_get_job",
+      description: "Inspect a Lens job with persisted evidence, artifact summary, and attempt history.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          kitId: { type: "string" },
+          uri: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId"],
+      },
+    },
+    {
+      name: "lens_cancel_job",
+      description: "Cancel an active Lens job. Repeat cancellation is deterministic; terminal runs are not cancelable.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          kitId: { type: "string" },
+          uri: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId"],
+      },
+    },
+    {
+      name: "lens_retry_job",
+      description: "Requeue a failed or partial Lens job within its retry budget. Prior attempt evidence is preserved.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          kitId: { type: "string" },
+          uri: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId"],
+      },
+    },
+    {
+      name: "lens_resume_job",
+      description: "Transfer a Lens job worker lease after interruption so work continues from the persisted checkpoint.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          kitId: { type: "string" },
+          uri: { type: "string" },
+          workerId: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId"],
+      },
+    },
+    {
+      name: "lens_read_artifact",
+      description: "Read a terminal Lens job output document (manifest.json or evidence.json) with integrity digest.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          workspaceId: { type: "string" },
+          kitId: { type: "string" },
+          uri: { type: "string" },
+          name: { type: "string", enum: ["manifest.json", "evidence.json"] },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId"],
+      },
+    },
   ];
 }
 
@@ -235,6 +355,56 @@ const REGISTRY_KINDS = ["icon", "logo", "font"] as const;
 
 function invalidInput(message: string, requestId?: string): AgentContractError {
   return new AgentContractError("INVALID_INPUT", { message, requestId });
+}
+
+const LENS_KIT_HEX64 = /^[0-9a-f]{64}$/;
+
+/**
+ * AF-05e Lens identity resolution: callers address a job by raw kitId or
+ * by stable `skelet://lens/{id}` URI. Both must agree when both are given;
+ * neither is an existence oracle (unknown answers FORBIDDEN_OR_NOT_FOUND
+ * from the store layer, never INVALID_INPUT).
+ */
+function resolveLensKitId(params: Record<string, unknown>, requestId: string): string {
+  const opaque = (): AgentContractError => new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+  let fromKit: string | undefined;
+  if (params.kitId !== undefined) {
+    if (typeof params.kitId !== "string" || !LENS_KIT_HEX64.test(params.kitId.toLowerCase())) {
+      throw opaque();
+    }
+    fromKit = params.kitId.toLowerCase();
+  }
+  let fromUri: string | undefined;
+  if (params.uri !== undefined) {
+    try {
+      fromUri = parseLensUri(params.uri);
+    } catch {
+      throw opaque();
+    }
+  }
+  if (fromKit !== undefined && fromUri !== undefined && fromKit !== fromUri) {
+    throw invalidInput("Lens job identifier is invalid.", requestId);
+  }
+  const resolved = fromUri ?? fromKit;
+  if (resolved === undefined) {
+    throw invalidInput("Lens job identifier is invalid.", requestId);
+  }
+  return resolved;
+}
+
+/**
+ * AF-05e REST/MCP parity: the MCP Lens tools delegate to the same
+ * lens-jobs route layer the REST endpoints serve, so envelopes, error
+ * codes, and safe messages are identical by construction. Success bodies
+ * are returned verbatim; failures rethrow the same canonical code (with
+ * the INVALID_INPUT safe message preserved) so dispatchMcp maps them to
+ * the same JSON-RPC error the REST transport maps to HTTP.
+ */
+async function lensResultToEnvelope(result: { status: number; body: AgentEnvelope }): Promise<AgentEnvelope> {
+  if (result.status < 400) return result.body;
+  const code = result.body.error?.code ?? "INTERNAL_OPAQUE";
+  const message = code === "INVALID_INPUT" ? result.body.error?.message : undefined;
+  throw new AgentContractError(code, { message, requestId: result.body.request_id });
 }
 
 async function callTool(
@@ -643,6 +813,90 @@ async function callTool(
       }
       throw thrown;
     }
+  }
+  if (name === "lens_create_job") {
+    const actorId = requireUser(ctx);
+    const createBody: Record<string, unknown> = {
+      workspaceId: params.workspaceId,
+      sourceUrl: params.sourceUrl,
+      mode: params.mode,
+      maxPages: params.maxPages,
+      maxDepth: params.maxDepth,
+      maxBytes: params.maxBytes,
+      timeBudgetMs: params.timeBudgetMs,
+      idempotencyKey: params.idempotencyKey,
+    };
+    for (const optional of ["pages", "viewports", "retentionDays", "maxAttempts"] as const) {
+      if (params[optional] !== undefined) createBody[optional] = params[optional];
+    }
+    return lensResultToEnvelope(await createLensJobRoute(db, createBody, actorId, requestId));
+  }
+  if (name === "lens_poll_job") {
+    const actorId = requireUser(ctx);
+    const kitId = resolveLensKitId(params, requestId);
+    return lensResultToEnvelope(
+      await pollLensJobRoute(db, { workspaceId: params.workspaceId, kitId }, actorId, requestId),
+    );
+  }
+  if (name === "lens_get_job") {
+    const actorId = requireUser(ctx);
+    const kitId = resolveLensKitId(params, requestId);
+    return lensResultToEnvelope(
+      await getLensJobRoute(db, { workspaceId: params.workspaceId, kitId }, actorId, requestId),
+    );
+  }
+  if (name === "lens_cancel_job") {
+    const actorId = requireUser(ctx);
+    const kitId = resolveLensKitId(params, requestId);
+    return lensResultToEnvelope(
+      await cancelLensJobRoute(db, { workspaceId: params.workspaceId, kitId }, actorId, requestId),
+    );
+  }
+  if (name === "lens_retry_job") {
+    const actorId = requireUser(ctx);
+    const kitId = resolveLensKitId(params, requestId);
+    return lensResultToEnvelope(
+      await retryLensJobRoute(db, { workspaceId: params.workspaceId, kitId }, actorId, requestId),
+    );
+  }
+  if (name === "lens_resume_job") {
+    const actorId = requireUser(ctx);
+    const kitId = resolveLensKitId(params, requestId);
+    return lensResultToEnvelope(
+      await resumeLensJobRoute(
+        db, { workspaceId: params.workspaceId, kitId, workerId: params.workerId }, actorId, requestId,
+      ),
+    );
+  }
+  if (name === "lens_read_artifact") {
+    const actorId = requireUser(ctx);
+    const kitId = resolveLensKitId(params, requestId);
+    const downloaded = await downloadLensArtifactRoute(
+      db, { workspaceId: params.workspaceId, kitId, name: params.name }, actorId, requestId,
+    );
+    if (downloaded.file !== undefined) {
+      const text = new TextDecoder().decode(downloaded.file.bytes);
+      let artifact: unknown;
+      try {
+        artifact = JSON.parse(text) as unknown;
+      } catch {
+        throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+      }
+      return successEnvelope(
+        requestId,
+        {
+          artifact,
+          sha256: downloaded.file.sha256,
+          mediaType: downloaded.file.mediaType,
+          filename: downloaded.file.filename,
+        },
+        { provenance: observedProvenance(lensUriFor(kitId)) },
+      );
+    }
+    if (downloaded.body !== undefined) {
+      return lensResultToEnvelope({ status: downloaded.status, body: downloaded.body });
+    }
+    throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
   }
   throw { code: -32601, message: "Tool not found." };
 }
