@@ -1,0 +1,31 @@
+docs/reviews/AF-12-final-qual_JEV_SPEC.json
+  s_36a09aec8c17f5::t_741701850e7907 1
+docs/qualification/AF-12_FINAL_QUALIFICATION.md
+  s_36a09aec8c17f5::t_09e41ee4e5a0f1 1-73
+docs/reviews/AF-12-final-qual_JEV_REVIEW.json
+  s_36a09aec8c17f5::t_80a91a05aa4a33 1
+docs/reviews/AF-12-final-qual_JEV_REVIEW.md
+  s_36a09aec8c17f5::t_ebdbda4b82d171 1-7
+docs/reviews/AF-12-final-qual_PSTACK_PANELS.md
+  s_36a09aec8c17f5::t_a93d1903c5c857 1-21
+docs/reviews/AF-12-final-qual_OCR_DELEGATION.md
+  s_36a09aec8c17f5::t_23416577a3cbd6 1-7
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36a09aec8c17f5::t_5ad25c2154a283 414
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "81d3cfd631c491b1e082826096190b5a82923465",
+  "prompts": {},
+  "sessions": {
+    "s_36a09aec8c17f5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec4d2a43bffegc3RF0DqgGZRwI",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
