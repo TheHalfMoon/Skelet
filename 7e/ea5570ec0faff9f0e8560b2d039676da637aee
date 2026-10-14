@@ -1,0 +1,47 @@
+docs/reviews/AF-12-release_PSTACK_PANELS.md
+  s_36a09aec8c17f5::t_889277adac7884 1-21
+docs/qualification/AF-12_RELEASE_HARDENING.md
+  s_36a09aec8c17f5::t_d216fa29c1d4e6 14-38
+docs/reviews/AF-12-release_JEV_REVIEW.md
+  s_36a09aec8c17f5::t_406766771218a0 1-7
+.github/workflows/ci.yml
+  s_36a09aec8c17f5::t_82344f9c86ab21 634
+sbom.json
+  s_36a09aec8c17f5::t_01ab1bf198faff 1-2672
+scripts/generate_sbom.py
+  s_36a09aec8c17f5::t_f12415375b043e 77
+  s_36a09aec8c17f5::t_c726d0a991f471 2-76,78-109
+docs/reviews/AF-12-release_OCR_DELEGATION.md
+  s_36a09aec8c17f5::t_cbf2d020c02176 1-13
+docs/qualification/DEPENDENCY_SCAN.md
+  s_36a09aec8c17f5::t_6399946cc346cd 1-59,70-76
+  s_36a09aec8c17f5::t_95842ed31719f3 60-69
+packages/db/tests/migration-rehearsal.test.mjs
+  s_36a09aec8c17f5::t_239ff71ba62da6 1-53
+docs/reviews/AF-12-release_JEV_SPEC.json
+  s_36a09aec8c17f5::t_e5ad8f8d3c6de4 1
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36a09aec8c17f5::t_251d89788dc303 413
+docs/operations/SLOS.md
+  s_36a09aec8c17f5::t_deb48da410f142 50-66
+package.json
+  s_36a09aec8c17f5::t_27b158c7315c04 6-10
+docs/reviews/AF-12-release_JEV_REVIEW.json
+  s_36a09aec8c17f5::t_93b683e1ae6877 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "7eea5570ec0faff9f0e8560b2d039676da637aee",
+  "prompts": {},
+  "sessions": {
+    "s_36a09aec8c17f5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec4d2a43bffegc3RF0DqgGZRwI",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
