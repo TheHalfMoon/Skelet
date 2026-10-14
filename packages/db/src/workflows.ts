@@ -27,7 +27,7 @@ export interface AnalysisRun {
 }
 export interface ImportRecord {
  id:string; sourceId:string; externalId:string; sourceVersion:string;
- canonicalType:"product"|"product_version"|"artifact"|"asset"|"pattern";
+ canonicalType:"product"|"product_version"|"artifact"|"asset"|"pattern"|"flow";
  canonicalId:string; metadata:Record<string,unknown>;
 }
 function requireRow(rows:Record<string,unknown>[]):Record<string,unknown> {

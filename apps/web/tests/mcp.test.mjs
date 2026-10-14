@@ -79,7 +79,7 @@ test("tools require a resolved identity", async () => {
     });
     assert.equal(callDenied.error.code, -32001);
     const allowed = await call(fx.db, fx.ctx, "tools/list", {});
-    assert.equal(allowed.result.tools.length, 18);
+    assert.equal(allowed.result.tools.length, 20);
     assert.deepEqual(
       allowed.result.tools.map((tool) => tool.name).sort(),
       [
@@ -90,6 +90,7 @@ test("tools require a resolved identity", async () => {
         "create_reference_pack",
         "find_similar",
         "get_asset",
+        "get_flow_steps",
         "get_object",
         "get_registry_item",
         "lens_cancel_job",
@@ -99,6 +100,7 @@ test("tools require a resolved identity", async () => {
         "lens_read_artifact",
         "lens_resume_job",
         "lens_retry_job",
+        "list_flows",
         "save_reference",
         "search_assets",
       ],
