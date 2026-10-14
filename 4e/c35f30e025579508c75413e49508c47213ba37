@@ -1,0 +1,31 @@
+docs/reviews/AC-03-i_JEV_SPEC.json
+  s_dc7e4912ca11b6::t_db0bdd02107888 1
+docs/qualification/VECTORCRAFT_BINARY_QUALIFICATION.md
+  s_dc7e4912ca11b6::t_21585017a7d127 1-86
+docs/reviews/AC-03-i_OCR_DELEGATION.md
+  s_dc7e4912ca11b6::t_dca8a5716372cd 1-7
+docs/reviews/AC-03-i_JEV_REVIEW.md
+  s_dc7e4912ca11b6::t_423c142298c673 1-7
+docs/reviews/AC-03-i_PSTACK_PANELS.md
+  s_dc7e4912ca11b6::t_dcf5ed45b77550 1-21
+docs/reviews/AC-03-i_JEV_REVIEW.json
+  s_dc7e4912ca11b6::t_e5de35a8667d46 1
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_dc7e4912ca11b6::t_375581081bcc7b 402-411
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4ec35f30e025579508c75413e49508c47213ba37",
+  "prompts": {},
+  "sessions": {
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
