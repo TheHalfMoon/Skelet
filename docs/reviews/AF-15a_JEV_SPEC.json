@@ -1,0 +1,59 @@
+{
+ "description": "Skelet AF-15a: deterministic get_changes version diff (P13 smallest grain, MCP plus REST plus skill plus CI wiring)",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Does this grain preserve all contracts: skelet.agent.v1 envelope unchanged, existing tools/routes/rankings untouched, new get_changes tool additive with MCP plus REST deep-equal parity, tool inventory 21->22 updated in three tests, skills validator promotion upcoming->implemented, CI db job gains one suite file, no migration (read-only diff over existing tables)? Any renamed tool, changed route, altered ranking, or broken SDK/CLI surface?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is the diff correct and deterministic: corpus artifacts match by ledger external identity (kind plus ext suffix) with title fallback for direct rows and rename as remove plus add, changed fields limited to summary/canonical_text/rights/visibility/tags with observed fieldDiffs (contentHash excluded as version-scoped by the importer, documented), flows match by ledger external identity with title fallback and added/removed/changed/reordered distinguished by step-key sequences, identical versions return empty identical, cross-product answers unsupported, missing versions answer not-found, change IDs stable hashes, ordering by objectKind plus key? Do the 11 db tests plus 3 transport tests prove identical/added/removed/changed/reordered/empty/unsupported/missing/malformed/private/rights/ledger-duplicates/pagination/repeatability/parity?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is evidence sufficient: db 127/127 including 11 new changes tests, web/node/worker 121/121 including 3 new transport tests, ingest 14/14, assets 25/25, python 182/182, validators PASS, lint/typecheck clean on db plus web, graft build/check green, CI wired for exact-head proof with real-PG suites unchanged? Any passing-test-only claim without integration coverage?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Any nondeterminism or resource risk: is sort fully deterministic by objectKind plus key byte comparison, are change IDs stable hashes of version pair plus kind plus key, are limits clamped 1..50 with offset 0..1M, are artifact/flow queries bounded by version scope with stable id/title order, is there any unbounded scan, timestamp ordering, locale collation, or missing timeout/cancellation for a read-only diff?",
+   "type": "noul"
+  },
+  "scope": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Anything beyond bounded get_changes: scheduling/watch policies, meaningful-change scoring, semantic embeddings, MCP Apps views, corpus gallery UI, flow player, pattern taxonomy, OpenPencil, billing, or unrelated refactors? Are scheduling/scoring explicitly deferred to later P13 grains?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Do the R2 guarantees hold: both version IDs gated with no oracle distinguishing missing from malformed (both FORBIDDEN_OR_NOT_FOUND), cross-product answers INVALID_INPUT without leaking product membership, artifacts filtered by getArtifactForActor before diffing with private titles never in JSON, flows visible only when every step readable, restricted artifacts labeled not served as bytes, request IDs/cursors sanitized, error bodies static with leak assertions, no shell/subprocess/network?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "0894f965ff2f33df2ec8f74c6f2cb6216ea4325b",
+  "branch": "skelet/af15a-get-changes",
+  "change": "AF-15a get_changes: packages/db/src/changes.ts (ledger-backed stable keys, tags equality, hash excluded as version-scoped) plus db tests, MCP get_changes tool plus REST GET /api/v1/changes plus route file, research skill step plus validator promotion, tool-count 21->22 in mcp/interop-http/interop-stdio tests, CI db suite wiring. Read-only diff, no migration.",
+  "head_sha": "WORKTREE"
+ }
+}
