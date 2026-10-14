@@ -630,6 +630,7 @@ jobs:
       - name: Run DB migration and domain tests
         run: >-
           node --experimental-strip-types --test
+          packages/db/tests/backup-restore.test.mjs
           packages/db/tests/db-foundation.test.mjs
           packages/db/tests/graph.test.mjs
           packages/db/tests/artifact-access.test.mjs
@@ -650,6 +651,7 @@ jobs:
           node --experimental-strip-types --test packages/db/tests/pg-graph.test.mjs
           node --experimental-strip-types --test packages/db/tests/pg-workflows.test.mjs
           node --experimental-strip-types --test packages/db/tests/pg-build-kit.test.mjs
+          node --experimental-strip-types --test packages/db/tests/pg-backup-restore.test.mjs
 
   storage:
     name: storage-${{ matrix.os }}
