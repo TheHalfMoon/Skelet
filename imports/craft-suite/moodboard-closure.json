@@ -1,0 +1,2039 @@
+{
+  "donor": "artcraft",
+  "external_packages": [
+    "konva",
+    "lucide-react",
+    "react-colorful",
+    "react-hot-toast",
+    "react-konva",
+    "uuid",
+    "vitest",
+    "zustand"
+  ],
+  "file_count": 70,
+  "files": [
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/package.json",
+      "sha": "45f13bcc16ed21df1624a2efb5135043b5eebf97",
+      "size": 398
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/icons",
+          "@storyteller/keybinds"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "./BoardPicker",
+          "./adapter",
+          "./boards/BoardLibraryStore",
+          "./boards/boardSelectors",
+          "./boards/boardTypes",
+          "./canvas/Moodboard",
+          "./grid/BoardGridView",
+          "./grid/PresentationView",
+          "./persistence/moodboardSync"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/MoodboardWorkspace.tsx",
+      "sha": "b46bf05dd581d348524e360d28eed66dc301c29c",
+      "size": 7608
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": true,
+        "ssr_risk": false,
+        "storage": true,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/adapter.ts",
+      "sha": "db8f4955fb6d9fb1da60942cfcde51fe5da1b893",
+      "size": 3423
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "vitest"
+        ],
+        "relative": [
+          "./BoardLibraryStore"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/BoardLibraryStore.spec.ts",
+      "sha": "537dbfe633100fd2c75f0efee254ecbf30908971",
+      "size": 2717
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": true,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "uuid",
+          "zustand",
+          "zustand/middleware"
+        ],
+        "relative": [
+          "./boardTypes"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/BoardLibraryStore.ts",
+      "sha": "3603fe144604e8118845e57741c414d8532acb70",
+      "size": 20269
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "./BoardLibraryStore",
+          "./boardTypes"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/boardSelectors.ts",
+      "sha": "bce5946430187e4d8cd46ea6ce89699ce7a2cc27",
+      "size": 1730
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": true,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/boardTypes.ts",
+      "sha": "84bb7f89215dfbce5adf66d0ad3cb288d400ca62",
+      "size": 3169
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/linkMeta.ts",
+      "sha": "686245283eda349a8656f016ee258a659f74f4ae",
+      "size": 628
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/measureMedia.ts",
+      "sha": "417c0f15543268c8e32f08c0161026e99bd602d6",
+      "size": 1161
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": true,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/palette.ts",
+      "sha": "ab3ae6464605774070c1f75d489e142677289bf1",
+      "size": 2241
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": true,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "react-hot-toast"
+        ],
+        "relative": [
+          "../adapter",
+          "./BoardLibraryStore",
+          "./boardTypes",
+          "./measureMedia"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/boards/useBoardItemEntry.tsx",
+      "sha": "fa37ee5c22430a870211504459abe9fb34ead632",
+      "size": 6404
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../ui/Toolbar"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/FloatingToolbar.tsx",
+      "sha": "0b2158c892a300f60c85a99553793c324e7f205e",
+      "size": 816
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../adapter",
+          "./EmptyMoodboardCTA",
+          "./MoodboardStage",
+          "./MoodboardToolbar",
+          "./TextEditOverlay",
+          "./interactions/useGalleryDropEvent",
+          "./interactions/useMoodboardKeybinds",
+          "./interactions/usePasteHandler",
+          "./overlays/RecenterIndicator",
+          "./useMoodboardImageEntry"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/Moodboard.tsx",
+      "sha": "76ee7201e472aedf2d083e7a02b2d0d417cf5dfa",
+      "size": 1993
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-konva"
+        ],
+        "relative": [
+          "./types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/MoodboardBackground.tsx",
+      "sha": "d1dbd47fb21d2daf4da7ebf84dc4ac52730a68b7",
+      "size": 2217
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "zustand"
+        ],
+        "relative": [
+          "./types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/MoodboardHistoryStore.ts",
+      "sha": "043f2d208e0a23ba5a5f5da318f987dfcc22d990",
+      "size": 1313
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-konva",
+          "zustand/react/shallow"
+        ],
+        "relative": [
+          "./MoodboardBackground",
+          "./MoodboardStore",
+          "./interactions/useSelection",
+          "./interactions/useStagePointer",
+          "./interactions/useTransformer",
+          "./interactions/useViewportControls",
+          "./nodes/GroupNode",
+          "./nodes/ImageNode",
+          "./nodes/TextNode",
+          "./nodes/VideoNode",
+          "./useThemeFgRgb"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/MoodboardStage.tsx",
+      "sha": "1c9fa3803d899778437354d31ac897692c7d3fb4",
+      "size": 10076
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "uuid",
+          "zustand"
+        ],
+        "relative": [
+          "./MoodboardHistoryStore",
+          "./cardLayout",
+          "./layout/geometry",
+          "./layout/snapping",
+          "./types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/MoodboardStore.ts",
+      "sha": "6b3e010e5b40bace53c1317a6e8b1a5435bf08ef",
+      "size": 20892
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/ui-button-icon-select",
+          "@storyteller/ui-popover",
+          "@storyteller/ui-tooltip"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "./FloatingToolbar",
+          "./MoodboardStore",
+          "./layout/clusterProximity",
+          "./layout/fitToGrid",
+          "./layout/geometry",
+          "./layout/packCollage",
+          "./overlays/shortcuts",
+          "./types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/MoodboardToolbar.tsx",
+      "sha": "e55d228ae1aa779b95e6121aa6eb2d4e6748bee3",
+      "size": 6494
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "./MoodboardStore"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/TextEditOverlay.tsx",
+      "sha": "2aabbd164a5720236b54f075d976c3299095ddb0",
+      "size": 2413
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": true,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../adapter",
+          "../boards/measureMedia",
+          "./MoodboardStore",
+          "./types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/addCanvasImageFile.ts",
+      "sha": "76a105e2f9bf5b6f69402e273786776c41d697a0",
+      "size": 1441
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "./types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/cardLayout.ts",
+      "sha": "e7ab159098bbac37d3709caae0decf6a123c56f4",
+      "size": 1217
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../../galleryDrop",
+          "../MoodboardStore"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useGalleryDropEvent.ts",
+      "sha": "3b2e902a99631a3d9c648f5d27b6066ef7825b7d",
+      "size": 1922
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/keybinds"
+        ],
+        "external": [],
+        "relative": [
+          "../MoodboardStore"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useMoodboardKeybinds.ts",
+      "sha": "dba8021b8da8cc94e7757b046fe9745160b31568",
+      "size": 2907
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../layout/snapping"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useNodeDrag.ts",
+      "sha": "414c721564d84822a9ac7f5d3a6bfb8f746b305e",
+      "size": 2211
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../../adapter",
+          "../addCanvasImageFile"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/usePasteHandler.ts",
+      "sha": "19ab9343959a7ccacedd64cbe0966bb54cb2eb0e",
+      "size": 1744
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../layout/geometry",
+          "../layout/pointInPolygon",
+          "../layout/segmentsIntersect",
+          "../types",
+          "./useStagePointer"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useSelection.ts",
+      "sha": "02e0f2a743ddc995160f59cdf80086d6aceb8557",
+      "size": 5025
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useStagePointer.ts",
+      "sha": "5788da55c242d1fe2da56dc29d05ef9ce80c4561",
+      "size": 595
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useTransformer.ts",
+      "sha": "743b5edb1759afbc2cf467bab11409ab7490bd33",
+      "size": 6086
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../layout/geometry",
+          "../types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/interactions/useViewportControls.ts",
+      "sha": "13956b7a9d8cc203d18bd58b26d856b36ea0c8f7",
+      "size": 6344
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types",
+          "./clusterProximity"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/clusterProximity.spec.ts",
+      "sha": "96f936684a7fc11f5685bbc1842952e0db8fc6af",
+      "size": 1390
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/clusterProximity.ts",
+      "sha": "5529c1a03092080c30e6c83784c322a341537d89",
+      "size": 1878
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/fitToGrid.ts",
+      "sha": "0c5e6ea4e4ded0ea99c17c1e218d6bd8f887beb3",
+      "size": 685
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/geometry.ts",
+      "sha": "7e923f0864958b8bf36eae1d6a6a5b999525595f",
+      "size": 4862
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types",
+          "./geometry",
+          "./packCollage"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/packCollage.spec.ts",
+      "sha": "440088dd701cea036d79ffbc2807c06e819b0560",
+      "size": 2289
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types",
+          "./fitToGrid"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/packCollage.ts",
+      "sha": "9810d194671e88f7e34d91fb200eadac29971149",
+      "size": 2021
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "./pointInPolygon",
+          "./segmentsIntersect"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/pointInPolygon.spec.ts",
+      "sha": "bb9fdee920f0689f52bed7127c1bcc3728c3d801",
+      "size": 1606
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/pointInPolygon.ts",
+      "sha": "9a7b580a608e03277b5ea7e5d6d71851d113a47b",
+      "size": 562
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/segmentsIntersect.ts",
+      "sha": "643c37291c1e05248772c0d29f7ef3b0c9698306",
+      "size": 1312
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "vitest"
+        ],
+        "relative": [
+          "./snapping"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/snapping.spec.ts",
+      "sha": "ef8f2d7c3e716b55b564be31756abfb9a98bb257",
+      "size": 1905
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/layout/snapping.ts",
+      "sha": "2fcdc8667693629e32118f562188dff20f23d9e2",
+      "size": 3019
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-konva",
+          "zustand/react/shallow"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../interactions/useNodeDrag",
+          "../types",
+          "./ImageNode",
+          "./TextNode"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/nodes/GroupNode.tsx",
+      "sha": "594b7bd1e9c8e5483ee3f485061d34114f97fb72",
+      "size": 3263
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-konva"
+        ],
+        "relative": [
+          "../interactions/useNodeDrag",
+          "../types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/nodes/ImageNode.tsx",
+      "sha": "9aa2af6a2dc15d522aa3a625dca6572d0122603f",
+      "size": 1992
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-konva"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../interactions/useNodeDrag",
+          "../types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/nodes/TextNode.tsx",
+      "sha": "0a5821d6bf34f67044a1779e4bf3b7f5f97a7f00",
+      "size": 1721
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": true,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-konva"
+        ],
+        "relative": [
+          "../interactions/useNodeDrag",
+          "../types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/nodes/VideoNode.tsx",
+      "sha": "aa248dc990885d0cee6929391a52076646bc9510",
+      "size": 3386
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "../MoodboardStore",
+          "../layout/geometry"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/overlays/RecenterIndicator.tsx",
+      "sha": "180c14e4d244ffbf53f0581222acbb8f03e4180d",
+      "size": 1379
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/overlays/shortcuts.ts",
+      "sha": "b7e46e2bf0cf30a3dcf2548b66187228f670487d",
+      "size": 2237
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/types.ts",
+      "sha": "468c2dca529cfa95e5417146deb4887f75d24e72",
+      "size": 1636
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "konva",
+          "react-hot-toast"
+        ],
+        "relative": [
+          "../adapter",
+          "../boards/measureMedia",
+          "./MoodboardStore",
+          "./addCanvasImageFile",
+          "./types"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/useMoodboardImageEntry.tsx",
+      "sha": "062e1b37828ce990ac8b206dd7f38b15fa009657",
+      "size": 3470
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/canvas/useThemeFgRgb.ts",
+      "sha": "137d00787eeb0c34a0eac55eaeb874b748926420",
+      "size": 1045
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/galleryDrop.ts",
+      "sha": "5139bdf4708723a42c38fb2698d591e3ca811047",
+      "size": 1571
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/icons"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "../boards/boardTypes",
+          "../boards/linkMeta",
+          "./Favicon",
+          "./gridLayout"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/BoardCard.tsx",
+      "sha": "f90497d0329a36e118f41b27aecb30f3834c2b05",
+      "size": 12683
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/ui-button"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/BoardEmptyState.tsx",
+      "sha": "f030979aad4f64dcd4c05d920c45fa8c867f3288",
+      "size": 1811
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../boards/boardTypes",
+          "./BoardCard",
+          "./SectionHeader",
+          "./gridLayout"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/BoardGrid.tsx",
+      "sha": "d17ab83ab002469c920d2ce026bef47c962897b9",
+      "size": 11515
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/icons"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "../boards/boardTypes",
+          "../ui/Toolbar",
+          "./ColorPickerPopover",
+          "./SmartSearchBar",
+          "./gridLayout"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/BoardGridToolbar.tsx",
+      "sha": "359741d2d57123683727ed830bb146566f6a4719",
+      "size": 7000
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/keybinds"
+        ],
+        "external": [
+          "react-hot-toast",
+          "zustand/react/shallow"
+        ],
+        "relative": [
+          "../adapter",
+          "../boards/BoardLibraryStore",
+          "../boards/boardSelectors",
+          "../boards/boardTypes",
+          "../boards/useBoardItemEntry",
+          "./BoardEmptyState",
+          "./BoardGrid",
+          "./BoardGridToolbar",
+          "./ItemInspector",
+          "./SelectionBar",
+          "./useGalleryBoardDrop"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/BoardGridView.tsx",
+      "sha": "c265a77d17f4e8e9d980b7c64fe1d8aca4e21534",
+      "size": 13173
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/ui-button",
+          "@storyteller/ui-popover",
+          "@storyteller/ui-tooltip"
+        ],
+        "external": [
+          "lucide-react",
+          "react-colorful"
+        ],
+        "relative": [],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/ColorPickerPopover.tsx",
+      "sha": "8112f140b9742bd74659e968ced646599e295c14",
+      "size": 2519
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "../boards/linkMeta"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/Favicon.tsx",
+      "sha": "f514923f19a8e5d8fc4e8e66b929574b1ae82d98",
+      "size": 883
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/icons",
+          "@storyteller/keybinds",
+          "@storyteller/ui-button",
+          "@storyteller/ui-modal"
+        ],
+        "external": [
+          "lucide-react",
+          "react-hot-toast"
+        ],
+        "relative": [
+          "../boards/boardTypes",
+          "../boards/linkMeta",
+          "../boards/palette",
+          "./Favicon"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/ItemInspector.tsx",
+      "sha": "398f8182c193aefb0ab3693a1e7fcea39427f4be",
+      "size": 12094
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/icons",
+          "@storyteller/keybinds"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "../boards/boardTypes"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/PresentationView.tsx",
+      "sha": "64b885fff2141ddeee04d24076ccda96fbc520e5",
+      "size": 5227
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/SectionHeader.tsx",
+      "sha": "16303f9d88434ae2737e06184e34e96c652018b8",
+      "size": 3808
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [
+          "@storyteller/icons"
+        ],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [
+          "../boards/boardTypes"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/SelectionBar.tsx",
+      "sha": "b0566b63a1aac4eaa199e00f80f2b8edec73d8c9",
+      "size": 6747
+    },
+    {
+      "excluded": true,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "lucide-react"
+        ],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/SmartSearchBar.tsx",
+      "sha": "9ad692e3eeb920641e980b99b04a5fa3c9ebea4d",
+      "size": 2363
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "vitest"
+        ],
+        "relative": [
+          "./gridLayout"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/gridLayout.spec.ts",
+      "sha": "0dea6e783be7993ce0845d9ffd9180341f42b69a",
+      "size": 3607
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../boards/boardTypes"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/gridLayout.ts",
+      "sha": "4d52544fafffebb49e1c5d625ff6ec183b77322d",
+      "size": 6922
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../boards/BoardLibraryStore",
+          "../boards/measureMedia",
+          "../galleryDrop"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/grid/useGalleryBoardDrop.ts",
+      "sha": "3c632143050b6bed12ff14dbb86070bcdc6aa4d0",
+      "size": 1349
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": true,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../boards/BoardLibraryStore",
+          "../canvas/MoodboardHistoryStore",
+          "../canvas/MoodboardStore",
+          "./dirtySuppression",
+          "./documents"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/persistence/canvasBridge.ts",
+      "sha": "6ca87ffea7e65fd77c7fe167520cf8666d74e0d7",
+      "size": 6352
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/persistence/dirtySuppression.ts",
+      "sha": "072c2176ae8057f0924cad030b1c6ae6d6e6a2f6",
+      "size": 492
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "vitest"
+        ],
+        "relative": [
+          "../boards/boardTypes",
+          "../canvas/types",
+          "./documents"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/persistence/documents.spec.ts",
+      "sha": "6ba16b3bf0a0bf1b0d7e3224dc708b7018638794",
+      "size": 6971
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": false,
+        "ssr_risk": false,
+        "storage": false,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [],
+        "relative": [
+          "../canvas/layout/geometry",
+          "../canvas/types"
+        ],
+        "runtime": []
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/persistence/documents.ts",
+      "sha": "c825129f321e8aa7f0d32ca23c9df00b734abb31",
+      "size": 7524
+    },
+    {
+      "excluded": false,
+      "flags": {
+        "css_import": false,
+        "media_api": false,
+        "network_fetch": true,
+        "ssr_risk": false,
+        "storage": true,
+        "tauri": false,
+        "url_reference": false,
+        "wasm": false,
+        "worker": false
+      },
+      "imports": {
+        "alias": [],
+        "external": [
+          "zustand"
+        ],
+        "relative": [
+          "../adapter",
+          "../boards/BoardLibraryStore",
+          "../boards/boardTypes",
+          "../canvas/MoodboardStore",
+          "./canvasBridge",
+          "./dirtySuppression",
+          "./documents"
+        ],
+        "runtime": [
+          "react"
+        ]
+      },
+      "path": "frontend/libs/components/moodboard/src/lib/persistence/moodboardSync.ts",
+      "sha": "2b022020ce82e8dd3961854083d696a7c96ee769",
+      "size": 20841
+    }
+  ],
+  "generated_note": "Inspected in memory at audit time; no donor code imported.",
+  "grain": "AC-00-i",
+  "pinned_commit": "28a39a0de4a2fc2eccc237df2046c24245bd12ab",
+  "schema_version": "1",
+  "source_url": "https://github.com/storytold/artcraft"
+}
