@@ -9,15 +9,21 @@
  * absolute executable path and a confined filesystem root.
  *
  * Verified upstream contract (apps/photocraft-cli/src/main.rs + automation
- * crate, per AF-01 audit):
+ * crate, per AF-01 audit and AC-03 genuine-binary qualification at
+ * `97136485f0743251ab330d096ca6c9d0f0f6f54c`):
  * - binary name is `photocraft-cli` (never bare `photocraft` PATH lookup);
  * - headless surface used here is `convert IN OUT`, `info FILE`, `commands`;
+ * - `commands` prints human text unless `--json` is given: this adapter
+ *   always sends `commands --json` and parses the JSON catalogue;
  * - `run`, `batch`, `droplet`, `mcp`, and `serve` exist on the real CLI but
  *   are deliberately NOT allowlisted here (batch/droplet imply queue or
  *   hosted execution; mcp/serve imply a long-lived server; run implies
  *   arbitrary command IDs);
  * - convert options honoured here are `--format FMT`, `--quality N`, and
- *   `--tiff-layers MODE`; no other flags are emitted;
+ *   the bare `--tiff-layers` flag (layered TIFF output; TIFF is flat by
+ *   default so `flatten` sends no flag). A `--tiff-layers MODE` value is
+ *   rejected by the real CLI (`convert needs <in> <out>`) and is never
+ *   emitted here;
  * - HEIF (`--features heif`) stays off: HEIF needs a separate rights review
  *   and is never enabled by this adapter;
  * - GPU and cloud paths are rejected: only local convert/info/commands run.
@@ -648,7 +654,11 @@ export function buildRasterArgs(
   validated: ValidatedRasterInput,
   paths: { inputAbs: string | undefined; outputAbs: string | undefined },
 ): string[] {
-  if (validated.operation === "commands") return ["commands"];
+  // Genuine CLI shapes (AC-03 qualified): `commands` needs `--json` for
+  // machine output, and `--tiff-layers` is a bare flag (layered output;
+  // flat is the default, so `flatten` sends no flag). A valued
+  // `--tiff-layers MODE` is rejected by the real CLI and never emitted.
+  if (validated.operation === "commands") return ["commands", "--json"];
   if (validated.operation === "info") {
     return ["info", paths.inputAbs as string];
   }
@@ -658,8 +668,8 @@ export function buildRasterArgs(
   if (validated.quality !== undefined) {
     args.push("--quality", String(validated.quality));
   }
-  if (validated.tiffLayers !== undefined) {
-    args.push("--tiff-layers", validated.tiffLayers);
+  if (validated.tiffLayers !== undefined && validated.tiffLayers === "preserve") {
+    args.push("--tiff-layers");
   }
   return args;
 }

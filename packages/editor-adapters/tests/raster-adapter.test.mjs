@@ -9,6 +9,7 @@ import test from "node:test";
 import {
   PHOTOCRAFT_PIN,
   RasterAdapterError,
+  buildRasterArgs,
   inspectRaster,
   invokeRaster,
   validateRasterBytes,
@@ -62,8 +63,15 @@ function bytesFor(fmt) {
   return Buffer.alloc(64, 0x55);
 }
 const args = process.argv.slice(2);
+// Genuine-emulating fixture: bare commands prints human text (like the
+// real CLI); only commands --json prints the machine catalogue. This
+// proves the adapter sends --json instead of parsing text.
 if (args[0] === "commands") {
-  console.log(JSON.stringify({ commands: ["convert", "info", "commands"] }));
+  if (args[1] === "--json") {
+    console.log(JSON.stringify({ commands: ["convert", "info", "commands"] }));
+    process.exit(0);
+  }
+  console.log("available commands: convert info commands (use --json)");
   process.exit(0);
 }
 if (args[0] === "info") {
@@ -72,6 +80,13 @@ if (args[0] === "info") {
   process.exit(0);
 }
 if (args[0] === "convert") {
+  // Genuine CLI rejects a valued --tiff-layers (convert needs <in>
+  // <out>); the bare flag selects layered TIFF output.
+  const tiffIdx = args.indexOf("--tiff-layers");
+  if (tiffIdx >= 0 && args[tiffIdx + 1] !== undefined && !String(args[tiffIdx + 1]).startsWith("--")) {
+    console.error("convert needs <in> <out>");
+    process.exit(1);
+  }
   const fmtIdx = args.indexOf("--format");
   const fmt = fmtIdx >= 0 ? args[fmtIdx + 1] : "png";
   writeFileSync(args[2], bytesFor(fmt));
@@ -199,6 +214,59 @@ test("missing executable fails as unavailable", async () => {
     const availability = await rasterAvailability(config);
     assert.equal(availability.available, false);
     assert.equal(availability.reason, "unavailable");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("genuine argv shapes: commands carries --json, tiff preserve is a bare flag", () => {
+  assert.deepEqual(buildRasterArgs({ operation: "commands" }, { inputAbs: undefined, outputAbs: undefined }), [
+    "commands",
+    "--json",
+  ]);
+  assert.deepEqual(
+    buildRasterArgs(
+      { operation: "convert", inputFile: "in.png", outputFile: "out.tiff", format: "tiff", tiffLayers: "preserve" },
+      { inputAbs: "/r/in.png", outputAbs: "/r/out.tiff" },
+    ),
+    ["convert", "/r/in.png", "/r/out.tiff", "--format", "tiff", "--tiff-layers"],
+  );
+  // Flatten is the genuine default: no flag is emitted, never a MODE value
+  // (the real CLI rejects `--tiff-layers <value>`).
+  assert.deepEqual(
+    buildRasterArgs(
+      { operation: "convert", inputFile: "in.png", outputFile: "out.tiff", format: "tiff", tiffLayers: "flatten" },
+      { inputAbs: "/r/in.png", outputAbs: "/r/out.tiff" },
+    ),
+    ["convert", "/r/in.png", "/r/out.tiff", "--format", "tiff"],
+  );
+});
+
+test("tiff preserve flows end to end through the genuine-emulating fixture", async () => {
+  const root = await makeRoot();
+  try {
+    const exe = await setupGood(root);
+    const config = goodConfig(root, exe);
+    // The genuine CLI accepts only the bare flag; a valued MODE would
+    // exit 1 in this fixture exactly as the real binary does.
+    const preserved = await invokeRaster(
+      {
+        operation: "convert",
+        requestor: requestor(),
+        inputFile: "in.png",
+        outputFile: "keep.tiff",
+        format: "tiff",
+        tiffLayers: "preserve",
+      },
+      config,
+    );
+    assert.equal(preserved.outputFormat, "tiff");
+    const bytes = await readFile(join(root, "keep.tiff"));
+    assert.deepEqual(inspectRaster(bytes, "tiff"), {
+      format: "tiff",
+      bytes: bytes.length,
+      sha256: preserved.outputSha256,
+    });
   } finally {
     await rm(root, { recursive: true, force: true });
   }

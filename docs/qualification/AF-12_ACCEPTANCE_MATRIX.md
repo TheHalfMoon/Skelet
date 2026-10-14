@@ -406,6 +406,7 @@ Disposition: Issue #62 stays OPEN. It may close only when AC-00 per-file manifes
 - PR #94 (`0ebd53d`, CI SUCCESS 15/15 both): AF-13a-ii observed `compare_design` (MCP + REST + skill + CI). P08 gap #2 closed; P08 row otherwise unchanged (still PARTIAL: `get_changes`, MCP Apps).
 - PR #95 (`b745a3e`, CI SUCCESS 15/15 both): AC-00-i moodboard closure (70 SHA-verified files, 8 externals, SmartSearchBar excluded). Issue #62 AC-00 partially advanced; no transplant authorized.
 - Genuine VectorCraft binary qualification (`docs/qualification/VECTORCRAFT_BINARY_QUALIFICATION.md`): converts the AF-10 adapter's upstream compatibility from UNVERIFIED to VERIFIED at commit `6c3f9f60aa69ac151f9908b94cf00a387746eea4` for `convert`/`info`/`commands` plus refusal paths. PhotoCraft genuine-binary qualification remains open. Fixture suites remain the CI story; this record is the upstream-compatibility evidence.
+- Genuine PhotoCraft binary qualification (`docs/qualification/PHOTOCRAFT_BINARY_QUALIFICATION.md`): converts the AF-11 adapter's upstream compatibility from UNVERIFIED to VERIFIED at commit `97136485f0743251ab330d096ca6c9d0f0f6f54c`, inclusive of two genuine defects the fixtures missed and the fix grain repaired (`commands --json`; bare `--tiff-layers` flag with `flatten` sending nothing). AC-03 adapter qualification is complete for VectorCraft and PhotoCraft at their pins; PageDraw stays deferred, OpenPencil stays P14 scope.
 
 ---
 
