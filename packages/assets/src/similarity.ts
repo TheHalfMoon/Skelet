@@ -284,7 +284,8 @@ export async function findSimilarForActor(
   scored.sort((left, right) => {
     if (right.score !== left.score) return right.score - left.score;
     if (left.row.title !== right.row.title) return left.row.title < right.row.title ? -1 : 1;
-    return left.row.id < right.row.id ? -1 : left.row.id > right.row.id ? 1 : 0;
+    if (left.row.id === right.row.id) return 0;
+    return left.row.id < right.row.id ? -1 : 1;
   });
   const page = scored.slice(offset, offset + limit);
   return {
