@@ -7,6 +7,7 @@ import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from 
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { buildRegistryItem } from "./registry.ts";
+import { searchRegistryIndex } from "./registry.ts";
 import {
   createReferencePack,
   exportReferencePack,
@@ -181,6 +182,19 @@ function toolSchemas(): unknown[] {
         type: "object",
         properties: { name: { type: "string" }, requestId: requestIdProp },
         required: ["name"],
+      },
+    },
+    {
+      name: "search_registry",
+      description: "Search shadcn-compatible registry items by name, title, or description.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          query: { type: "string", maxLength: 200 },
+          limit: { type: "number" },
+          requestId: requestIdProp,
+        },
+        required: [],
       },
     },
     {
@@ -1007,6 +1021,35 @@ async function callTool(
         if (code === "registry/not-found") {
           throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
         }
+        throw new AgentContractError("NOT_AVAILABLE", { requestId });
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "search_registry") {
+    if (
+      params.query !== undefined &&
+      (typeof params.query !== "string" || params.query.length > 200)
+    ) {
+      throw invalidInput("search_registry.query is invalid.", requestId);
+    }
+    let limit: number;
+    try {
+      limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput("search_registry.limit is invalid.", requestId);
+    }
+    try {
+      requireCapability("registry", requestId);
+      const outcome = searchRegistryIndex(params.query ?? "", limit);
+      return successEnvelope(
+        requestId,
+        { items: outcome.items, total: outcome.total },
+        { provenance: observedProvenance() },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      if (thrown instanceof Error && thrown.name === "RegistryError") {
         throw new AgentContractError("NOT_AVAILABLE", { requestId });
       }
       throw new AgentContractError("INTERNAL_OPAQUE", { requestId });

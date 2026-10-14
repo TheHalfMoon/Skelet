@@ -32,6 +32,7 @@ IMPLEMENTED_TOOLS = frozenset(
         "compare_design",
         "list_flows",
         "get_flow_steps",
+        "search_registry",
         "lens_create_job",
         "lens_poll_job",
         "lens_get_job",
@@ -46,7 +47,6 @@ UPCOMING_TOOLS = frozenset(
         "analyze_url",
         "analyze_image",
         "get_changes",
-        "search_registry",
     }
 )
 GATING_MARKERS = ("lands", "until then", "upcoming", "later phase", "deferred", "do not invoke", "do not promise")

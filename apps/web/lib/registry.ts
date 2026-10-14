@@ -142,3 +142,39 @@ export function buildRegistryItem(name: string): RegistryItem {
   validateItemShape(item);
   return item;
 }
+
+export const REGISTRY_SEARCH_LIMIT_DEFAULT = 20;
+export const REGISTRY_SEARCH_LIMIT_MAX = 50;
+
+export interface RegistrySearch {
+  items: RegistryIndexEntry[];
+  total: number;
+}
+
+/**
+ * Deterministic substring search over the static component index.
+ * Matches case-insensitively against name, title, and description;
+ * empty query returns the full index. Results are index-ordered
+ * (never ranked), so output is stable across runs. The index is
+ * public static metadata: no workspace gating applies, but callers
+ * still pass the registry capability gate at the MCP/REST layer.
+ */
+export function searchRegistryIndex(query: string, limit: number): RegistrySearch {
+  const index = buildRegistryIndex();
+  const needle = query.trim().toLowerCase();
+  const matched =
+    needle.length === 0
+      ? index.items
+      : index.items.filter(
+          (entry) =>
+            entry.name.toLowerCase().includes(needle) ||
+            entry.title.toLowerCase().includes(needle) ||
+            entry.description.toLowerCase().includes(needle),
+        );
+  const bounded = Math.floor(limit);
+  const take =
+    Number.isFinite(bounded) && bounded > 0
+      ? Math.min(bounded, REGISTRY_SEARCH_LIMIT_MAX)
+      : REGISTRY_SEARCH_LIMIT_DEFAULT;
+  return { items: matched.slice(0, take), total: matched.length };
+}

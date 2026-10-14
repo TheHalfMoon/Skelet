@@ -9,7 +9,7 @@ import { signUp } from "../../../packages/db/src/auth.ts";
 import { addMember, createWorkspace } from "../../../packages/db/src/workspaces.ts";
 import { registerAsset } from "../../../packages/assets/src/registry.ts";
 import { dispatchMcp } from "../lib/mcp.ts";
-import { getAssetRoute, getObjectRoute, searchAssetsRoute } from "../lib/rest.ts";
+import { getAssetRoute, getObjectRoute, searchAssetsRoute, searchRegistryRoute } from "../lib/rest.ts";
 import {
   AGENT_ERROR_CATALOG,
   AGENT_SCHEMA_VERSION,
@@ -504,6 +504,42 @@ test("AF-03b: partial pack exports carry warnings without leaking withheld items
     assert.ok(!text.includes("Parity partial private"));
   } finally {
     await db.close();
+  }
+});
+
+test("AF-13b-i: registry search matches on MCP and REST with deep-equal results", async () => {
+  const fx = await fixture();
+  try {
+    const rest = await searchRegistryRoute({ q: "card" }, "req-parity-registry-01");
+    assert.equal(rest.status, 200);
+    assert.equal(rest.body.request_id, "req-parity-registry-01");
+    assertStableEnvelope(rest.body, "REST search_registry success");
+    assert.equal(rest.body.result.total, 1);
+    assert.deepEqual(
+      rest.body.result.items.map((entry) => entry.name),
+      ["skelet-card"],
+    );
+
+    const mcp = await mcpCall(fx.db, { userId: fx.owner.id }, "tools/call", {
+      name: "search_registry",
+      arguments: { query: "card" },
+    });
+    const envelope = mcpEnvelopeOf(mcp);
+    assertStableEnvelope(envelope, "MCP search_registry success");
+    assert.deepEqual(envelope.result.items, rest.body.result.items);
+    assert.equal(envelope.result.total, rest.body.result.total);
+    assert.equal(envelope.error, undefined);
+
+    const badRest = await searchRegistryRoute({ limit: "0" }, "req-parity-registry-02");
+    assert.equal(badRest.status, 400);
+    assert.equal(badRest.body.error.code, "INVALID_INPUT");
+    const badMcp = await mcpCall(fx.db, { userId: fx.owner.id }, "tools/call", {
+      name: "search_registry",
+      arguments: { limit: 0 },
+    });
+    assert.equal(badMcp.error.code, -32602);
+  } finally {
+    await fx.db.close();
   }
 });
 

@@ -4,6 +4,7 @@ import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from 
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
+import { searchRegistryIndex } from "./registry.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
 import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
 import {
@@ -395,6 +396,59 @@ export async function findSimilarRoute(
     // persistence failures stay opaque for operators.
     if (error instanceof Error && error.name === "RegistryError") {
       const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/registry?q=&limit= — deterministic component search.
+ *
+ * AF-13b-i: query-filtered listing over the same static index the
+ * `search_registry` MCP tool serves, in the same canonical envelope so
+ * the two surfaces stay deep-equal. The index is public static metadata;
+ * no actor scoping applies, but the registry capability gate is enforced
+ * exactly like `get_registry_item`.
+ */
+export async function searchRegistryRoute(
+  query: Record<string, string | string[] | undefined>,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const rawQuery = query.q;
+  if (rawQuery !== undefined && (typeof rawQuery !== "string" || rawQuery.length > 200)) {
+    return invalidInput(requestId, "Registry query is invalid.");
+  }
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  try {
+    requireCapability("registry", requestId);
+    const outcome = searchRegistryIndex(
+      typeof rawQuery === "string" ? rawQuery : "",
+      limit,
+    );
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        { items: outcome.items, total: outcome.total },
+        { provenance: observedProvenance() },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof Error && error.name === "RegistryError") {
+      const err = new AgentContractError("NOT_AVAILABLE", { requestId });
       return { status: err.httpStatus, body: err.toFailureEnvelope() };
     }
     return opaque(requestId);

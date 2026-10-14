@@ -79,7 +79,7 @@ test("tools require a resolved identity", async () => {
     });
     assert.equal(callDenied.error.code, -32001);
     const allowed = await call(fx.db, fx.ctx, "tools/list", {});
-    assert.equal(allowed.result.tools.length, 20);
+    assert.equal(allowed.result.tools.length, 21);
     assert.deepEqual(
       allowed.result.tools.map((tool) => tool.name).sort(),
       [
@@ -103,6 +103,7 @@ test("tools require a resolved identity", async () => {
         "list_flows",
         "save_reference",
         "search_assets",
+        "search_registry",
       ],
     );
   } finally {
@@ -136,6 +137,61 @@ test("asset tools return stable Skelet URIs", async () => {
       arguments: { name: "skelet-button" },
     });
     assert.equal(JSON.parse(item.result.content[0].text).result.item.name, "skelet-button");
+  } finally {
+    await fx.db.close();
+  }
+});
+
+test("registry search lists, filters, and validates", async () => {
+  const fx = await fixture();
+  try {
+    const all = await call(fx.db, fx.ctx, "tools/call", {
+      name: "search_registry",
+      arguments: {},
+    });
+    const listed = JSON.parse(all.result.content[0].text);
+    assert.equal(listed.schema_version, "skelet.agent.v1");
+    assert.equal(listed.status, "complete");
+    assert.equal(listed.result.total, 2);
+    assert.deepEqual(
+      listed.result.items.map((entry) => entry.name),
+      ["skelet-button", "skelet-card"],
+    );
+    const button = await call(fx.db, fx.ctx, "tools/call", {
+      name: "search_registry",
+      arguments: { query: "BUTTON" },
+    });
+    const filtered = JSON.parse(button.result.content[0].text);
+    assert.equal(filtered.result.total, 1);
+    assert.equal(filtered.result.items[0].name, "skelet-button");
+    const none = await call(fx.db, fx.ctx, "tools/call", {
+      name: "search_registry",
+      arguments: { query: "no-such-widget" },
+    });
+    const empty = JSON.parse(none.result.content[0].text);
+    assert.equal(empty.result.total, 0);
+    assert.deepEqual(empty.result.items, []);
+    for (const bad of [{ query: 42 }, { query: "x".repeat(201) }, { limit: 0 }, { limit: 99999 }, { limit: "many" }]) {
+      const rejected = await call(fx.db, fx.ctx, "tools/call", {
+        name: "search_registry",
+        arguments: bad,
+      });
+      assert.equal(rejected.error.code, -32602, `rejects ${JSON.stringify(bad)}`);
+    }
+    const previous = process.env.SKELET_DISABLED_CAPABILITIES;
+    process.env.SKELET_DISABLED_CAPABILITIES = "registry";
+    try {
+      const disabled = await call(fx.db, fx.ctx, "tools/call", {
+        name: "search_registry",
+        arguments: {},
+      });
+      assert.equal(disabled.error.code, -32000);
+      const envelope = disabled.error.data.envelope;
+      assert.equal(envelope.error.code, "PROVIDER_DISABLED");
+    } finally {
+      if (previous === undefined) delete process.env.SKELET_DISABLED_CAPABILITIES;
+      else process.env.SKELET_DISABLED_CAPABILITIES = previous;
+    }
   } finally {
     await fx.db.close();
   }
