@@ -1,0 +1,19 @@
+docs/reviews/AF-12-matrix_OCR_DELEGATION.md
+  s_dc7e4912ca11b6::t_242d2b77e2aa9e 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9529a5b4e00d2e44a3165be6d4c8392cfbd8a170",
+  "prompts": {},
+  "sessions": {
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
