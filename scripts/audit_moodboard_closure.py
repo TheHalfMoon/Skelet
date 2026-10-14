@@ -152,7 +152,7 @@ def api_get(url: str, token: str | None) -> dict:
         import certifi  # Local audit-time CA bundle; CI never runs this.
 
         context: ssl.SSLContext | None = ssl.create_default_context(cafile=certifi.where())
-    except Exception:
+    except (ImportError, ssl.SSLError):
         context = None
     with urllib.request.urlopen(request, timeout=60, context=context) as response:
         return json.loads(response.read().decode("utf-8"))
@@ -173,7 +173,7 @@ def main() -> int:
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
     files = []
     external: dict[str, list[str]] = {}
-    for index, path in enumerate(sorted(FILES)):
+    for path in sorted(FILES):
         expected = FILES[path]
         try:
             payload = api_get(
