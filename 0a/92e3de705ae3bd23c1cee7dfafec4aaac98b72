@@ -1,0 +1,50 @@
+.github/workflows/ci.yml
+  s_36a09aec8c17f5::t_4e332431b8b1de 633,654
+docs/reviews/AF-12-ops_PSTACK_PANELS.md
+  s_dc7e4912ca11b6::t_4c3913dfc0101d 1-21
+docs/reviews/AF-12-ops_JEV_REVIEW.json
+  s_dc7e4912ca11b6::t_366b1c91e85bb3 1
+docs/operations/RUNBOOK.md
+  s_dc7e4912ca11b6::t_d6bcfc7601490a 1-82
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_dc7e4912ca11b6::t_555ca8bcdc4cf2 412
+docs/reviews/AF-12-ops_JEV_REVIEW.md
+  s_dc7e4912ca11b6::t_9c222595937ae2 1-7
+docs/reviews/AF-12-ops_OCR_DELEGATION.md
+  s_dc7e4912ca11b6::t_529286fa1dee79 1-9
+packages/db/tests/backup-restore.test.mjs
+  s_dc7e4912ca11b6::t_54bc27a6f0b104 88-92
+  s_dc7e4912ca11b6::t_bd199e26e8a918 103-105
+  s_dc7e4912ca11b6::t_e25f57d37511e5 1-87,93-102,106-112
+packages/db/tests/pg-backup-restore.test.mjs
+  s_dc7e4912ca11b6::t_86b9137010ff81 1-88
+docs/reviews/AF-12-ops_JEV_SPEC.json
+  s_dc7e4912ca11b6::t_4b5dec4f6ee68a 1
+packages/db/src/backup.ts
+  s_dc7e4912ca11b6::t_9bcd0c671a97c9 1-54,57-60,64-73,75-116
+  s_dc7e4912ca11b6::t_9687cd84e9d062 55-56,61-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0a92e3de705ae3bd23c1cee7dfafec4aaac98b72",
+  "prompts": {},
+  "sessions": {
+    "s_36a09aec8c17f5": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec4d2a43bffegc3RF0DqgGZRwI",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    },
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
