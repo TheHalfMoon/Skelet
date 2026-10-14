@@ -3,6 +3,7 @@ import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../pac
 import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
+import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
@@ -654,6 +655,93 @@ export async function getFlowStepsRoute(
     if (error instanceof Error && error.name === "CorpusError") {
       const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
       return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/changes?fromVersionId=&toVersionId= — deterministic version diff.
+ *
+ * AF-15a: compares two product versions of the same product using only
+ * persisted, actor-readable evidence. Unknown, malformed, and denied
+ * versions answer FORBIDDEN_OR_NOT_FOUND alike; cross-product pairs
+ * answer INVALID_INPUT as unsupported. Result shape is deep-equal to
+ * the get_changes MCP tool by construction.
+ */
+export async function getChangesRoute(
+  db: DbClient,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const rawFrom = query.fromVersionId;
+  const rawTo = query.toVersionId;
+  if (typeof rawFrom !== "string" || rawFrom.length === 0 || typeof rawTo !== "string" || rawTo.length === 0) {
+    return invalidInput(requestId, "Version comparison is invalid.");
+  }
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  let offset = 0;
+  if (query.cursor !== undefined) {
+    try {
+      offset = decodeCursor(query.cursor);
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        const withId = new AgentContractError("INVALID_INPUT", {
+          message: "Pagination cursor is invalid.",
+          requestId,
+        });
+        return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+      }
+      return opaque(requestId);
+    }
+  }
+  try {
+    const outcome = await getChangesForActor(db, {
+      actorId,
+      fromVersionId: rawFrom,
+      toVersionId: rawTo,
+      limit,
+      offset,
+    });
+    const body = successEnvelope(
+      requestId,
+      {
+        productId: outcome.productId,
+        fromVersionId: outcome.fromVersionId,
+        toVersionId: outcome.toVersionId,
+        fromVersionNo: outcome.fromVersionNo,
+        toVersionNo: outcome.toVersionNo,
+        identical: outcome.identical,
+        changes: outcome.changes,
+        total: outcome.total,
+      },
+      {
+        cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+        provenance: computedProvenance(),
+      },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof Error && error.name === "ChangesError") {
+      const code = (error as { code?: unknown }).code;
+      if (code === "changes/not-found") {
+        const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        return { status: err.httpStatus, body: err.toFailureEnvelope() };
+      }
+      return invalidInput(requestId, "Version comparison is invalid.");
     }
     return opaque(requestId);
   }

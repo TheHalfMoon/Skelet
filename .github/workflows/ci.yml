@@ -636,6 +636,7 @@ jobs:
           packages/db/tests/graph.test.mjs
           packages/db/tests/artifact-access.test.mjs
           packages/db/tests/workflows.test.mjs
+          packages/db/tests/changes.test.mjs
           packages/db/tests/auth.test.mjs
           packages/db/tests/workspaces.test.mjs
           packages/db/tests/collections.test.mjs

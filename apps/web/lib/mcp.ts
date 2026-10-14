@@ -6,6 +6,7 @@ import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../pac
 import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
+import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
 import { buildRegistryItem } from "./registry.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import {
@@ -249,6 +250,21 @@ function toolSchemas(): unknown[] {
           requestId: requestIdProp,
         },
         required: ["flowId"],
+      },
+    },
+    {
+      name: "get_changes",
+      description: "Compare two product versions with deterministic evidence-linked change records (no intent inference).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          fromVersionId: { type: "string" },
+          toVersionId: { type: "string" },
+          limit: { type: "number" },
+          cursor: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["fromVersionId", "toVersionId"],
       },
     },
     {
@@ -998,6 +1014,62 @@ async function callTool(
       // Either missing, malformed, or denied flows answer alike.
       if (thrown instanceof Error && thrown.name === "CorpusError") {
         throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "get_changes") {
+    if (typeof params.fromVersionId !== "string" || typeof params.toVersionId !== "string") {
+      throw invalidInput("get_changes versions are invalid.", requestId);
+    }
+    const actorId = requireUser(ctx);
+    let limit: number;
+    try {
+      limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput("get_changes.limit is invalid.", requestId);
+    }
+    let offset = 0;
+    if (params.cursor !== undefined) {
+      try {
+        offset = decodeCursor(params.cursor);
+      } catch {
+        throw invalidInput("Pagination cursor is invalid.", requestId);
+      }
+    }
+    try {
+      const outcome = await getChangesForActor(db, {
+        actorId,
+        fromVersionId: params.fromVersionId,
+        toVersionId: params.toVersionId,
+        limit,
+        offset,
+      });
+      return successEnvelope(
+        requestId,
+        {
+          productId: outcome.productId,
+          fromVersionId: outcome.fromVersionId,
+          toVersionId: outcome.toVersionId,
+          fromVersionNo: outcome.fromVersionNo,
+          toVersionNo: outcome.toVersionNo,
+          identical: outcome.identical,
+          changes: outcome.changes,
+          total: outcome.total,
+        },
+        {
+          cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+          provenance: computedProvenance(),
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      if (thrown instanceof Error && thrown.name === "ChangesError") {
+        const code = (thrown as { code?: unknown }).code;
+        if (code === "changes/not-found") {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        throw invalidInput("Version comparison is invalid.", requestId);
       }
       throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
     }
