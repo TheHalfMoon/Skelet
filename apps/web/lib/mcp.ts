@@ -37,6 +37,11 @@ import {
   resumeLensJobRoute,
   retryLensJobRoute,
 } from "./lens-jobs.ts";
+import {
+  handOffBoardRoute,
+  listBoardHandoffsRoute,
+  validateBoardItemsRoute,
+} from "./boards.ts";
 
 /**
  * G08-01 remote agent transport: MCP Streamable HTTP (JSON-RPC 2.0) with
@@ -323,6 +328,47 @@ function toolSchemas(): unknown[] {
         required: ["workspaceId"],
       },
     },
+    {
+      name: "board_handoff",
+      description: "Hand off board ownership to a workspace member with ledger proof. Address the board by ID or skelet://collection/{id} URI.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          boardId: { type: "string" },
+          uri: { type: "string" },
+          workspaceId: { type: "string" },
+          toSubjectId: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["workspaceId", "toSubjectId"],
+      },
+    },
+    {
+      name: "board_list_handoffs",
+      description: "Read the provenance chain of a board. Address the board by ID or skelet://collection/{id} URI.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          boardId: { type: "string" },
+          uri: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: [],
+      },
+    },
+    {
+      name: "board_validate_items",
+      description: "Validate every board item for handoff inspection (ok/denied/missing with pack-grade metadata).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          boardId: { type: "string" },
+          uri: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: [],
+      },
+    },
   ];
 }
 
@@ -401,6 +447,63 @@ function resolveLensKitId(params: Record<string, unknown>, requestId: string): s
  * the same JSON-RPC error the REST transport maps to HTTP.
  */
 async function lensResultToEnvelope(result: { status: number; body: AgentEnvelope }): Promise<AgentEnvelope> {
+  if (result.status < 400) return result.body;
+  const code = result.body.error?.code ?? "INTERNAL_OPAQUE";
+  const message = code === "INVALID_INPUT" ? result.body.error?.message : undefined;
+  throw new AgentContractError(code, { message, requestId: result.body.request_id });
+}
+
+const BOARD_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * AF-09-ii board identity resolution: callers address a board by raw UUID
+ * or by stable `skelet://collection/{id}` URI. Both must agree when both
+ * are given; malformed identifiers answer FORBIDDEN_OR_NOT_FOUND (no
+ * existence oracle), while a missing identifier is INVALID_INPUT.
+ */
+function resolveBoardId(params: Record<string, unknown>, requestId: string): string {
+  const opaque = (): AgentContractError => new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+  let fromId: string | undefined;
+  if (params.boardId !== undefined) {
+    if (typeof params.boardId !== "string" || !BOARD_UUID.test(params.boardId)) {
+      throw opaque();
+    }
+    fromId = params.boardId.toLowerCase();
+  }
+  let fromUri: string | undefined;
+  if (params.uri !== undefined) {
+    if (typeof params.uri !== "string") {
+      throw opaque();
+    }
+    try {
+      const parsed = parseSkeletUri(params.uri);
+      if (parsed.type !== "collection") {
+        throw opaque();
+      }
+      fromUri = parsed.id.toLowerCase();
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        throw thrown.code === "INVALID_INPUT" ? opaque() : thrown;
+      }
+      throw opaque();
+    }
+  }
+  if (fromId !== undefined && fromUri !== undefined && fromId !== fromUri) {
+    throw invalidInput("Board identifier is invalid.", requestId);
+  }
+  const resolved = fromUri ?? fromId;
+  if (resolved === undefined) {
+    throw invalidInput("Board identifier is invalid.", requestId);
+  }
+  return resolved;
+}
+
+/**
+ * AF-09-ii REST/MCP parity: the MCP board-handoff tools delegate to the
+ * same boards route layer the REST endpoints serve, so envelopes, error
+ * codes, and safe messages are identical by construction.
+ */
+async function boardResultToEnvelope(result: { status: number; body: AgentEnvelope }): Promise<AgentEnvelope> {
   if (result.status < 400) return result.body;
   const code = result.body.error?.code ?? "INTERNAL_OPAQUE";
   const message = code === "INVALID_INPUT" ? result.body.error?.message : undefined;
@@ -897,6 +1000,29 @@ async function callTool(
       return lensResultToEnvelope({ status: downloaded.status, body: downloaded.body });
     }
     throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+  }
+  if (name === "board_handoff") {
+    const actorId = requireUser(ctx);
+    const boardId = resolveBoardId(params, requestId);
+    return boardResultToEnvelope(
+      await handOffBoardRoute(
+        db,
+        boardId,
+        { workspaceId: params.workspaceId, toSubjectId: params.toSubjectId },
+        actorId,
+        requestId,
+      ),
+    );
+  }
+  if (name === "board_list_handoffs") {
+    const actorId = requireUser(ctx);
+    const boardId = resolveBoardId(params, requestId);
+    return boardResultToEnvelope(await listBoardHandoffsRoute(db, { boardId }, actorId, requestId));
+  }
+  if (name === "board_validate_items") {
+    const actorId = requireUser(ctx);
+    const boardId = resolveBoardId(params, requestId);
+    return boardResultToEnvelope(await validateBoardItemsRoute(db, { boardId }, actorId, requestId));
   }
   throw { code: -32601, message: "Tool not found." };
 }
