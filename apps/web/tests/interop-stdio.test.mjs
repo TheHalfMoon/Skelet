@@ -109,7 +109,7 @@ test("AF-03c stdio: versions, tools, and search pagination match HTTP semantics"
     assert.equal(unknown.result.protocolVersion, "2026-07-28");
     assert.deepEqual(unknown.result.skelet.capabilities, { packs: true, registry: true });
     const list = await bridge.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
-    assert.equal(list.result.tools.length, 16);
+    assert.equal(list.result.tools.length, 17);
     const first = await bridge.call({
       jsonrpc: "2.0", method: "tools/call",
       params: { name: "search_assets", arguments: { query: "stdio-page", limit: 1 } },

@@ -3,6 +3,7 @@ import { validateSession } from "../../../packages/db/src/auth.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { deleteCollection, saveReference } from "../../../packages/db/src/collections.ts";
 import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
+import { SIMILARITY_KINDS, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
 import { buildRegistryItem } from "./registry.ts";
 import {
   createReferencePack,
@@ -178,6 +179,21 @@ function toolSchemas(): unknown[] {
         type: "object",
         properties: { name: { type: "string" }, requestId: requestIdProp },
         required: ["name"],
+      },
+    },
+    {
+      name: "find_similar",
+      description: "Find deterministically similar artifacts to a reference artifact (lexical baseline, no embeddings).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          artifactId: { type: "string" },
+          kinds: { type: "array", items: { type: "string", enum: ["icon", "logo", "font"] } },
+          limit: { type: "number" },
+          cursor: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["artifactId"],
       },
     },
     {
@@ -699,6 +715,87 @@ async function callTool(
     } catch (thrown) {
       if (thrown instanceof AgentContractError) throw thrown;
       throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+    }
+  }
+  if (name === "find_similar") {
+    if (typeof params.artifactId !== "string") {
+      throw invalidInput("find_similar.artifactId is invalid.", requestId);
+    }
+    const actorId = requireUser(ctx);
+    let kinds: ("icon" | "logo" | "font")[] | undefined;
+    if (params.kinds !== undefined) {
+      if (
+        !Array.isArray(params.kinds) ||
+        params.kinds.length === 0 ||
+        params.kinds.length > SIMILARITY_KINDS.length ||
+        params.kinds.some((kind) => !(SIMILARITY_KINDS as readonly string[]).includes(kind)) ||
+        new Set(params.kinds).size !== params.kinds.length
+      ) {
+        throw invalidInput("find_similar.kinds is invalid.", requestId);
+      }
+      kinds = params.kinds as ("icon" | "logo" | "font")[];
+    }
+    let limit: number;
+    try {
+      limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput("find_similar.limit is invalid.", requestId);
+    }
+    let offset = 0;
+    if (params.cursor !== undefined) {
+      try {
+        offset = decodeCursor(params.cursor);
+      } catch {
+        throw invalidInput("Pagination cursor is invalid.", requestId);
+      }
+    }
+    try {
+      const outcome = await findSimilarForActor(db, {
+        artifactId: params.artifactId,
+        actorId,
+        kinds,
+        limit,
+        offset,
+      });
+      // Single-object read semantics mirror get_object: a restricted
+      // reference answers RIGHTS_RESTRICTED; candidates keep list
+      // semantics with rights labels (mirroring search_assets).
+      if (outcome.reference.rightsClassification === "restricted") {
+        throw new AgentContractError("RIGHTS_RESTRICTED", {
+          requestId,
+          provenance: observedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+        });
+      }
+      const warnings = outcome.truncated
+        ? ["Candidate budget reached; results are a reproducible prefix."]
+        : [];
+      return successEnvelope(
+        requestId,
+        {
+          reference: {
+            uri: `skelet://artifact/${outcome.reference.artifactId}`,
+            kind: outcome.reference.kind,
+            title: outcome.reference.title,
+          },
+          similar: outcome.similar.map((entry) => ({ ...toAgentAsset(entry), score: entry.score })),
+          total: outcome.total,
+          truncated: outcome.truncated,
+        },
+        {
+          cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+          warnings: warnings.length > 0 ? warnings : undefined,
+          partial: outcome.truncated,
+          provenance: computedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Reference identifiers are never an existence oracle: malformed,
+      // unknown, and denied references answer alike (mirroring get_asset).
+      if (thrown instanceof Error && thrown.name === "RegistryError") {
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
     }
   }
   if (name === "get_registry_item") {

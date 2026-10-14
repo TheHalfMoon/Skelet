@@ -13,6 +13,7 @@ Select visual assets with explicit rights metadata. A result without provenance 
 2. **Resolve with policy.** `get_asset` returns `serving: download` only for permitted rights plus a redistributable license with no trademark claim. Anything else is `metadata-only` with a `servingReason` — surface that reason to the human instead of the bytes.
 3. **Components come from the registry.** `get_registry_item` fetches `skelet-button` and `skelet-card` documents (shadcn-compatible). Installed files resolve `@/lib/utils` per shadcn convention; the consumer configures the alias.
 4. **Record the decision.** Save chosen assets with `save_reference` so the implementation agent recovers the exact record, license, and rights classification.
+5. **Find alternatives deterministically.** `find_similar` ranks artifacts similar to a reference by a lexical token score with no model. Scores are reproducible; a result of zero means no shared terms, not a failed lookup.
 
 ## Rules
 
