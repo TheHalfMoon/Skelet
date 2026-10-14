@@ -5,6 +5,7 @@ import {
   RegistryError,
   buildRegistryIndex,
   buildRegistryItem,
+  searchRegistryIndex,
 } from "../lib/registry.ts";
 
 test("registry index lists every item with provenance", () => {
@@ -59,4 +60,41 @@ test("unknown registry items fail closed", () => {
     () => buildRegistryItem("constructor"),
     (error) => error instanceof RegistryError && error.code === "registry/not-found",
   );
+});
+
+test("registry search is deterministic across name, title, and description", () => {
+  const all = searchRegistryIndex("", 20);
+  assert.equal(all.total, 2);
+  assert.deepEqual(
+    all.items.map((entry) => entry.name),
+    ["skelet-button", "skelet-card"],
+  );
+  const byName = searchRegistryIndex("  BUTTON ", 20);
+  assert.equal(byName.total, 1);
+  assert.equal(byName.items[0]?.name, "skelet-button");
+  const byDescription = searchRegistryIndex("card", 20);
+  assert.equal(byDescription.total, 1);
+  assert.equal(byDescription.items[0]?.name, "skelet-card");
+  const missing = searchRegistryIndex("no-such-widget", 20);
+  assert.equal(missing.total, 0);
+  assert.deepEqual(missing.items, []);
+  const repeat = searchRegistryIndex("skelet", 20);
+  assert.deepEqual(
+    repeat.items.map((entry) => entry.name),
+    ["skelet-button", "skelet-card"],
+  );
+});
+
+test("registry search bounds limits without throwing", () => {
+  const one = searchRegistryIndex("", 1);
+  assert.equal(one.items.length, 1);
+  assert.equal(one.total, 2);
+  const clamped = searchRegistryIndex("", 99999);
+  assert.equal(clamped.items.length, 2);
+  assert.equal(clamped.total, 2);
+  for (const fallback of [0, -3, Number.NaN]) {
+    const outcome = searchRegistryIndex("", fallback);
+    assert.equal(outcome.items.length, 2);
+    assert.equal(outcome.total, 2);
+  }
 });
