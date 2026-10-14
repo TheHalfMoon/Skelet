@@ -407,6 +407,8 @@ Disposition: Issue #62 stays OPEN. It may close only when AC-00 per-file manifes
 - PR #95 (`b745a3e`, CI SUCCESS 15/15 both): AC-00-i moodboard closure (70 SHA-verified files, 8 externals, SmartSearchBar excluded). Issue #62 AC-00 partially advanced; no transplant authorized.
 - Genuine VectorCraft binary qualification (`docs/qualification/VECTORCRAFT_BINARY_QUALIFICATION.md`): converts the AF-10 adapter's upstream compatibility from UNVERIFIED to VERIFIED at commit `6c3f9f60aa69ac151f9908b94cf00a387746eea4` for `convert`/`info`/`commands` plus refusal paths. PhotoCraft genuine-binary qualification remains open. Fixture suites remain the CI story; this record is the upstream-compatibility evidence.
 - Genuine PhotoCraft binary qualification (`docs/qualification/PHOTOCRAFT_BINARY_QUALIFICATION.md`): converts the AF-11 adapter's upstream compatibility from UNVERIFIED to VERIFIED at commit `97136485f0743251ab330d096ca6c9d0f0f6f54c`, inclusive of two genuine defects the fixtures missed and the fix grain repaired (`commands --json`; bare `--tiff-layers` flag with `flatten` sending nothing). AC-03 adapter qualification is complete for VectorCraft and PhotoCraft at their pins; PageDraw stays deferred, OpenPencil stays P14 scope.
+- PR #97 (`3d061b0`, CI SUCCESS 15/15 both): AF-11 genuine raster fix (the two argv defects above) with regression tests; PhotoCraft compatibility VERIFIED. No other surfaces changed.
+- PR #98 (`4e23f70`, CI SUCCESS 15/15 both): AF-14a authorized corpus importer (validate-first, ledger-idempotent, conflict-closed) with migration 016 (flow ledger targets, guards, rollback proven on PGlite and real PostgreSQL), `list_flows`/`get_flow_steps` MCP tools plus two REST routes (deep-equal parity), research skill step, inventory 18->20. P10 framework gap closed; gallery UI, flow player, taxonomy, and rrweb remain follow-ons.
 
 ---
 
@@ -414,7 +416,7 @@ Disposition: Issue #62 stays OPEN. It may close only when AC-00 per-file manifes
 
 - This matrix is a documentation audit on HEAD `543641a`. It implements no product code and closes no P0 risk by itself.
 - Counts above derive from row statuses in this file, not from test-suite pass counts. Suite totals cited (e.g. Python 170, lens 197) are historical AF-12i measurements to be re-run on the final release candidate; they are not re-verified by this document.
-- Real upstream adapter binary compatibility remains UNVERIFIED. Fixture-tested adapters must never be cited as upstream proof.
+- Real upstream adapter binary compatibility remains UNVERIFIED as of the `543641a` audit; see Post-Audit Deltas for the VectorCraft and PhotoCraft genuine-binary qualifications that supersede this line. Fixture-tested adapters must never be cited as upstream proof.
 - Alibaba OCR delegate-only results are non-LLM delegations, not independent model-backed reviews, per every `*_OCR_DELEGATION.md`.
 - PStack evidence to date is fresh-context manual review explicitly labeled as fallback, not genuine tool execution, where the binary was unavailable.
 - Managed SaaS, production R2/S3 at scale, enterprise SSO/SCIM, and GPU paths are out of scope for the supported zero-founder-spend local/self-hosted core and were not exercised.
