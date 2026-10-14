@@ -1,5 +1,6 @@
 import type { DbClient } from "../../../packages/db/src/db.ts";
 import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
+import { SIMILARITY_KINDS, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
 import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
@@ -278,6 +279,117 @@ export async function getAssetRoute(
       return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
     }
     // Unknown and malformed identifiers answer alike; unexpected
+    // persistence failures stay opaque for operators.
+    if (error instanceof Error && error.name === "RegistryError") {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/assets/similar?artifactId= — deterministic similar artifacts.
+ *
+ * AF-13a-i: lexical Jaccard baseline, no embeddings. AF-SEC-00:
+ * actor-scoped with the same no-oracle policy as the other read routes:
+ * unknown, denied, and malformed references answer
+ * FORBIDDEN_OR_NOT_FOUND, while a readable but restricted reference
+ * answers RIGHTS_RESTRICTED (mirroring get_object single-read semantics).
+ * Candidates keep search-style list semantics with rights labels.
+ */
+export async function findSimilarRoute(
+  db: DbClient,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const rawId = query.artifactId;
+  if (typeof rawId !== "string" || rawId.length === 0) {
+    return invalidInput(requestId, "Similar reference is invalid.");
+  }
+  let kinds: string[] | undefined;
+  if (query.kinds !== undefined) {
+    const raw = Array.isArray(query.kinds) ? query.kinds.join(",") : query.kinds;
+    kinds = raw.split(",").map((item) => item.trim());
+    if (
+      kinds.length === 0 ||
+      kinds.length > SIMILARITY_KINDS.length ||
+      kinds.some((kind) => !(SIMILARITY_KINDS as readonly string[]).includes(kind)) ||
+      new Set(kinds).size !== kinds.length ||
+      kinds.some((kind) => kind.length === 0)
+    ) {
+      return invalidInput(requestId, "Similar kinds are invalid.");
+    }
+  }
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  let offset = 0;
+  if (query.cursor !== undefined) {
+    try {
+      offset = decodeCursor(query.cursor);
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        const withId = new AgentContractError("INVALID_INPUT", {
+          message: "Pagination cursor is invalid.",
+          requestId,
+        });
+        return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+      }
+      return opaque(requestId);
+    }
+  }
+  try {
+    const outcome = await findSimilarForActor(db, {
+      artifactId: rawId,
+      actorId,
+      kinds,
+      limit,
+      offset,
+    });
+    if (outcome.reference.rightsClassification === "restricted") {
+      const err = new AgentContractError("RIGHTS_RESTRICTED", {
+        requestId,
+        provenance: observedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+      });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    const warnings = outcome.truncated
+      ? ["Candidate budget reached; results are a reproducible prefix."]
+      : [];
+    const body = successEnvelope(
+      requestId,
+      {
+        reference: {
+          uri: `skelet://artifact/${outcome.reference.artifactId}`,
+          kind: outcome.reference.kind,
+          title: outcome.reference.title,
+        },
+        similar: outcome.similar.map((entry) => ({ ...agentAssetView(entry), score: entry.score })),
+        total: outcome.total,
+        truncated: outcome.truncated,
+      },
+      {
+        cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+        warnings: warnings.length > 0 ? warnings : undefined,
+        partial: outcome.truncated,
+        provenance: computedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+      },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    // Unknown, denied, and malformed references answer alike; unexpected
     // persistence failures stay opaque for operators.
     if (error instanceof Error && error.name === "RegistryError") {
       const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
