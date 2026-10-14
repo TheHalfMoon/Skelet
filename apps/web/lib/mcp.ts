@@ -3,7 +3,8 @@ import { validateSession } from "../../../packages/db/src/auth.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { deleteCollection, saveReference } from "../../../packages/db/src/collections.ts";
 import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
-import { SIMILARITY_KINDS, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
+import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
+import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { buildRegistryItem } from "./registry.ts";
 import {
   createReferencePack,
@@ -194,6 +195,19 @@ function toolSchemas(): unknown[] {
           requestId: requestIdProp,
         },
         required: ["artifactId"],
+      },
+    },
+    {
+      name: "compare_design",
+      description: "Compare two artifacts with observed evidence-linked diffs (no generated causality).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          leftArtifactId: { type: "string" },
+          rightArtifactId: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["leftArtifactId", "rightArtifactId"],
       },
     },
     {
@@ -791,6 +805,61 @@ async function callTool(
     } catch (thrown) {
       if (thrown instanceof AgentContractError) throw thrown;
       // Reference identifiers are never an existence oracle: malformed,
+      // unknown, and denied references answer alike (mirroring get_asset).
+      if (thrown instanceof Error && thrown.name === "RegistryError") {
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "compare_design") {
+    if (typeof params.leftArtifactId !== "string" || typeof params.rightArtifactId !== "string") {
+      throw invalidInput("compare_design references are invalid.", requestId);
+    }
+    const actorId = requireUser(ctx);
+    try {
+      const outcome = await compareArtifactsForActor(db, {
+        leftArtifactId: params.leftArtifactId,
+        rightArtifactId: params.rightArtifactId,
+        actorId,
+      });
+      // Pair-read semantics mirror get_object: a readable-but-restricted
+      // artifact on either side answers RIGHTS_RESTRICTED.
+      if (outcome.left.rightsClassification === "restricted" || outcome.right.rightsClassification === "restricted") {
+        throw new AgentContractError("RIGHTS_RESTRICTED", {
+          requestId,
+          provenance: observedProvenance(),
+        });
+      }
+      const withUris = (side: ComparedSide) => ({
+        uri: `skelet://artifact/${side.artifactId}`,
+        kind: side.kind,
+        title: side.title,
+        summary: side.summary,
+        rights: side.rightsClassification,
+        license: side.license,
+        trademark: side.trademark,
+        serving: side.serving,
+        servingReason: side.servingReason,
+        tags: side.tags,
+      });
+      return successEnvelope(
+        requestId,
+        {
+          left: withUris(outcome.left),
+          right: withUris(outcome.right),
+          identical: outcome.identical,
+          score: outcome.score,
+          sharedTerms: outcome.sharedTerms,
+          uniqueLeft: outcome.uniqueLeft,
+          uniqueRight: outcome.uniqueRight,
+          fieldDiffs: outcome.fieldDiffs,
+        },
+        { provenance: computedProvenance() },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Either identifier is never an existence oracle: malformed,
       // unknown, and denied references answer alike (mirroring get_asset).
       if (thrown instanceof Error && thrown.name === "RegistryError") {
         throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });

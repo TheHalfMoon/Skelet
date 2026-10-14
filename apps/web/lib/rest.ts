@@ -1,6 +1,7 @@
 import type { DbClient } from "../../../packages/db/src/db.ts";
 import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
-import { SIMILARITY_KINDS, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
+import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
+import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
 import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
@@ -391,6 +392,78 @@ export async function findSimilarRoute(
     }
     // Unknown, denied, and malformed references answer alike; unexpected
     // persistence failures stay opaque for operators.
+    if (error instanceof Error && error.name === "RegistryError") {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/assets/compare?left=&right= — observed two-artifact diff.
+ *
+ * AF-13a-ii: deterministic field comparison plus shared/unique lexical
+ * terms; states what differs, never why. AF-SEC-00: either identifier is
+ * never an oracle (malformed/unknown/denied answer
+ * FORBIDDEN_OR_NOT_FOUND alike); a readable-but-restricted artifact on
+ * either side answers RIGHTS_RESTRICTED, mirroring get_object.
+ */
+export async function compareArtifactsRoute(
+  db: DbClient,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const rawLeft = query.left;
+  const rawRight = query.right;
+  if (typeof rawLeft !== "string" || rawLeft.length === 0 || typeof rawRight !== "string" || rawRight.length === 0) {
+    return invalidInput(requestId, "Compared references are invalid.");
+  }
+  try {
+    const outcome = await compareArtifactsForActor(db, {
+      leftArtifactId: rawLeft,
+      rightArtifactId: rawRight,
+      actorId,
+    });
+    if (outcome.left.rightsClassification === "restricted" || outcome.right.rightsClassification === "restricted") {
+      const err = new AgentContractError("RIGHTS_RESTRICTED", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    const withUris = (side: ComparedSide) => ({
+      uri: `skelet://artifact/${side.artifactId}`,
+      kind: side.kind,
+      title: side.title,
+      summary: side.summary,
+      rights: side.rightsClassification,
+      license: side.license,
+      trademark: side.trademark,
+      serving: side.serving,
+      servingReason: side.servingReason,
+      tags: side.tags,
+    });
+    const body = successEnvelope(
+      requestId,
+      {
+        left: withUris(outcome.left),
+        right: withUris(outcome.right),
+        identical: outcome.identical,
+        score: outcome.score,
+        sharedTerms: outcome.sharedTerms,
+        uniqueLeft: outcome.uniqueLeft,
+        uniqueRight: outcome.uniqueRight,
+        fieldDiffs: outcome.fieldDiffs,
+      },
+      { provenance: computedProvenance() },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    // Either side is never an oracle; unexpected persistence failures
+    // stay opaque for operators.
     if (error instanceof Error && error.name === "RegistryError") {
       const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
       return { status: err.httpStatus, body: err.toFailureEnvelope() };

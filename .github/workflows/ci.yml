@@ -467,6 +467,7 @@ jobs:
           packages/assets/tests/iconset.test.mjs
           packages/assets/tests/brandfont.test.mjs
           packages/assets/tests/similarity.test.mjs
+          packages/assets/tests/compare.test.mjs
 
   sdk:
     name: sdk
