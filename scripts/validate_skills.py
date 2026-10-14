@@ -29,6 +29,7 @@ IMPLEMENTED_TOOLS = frozenset(
         "create_reference_pack",
         "get_object",
         "find_similar",
+        "compare_design",
         "lens_create_job",
         "lens_poll_job",
         "lens_get_job",
@@ -42,7 +43,6 @@ UPCOMING_TOOLS = frozenset(
     {
         "analyze_url",
         "analyze_image",
-        "compare_design",
         "get_changes",
         "search_registry",
     }

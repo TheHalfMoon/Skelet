@@ -26,6 +26,11 @@ import { RegistryError, servingPolicy } from "./registry.ts";
  * Bounds: candidates are examined in stable id order up to
  * `maxCandidates` (default 500); truncation is reported explicitly
  * with a partial envelope rather than silently dropping results.
+ *
+ * AF-13a-ii adds `compare_design` in this module: an observed,
+ * evidence-linked diff between two readable artifacts. It states what
+ * differs across kind/title/summary/rights/license/trademark/serving/
+ * tags plus shared and unique terms; it never invents why.
  */
 
 export const SIMILARITY_KINDS = ["icon", "logo", "font"] as const;
@@ -298,5 +303,128 @@ export async function findSimilarForActor(
     similar: page.map((entry) => toEntry(entry.row, entry.score)),
     total: scored.length,
     truncated,
+  };
+}
+
+export interface ComparedSide {
+  artifactId: string;
+  kind: string;
+  title: string;
+  summary: string | null;
+  rightsClassification: string;
+  license: string;
+  trademark: boolean;
+  serving: string;
+  servingReason: string;
+  tags: string[];
+}
+
+export interface FieldDiff {
+  field: string;
+  left: unknown;
+  right: unknown;
+}
+
+export interface CompareResult {
+  left: ComparedSide;
+  right: ComparedSide;
+  identical: boolean;
+  /** Shared-token Jaccard between both artifacts, 4-decimal rounded. */
+  score: number;
+  sharedTerms: string[];
+  uniqueLeft: string[];
+  uniqueRight: string[];
+  /** One entry per compared field whose values differ. */
+  fieldDiffs: FieldDiff[];
+}
+
+function comparedSide(artifact: Artifact): ComparedSide {
+  const tags = artifactTags(artifact);
+  const meta: Record<string, unknown> =
+    typeof artifact.metadata === "object" && artifact.metadata !== null ? artifact.metadata : {};
+  const license = typeof meta.license === "string" ? meta.license : "unknown";
+  const trademark = meta.trademark === true;
+  let policy = servingPolicy({ rightsClassification: artifact.rightsClassification, license, trademark });
+  if (policy.serving === "download" && meta.bytesRegistered !== true) {
+    policy = { serving: "metadata-only", reason: "No distributable bytes registered." };
+  }
+  return {
+    artifactId: artifact.id,
+    kind: artifact.kind,
+    title: artifact.title,
+    summary: artifact.summary ?? null,
+    rightsClassification: artifact.rightsClassification,
+    license,
+    trademark,
+    serving: policy.serving,
+    servingReason: policy.reason,
+    tags: [...tags].sort(),
+  };
+}
+
+/**
+ * Deterministic two-artifact comparison for one authenticated actor.
+ * Both references must be readable; a missing, malformed, or denied
+ * identifier on either side reads as not-found with no oracle about
+ * which side failed. Transports deny readable-but-restricted pairs
+ * with RIGHTS_RESTRICTED (mirroring get_object) while this function
+ * returns rights labels for enforcement.
+ */
+export async function compareArtifactsForActor(
+  tx: DbTransaction,
+  input: { leftArtifactId: string; rightArtifactId: string; actorId: string },
+): Promise<CompareResult> {
+  for (const key of ["leftArtifactId", "rightArtifactId"] as const) {
+    const value: unknown = input[key];
+    if (typeof value !== "string" || !UUID_PATTERN.test(value)) {
+      throw new RegistryError("assets/invalid-record", "Compared reference is invalid.");
+    }
+  }
+  if (typeof input.actorId !== "string" || input.actorId.length === 0) {
+    throw new RegistryError("assets/invalid-record", "Actor is invalid.");
+  }
+  const left = await getArtifactForActor(tx, input.leftArtifactId, input.actorId);
+  const right = await getArtifactForActor(tx, input.rightArtifactId, input.actorId);
+  if (left === null || right === null) {
+    throw new RegistryError("assets/not-found", "Compared reference was not found.");
+  }
+  const leftTokens = tokenizeSimilarityText(referenceText(left));
+  const rightTokens = tokenizeSimilarityText(referenceText(right));
+  const score = jaccardSimilarity(leftTokens, rightTokens);
+  const rightSet = new Set(rightTokens);
+  const leftSet = new Set(leftTokens);
+  const sharedTerms = leftTokens.filter((token) => rightSet.has(token));
+  const uniqueLeft = leftTokens.filter((token) => !rightSet.has(token));
+  const uniqueRight = rightTokens.filter((token) => !leftSet.has(token));
+  const comparedLeft = comparedSide(left);
+  const comparedRight = comparedSide(right);
+  const fieldDiffs: FieldDiff[] = [];
+  const fields: (keyof ComparedSide)[] = [
+    "kind",
+    "title",
+    "summary",
+    "rightsClassification",
+    "license",
+    "trademark",
+    "serving",
+    "tags",
+  ];
+  for (const field of fields) {
+    const leftValue = comparedLeft[field];
+    const rightValue = comparedRight[field];
+    const same = Array.isArray(leftValue) && Array.isArray(rightValue)
+      ? leftValue.length === rightValue.length && leftValue.every((item, index) => item === (rightValue as unknown[])[index])
+      : leftValue === rightValue;
+    if (!same) fieldDiffs.push({ field, left: leftValue, right: rightValue });
+  }
+  return {
+    left: comparedLeft,
+    right: comparedRight,
+    identical: fieldDiffs.length === 0,
+    score,
+    sharedTerms,
+    uniqueLeft,
+    uniqueRight,
+    fieldDiffs,
   };
 }

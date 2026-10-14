@@ -14,6 +14,7 @@ Select visual assets with explicit rights metadata. A result without provenance 
 3. **Components come from the registry.** `get_registry_item` fetches `skelet-button` and `skelet-card` documents (shadcn-compatible). Installed files resolve `@/lib/utils` per shadcn convention; the consumer configures the alias.
 4. **Record the decision.** Save chosen assets with `save_reference` so the implementation agent recovers the exact record, license, and rights classification.
 5. **Find alternatives deterministically.** `find_similar` ranks artifacts similar to a reference by a lexical token score with no model. Scores are reproducible; a result of zero means no shared terms, not a failed lookup.
+6. **Compare two candidates.** `compare_design` diffs two artifacts field by field with shared and unique terms. It states what differs, never why.
 
 ## Rules
 
