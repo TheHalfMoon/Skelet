@@ -30,6 +30,8 @@ IMPLEMENTED_TOOLS = frozenset(
         "get_object",
         "find_similar",
         "compare_design",
+        "list_flows",
+        "get_flow_steps",
         "lens_create_job",
         "lens_poll_job",
         "lens_get_job",

@@ -2,6 +2,7 @@ import type { DbClient } from "../../../packages/db/src/db.ts";
 import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
 import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
+import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
 import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
@@ -465,6 +466,138 @@ export async function compareArtifactsRoute(
     // Either side is never an oracle; unexpected persistence failures
     // stay opaque for operators.
     if (error instanceof Error && error.name === "RegistryError") {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/flows — actor-scoped flow listing.
+ *
+ * AF-14a: a flow is listed only when every step artifact is readable
+ * by the actor. Unknown and denied flows never appear; budgets report
+ * truncated=true with a partial envelope instead of silent prefixes.
+ */
+export async function listFlowsRoute(
+  db: DbClient,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const rawVersion = query.productVersionId;
+  if (rawVersion !== undefined && (typeof rawVersion !== "string" || rawVersion.length === 0)) {
+    return invalidInput(requestId, "Corpus product version is invalid.");
+  }
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  let offset = 0;
+  if (query.cursor !== undefined) {
+    try {
+      offset = decodeCursor(query.cursor);
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        const withId = new AgentContractError("INVALID_INPUT", {
+          message: "Pagination cursor is invalid.",
+          requestId,
+        });
+        return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+      }
+      return opaque(requestId);
+    }
+  }
+  try {
+    const outcome = await listFlowsForActor(db, {
+      actorId,
+      productVersionId: typeof rawVersion === "string" ? rawVersion : undefined,
+      limit,
+      offset,
+    });
+    const warnings = outcome.truncated ? ["Flow budget reached; results are a reproducible prefix."] : [];
+    const body = successEnvelope(
+      requestId,
+      {
+        flows: outcome.flows.map((flow) => ({
+          uri: `skelet://flow/${flow.flowId}`,
+          productVersionId: flow.productVersionId,
+          title: flow.title,
+          stepCount: flow.stepCount,
+        })),
+        total: outcome.total,
+        truncated: outcome.truncated,
+      },
+      {
+        cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+        warnings: warnings.length > 0 ? warnings : undefined,
+        partial: outcome.truncated,
+        provenance: observedProvenance(),
+      },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof Error && error.name === "CorpusError") {
+      const code = (error as { code?: unknown }).code;
+      if (code === "corpus/not-found") {
+        const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        return { status: err.httpStatus, body: err.toFailureEnvelope() };
+      }
+      return invalidInput(requestId, "Corpus flow query is invalid.");
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/flows/{id}/steps — actor-scoped ordered flow steps.
+ *
+ * AF-14a: a single unreadable step denies the whole flow as
+ * not-found; step existence is never leaked piecemeal.
+ */
+export async function getFlowStepsRoute(
+  db: DbClient,
+  flowId: string,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  try {
+    const outcome = await getFlowStepsForActor(db, { flowId, actorId });
+    const body = successEnvelope(
+      requestId,
+      {
+        flow: {
+          uri: `skelet://flow/${outcome.flowId}`,
+          productVersionId: outcome.productVersionId,
+          title: outcome.title,
+        },
+        steps: outcome.steps.map((step) => ({
+          position: step.position,
+          uri: `skelet://artifact/${step.artifactId}`,
+          kind: step.kind,
+          title: step.title,
+          interaction: step.interaction,
+        })),
+      },
+      { provenance: observedProvenance(`skelet://flow/${outcome.flowId}`) },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof Error && error.name === "CorpusError") {
       const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
       return { status: err.httpStatus, body: err.toFailureEnvelope() };
     }

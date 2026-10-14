@@ -422,7 +422,10 @@ jobs:
         run: pnpm --filter skelet-ingest typecheck
 
       - name: Run publish pipeline tests
-        run: node --experimental-strip-types --test packages/ingest/tests/publish.test.mjs
+        run: >-
+          node --experimental-strip-types --test
+          packages/ingest/tests/publish.test.mjs
+          packages/ingest/tests/corpus.test.mjs
 
   assets:
     name: assets

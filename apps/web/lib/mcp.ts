@@ -5,6 +5,7 @@ import { deleteCollection, saveReference } from "../../../packages/db/src/collec
 import { resolveAssetForActor, searchAssetsForActorDetailed } from "../../../packages/assets/src/registry.ts";
 import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from "../../../packages/assets/src/similarity.ts";
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
+import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { buildRegistryItem } from "./registry.ts";
 import {
   createReferencePack,
@@ -208,6 +209,32 @@ function toolSchemas(): unknown[] {
           requestId: requestIdProp,
         },
         required: ["leftArtifactId", "rightArtifactId"],
+      },
+    },
+    {
+      name: "list_flows",
+      description: "List research flows with actor-scoped visibility (every step readable).",
+      inputSchema: {
+        type: "object",
+        properties: {
+          productVersionId: { type: "string" },
+          limit: { type: "number" },
+          cursor: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: [],
+      },
+    },
+    {
+      name: "get_flow_steps",
+      description: "Retrieve ordered steps of one research flow with artifact references.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          flowId: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["flowId"],
       },
     },
     {
@@ -862,6 +889,100 @@ async function callTool(
       // Either identifier is never an existence oracle: malformed,
       // unknown, and denied references answer alike (mirroring get_asset).
       if (thrown instanceof Error && thrown.name === "RegistryError") {
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "list_flows") {
+    const actorId = requireUser(ctx);
+    if (params.productVersionId !== undefined && typeof params.productVersionId !== "string") {
+      throw invalidInput("list_flows.productVersionId is invalid.", requestId);
+    }
+    let limit: number;
+    try {
+      limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput("list_flows.limit is invalid.", requestId);
+    }
+    let offset = 0;
+    if (params.cursor !== undefined) {
+      try {
+        offset = decodeCursor(params.cursor);
+      } catch {
+        throw invalidInput("Pagination cursor is invalid.", requestId);
+      }
+    }
+    try {
+      const outcome = await listFlowsForActor(db, {
+        actorId,
+        productVersionId: typeof params.productVersionId === "string" ? params.productVersionId : undefined,
+        limit,
+        offset,
+      });
+      const warnings = outcome.truncated ? ["Flow budget reached; results are a reproducible prefix."] : [];
+      return successEnvelope(
+        requestId,
+        {
+          flows: outcome.flows.map((flow) => ({
+            uri: `skelet://flow/${flow.flowId}`,
+            productVersionId: flow.productVersionId,
+            title: flow.title,
+            stepCount: flow.stepCount,
+          })),
+          total: outcome.total,
+          truncated: outcome.truncated,
+        },
+        {
+          cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+          warnings: warnings.length > 0 ? warnings : undefined,
+          partial: outcome.truncated,
+          provenance: observedProvenance(),
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Flow identifiers are never an existence oracle: malformed and
+      // unknown versions answer alike (mirroring get_asset).
+      if (thrown instanceof Error && thrown.name === "CorpusError") {
+        const code = (thrown as { code?: unknown }).code;
+        if (code === "corpus/not-found") {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        throw invalidInput("list_flows query is invalid.", requestId);
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "get_flow_steps") {
+    if (typeof params.flowId !== "string") {
+      throw invalidInput("get_flow_steps.flowId is invalid.", requestId);
+    }
+    const actorId = requireUser(ctx);
+    try {
+      const outcome = await getFlowStepsForActor(db, { flowId: params.flowId, actorId });
+      return successEnvelope(
+        requestId,
+        {
+          flow: {
+            uri: `skelet://flow/${outcome.flowId}`,
+            productVersionId: outcome.productVersionId,
+            title: outcome.title,
+          },
+          steps: outcome.steps.map((step) => ({
+            position: step.position,
+            uri: `skelet://artifact/${step.artifactId}`,
+            kind: step.kind,
+            title: step.title,
+            interaction: step.interaction,
+          })),
+        },
+        { provenance: observedProvenance(`skelet://flow/${outcome.flowId}`) },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Either missing, malformed, or denied flows answer alike.
+      if (thrown instanceof Error && thrown.name === "CorpusError") {
         throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
       }
       throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
