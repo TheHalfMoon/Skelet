@@ -1,0 +1,27 @@
+docs/reviews/AF-12-matrix_PSTACK_PANELS.md
+  s_dc7e4912ca11b6::t_0cee825b0f49ea 1-21
+docs/reviews/AF-12-matrix_JEV_SPEC.json
+  s_dc7e4912ca11b6::t_3564dc2bda5ab4 1
+docs/reviews/AF-12-matrix_JEV_REVIEW.json
+  s_dc7e4912ca11b6::t_e8cc6cd83aac95 1
+docs/reviews/AF-12-matrix_OCR_DELEGATION.md
+  s_dc7e4912ca11b6::t_cc8dde5a4df083 1-7
+docs/reviews/AF-12-matrix_JEV_REVIEW.md
+  s_dc7e4912ca11b6::t_75d75d1d56acbc 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "543e42d44e497424b47feaeef963dbcd52f3bcd9",
+  "prompts": {},
+  "sessions": {
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
