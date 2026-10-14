@@ -1,0 +1,64 @@
+docs/reviews/AF-15a_JEV_REVIEW.json
+  s_f53ed81473dbc3::t_df3b925ea81d53 1
+apps/web/lib/mcp.ts
+  s_f53ed81473dbc3::t_0cc243f41729c1 1021-1076
+  s_f53ed81473dbc3::t_6d7794b5d27f19 9
+  s_f53ed81473dbc3::t_a2dd2c2d28cbe3 256-269
+docs/reviews/AF-15a_OCR_DELEGATION.md
+  s_f53ed81473dbc3::t_81a1feacf71a18 1-12
+docs/reviews/AF-15a_PSTACK_PANELS.md
+  s_f53ed81473dbc3::t_9ededce9856397 1-21
+apps/web/tests/mcp.test.mjs
+  s_f53ed81473dbc3::t_ded110a34f1386 93
+  s_f53ed81473dbc3::t_5f8aabd770dc47 82
+apps/web/tests/interop-stdio.test.mjs
+  s_f53ed81473dbc3::t_5f8aabd770dc47 112
+docs/reviews/AF-15a_JEV_SPEC.json
+  s_f53ed81473dbc3::t_df3b925ea81d53 1-59
+apps/web/tests/interop-http.test.mjs
+  s_f53ed81473dbc3::t_5f8aabd770dc47 143
+.github/workflows/ci.yml
+  s_f53ed81473dbc3::t_45288b7e91a662 639
+packages/db/src/changes.ts
+  s_f53ed81473dbc3::t_f6eaae58fbe171 367,369
+  s_f53ed81473dbc3::t_e6b6de9d152af5 423,425,428,430
+  s_f53ed81473dbc3::t_fe5bbccdcc202a 71
+  s_f53ed81473dbc3::t_ea16f9eaa087b4 1-70,72-109,111,160-169,178-186,189-192,202-203,205-213,217-366,368,370-422,424,426-427,429,431-540
+  s_f53ed81473dbc3::t_1b23a01dd9d40b 110,112-159
+  s_f53ed81473dbc3::t_9ab1e7c766c704 170-177,188,193-201,204,214-216
+  s_f53ed81473dbc3::t_67ee2b0efce5eb 187
+apps/web/lib/rest.ts
+  s_f53ed81473dbc3::t_d6c98497d92931 6
+  s_f53ed81473dbc3::t_11fc733d302cb9 663-749
+apps/web/tests/changes.test.mjs
+  s_f53ed81473dbc3::t_5e297248a868a4 1-223,225-273
+  s_f53ed81473dbc3::t_8a18db5c123816 224
+packages/db/tests/changes.test.mjs
+  s_f53ed81473dbc3::t_9499b5b12e6ed2 319,332
+  s_f53ed81473dbc3::t_dab300b00624ed 377-422
+  s_f53ed81473dbc3::t_5150becfe98e25 1-10,12-318,320-331,333-376
+  s_f53ed81473dbc3::t_4f37bb42d30120 11
+skills/skelet-research/SKILL.md
+  s_f53ed81473dbc3::t_3d114839b042da 25
+  s_f53ed81473dbc3::t_7df9fc65f50d4d 17
+docs/reviews/AF-15a_JEV_REVIEW.md
+  s_f53ed81473dbc3::t_079b1824cd1963 1-7
+scripts/validate_skills.py
+  s_f53ed81473dbc3::t_02d172fdb1e758 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9ed0650659cd6365945b11fe4a9e9009f3b819a3",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
