@@ -1,0 +1,38 @@
+packages/editor-adapters/tests/raster-adapter.test.mjs
+  s_ad057e57d0ba65::t_8b334df603a768 1-778,780-783,785-872,874-920
+  s_ad057e57d0ba65::t_e425411ffe24d1 779,784
+  s_ad057e57d0ba65::t_7decc2197aef1f 873
+.github/workflows/ci.yml
+  s_ad057e57d0ba65::t_2736edd9856ecf 385-387
+docs/reviews/AF-11_JEV_SPEC.json
+  s_ad057e57d0ba65::t_e95ebad6cbe9c6 1
+docs/reviews/AF-11_PSTACK_PANELS.md
+  s_ad057e57d0ba65::t_fdbf029fbacec0 1-23
+docs/reviews/AF-11_JEV_REVIEW.json
+  s_ad057e57d0ba65::t_e8a1c1ac73999a 1
+docs/reviews/AF-11_JEV_REVIEW.md
+  s_ad057e57d0ba65::t_4f951ad602e67c 1-17
+docs/reviews/AF-11_OCR_DELEGATION.md
+  s_ad057e57d0ba65::t_09bd88e78ec5aa 1-29
+packages/editor-adapters/src/raster-adapter.ts
+  s_ad057e57d0ba65::t_2a8482b80aecd0 1-1029
+packages/editor-adapters/src/index.ts
+  s_ad057e57d0ba65::t_d4aa8ec680b4d0 43-80
+  s_ad057e57d0ba65::t_e934234a37b99f 2-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2708f34d2022b8095eadd15eb4691f892f5f4e14",
+  "prompts": {},
+  "sessions": {
+    "s_ad057e57d0ba65": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7e00b6affeyAJ5Htt7jqc0nS",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
