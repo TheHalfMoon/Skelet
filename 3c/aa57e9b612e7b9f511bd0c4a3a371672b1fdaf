@@ -1,0 +1,41 @@
+docs/reviews/AF-11-fix_JEV_REVIEW.md
+  s_dc7e4912ca11b6::t_614f58a03faefe 1-7
+docs/reviews/AF-11-fix_JEV_SPEC.json
+  s_dc7e4912ca11b6::t_dc92fa2d1ae980 1
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_dc7e4912ca11b6::t_7c94ce18c7d5b2 409
+docs/reviews/AF-11-fix_JEV_REVIEW.json
+  s_dc7e4912ca11b6::t_51ad131eb4f1d5 1
+packages/editor-adapters/tests/raster-adapter.test.mjs
+  s_dc7e4912ca11b6::t_9ca3a09e24623f 245-274
+  s_dc7e4912ca11b6::t_532dfcfbd55d84 12,222-242
+  s_dc7e4912ca11b6::t_4ff26ad54ce227 66-68
+  s_dc7e4912ca11b6::t_1c08eae684f245 70-74,85-89
+  s_dc7e4912ca11b6::t_c81fbd4fcb79b8 83-84
+packages/editor-adapters/src/raster-adapter.ts
+  s_dc7e4912ca11b6::t_4d4b0e08edbba8 657-661,671-672
+  s_dc7e4912ca11b6::t_a3c6388526c0d4 12-13,16-17,23-26
+docs/qualification/PHOTOCRAFT_BINARY_QUALIFICATION.md
+  s_dc7e4912ca11b6::t_3e931ff186b30d 1-68,70-102
+  s_dc7e4912ca11b6::t_f4cdc402c45838 69
+docs/reviews/AF-11-fix_PSTACK_PANELS.md
+  s_dc7e4912ca11b6::t_c7d968a195c4b9 1-21
+docs/reviews/AF-11-fix_OCR_DELEGATION.md
+  s_dc7e4912ca11b6::t_9e71371d25afc1 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3caa57e9b612e7b9f511bd0c4a3a371672b1fdaf",
+  "prompts": {},
+  "sessions": {
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
