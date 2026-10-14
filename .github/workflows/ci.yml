@@ -382,6 +382,9 @@ jobs:
       - name: Run vector adapter tests
         run: node --experimental-strip-types --test packages/editor-adapters/tests/vector-adapter.test.mjs
 
+      - name: Run raster adapter tests
+        run: node --experimental-strip-types --test packages/editor-adapters/tests/raster-adapter.test.mjs
+
   ingest:
     name: ingest
     runs-on: ubuntu-24.04
