@@ -1,0 +1,27 @@
+docs/reviews/AF-13a-ii_PSTACK_PANELS.md
+  s_dc7e4912ca11b6::t_881773db2594a8 1-21
+docs/reviews/AF-13a-ii_JEV_SPEC.json
+  s_dc7e4912ca11b6::t_d9a2c5ab2bc6fc 1
+docs/reviews/AF-13a-ii_OCR_DELEGATION.md
+  s_dc7e4912ca11b6::t_ed2a8c196a48e4 1-10
+docs/reviews/AF-13a-ii_JEV_REVIEW.json
+  s_dc7e4912ca11b6::t_103aed242d4644 1
+docs/reviews/AF-13a-ii_JEV_REVIEW.md
+  s_dc7e4912ca11b6::t_6aaee354f3f981 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1c660a630ff126d548de4aa1a281e22d053a1d7e",
+  "prompts": {},
+  "sessions": {
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
