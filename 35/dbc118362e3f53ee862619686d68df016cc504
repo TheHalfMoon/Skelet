@@ -1,0 +1,47 @@
+docs/reviews/AF-10_JEV_REVIEW.json
+  s_f2968b7a2e968a::t_dc19df6dd7c4ba 1
+packages/editor-adapters/tests/vector-adapter.test.mjs
+  s_f2968b7a2e968a::t_1cc5393d0db893 1-258,268-774,779-829
+  s_f2968b7a2e968a::t_601487569e4d1f 259-267
+  s_f2968b7a2e968a::t_f39b39eb66cec8 775-778
+docs/reviews/AF-10_OCR_DELEGATION.md
+  s_f2968b7a2e968a::t_33affb8c8e4fd7 1-29
+.github/workflows/ci.yml
+  s_f2968b7a2e968a::t_c986484e151826 346-384
+docs/reviews/AF-10_JEV_REVIEW.md
+  s_f2968b7a2e968a::t_6c865395fe64c9 1-14
+packages/editor-adapters/tsconfig.json
+  s_f2968b7a2e968a::t_d23ad4535e5f17 1-10
+packages/editor-adapters/package.json
+  s_f2968b7a2e968a::t_3a42051ca835e0 1-16
+docs/reviews/AF-10_PSTACK_PANELS.md
+  s_f2968b7a2e968a::t_a8c0070c0d83c0 1-22
+packages/editor-adapters/src/index.ts
+  s_f2968b7a2e968a::t_ad6581bec8edb6 1-41
+packages/editor-adapters/eslint.config.mjs
+  s_f2968b7a2e968a::t_cc22e6b3841afa 1-5
+docs/reviews/AF-10_JEV_SPEC.json
+  s_f2968b7a2e968a::t_4c9aa9f643a581 1-6,8-14,16-22,24-30,32-38,40-46,48-59
+  s_f2968b7a2e968a::t_3c368209bff624 7,15,23,31,39,47
+packages/editor-adapters/src/vector-adapter.ts
+  s_f2968b7a2e968a::t_148116d77ca30a 847-852,856,862
+  s_f2968b7a2e968a::t_86135c17179bae 576
+  s_f2968b7a2e968a::t_47758e2888fad7 39
+  s_f2968b7a2e968a::t_7b0ee78034e0f1 1-38,40-575,577-846,853-855,857-861,863-1005
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "35dbc118362e3f53ee862619686d68df016cc504",
+  "prompts": {},
+  "sessions": {
+    "s_f2968b7a2e968a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec807c5a9ffeXGjCN4KSVXw6PE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
