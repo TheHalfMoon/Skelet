@@ -128,7 +128,6 @@ function descriptorHash(parts: string[]): string {
 }
 
 function rejectControls(value: string, label: string): void {
-  // eslint-disable-next-line no-control-regex
   if (/[<>&\0-\x1F\x7F]/.test(value)) {
     fail(`${label} contains unsafe characters.`);
   }
