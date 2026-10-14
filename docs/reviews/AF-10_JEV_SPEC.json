@@ -1,0 +1,59 @@
+{
+  "description": "Skelet AF-10 local vector adapter: optional VectorCraft headless integration with confinement and deterministic errors",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the new editor-adapters package preserve existing contracts: provider egress/cost model (local/free-local), no-model gate (no fetch, no model hosts), pnpm workspace (packages/*), CI exact-head discipline (new editor-adapters job mirrors providers job), and VectorCraft pin 6c3f9f6 from UPSTREAMS.lock.yml? Is the only contract addition the new skelet-editor-adapters package plus one CI job, with no change to REST/MCP/UI schemas?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is the adapter logic factually correct: disabled unless enabled true with absolute executable plus confined root plus exact version pin; missing executable maps to unavailable; root confinement via resolve plus realpath with symlink escape refused; allowlisted convert/info/commands only with run/mcp/bench/perf refused as unsupported; convert/info/commands arg building matches verified upstream CLI (convert IN OUT [--scale/--artboard/--range/--outline-text/--replace-lossy], info FILE, commands); timeout/cancel/output-limit/malformed/failed classify deterministically; tokensToSvg is pure deterministic and inspectSvg reopens dimensions?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Are the tests sufficient: 24 real process-level tests covering disabled-by-default, missing exe, valid opt-in convert/info/commands, invalid configs, root confinement, traversal, symlink escape, unsupported ops/inputs, malformed output, timeout, nonzero exit, abort, output limits, authorization identities, deterministic swatches, SVG active-content rejection, same-file guard, shell-metachar containment, env scrubbing, filesystem token-to-reopen journey, exe symlink/dir refusal, no-model posture, script-output rejection, and direct execFile proof? Do lint/typecheck pass and does the new CI job run them at exact head?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any nondeterminism or resource risk: execFile with bounded timeout plus SIGKILL, bounded maxBuffer/output bytes, cwd confined, no shell, no retries, no duplicate outputs, no clock/randomness in tokensToSvg (sorted inputs, fixed layout, single trailing newline)? Does abort settle promptly and does timeout kill hanging children without orphans?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond the AF-10 vector grain: raster/PhotoCraft, PageDraw transplant, REST/MCP/UI wiring, donor vendoring, download/install, network, paid services, or unrelated refactors? Is the CI workflow addition (editor-adapters job) the only adjacent change, clearly required so the new package is qualified at exact head?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Do boundaries hold: absolute-path-only executable (no PATH hijack), symlink exe refused, root traversal/symlink escapes refused with path-escape, shell metacharacters never reach a shell (execFile shell false plus strict validation), env scrubbed (only PATH/LANG/LC_ALL/LC_MESSAGES/TMPDIR/HOME, secrets dropped and proven by env-dump test), SVG active content rejected (script/javascript/foreignObject/ENTITY/on-handlers), input==output refused without explicit flag, anonymous invocations refused (actor/workspace required), diagnostics truncated, no ambient credentials, no TCP control, no plugin loading?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "b7a8898255c7ea69b50165d0023f0c50b7d32771",
+    "branch": "skelet/af10-vector-adapter",
+    "change": "AF-10 P14 local vector adapter: new packages/editor-adapters with Skelet-owned VectorCraft headless adapter (disabled-by-default, absolute-path pin, root confinement with symlink escape rejection, allowlisted convert/info/commands only, safe execFile without shell, scrubbed env, bounded timeout/output, deterministic error contracts, pure tokensToSvg plus SVG validation/reopen), 24 real process-level tests with faithful fixture executables, plus editor-adapters CI job (lint/typecheck/tests). No donor vendoring, no download/install, no network, no paid provider, no TCP control, no run/mcp/bench/perf.",
+    "head_sha": "WORKTREE"
+  }
+}
