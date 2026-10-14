@@ -1,0 +1,90 @@
+packages/ingest/src/corpus.ts
+  s_dc7e4912ca11b6::t_dcfeb2a07b9a5b 1-26,33-59,61-239,241-242,245-246,272-285,288-302,306,309-314,323,325-326,434-435,565
+  s_dc7e4912ca11b6::t_f550a6d3c1ba0c 27-32,60,243-244,248-251,253,255-258,270-271,286-287,303-304,307-308,315-322,327-329,331-344,346-359,361-386,388-400,402-415,417-422,424-426,429-433,436-542,546-559,563-564
+  s_dc7e4912ca11b6::t_7fefaac93f3348 387
+  s_dc7e4912ca11b6::t_0c5bbe1147e840 247,252,254,259-269
+  s_dc7e4912ca11b6::t_b940eabc5ec0df 416
+  s_dc7e4912ca11b6::t_234b32f466bb5a 345,360
+  s_dc7e4912ca11b6::t_100bbe1b3f117e 423,427-428
+  s_dc7e4912ca11b6::t_c722edf0de2cf8 543-545,560-562
+  s_dc7e4912ca11b6::t_d57f9af99b395f 305,324,330
+  s_dc7e4912ca11b6::t_9c0bb60345025e 401
+  s_dc7e4912ca11b6::t_892560246bb5b7 240
+packages/db/tests/build-kit.test.mjs
+  s_dc7e4912ca11b6::t_5286dcbb776148 35
+packages/ingest/tests/corpus.test.mjs
+  s_dc7e4912ca11b6::t_d8a16abac8faaa 1-279
+apps/web/app/api/v1/flows/[id]/steps/route.ts
+  s_dc7e4912ca11b6::t_a0735b27c588eb 3-8
+apps/web/lib/mcp.ts
+  s_dc7e4912ca11b6::t_7ee5eb50b096d8 215-239
+  s_dc7e4912ca11b6::t_3d01eb3f2bafe8 8
+  s_dc7e4912ca11b6::t_74cf3556f5b6d9 897-990
+apps/web/tests/mcp.test.mjs
+  s_dc7e4912ca11b6::t_510df45b0fa967 82,93,103
+packages/db/tests/pg-build-kit.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 39
+packages/db/migrations/016_corpus_flow_import.down.sql
+  s_dc7e4912ca11b6::t_88e3b72334894b 1-7,9-28
+  s_dc7e4912ca11b6::t_79ec59d61aa254 8
+packages/db/tests/db-foundation.test.mjs
+  s_dc7e4912ca11b6::t_917ea4848dd615 26,30,121,129
+  s_dc7e4912ca11b6::t_b0923444c66434 47
+packages/db/tests/pg-integration.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 97,106
+apps/web/tests/interop-http.test.mjs
+  s_dc7e4912ca11b6::t_fc72f566de21c7 143
+packages/db/tests/workflows.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 37,45,47
+packages/db/tests/pg-graph.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 25
+packages/db/tests/collections.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 35
+.github/workflows/ci.yml
+  s_dc7e4912ca11b6::t_35b205cf2b9ee8 425-428
+packages/db/tests/auth.test.mjs
+  s_dc7e4912ca11b6::t_917ea4848dd615 20
+skills/skelet-research/SKILL.md
+  s_dc7e4912ca11b6::t_0ce9e4ef5f9a71 16
+packages/db/tests/pg-workflows.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 29
+packages/db/tests/graph.test.mjs
+  s_dc7e4912ca11b6::t_179b5f61caf80d 27,33-34
+packages/db/tests/workspaces.test.mjs
+  s_dc7e4912ca11b6::t_5286dcbb776148 28
+packages/db/tests/jobs.test.mjs
+  s_dc7e4912ca11b6::t_5286dcbb776148 27
+scripts/validate_skills.py
+  s_dc7e4912ca11b6::t_2e5580beb79853 33-34
+packages/db/src/workflows.ts
+  s_dc7e4912ca11b6::t_707e7702d2b360 30
+apps/web/lib/rest.ts
+  s_dc7e4912ca11b6::t_0adb4a058e9475 5
+  s_dc7e4912ca11b6::t_eb46f648231fe9 476-607
+apps/web/tests/flows.test.mjs
+  s_dc7e4912ca11b6::t_b9d55f98fcb22b 1-200,202-229
+  s_dc7e4912ca11b6::t_14595a8af7d0b6 201
+apps/web/tests/interop-stdio.test.mjs
+  s_dc7e4912ca11b6::t_0cb14d611b7a36 112
+packages/db/migrations/016_corpus_flow_import.up.sql
+  s_dc7e4912ca11b6::t_6ed168012ca9cf 14
+  s_dc7e4912ca11b6::t_f3f224b8157c76 1-13,15-33
+packages/db/tests/billing.test.mjs
+  s_dc7e4912ca11b6::t_5286dcbb776148 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4e5c8b8fa94ab41a505742ac318071cd1db3ec42",
+  "prompts": {},
+  "sessions": {
+    "s_dc7e4912ca11b6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec7879e1bffe1NRoxUoYaw2d6i",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
