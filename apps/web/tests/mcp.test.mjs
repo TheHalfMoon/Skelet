@@ -79,10 +79,13 @@ test("tools require a resolved identity", async () => {
     });
     assert.equal(callDenied.error.code, -32001);
     const allowed = await call(fx.db, fx.ctx, "tools/list", {});
-    assert.equal(allowed.result.tools.length, 13);
+    assert.equal(allowed.result.tools.length, 16);
     assert.deepEqual(
       allowed.result.tools.map((tool) => tool.name).sort(),
       [
+        "board_handoff",
+        "board_list_handoffs",
+        "board_validate_items",
         "create_reference_pack",
         "get_asset",
         "get_object",

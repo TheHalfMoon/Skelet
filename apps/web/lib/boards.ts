@@ -4,12 +4,15 @@ import {
   createCollection,
   deleteCollection,
   getCollection,
+  handOffCollection,
   listCollections,
+  listHandoffs,
   listReferences,
   moveReference,
   removeReference,
   saveReference,
   updateCollection,
+  validateCollectionItems,
   type Collection,
   type CollectionReference,
 } from "../../../packages/db/src/collections.ts";
@@ -45,6 +48,7 @@ const CREATE_FIELDS = new Set(["workspaceId", "title", "visibility"]);
 const UPDATE_FIELDS = new Set(["title", "visibility"]);
 const SAVE_FIELDS = new Set(["workspaceId", "artifactId"]);
 const MOVE_FIELDS = new Set(["workspaceId", "artifactId", "toPosition"]);
+const HANDOFF_FIELDS = new Set(["workspaceId", "toSubjectId"]);
 
 function invalidInput(requestId: string, message: string): RestResult {
   const err = new AgentContractError("INVALID_INPUT", { message, requestId });
@@ -452,3 +456,137 @@ export async function moveBoardItemRoute(
 }
 
 export type { AgentEnvelope };
+
+function toHandoffView(handoff: {
+  id: string;
+  collectionId: string;
+  fromSubject: string;
+  toSubject: string;
+  actorId: string;
+  createdAt: string;
+}): Record<string, unknown> {
+  return {
+    id: handoff.id,
+    boardUri: boardUri(handoff.collectionId),
+    fromSubject: handoff.fromSubject,
+    toSubject: handoff.toSubject,
+    actorId: handoff.actorId,
+    createdAt: handoff.createdAt,
+  };
+}
+
+/** POST hand off board ownership to a workspace member with ledger proof. */
+export async function handOffBoardRoute(
+  db: DbClient,
+  boardId: unknown,
+  body: unknown,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const actorFailed = checkActor(actorId, requestId);
+  if (actorFailed !== null) return actorFailed;
+  const boardFailed = checkBoardId(boardId, requestId);
+  if (boardFailed !== null) return boardFailed;
+  if (!isRecord(body)) {
+    return invalidInput(requestId, "Board request is invalid.");
+  }
+  for (const key of Object.keys(body)) {
+    if (!HANDOFF_FIELDS.has(key)) {
+      return invalidInput(requestId, "Board request is invalid.");
+    }
+  }
+  const workspaceFailed = checkWorkspace(body.workspaceId, requestId);
+  if (workspaceFailed !== null) return workspaceFailed;
+  if (typeof body.toSubjectId !== "string" || !UUID_PATTERN.test(body.toSubjectId)) {
+    return notFound(requestId);
+  }
+  try {
+    const board = await getCollection(db, boardId as string, actorId);
+    if (board.workspaceId !== body.workspaceId) {
+      return notFound(requestId);
+    }
+    const { collection, handoff } = await handOffCollection(db, {
+      collectionId: board.id,
+      actorId,
+      toSubjectId: body.toSubjectId as string,
+    });
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        { board: toBoardView(collection), handoff: toHandoffView(handoff) },
+        { provenance: observedProvenance(boardUri(collection.id)) },
+      ),
+    };
+  } catch (error) {
+    return toFailure(error, requestId);
+  }
+}
+
+/** GET the provenance chain of a board. */
+export async function listBoardHandoffsRoute(
+  db: DbClient,
+  query: { boardId?: unknown },
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const actorFailed = checkActor(actorId, requestId);
+  if (actorFailed !== null) return actorFailed;
+  const boardFailed = checkBoardId(query.boardId, requestId);
+  if (boardFailed !== null) return boardFailed;
+  try {
+    const board = await getCollection(db, query.boardId as string, actorId);
+    const handoffs = await listHandoffs(db, query.boardId as string, actorId);
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        { board: toBoardView(board), handoffs: handoffs.map(toHandoffView) },
+        { provenance: observedProvenance(boardUri(board.id)) },
+      ),
+    };
+  } catch (error) {
+    return toFailure(error, requestId);
+  }
+}
+
+/** GET per-item validation for handoff inspection. */
+export async function validateBoardItemsRoute(
+  db: DbClient,
+  query: { boardId?: unknown },
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  const actorFailed = checkActor(actorId, requestId);
+  if (actorFailed !== null) return actorFailed;
+  const boardFailed = checkBoardId(query.boardId, requestId);
+  if (boardFailed !== null) return boardFailed;
+  try {
+    const board = await getCollection(db, query.boardId as string, actorId);
+    const validation = await validateCollectionItems(db, query.boardId as string, actorId);
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        {
+          board: toBoardView(board),
+          items: validation.items.map((entry) => ({
+            uri: entry.uri,
+            artifactId: entry.artifactId,
+            status: entry.status,
+            ...(entry.kind === undefined ? {} : { kind: entry.kind }),
+            ...(entry.title === undefined ? {} : { title: entry.title }),
+            ...(entry.rights === undefined ? {} : { rights: entry.rights }),
+          })),
+          summary: validation.summary,
+        },
+        { provenance: observedProvenance(boardUri(board.id)) },
+      ),
+    };
+  } catch (error) {
+    return toFailure(error, requestId);
+  }
+}

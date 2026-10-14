@@ -17,6 +17,24 @@ interface ItemView {
   savedAt: string;
 }
 
+interface HandoffView {
+  id: string;
+  boardUri: string;
+  fromSubject: string;
+  toSubject: string;
+  actorId: string;
+  createdAt: string;
+}
+
+interface ValidationView {
+  uri: string;
+  artifactId: string;
+  status: string;
+  kind?: string;
+  title?: string;
+  rights?: string;
+}
+
 interface AgentFailure {
   code: string;
   message: string;
@@ -62,6 +80,33 @@ function asItems(value: unknown): ItemView[] | null {
   return out;
 }
 
+function asHandoffs(value: unknown): HandoffView[] | null {
+  const record = asRecord(value);
+  const handoffs = record === null ? null : record.handoffs;
+  if (!Array.isArray(handoffs)) return null;
+  const out: HandoffView[] = [];
+  for (const entry of handoffs) {
+    const item = asRecord(entry);
+    if (item === null || typeof item.id !== "string" || typeof item.toSubject !== "string") return null;
+    out.push(item as unknown as HandoffView);
+  }
+  return out;
+}
+
+function asValidation(value: unknown): { items: ValidationView[]; summary: unknown } | null {
+  const record = asRecord(value);
+  const items = record === null ? null : record.items;
+  const summary = record === null ? null : record.summary;
+  if (!Array.isArray(items) || summary === null || typeof summary !== "object") return null;
+  const out: ValidationView[] = [];
+  for (const entry of items) {
+    const item = asRecord(entry);
+    if (item === null || typeof item.artifactId !== "string" || typeof item.status !== "string") return null;
+    out.push(item as unknown as ValidationView);
+  }
+  return { items: out, summary };
+}
+
 export default function BoardsPage() {
   const [token, setToken] = useState("");
   const [workspaceId, setWorkspaceId] = useState("");
@@ -69,8 +114,11 @@ export default function BoardsPage() {
   const [boardId, setBoardId] = useState("");
   const [artifactId, setArtifactId] = useState("");
   const [toPosition, setToPosition] = useState("0");
+  const [toSubjectId, setToSubjectId] = useState("");
   const [boards, setBoards] = useState<BoardView[] | null>(null);
   const [items, setItems] = useState<ItemView[] | null>(null);
+  const [handoffs, setHandoffs] = useState<HandoffView[] | null>(null);
+  const [validation, setValidation] = useState<{ items: ValidationView[]; summary: unknown } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<AgentFailure | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -255,8 +303,78 @@ export default function BoardsPage() {
     }, () => {
       setBoardId("");
       setItems(null);
+      setHandoffs(null);
+      setValidation(null);
       setNotice("Board deleted.");
       void refreshBoards();
+    });
+  }
+
+  async function handOffBoard(event: React.FormEvent): Promise<void> {
+    event.preventDefault();
+    const id = boardId.trim();
+    if (id === "") {
+      setFailure({ code: "UNKNOWN", message: "Enter a board ID before handing off." });
+      return;
+    }
+    if (toSubjectId.trim() === "") {
+      setFailure({ code: "UNKNOWN", message: "Enter a recipient subject ID before handing off." });
+      return;
+    }
+    await callJson("Handoff", `/api/v1/boards/${encodeURIComponent(id)}/handoff`, {
+      method: "POST",
+      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ workspaceId: workspaceId.trim(), toSubjectId: toSubjectId.trim() }),
+    }, (result) => {
+      const board = asBoard(result);
+      const chain = asHandoffs({ handoffs: (result.handoff === undefined ? [] : [result.handoff]) });
+      if (board === null) {
+        setFailure({ code: "UNKNOWN", message: "Handoff returned an unrecognized shape." });
+        return;
+      }
+      setBoardId(board.id);
+      if (chain !== null) setHandoffs(chain);
+      setNotice(`Board handed off to ${toSubjectId.trim()}.`);
+      void refreshHandoffs(board.id);
+      void refreshValidation(board.id);
+    });
+  }
+
+  async function refreshHandoffs(target?: string): Promise<void> {
+    const id = (target ?? boardId).trim();
+    if (id === "") {
+      setFailure({ code: "UNKNOWN", message: "Enter a board ID before listing handoffs." });
+      return;
+    }
+    await callJson("Handoffs", `/api/v1/boards/${encodeURIComponent(id)}/handoffs`, {
+      headers: authHeaders(),
+    }, (result) => {
+      const chain = asHandoffs(result);
+      if (chain === null) {
+        setFailure({ code: "UNKNOWN", message: "Handoffs returned an unrecognized shape." });
+        return;
+      }
+      setHandoffs(chain);
+      setNotice(`Listed ${chain.length} handoff(s).`);
+    });
+  }
+
+  async function refreshValidation(target?: string): Promise<void> {
+    const id = (target ?? boardId).trim();
+    if (id === "") {
+      setFailure({ code: "UNKNOWN", message: "Enter a board ID before validating." });
+      return;
+    }
+    await callJson("Validate", `/api/v1/boards/${encodeURIComponent(id)}/validation`, {
+      headers: authHeaders(),
+    }, (result) => {
+      const parsed = asValidation(result);
+      if (parsed === null) {
+        setFailure({ code: "UNKNOWN", message: "Validation returned an unrecognized shape." });
+        return;
+      }
+      setValidation(parsed);
+      setNotice(`Validated ${parsed.items.length} item(s).`);
     });
   }
 
@@ -339,8 +457,51 @@ export default function BoardsPage() {
         </form>
       </section>
 
+      <section aria-label="Handoff board">
+        <h2>4. Handoff board</h2>
+        <form onSubmit={(e) => void handOffBoard(e)}>
+          <div>
+            <label htmlFor="boards-recipient">Recipient subject ID</label>
+            <input id="boards-recipient" type="text" autoComplete="off" value={toSubjectId} onChange={(e) => setToSubjectId(e.target.value)} placeholder="00000000-0000-4000-8000-000000000000" style={{ width: "100%" }} />
+          </div>
+          <button type="submit" disabled={!canAct}>Hand off board</button>
+        </form>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+          <button type="button" disabled={!canAct} onClick={() => void refreshHandoffs()}>List handoffs</button>
+          <button type="button" disabled={!canAct} onClick={() => void refreshValidation()}>Validate items</button>
+        </div>
+        {handoffs === null ? (
+          <p>No handoffs listed yet. Hand off the board or choose List handoffs.</p>
+        ) : handoffs.length === 0 ? (
+          <p>No handoffs recorded for this board.</p>
+        ) : (
+          <ol>
+            {handoffs.map((handoff) => (
+              <li key={handoff.id}>
+                <code>{handoff.boardUri}</code> · {handoff.fromSubject} → {handoff.toSubject} · {handoff.createdAt}
+              </li>
+            ))}
+          </ol>
+        )}
+        {validation === null ? (
+          <p>No validation run yet. Choose Validate items before handing off.</p>
+        ) : validation.items.length === 0 ? (
+          <p>Board has no items to validate.</p>
+        ) : (
+          <ol>
+            {validation.items.map((entry) => (
+              <li key={entry.artifactId}>
+                <code>{entry.uri}</code> · {entry.status}
+                {entry.title === undefined ? null : ` · ${entry.title}`}
+                {entry.rights === undefined ? null : ` · ${entry.rights}`}
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
       <section aria-label="Board state" aria-live="polite">
-        <h2>4. Board state</h2>
+        <h2>5. Board state</h2>
         {busy !== null ? <p>Working: {busy}…</p> : null}
         {failure !== null ? <p role="alert">Error {failure.code}: {failure.message}</p> : null}
         {notice !== null ? <p>{notice}</p> : null}

@@ -24,11 +24,14 @@ import {
   createBoardRoute,
   deleteBoardRoute,
   getBoardRoute,
+  handOffBoardRoute,
+  listBoardHandoffsRoute,
   listBoardsRoute,
   moveBoardItemRoute,
   removeBoardItemRoute,
   saveBoardItemRoute,
   updateBoardRoute,
+  validateBoardItemsRoute,
 } from "../lib/boards.ts";
 
 let seq = 0;
@@ -200,6 +203,106 @@ test("board tenant isolation denies cross-workspace access alike", async () => {
     );
     assert.equal(laundered.status, 404);
     assert.equal(laundered.body.error.code, "FORBIDDEN_OR_NOT_FOUND");
+  } finally {
+    await fx.db.close();
+  }
+});
+
+test("board handoff transfers ownership with ledger proof and validation", async () => {
+  const fx = await fixture("handoff");
+  try {
+    const created = await board(fx.db, fx.owner, fx.workspaceId);
+    const first = await screen(fx.db, fx.workspaceId, fx.owner.id, 1);
+    const saved = await saveBoardItemRoute(
+      fx.db, created.id, { workspaceId: fx.workspaceId, artifactId: first.id }, fx.owner.id,
+    );
+    assert.equal(saved.status, 200);
+    const validated = await validateBoardItemsRoute(fx.db, { boardId: created.id }, fx.owner.id);
+    assert.equal(validated.status, 200);
+    assert.equal(validated.body.result.items.length, 1);
+    assert.equal(validated.body.result.items[0].status, "ok");
+    assert.equal(validated.body.result.summary.ok, 1);
+    assert.ok(validated.body.result.board.uri.startsWith("skelet://collection/"));
+    const handed = await handOffBoardRoute(
+      fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.fellow.id }, fx.owner.id,
+    );
+    assert.equal(handed.status, 200);
+    assert.ok(handed.body.result.handoff.boardUri.startsWith("skelet://collection/"));
+    assert.equal(handed.body.result.handoff.fromSubject, fx.owner.id);
+    assert.equal(handed.body.result.handoff.toSubject, fx.fellow.id);
+    assert.equal(handed.body.result.board.id, created.id);
+    const chain = await listBoardHandoffsRoute(fx.db, { boardId: created.id }, fx.fellow.id);
+    assert.equal(chain.status, 200);
+    assert.equal(chain.body.result.handoffs.length, 1);
+    assert.equal(chain.body.result.handoffs[0].id, handed.body.result.handoff.id);
+    // Workspace-visible boards stay readable to all members after handoff;
+    // ownership (not readability) moves: the old owner can still validate
+    // but can no longer hand the board off again.
+    const fellowView = await validateBoardItemsRoute(fx.db, { boardId: created.id }, fx.fellow.id);
+    assert.equal(fellowView.status, 200);
+    const ownerView = await validateBoardItemsRoute(fx.db, { boardId: created.id }, fx.owner.id);
+    assert.equal(ownerView.status, 200);
+    const ownerRehandoff = await handOffBoardRoute(
+      fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.owner.id }, fx.owner.id,
+    );
+    assert.equal(ownerRehandoff.status, 404);
+    assert.equal(ownerRehandoff.body.error.code, "FORBIDDEN_OR_NOT_FOUND");
+  } finally {
+    await fx.db.close();
+  }
+});
+
+test("board handoff fails closed on authority, recipient, and locator abuse", async () => {
+  const fx = await fixture("handoff-deny");
+  try {
+    const created = await board(fx.db, fx.owner, fx.workspaceId);
+    // Non-owner cannot hand off.
+    const fellowHandoff = await handOffBoardRoute(
+      fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.outsider.id }, fx.fellow.id,
+    );
+    assert.equal(fellowHandoff.status, 404);
+    assert.equal(fellowHandoff.body.error.code, "FORBIDDEN_OR_NOT_FOUND");
+    // Outsider cannot hand off, list, or validate.
+    for (const call of [
+      () => handOffBoardRoute(fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.fellow.id }, fx.outsider.id),
+      () => listBoardHandoffsRoute(fx.db, { boardId: created.id }, fx.outsider.id),
+      () => validateBoardItemsRoute(fx.db, { boardId: created.id }, fx.outsider.id),
+    ]) {
+      const result = await call();
+      assert.equal(result.status, 404);
+      assert.equal(result.body.error.code, "FORBIDDEN_OR_NOT_FOUND");
+    }
+    // Recipient must be a workspace member: outsider and self fail closed.
+    const outsiderRecipient = await handOffBoardRoute(
+      fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.outsider.id }, fx.owner.id,
+    );
+    assert.equal(outsiderRecipient.status, 404);
+    const selfRecipient = await handOffBoardRoute(
+      fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.owner.id }, fx.owner.id,
+    );
+    assert.equal(selfRecipient.status, 400);
+    assert.equal(selfRecipient.body.error.code, "INVALID_INPUT");
+    // Workspace locator aliasing is rejected.
+    const foreign = await createWorkspace(fx.db, { name: "Foreign handoff", ownerId: fx.outsider.id });
+    const aliased = await handOffBoardRoute(
+      fx.db, created.id, { workspaceId: foreign.workspace.id, toSubjectId: fx.fellow.id }, fx.owner.id,
+    );
+    assert.equal(aliased.status, 404);
+    // Malformed identifiers and bodies fail closed without leaking internals.
+    for (const call of [
+      () => handOffBoardRoute(fx.db, "not-a-uuid", { workspaceId: fx.workspaceId, toSubjectId: fx.fellow.id }, fx.owner.id),
+      () => handOffBoardRoute(fx.db, created.id, { workspaceId: "not-a-uuid", toSubjectId: fx.fellow.id }, fx.owner.id),
+      () => handOffBoardRoute(fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: "not-a-uuid" }, fx.owner.id),
+      () => handOffBoardRoute(fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.fellow.id, extra: 1 }, fx.owner.id),
+      () => handOffBoardRoute(fx.db, created.id, null, fx.owner.id),
+      () => listBoardHandoffsRoute(fx.db, { boardId: "not-a-uuid" }, fx.owner.id),
+      () => validateBoardItemsRoute(fx.db, { boardId: "not-a-uuid" }, fx.owner.id),
+      () => listBoardHandoffsRoute(fx.db, { boardId: created.id }, "not-a-uuid"),
+    ]) {
+      const result = await call();
+      assert.ok([400, 404].includes(result.status));
+      assert.equal(result.body.schema_version, "skelet.agent.v1");
+    }
   } finally {
     await fx.db.close();
   }

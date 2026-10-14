@@ -518,13 +518,16 @@ test("download serves persisted artifacts with integrity and denies the rest", a
     assert.ok(evidenceServed.file);
     assert.equal(evidenceServed.file.sha256, sha256Bytes(evidenceServed.file.bytes));
     // Purged outputs answer 404 like unknown identities.
+    // Relative expiry: the run expires retentionDays after its real
+    // creation time, so expire relative to now (not a fixed BASE date)
+    // to stay robust regardless of the calendar date the suite runs on.
     await expireKitRun(
       fx.db,
       {
         workspaceId: fx.workspaceId,
         actorId: fx.owner.id,
         kitId: job.kitId,
-        now: new Date(BASE.getTime() + 31 * 86400000),
+        now: new Date(Date.now() + 32 * 86400000),
       },
     );
     const purged = await downloadLensArtifactRoute(

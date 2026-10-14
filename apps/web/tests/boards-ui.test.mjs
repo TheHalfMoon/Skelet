@@ -16,10 +16,13 @@ test("boards UI serves the full curation lifecycle over the real REST contracts"
     "/api/v1/boards/${encodeURIComponent(id)}",
     "/items",
     "/move",
+    "/handoff",
+    "/handoffs",
+    "/validation",
   ]) {
     assert.ok(text.includes(route), `UI calls ${route}`);
   }
-  for (const marker of ["List boards", "Create board", "Inspect", "Delete", "Save item", "Move item", "Remove"]) {
+  for (const marker of ["List boards", "Create board", "Inspect", "Delete", "Save item", "Move item", "Remove", "Hand off board", "List handoffs", "Validate items"]) {
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
   assert.ok(text.includes("skelet://collection/"), "UI renders the stable board identifier");
@@ -57,5 +60,19 @@ test("boards UI uses native keyboard-operable controls with labels", async () =>
   }
   assert.ok(text.includes('htmlFor="boards-token"'), "UI labels its credential field");
   assert.ok(text.includes('htmlFor="boards-id"'), "UI labels its board field");
+  assert.ok(text.includes('htmlFor="boards-recipient"'), "UI labels its handoff recipient field");
   assert.ok(text.includes('"use client"'), "UI is a client component over the REST routes");
+});
+
+test("boards UI exposes handoff provenance and validation states", async () => {
+  const text = await source();
+  for (const marker of [
+    "No handoffs listed yet",
+    "No handoffs recorded",
+    "No validation run yet",
+    "fromSubject",
+    "toSubject",
+  ]) {
+    assert.ok(text.includes(marker), `UI exposes ${marker}`);
+  }
 });
