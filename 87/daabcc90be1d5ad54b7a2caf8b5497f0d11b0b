@@ -1,0 +1,44 @@
+scripts/validate_agent_contract.py
+  s_1b95f6ddfe4543::t_d34f64d7f188f8 42
+apps/web/app/api/v1/replays/route.ts
+  s_1b95f6ddfe4543::t_6a456b71615206 1-2,9-67
+  s_1b95f6ddfe4543::t_e20309ecac6cd6 3-8
+scripts/validate_skills.py
+  s_1b95f6ddfe4543::t_ebe8b68df38ad8 40-43
+skills/skelet-research/SKILL.md
+  s_1b95f6ddfe4543::t_c1d2a61cb922a3 20
+apps/web/lib/mcp.ts
+  s_1b95f6ddfe4543::t_7dcff17a753f7d 1346-1450
+  s_1b95f6ddfe4543::t_d4e990ee403731 333-382
+  s_1b95f6ddfe4543::t_e422d1960879a1 12-18
+apps/web/lib/rest.ts
+  s_1b95f6ddfe4543::t_890b82c47ef612 9-15
+  s_1b95f6ddfe4543::t_79bee5ac7a5eef 1032-1206
+apps/web/app/api/v1/replays/[id]/close/route.ts
+  s_1b95f6ddfe4543::t_e20309ecac6cd6 3-8
+  s_1b95f6ddfe4543::t_5e8c5c56866af8 1-2,9-71
+apps/web/tests/mcp.test.mjs
+  s_1b95f6ddfe4543::t_87cb7c5d6a20be 109-112
+apps/web/tests/replay.test.mjs
+  s_1b95f6ddfe4543::t_95f5f42e43a392 1-172
+apps/web/app/api/v1/replays/[id]/events/route.ts
+  s_1b95f6ddfe4543::t_e20309ecac6cd6 3-8
+  s_1b95f6ddfe4543::t_1eb0105e816f0a 15-60
+  s_1b95f6ddfe4543::t_1444e0cc8be68d 1-2,9-14,61-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "87daabcc90be1d5ad54b7a2caf8b5497f0d11b0b",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
