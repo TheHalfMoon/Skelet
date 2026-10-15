@@ -1,0 +1,27 @@
+docs/reviews/P14-OPENPENCIL-ADAPTER_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_f6adb6c37ad333 1
+docs/reviews/P14-OPENPENCIL-ADAPTER_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_950a4a75c0586f 1-11
+docs/reviews/P14-OPENPENCIL-ADAPTER_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_767f87a41e6049 1-22
+docs/reviews/P14-OPENPENCIL-ADAPTER_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_c56549847c5a2a 1
+docs/reviews/P14-OPENPENCIL-ADAPTER_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_3704bfc556644f 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3675552b11d4e54c5f17048a4e624a497e89b82b",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
