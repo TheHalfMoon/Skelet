@@ -1,0 +1,28 @@
+packages/editor-adapters/src/index.ts
+  s_1b95f6ddfe4543::t_11a814fb2c1efc 3-6
+  s_1b95f6ddfe4543::t_74b0aff71a04bf 82-120
+packages/editor-adapters/src/openpencil-adapter.ts
+  s_1b95f6ddfe4543::t_eae0f1c30f3d5e 1-1450
+packages/editor-adapters/tests/openpencil-adapter.test.mjs
+  s_1b95f6ddfe4543::t_ebef66f6a9ad2a 2
+  s_1b95f6ddfe4543::t_2ed2d106b71dee 1,3-541,543-642
+  s_1b95f6ddfe4543::t_479bf5cd139830 542
+.github/workflows/ci.yml
+  s_1b95f6ddfe4543::t_fbf5818148c095 388-390
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "000057fb1b76e0c9903c23aafa470b278c0ad4f2",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
