@@ -1,0 +1,24 @@
+tests/test_ac02_board_decision.py
+  s_f53ed81473dbc3::t_85d2b51d7b0125 108-109
+  s_f53ed81473dbc3::t_08f5455b8262fc 81-84,89
+  s_f53ed81473dbc3::t_cea6ce2bee6401 1-80,85-88,90-107,110-137
+docs/qualification/AC-02_BOARD_DECISION.md
+  s_f53ed81473dbc3::t_7c1227f2f81ffd 1-17,19-20,22-55
+  s_f53ed81473dbc3::t_4255b000e3a7cf 18,21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "32330ee16bf0c142c99c3ad2395dd8f3903cd304",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
