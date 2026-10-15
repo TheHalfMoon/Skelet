@@ -1,0 +1,9 @@
+# AF-14b-i Alibaba OCR Delegation Record (not an LLM-backed scan)
+
+- Grain: AF-14b-i similarity kinds, branch `skelet/af14b-similarity-kinds`, base `b86c8a4`.
+- OCR version: open-code-review v1.12.13 (fabbdb29) darwin/arm64. No OCR LLM provider credential is configured, so the official `ocr delegate` workflow is used per `GOVERNANCE.md`.
+- Exact-diff preview (workspace mode): 4 reviewable code files plus `.ignore` (intentionally NOT staged or committed, preserved untracked per project policy). No skill or workflow file changes.
+- Delegated rules executed (host-agent review against the exact diff, TS/JS group):
+  - TS/JS: no `var`, strict equality only (eqeqeq enforced by clean eslint), no `any` (new code uses `string[]` and existing `Record`/`unknown` patterns), no `eval`/dynamic import, no `innerHTML`/`document.write`, no hardcoded credentials, no prototype modification, single-level ternaries only, null-guarded metadata/row access preserved, async/await with typed-error handling preserved. The `[...ARTIFACT_KINDS] as const` widening keeps one canonical kinds source with runtime validation unchanged; the MCP schema enum mirrors the canonical order (screen, page, section, component, icon, logo, font, illustration, resource, brief, design). Test files use `assert` only with no production branching.
+  - Non-blocking note (not a finding): the MCP schema enum hardcodes the 11 kinds rather than deriving them; this matches the established static-schema pattern and runtime validation stays single-sourced via `SIMILARITY_KINDS`, so drift can only occur if a future kind is added to one place and not the other — CI parity tests would catch behavioral drift, and a follow-on may derive the enum if desired.
+- Findings: zero unresolved blocking findings. This record MUST NOT be described as an LLM-backed OCR scan.

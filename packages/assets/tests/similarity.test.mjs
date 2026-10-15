@@ -289,3 +289,77 @@ test("AF-13a-i: candidate budget truncation is explicit", async () => {
     await fx.db.close();
   }
 });
+
+test("AF-14b-i: research corpus screens share the lexical baseline with kinds filtering", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const owner = await signUp(db, { email: "similar-screen@skelet.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-screen-out@skelet.example", password: "similar-password-01" });
+    const source = await createSource(db, { key: "similar-screen-source", kind: "synthetic" });
+    const { createArtifact: make } = await import("../../db/src/graph.ts");
+    const ref = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Checkout screen",
+      summary: "Payment form checkout",
+      contentHash: HASH("a"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["checkout"] },
+    });
+    const near = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Checkout form screen",
+      summary: "Payment checkout form",
+      contentHash: HASH("b"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["checkout"] },
+    });
+    await make(db, {
+      sourceId: source.id,
+      kind: "page",
+      title: "Settings page",
+      summary: "Preferences and toggles",
+      contentHash: HASH("c"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["settings"] },
+    });
+    const outcome = await findSimilarForActor(db, { artifactId: ref.id, actorId: owner.id });
+    assert.equal(outcome.reference.title, "Checkout screen");
+    assert.equal(outcome.similar[0].artifactId, near.id);
+    assert.ok(outcome.similar[0].score > 0);
+    assert.ok(outcome.similar.every((entry) => entry.score > 0));
+    const screens = await findSimilarForActor(db, { artifactId: ref.id, actorId: owner.id, kinds: ["screen"] });
+    assert.ok(screens.total >= 1);
+    assert.ok(screens.similar.every((entry) => entry.kind === "screen"));
+    const icons = await findSimilarForActor(db, { artifactId: ref.id, actorId: owner.id, kinds: ["icon"] });
+    assert.equal(icons.total, 0);
+    assert.deepEqual(icons.similar, []);
+    // Private screens stay actor-scoped under the expanded kinds.
+    const space = await createWorkspace(db, { name: "Similar screen private", ownerId: owner.id });
+    const hidden = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Checkout hidden screen",
+      summary: "Payment form checkout",
+      contentHash: HASH("d"),
+      rightsClassification: "permitted",
+      visibility: "private",
+      workspaceId: space.workspace.id,
+      ownerSubject: owner.id,
+      metadata: { tags: ["checkout"] },
+    });
+    await assert.rejects(
+      findSimilarForActor(db, { artifactId: hidden.id, actorId: outsider.id }),
+      (error) => error.code === "assets/not-found",
+    );
+    const outside = await findSimilarForActor(db, { artifactId: ref.id, actorId: outsider.id });
+    assert.ok(!outside.similar.some((entry) => entry.artifactId === hidden.id));
+  } finally {
+    await db.close();
+  }
+});

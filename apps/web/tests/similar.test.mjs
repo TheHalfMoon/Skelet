@@ -238,3 +238,80 @@ test("AF-13a-i: unknown, denied, and restricted references share no oracle", asy
     await fx.db.close();
   }
 });
+
+test("AF-14b-i: screens serve identical similarity rankings on MCP and REST", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const { createArtifact: make } = await import("../../../packages/db/src/graph.ts");
+    const owner = await signUp(db, { email: "similar-ts-owner@skelet.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-ts-out@skelet.example", password: "similar-password-01" });
+    const source = await createSource(db, { key: "similar-ts-source", kind: "synthetic" });
+    const ref = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Checkout screen",
+      summary: "Payment form checkout",
+      contentHash: HASH("a"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["checkout"] },
+    });
+    await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Checkout form screen",
+      summary: "Payment checkout form",
+      contentHash: HASH("b"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["checkout"] },
+    });
+    const space = await createWorkspace(db, { name: "Similar transport screens", ownerId: owner.id });
+    const hidden = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Checkout hidden screen",
+      summary: "Payment form checkout",
+      contentHash: HASH("c"),
+      rightsClassification: "permitted",
+      visibility: "private",
+      workspaceId: space.workspace.id,
+      ownerSubject: owner.id,
+      metadata: { tags: ["checkout"] },
+    });
+
+    const mcp = await mcpCall(db, { userId: owner.id }, "find_similar", {
+      artifactId: ref.id,
+      kinds: ["screen"],
+      requestId: "req-similar-screen-01",
+    });
+    const mcpEnvelope = mcpEnvelopeOf(mcp);
+    assertStableEnvelope(mcpEnvelope, "MCP find_similar screens");
+    assert.ok(mcpEnvelope.result.similar.length >= 1);
+    assert.ok(mcpEnvelope.result.similar.every((entry) => entry.kind === "screen"));
+
+    const rest = await findSimilarRoute(db, { artifactId: ref.id, kinds: "screen" }, owner.id, "req-similar-screen-02");
+    assert.equal(rest.status, 200);
+    assertStableEnvelope(rest.body, "REST find_similar screens");
+    assert.deepEqual(rest.body.result.similar, mcpEnvelope.result.similar);
+    assert.deepEqual(rest.body.result.reference, mcpEnvelope.result.reference);
+
+    // Expanded kinds validate on both transports; unknown kinds still fail.
+    const badRest = await findSimilarRoute(db, { artifactId: ref.id, kinds: "spaceship" }, owner.id);
+    assert.equal(badRest.status, 400);
+    const badMcp = await mcpCall(db, { userId: owner.id }, "find_similar", { artifactId: ref.id, kinds: ["spaceship"] });
+    assert.equal(mcpFailureEnvelopeOf(badMcp).error.code, "INVALID_INPUT");
+
+    // Private screens never leak to outsiders on either transport.
+    const outside = await findSimilarRoute(db, { artifactId: ref.id }, outsider.id);
+    assert.equal(outside.status, 200);
+    assert.ok(!outside.body.result.similar.some((entry) => entry.uri === `skelet://artifact/${hidden.id}`));
+    const denied = mcpFailureEnvelopeOf(
+      await mcpCall(db, { userId: outsider.id }, "find_similar", { artifactId: hidden.id }),
+    );
+    assert.equal(denied.error.code, "FORBIDDEN_OR_NOT_FOUND");
+  } finally {
+    await db.close();
+  }
+});

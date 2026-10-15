@@ -1,5 +1,6 @@
 import type { DbTransaction } from "../../db/src/db.ts";
 import { getArtifactForActor } from "../../db/src/artifact-access.ts";
+import { ARTIFACT_KINDS } from "../../db/src/graph.ts";
 import type { Artifact } from "../../db/src/graph.ts";
 import { RegistryError, servingPolicy } from "./registry.ts";
 
@@ -31,9 +32,16 @@ import { RegistryError, servingPolicy } from "./registry.ts";
  * evidence-linked diff between two readable artifacts. It states what
  * differs across kind/title/summary/rights/license/trademark/serving/
  * tags plus shared and unique terms; it never invents why.
+ *
+ * AF-14b-i extends the kinds gate from the registry triple
+ * (icon/logo/font) to every canonical artifact kind, so research
+ * corpus artifacts (screens, pages, flows backing artifacts, components,
+ * and the remaining kinds) participate in the same lexical baseline
+ * with identical authorization, ordering, and truncation semantics.
+ * The baseline stays lexical: no embeddings, no visual claims.
  */
 
-export const SIMILARITY_KINDS = ["icon", "logo", "font"] as const;
+export const SIMILARITY_KINDS = [...ARTIFACT_KINDS] as const;
 export type SimilarityKind = (typeof SIMILARITY_KINDS)[number];
 
 const UUID_PATTERN =
