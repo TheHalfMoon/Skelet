@@ -1,0 +1,25 @@
+apps/web/tests/abuse-alarms.test.mjs
+  s_1b95f6ddfe4543::t_121b712d2c373b 1-75
+apps/web/lib/abuse-alarms.ts
+  s_1b95f6ddfe4543::t_905686aa31533a 1-190
+docs/operations/RUNBOOK.md
+  s_1b95f6ddfe4543::t_ba02424eceb4f5 70-76
+docs/operations/SLOS.md
+  s_1b95f6ddfe4543::t_89ee242cace250 35-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3b552343de78f6ac136e5a3fd57b5dbc665a7745",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
