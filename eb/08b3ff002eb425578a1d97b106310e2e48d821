@@ -1,0 +1,27 @@
+docs/reviews/P10-FLOW-PLAYER_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_c394928fa59aac 1
+docs/reviews/P10-FLOW-PLAYER_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_8b430f6be84d4e 1-21
+docs/reviews/P10-FLOW-PLAYER_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_f33460850027d2 1-9
+docs/reviews/P10-FLOW-PLAYER_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_4ce6494ad67f37 1
+docs/reviews/P10-FLOW-PLAYER_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_0e56a54fd6a768 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "eb08b3ff002eb425578a1d97b106310e2e48d821",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
