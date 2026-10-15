@@ -1,0 +1,33 @@
+packages/db/migrations/017_replay_sessions.up.sql
+  s_1b95f6ddfe4543::t_46ecfa60881967 1-32
+packages/db/migrations/017_replay_sessions.down.sql
+  s_1b95f6ddfe4543::t_7fcde3afd99b69 1-3
+packages/db/tests/replay.test.mjs
+  s_1b95f6ddfe4543::t_a6aa4e8a22082d 177-178
+  s_1b95f6ddfe4543::t_3bed0e062f8808 156-176
+  s_1b95f6ddfe4543::t_ac9b740e7c7c5a 1-155,179-195,197-211
+  s_1b95f6ddfe4543::t_947175e02ad3e2 196
+.github/workflows/ci.yml
+  s_1b95f6ddfe4543::t_ff62ea7091b833 645
+packages/db/src/replay.ts
+  s_1b95f6ddfe4543::t_6af6abbbde723f 1-111,116-225,227-231,234-236,238-252,263,268-304
+  s_1b95f6ddfe4543::t_5c8d7da4173852 253-262,264-267
+  s_1b95f6ddfe4543::t_db9bf55c61ea21 112-115
+  s_1b95f6ddfe4543::t_f54a4689e0a58e 226,232-233,237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e6f973098e9024b052d04c897946c189b7552608",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
