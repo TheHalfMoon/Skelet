@@ -1,0 +1,23 @@
+apps/web/tests/golden-journey.test.mjs
+  s_f53ed81473dbc3::t_a839c74e362ddc 304
+  s_f53ed81473dbc3::t_7a98624052f32c 182,196,202,209,217,224,234,248,263,276,296
+  s_f53ed81473dbc3::t_4aeace50fdb475 184,211,252,290
+  s_f53ed81473dbc3::t_488b7d3841eaff 191
+  s_f53ed81473dbc3::t_650bde23f6d239 1-181,183,185-190,192-195,197-201,203-208,210,212-216,218-223,225-233,235-247,249-251,253-262,264-275,277-289,291-295,297-303
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2a124ffff29adc4cf9fcbc71dd89ed611908c761",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
