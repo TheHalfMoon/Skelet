@@ -1,0 +1,27 @@
+docs/reviews/P10-REPLAY-TRANSPORT_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_e4b80c93de6bf7 1-10
+docs/reviews/P10-REPLAY-TRANSPORT_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_b27795b5539447 1-15
+docs/reviews/P10-REPLAY-TRANSPORT_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_501b67496dd995 1
+docs/reviews/P10-REPLAY-TRANSPORT_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_a5bf2f130648f0 1
+docs/reviews/P10-REPLAY-TRANSPORT_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_925bf42556d973 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "533d50282f5bb5e7c4b8af75208c59bf22fd7bd3",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
