@@ -1,0 +1,27 @@
+docs/reviews/AF-14C-GATE_PSTACK_PANELS.md
+  s_f53ed81473dbc3::t_b23e8ab785151b 1-21
+docs/reviews/AF-14C-GATE_JEV_SPEC.json
+  s_f53ed81473dbc3::t_c4fcd3bd8f87fb 1-59
+docs/reviews/AF-14C-GATE_JEV_REVIEW.json
+  s_f53ed81473dbc3::t_c4fcd3bd8f87fb 1
+docs/reviews/AF-14C-GATE_OCR_DELEGATION.md
+  s_f53ed81473dbc3::t_8f31e1d7136b74 1-9
+docs/reviews/AF-14C-GATE_JEV_REVIEW.md
+  s_f53ed81473dbc3::t_66b11bc46cd14e 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "35392aea7ca945566d4b2eed015dc3f4150672b6",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
