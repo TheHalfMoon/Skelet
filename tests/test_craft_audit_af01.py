@@ -134,9 +134,12 @@ class CraftAuditAf01Tests(unittest.TestCase):
     def test_no_runtime_donor_code_is_imported(self) -> None:
         craft_dir = ROOT / "imports" / "craft-suite"
         files = sorted(p.name for p in craft_dir.iterdir() if p.is_file())
-        # AC-00-i adds a JSON-only dependency-closure inventory; it is
+        # AC-00-i/ii add JSON-only dependency-closure inventories; they are
         # audit metadata, not donor code (the suffix guard below proves it).
-        self.assertEqual(["donor-pins.json", "manifest.json", "moodboard-closure.json"], files)
+        self.assertEqual(
+            ["donor-pins.json", "frame-extractor-closure.json", "manifest.json", "moodboard-closure.json"],
+            files,
+        )
         for path in craft_dir.rglob("*"):
             self.assertNotIn(path.suffix, {".ts", ".tsx", ".rs", ".wasm", ".onnx", ".pt", ".bin"})
 
