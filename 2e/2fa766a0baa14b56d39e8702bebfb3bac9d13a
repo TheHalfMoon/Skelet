@@ -1,0 +1,22 @@
+tests/test_p12_apps.py
+  s_f53ed81473dbc3::t_1f97c6f9530f5c 59
+  s_f53ed81473dbc3::t_7e203f653fe3fa 1-58,60-64
+docs/qualification/P12_APPS_DISPOSITION.md
+  s_f53ed81473dbc3::t_653d4488673725 1-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2e2fa766a0baa14b56d39e8702bebfb3bac9d13a",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
