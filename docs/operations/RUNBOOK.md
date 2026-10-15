@@ -67,6 +67,13 @@ must implement.
   tests. On abuse: revoke the workspace credentials, cancel running
   jobs, expire outstanding leases, and re-verify quota denial before
   re-enabling.
+- Abuse triage: collect the last window of `FORBIDDEN_OR_NOT_FOUND`,
+  `QUOTA_EXCEEDED`, and `RATE_LIMITED` answers with workspace IDs and
+  timestamps plus the stuck-job count, then evaluate with
+  `evaluateAbuseAlarms` from `apps/web/lib/abuse-alarms.ts` (thresholds
+  in `docs/operations/SLOS.md`). `elevated` means investigate before the
+  next release; `critical` means run the incident minimum below. The
+  evaluator carries codes, counts, and workspace IDs only.
 - Upgrades: apply forward migrations only (`migrateUp`); every
   migration ships a tested down file, but downgrades are rehearsal-only
   outside emergencies because the import ledger is append-only.
