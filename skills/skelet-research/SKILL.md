@@ -15,6 +15,7 @@ Research real shipped references before proposing UI. Every claim must cite reco
 4. **Compare with evidence.** When comparing options, cite each candidate's URI plus its rights classification. Distinguish observed facts (fields on the record) from your own inference.
 5. **Follow user journeys.** Call `list_flows` to find ordered research flows, then `get_flow_steps` to recover each step by stable `skelet://flow/{id}` URI with positions and interactions. A flow appears only when every step is readable by the caller.
 6. **Track version changes.** Call `get_changes` with two product version IDs to list added, removed, changed, and reordered artifacts and flows with evidence-linked records. Unreadable objects never appear; renames report as remove plus add without inferred intent.
+7. **Browse the gallery.** Call `list_products` to find research products with readable evidence, then `list_product_versions` to recover version IDs for flows and changes. Products without readable artifacts never appear.
 
 ## Rules
 

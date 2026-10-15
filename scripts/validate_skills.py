@@ -33,6 +33,8 @@ IMPLEMENTED_TOOLS = frozenset(
         "list_flows",
         "get_flow_steps",
         "get_changes",
+        "list_products",
+        "list_product_versions",
         "search_registry",
         "lens_create_job",
         "lens_poll_job",
