@@ -9,6 +9,13 @@ import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/inges
 import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
 import { GalleryError, listProductsForActor, listProductVersionsForActor } from "../../../packages/db/src/gallery.ts";
 import { PatternError, getPatternForActor, listPatternsForActor } from "../../../packages/db/src/patterns.ts";
+import {
+  ReplayError,
+  closeReplaySession,
+  getReplayEvents,
+  openReplaySession,
+  recordReplayEvents,
+} from "../../../packages/db/src/replay.ts";
 import { buildRegistryItem } from "./registry.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import {
@@ -320,6 +327,57 @@ function toolSchemas(): unknown[] {
           requestId: requestIdProp,
         },
         required: ["slug"],
+      },
+    },
+    {
+      name: "replay_open_session",
+      description: "Open a consented replay session for one readable flow.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          flowId: { type: "string" },
+          workspaceId: { type: "string" },
+          consent: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["flowId", "consent"],
+      },
+    },
+    {
+      name: "replay_record_events",
+      description: "Record redacted replay events into an open session.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sessionId: { type: "string" },
+          events: { type: "array" },
+          requestId: requestIdProp,
+        },
+        required: ["sessionId", "events"],
+      },
+    },
+    {
+      name: "replay_close_session",
+      description: "Close a replay session; recorded events stay readable.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sessionId: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["sessionId"],
+      },
+    },
+    {
+      name: "replay_get_events",
+      description: "Replay one session back in deterministic order.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          sessionId: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["sessionId"],
       },
     },
     {
@@ -1281,6 +1339,111 @@ async function callTool(
           throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
         }
         throw invalidInput("Pattern query is invalid.", requestId);
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (
+    name === "replay_open_session" ||
+    name === "replay_record_events" ||
+    name === "replay_close_session" ||
+    name === "replay_get_events"
+  ) {
+    const actorId = requireUser(ctx);
+    const sessionUri = (id: string): string => `skelet://replay/${id}`;
+    try {
+      if (name === "replay_open_session") {
+        if (typeof params.flowId !== "string") {
+          throw invalidInput("replay_open_session.flowId is invalid.", requestId);
+        }
+        if (params.workspaceId !== undefined && typeof params.workspaceId !== "string") {
+          throw invalidInput("replay_open_session.workspaceId is invalid.", requestId);
+        }
+        const session = await openReplaySession(db, {
+          flowId: params.flowId,
+          actorId,
+          workspaceId: params.workspaceId as string | undefined,
+          consent: params.consent,
+        });
+        if (session === null) {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        return successEnvelope(
+          requestId,
+          {
+            session: {
+              uri: sessionUri(session.id),
+              status: session.status,
+              eventCount: session.eventCount,
+            },
+            total: 1,
+          },
+          { provenance: observedProvenance(sessionUri(session.id)) },
+        );
+      }
+      if (typeof params.sessionId !== "string") {
+        throw invalidInput(`${name}.sessionId is invalid.`, requestId);
+      }
+      if (name === "replay_record_events") {
+        if (!Array.isArray(params.events)) {
+          throw invalidInput("replay_record_events.events is invalid.", requestId);
+        }
+        const stored = await recordReplayEvents(db, {
+          sessionId: params.sessionId,
+          actorId,
+          events: params.events,
+        });
+        if (stored === null) {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        return successEnvelope(
+          requestId,
+          {
+            recorded: stored.recorded,
+            eventCount: stored.eventCount,
+            session: { uri: sessionUri(params.sessionId), eventCount: stored.eventCount },
+            total: stored.recorded,
+          },
+          { provenance: observedProvenance(sessionUri(params.sessionId)) },
+        );
+      }
+      if (name === "replay_close_session") {
+        const session = await closeReplaySession(db, { sessionId: params.sessionId, actorId });
+        if (session === null) {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        return successEnvelope(
+          requestId,
+          {
+            session: { uri: sessionUri(session.id), status: session.status, eventCount: session.eventCount },
+            total: 1,
+          },
+          { provenance: observedProvenance(sessionUri(session.id)) },
+        );
+      }
+      const replay = await getReplayEvents(db, { sessionId: params.sessionId, actorId });
+      if (replay === null) {
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      }
+      return successEnvelope(
+        requestId,
+        {
+          session: { uri: sessionUri(replay.session.id), status: replay.session.status, eventCount: replay.session.eventCount },
+          events: replay.events,
+          total: replay.events.length,
+        },
+        { provenance: observedProvenance(sessionUri(replay.session.id)) },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Unknown sessions read as not-found without an oracle; malformed
+      // envelopes, missing consent, closed writes, and budget breaches fail
+      // validation on both transports.
+      if (thrown instanceof ReplayError) {
+        if (thrown.code === "replay/not-found") {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        throw invalidInput(`Replay ledger is invalid: ${thrown.code}.`, requestId);
       }
       throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
     }
