@@ -315,3 +315,53 @@ test("AF-14b-i: screens serve identical similarity rankings on MCP and REST", as
     await db.close();
   }
 });
+
+test("AF-14c: global-private screens never leak over either transport", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const { createArtifact: make } = await import("../../../packages/db/src/graph.ts");
+    const owner = await signUp(db, { email: "similar-gate-t@skelet.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-gate-o@skelet.example", password: "similar-password-01" });
+    const source = await createSource(db, { key: "similar-gate-t-source", kind: "synthetic" });
+    const ref = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Gate checkout screen",
+      summary: "Payment form checkout",
+      contentHash: HASH("a"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["checkout"] },
+    });
+    const orphan = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Gate checkout orphan",
+      summary: "Payment form checkout",
+      contentHash: HASH("b"),
+      rightsClassification: "permitted",
+      visibility: "private",
+      metadata: { tags: ["checkout"] },
+    });
+    for (const actor of [owner, outsider]) {
+      const via = actor === owner ? owner.id : outsider.id;
+      const mcp = mcpEnvelopeOf(await mcpCall(db, { userId: via }, "find_similar", { artifactId: ref.id }));
+      assertStableEnvelope(mcp, "AF-14c similar candidates");
+      assert.ok(!mcp.result.similar.some((entry) => entry.uri === `skelet://artifact/${orphan.id}`));
+      const rest = await findSimilarRoute(db, { artifactId: ref.id }, via);
+      assert.equal(rest.status, 200);
+      assert.ok(!rest.body.result.similar.some((entry) => entry.uri === `skelet://artifact/${orphan.id}`));
+      const denied = mcpFailureEnvelopeOf(
+        await mcpCall(db, { userId: via }, "find_similar", { artifactId: orphan.id }),
+      );
+      assert.equal(denied.error.code, "FORBIDDEN_OR_NOT_FOUND");
+      const restDenied = await findSimilarRoute(db, { artifactId: orphan.id }, via);
+      assert.equal(restDenied.status, 404);
+      assert.equal(restDenied.body.error.code, "FORBIDDEN_OR_NOT_FOUND");
+      assert.equal(restDenied.body.error.message, denied.error.message);
+    }
+  } finally {
+    await db.close();
+  }
+});
