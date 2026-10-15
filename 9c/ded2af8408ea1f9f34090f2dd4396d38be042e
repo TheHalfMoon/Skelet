@@ -1,0 +1,24 @@
+docs/qualification/AC-04_POST_LAUNCH_DISPOSITION.md
+  s_f53ed81473dbc3::t_e012eeaa85eba2 1-18,20-36
+  s_f53ed81473dbc3::t_0ee61f871a1032 19
+tests/test_ac04_post_launch.py
+  s_f53ed81473dbc3::t_0c451f21a595c0 68
+  s_f53ed81473dbc3::t_dcde200bbd6efc 1-51,53-67,69-73
+  s_f53ed81473dbc3::t_1275e33e3b4a2f 52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9cded2af8408ea1f9f34090f2dd4396d38be042e",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
