@@ -1,0 +1,22 @@
+tests/node/bench-board-changes.test.mjs
+  s_f53ed81473dbc3::t_63dd2e23c3b731 1-42
+scripts/bench_board_changes.mjs
+  s_f53ed81473dbc3::t_b4cc6d0bd134b6 1-40,44-171
+  s_f53ed81473dbc3::t_8c608c6d58634e 41-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "2abeb8ca4ed31538bd5f07832aba44fb27cbff15",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
