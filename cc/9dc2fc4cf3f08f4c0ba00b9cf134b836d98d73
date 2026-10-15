@@ -1,0 +1,22 @@
+docs/provenance/OPENPENCIL_EVALUATION_2026-10-15.md
+  s_f53ed81473dbc3::t_3ca475293fcbc9 1-70
+UPSTREAMS.lock.yml
+  s_f53ed81473dbc3::t_ee9c77e2046d20 451-452,455,457,459-460
+  s_f53ed81473dbc3::t_aaec0baa1dd9fc 463-465
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "cc9dc2fc4cf3f08f4c0ba00b9cf134b836d98d73",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
