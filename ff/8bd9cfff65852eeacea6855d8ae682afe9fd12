@@ -1,0 +1,27 @@
+docs/reviews/P15-ABUSE-ALARMS_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_5779cd053fae2c 1-13
+docs/reviews/P15-ABUSE-ALARMS_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_a01a3a23f4c70d 1
+docs/reviews/P15-ABUSE-ALARMS_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_2da6cb1d6548c5 1
+docs/reviews/P15-ABUSE-ALARMS_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_0661923b843f3a 1-9
+docs/reviews/P15-ABUSE-ALARMS_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_8ab2a2dac93cd8 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ff8bd9cfff65852eeacea6855d8ae682afe9fd12",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
