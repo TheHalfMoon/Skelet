@@ -363,3 +363,48 @@ test("AF-14b-i: research corpus screens share the lexical baseline with kinds fi
     await db.close();
   }
 });
+
+test("AF-14c: global non-public non-registry rows never leak into candidates", async () => {
+  const db = await openDatabase();
+  try {
+    await migrateUp(db);
+    const owner = await signUp(db, { email: "similar-gate@skelet.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-gate-out@skelet.example", password: "similar-password-01" });
+    const source = await createSource(db, { key: "similar-gate-source", kind: "synthetic" });
+    const { createArtifact: make } = await import("../../db/src/graph.ts");
+    const ref = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Gate checkout screen",
+      summary: "Payment form checkout",
+      contentHash: HASH("a"),
+      rightsClassification: "permitted",
+      visibility: "public",
+      metadata: { tags: ["checkout"] },
+    });
+    // Ownerless global-private screen: denied to every actor by the gate.
+    const orphan = await make(db, {
+      sourceId: source.id,
+      kind: "screen",
+      title: "Gate checkout orphan",
+      summary: "Payment form checkout",
+      contentHash: HASH("b"),
+      rightsClassification: "permitted",
+      visibility: "private",
+      metadata: { tags: ["checkout"] },
+    });
+    for (const actor of [owner, outsider]) {
+      const outcome = await findSimilarForActor(db, { artifactId: ref.id, actorId: actor.id });
+      assert.ok(!outcome.similar.some((entry) => entry.artifactId === orphan.id));
+    }
+    // The orphan is not even usable as a reference, for any actor.
+    for (const actor of [owner, outsider]) {
+      await assert.rejects(
+        findSimilarForActor(db, { artifactId: orphan.id, actorId: actor.id }),
+        (error) => error.code === "assets/not-found",
+      );
+    }
+  } finally {
+    await db.close();
+  }
+});

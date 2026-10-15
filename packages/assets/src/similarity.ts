@@ -264,15 +264,21 @@ export async function findSimilarForActor(
   const ownerParam = "$" + params.length;
   params.push(maxCandidates + 1);
   const capParam = "$" + params.length;
-  // Same actor-scope predicate as the search path: scope filters before
-  // scoring, facets, and pagination. Candidates are examined in stable
-  // id order so truncation prefixes are reproducible.
+  // Actor-scope predicate mirroring the AF-SEC-00 central gate
+  // (getArtifactForActor): public rows are readable by any actor;
+  // global curated-registry rows (workspace-less icon/logo/font) stay
+  // readable; workspace-bound rows require membership with owner match
+  // for private rows. Scope filters before scoring, facets, and
+  // pagination. Candidates are examined in stable id order so
+  // truncation prefixes are reproducible.
   const result = await tx.query(
     "select a.id, a.kind, a.title, a.summary, a.canonical_text, a.metadata, " +
       "a.rights_classification, a.content_hash, s.key as source_key " +
       "from artifacts a join sources s on s.id = a.source_id " +
       "where a.id <> $1 and a.kind in (" + kindPlaceholders.join(", ") + ") and " +
-      "(a.workspace_id is null or (a.workspace_id is not null and exists (" +
+      "(a.visibility = 'public' or " +
+      "(a.workspace_id is null and a.kind in ('icon', 'logo', 'font')) or " +
+      "(a.workspace_id is not null and exists (" +
       "select 1 from workspace_members m where m.workspace_id = a.workspace_id " +
       "and m.user_id = " + memberParam + " and (" +
       "a.visibility = 'workspace' or a.visibility = 'public' or " +

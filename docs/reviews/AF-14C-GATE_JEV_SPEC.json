@@ -1,0 +1,59 @@
+{
+ "description": "Skelet AF-14c: tighten find_similar candidate gate to the AF-SEC-00 predicate (security fix with regressions)",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Does this grain preserve all contracts: skelet.agent.v1 envelope unchanged, no new tools/routes, no migration, search path untouched, previously passing suites still green? Any changed ranking or behavior beyond denying rows the central gate already denies?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is the fix correct: candidate predicate now admits public rows, global registry-kind rows, and member-visible workspace rows exactly like getArtifactForActor, denying all other globals; reference path unchanged (already gated)? Do the 2 new regression tests prove the orphan is invisible as candidate and denied as reference on both layers and transports, and does the pre-existing workspace-private suite still pass?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is evidence sufficient: leak reproduced failing before the fix and green after, db similarity 11/11, transport similar 5/5, assets 27/27, web 125/125, python 217/217, lint/typecheck clean, graft green? Any claim without execution?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Any nondeterminism or resource risk: predicate change is a pure WHERE-clause restriction (fewer rows, same stable id order, same cap), no new queries, no timeouts needed?",
+   "type": "noul"
+  },
+  "scope": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Anything beyond the gate fix: kinds expansion, embeddings, new tools, search changes, gate redesign (workspace-public narrowing left exactly as the qualified search path has it), or unrelated refactors?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Does the fix close the leak completely: global-private non-registry titles/metadata unreachable as candidates and as references for every actor on both transports, pre-existing private-workspace and oracle tests still green, error bodies static, direction strictly fail-closed (narrowing only)?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "31f877a4b0d42a2f57a7715b11eda77799d977e2",
+  "branch": "skelet/af14c-similarity-gate",
+  "change": "AF-14c gate fix: similarity candidate WHERE clause mirrors getArtifactForActor (public or global-registry or member-visible) plus db-level and transport-level regression tests. Fail-closed narrowing only.",
+  "head_sha": "WORKTREE"
+ }
+}
