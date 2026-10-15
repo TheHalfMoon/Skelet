@@ -1,8 +1,9 @@
 /**
  * AF-11 public surface for Skelet editor adapters.
- * Exposes the optional local vector adapter (AF-10) and the optional local
- * raster adapter (AF-11). PageDraw transplant remains a separate conditional
- * future grain (see raster-adapter.ts PageDraw boundary note).
+ * Exposes the optional local vector adapter (AF-10), the optional local
+ * raster adapter (AF-11), and the optional local OpenPencil adapter (P14).
+ * PageDraw transplant remains a separate conditional future grain
+ * (see raster-adapter.ts PageDraw boundary note).
  */
 
 export {
@@ -78,3 +79,42 @@ export type {
   TiffLayerMode,
   ValidatedRasterInput,
 } from "./raster-adapter.ts";
+
+export {
+  OPENPENCIL_ADAPTER_ID,
+  OPENPENCIL_CAPABILITY,
+  OPENPENCIL_EXPORT_FORMATS,
+  OPENPENCIL_OPERATIONS,
+  OPENPENCIL_PIN,
+  OpenpencilAdapterError,
+  buildOpenpencilArgs,
+  buildPenDocument,
+  inspectOpenpencilSvg,
+  invokeOpenpencil,
+  isOpenpencilError,
+  openpencilAvailability,
+  openpencilHealth,
+  resolveConfinedOpenpencilPath,
+  validateOpenpencilAdapterConfig,
+  validateOpenpencilInput,
+  validateOpenpencilSvgOutput,
+} from "./openpencil-adapter.ts";
+export type {
+  Availability as OpenpencilAvailability,
+  OpenpencilAdapterConfig,
+  OpenpencilConvertInput,
+  OpenpencilErrorCode,
+  OpenpencilExportFormat,
+  OpenpencilExportInput,
+  OpenpencilInfoInput,
+  OpenpencilInput,
+  OpenpencilNodeInput,
+  OpenpencilOperation,
+  OpenpencilProvenance,
+  OpenpencilQueryInput,
+  OpenpencilRequestor,
+  OpenpencilSuccess,
+  OpenpencilTreeInput,
+  ResolvedOpenpencilConfig,
+  ValidatedOpenpencilInput,
+} from "./openpencil-adapter.ts";

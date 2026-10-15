@@ -385,6 +385,9 @@ jobs:
       - name: Run raster adapter tests
         run: node --experimental-strip-types --test packages/editor-adapters/tests/raster-adapter.test.mjs
 
+      - name: Run OpenPencil adapter tests
+        run: node --experimental-strip-types --test packages/editor-adapters/tests/openpencil-adapter.test.mjs
+
   ingest:
     name: ingest
     runs-on: ubuntu-24.04
