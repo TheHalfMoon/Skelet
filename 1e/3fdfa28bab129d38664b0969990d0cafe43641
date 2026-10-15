@@ -1,0 +1,21 @@
+apps/web/tests/flows-ui.test.mjs
+  s_1b95f6ddfe4543::t_a3a61c0b6413c9 1-69
+apps/web/app/flows/page.tsx
+  s_1b95f6ddfe4543::t_2ad3717aa4e0d1 311-313
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1e3fdfa28bab129d38664b0969990d0cafe43641",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
