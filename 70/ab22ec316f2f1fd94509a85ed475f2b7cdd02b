@@ -1,0 +1,27 @@
+docs/reviews/AF-14D-GALLERY_JEV_REVIEW.md
+  s_f53ed81473dbc3::t_c2714fe9be84c1 1-7
+docs/reviews/AF-14D-GALLERY_PSTACK_PANELS.md
+  s_f53ed81473dbc3::t_b59c50ca8fd860 1-21
+docs/reviews/AF-14D-GALLERY_OCR_DELEGATION.md
+  s_f53ed81473dbc3::t_81a8d6c6a496a4 1-11
+docs/reviews/AF-14D-GALLERY_JEV_REVIEW.json
+  s_f53ed81473dbc3::t_017412baf9e29a 1
+docs/reviews/AF-14D-GALLERY_JEV_SPEC.json
+  s_f53ed81473dbc3::t_017412baf9e29a 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "70ab22ec316f2f1fd94509a85ed475f2b7cdd02b",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
