@@ -17,6 +17,12 @@ interface StepView {
   interaction: Record<string, unknown> | null;
 }
 
+interface ReplayEventView {
+  type: number;
+  timestamp: number;
+  data: Record<string, unknown>;
+}
+
 interface AgentFailure {
   code: string;
   message: string;
@@ -80,6 +86,28 @@ function asSteps(value: unknown): { title: string; steps: StepView[] } | null {
   return { title: flow.title as string, steps: out };
 }
 
+function asReplayEvents(value: unknown): { status: string; events: ReplayEventView[] } | null {
+  const record = asRecord(value);
+  if (record === null) return null;
+  const session = asRecord(record.session);
+  const events = record.events;
+  if (session === null || typeof session.status !== "string" || !Array.isArray(events)) return null;
+  const out: ReplayEventView[] = [];
+  for (const entry of events) {
+    const item = asRecord(entry);
+    if (
+      item === null ||
+      typeof item.type !== "number" ||
+      typeof item.timestamp !== "number" ||
+      asRecord(item.data) === null
+    ) {
+      return null;
+    }
+    out.push(item as unknown as ReplayEventView);
+  }
+  return { status: session.status as string, events: out };
+}
+
 function cursorOf(payload: unknown): string | null {
   const record = asRecord(payload);
   if (record === null) return null;
@@ -100,6 +128,10 @@ export default function FlowsPage() {
   const [flowTitle, setFlowTitle] = useState<string | null>(null);
   const [steps, setSteps] = useState<StepView[] | null>(null);
   const [at, setAt] = useState(0);
+  const [replayId, setReplayId] = useState("");
+  const [replayStatus, setReplayStatus] = useState<string | null>(null);
+  const [replayEvents, setReplayEvents] = useState<ReplayEventView[] | null>(null);
+  const [replayAt, setReplayAt] = useState(0);
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<AgentFailure | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -197,6 +229,33 @@ export default function FlowsPage() {
   }
 
   const current = steps === null ? null : steps[Math.min(at, steps.length - 1)] ?? null;
+  const currentReplay = replayEvents === null ? null : replayEvents[Math.min(replayAt, replayEvents.length - 1)] ?? null;
+
+  async function inspectReplay(target?: string): Promise<void> {
+    const id = (target ?? replayId).trim().replace("skelet://replay/", "");
+    if (id === "") {
+      setFailure({ code: "UNKNOWN", message: "Enter a replay session ID before inspecting." });
+      return;
+    }
+    if (token.trim() === "") {
+      setFailure({ code: "UNKNOWN", message: "Enter an access token before inspecting." });
+      return;
+    }
+    await callJson("Inspect replay", `/api/v1/replays/${encodeURIComponent(id)}/events`, {
+      headers: authHeaders(),
+    }, (result) => {
+      const parsed = asReplayEvents(result);
+      if (parsed === null) {
+        setFailure({ code: "UNKNOWN", message: "Inspect replay returned an unrecognized shape." });
+        return;
+      }
+      setReplayId(id);
+      setReplayStatus(parsed.status);
+      setReplayEvents(parsed.events);
+      setReplayAt(0);
+      setNotice(`Listed ${parsed.events.length} replay event(s) in recorded order.`);
+    });
+  }
 
   return (
     <main>
@@ -316,6 +375,55 @@ export default function FlowsPage() {
             </li>
           ))}
         </ol>
+      </section>
+      <section aria-label="Replay sessions">
+        <h2>Replay sessions{replayStatus !== null ? ` — ${replayStatus}` : ""}</h2>
+        <p>
+          Consented replay events for one session, masked before storage.
+          Open sessions and record events through the agent tools; inspect
+          them here in recorded order.
+        </p>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setReplayEvents(null);
+            setReplayStatus(null);
+            setReplayAt(0);
+            void inspectReplay();
+          }}
+        >
+          <label htmlFor="flows-replay">Replay session ID</label>
+          <input
+            id="flows-replay"
+            type="text"
+            autoComplete="off"
+            value={replayId}
+            onChange={(event) => setReplayId(event.target.value)}
+          />
+          <button type="submit">Inspect replay</button>
+        </form>
+        {replayEvents === null ? <p>No replay inspected yet.</p> : null}
+        {replayEvents !== null && replayEvents.length === 0 ? <p>No events in this session.</p> : null}
+        {currentReplay !== null && replayEvents !== null ? (
+          <article aria-label={`Replay event ${replayAt + 1}`}>
+            <p>
+              Event {replayAt + 1} of {replayEvents.length}: type {currentReplay.type} at {currentReplay.timestamp}
+            </p>
+            <p>Data: {JSON.stringify(currentReplay.data)}</p>
+            <div>
+              <button type="button" disabled={replayAt <= 0} onClick={() => setReplayAt((value) => Math.max(0, value - 1))}>
+                Previous event
+              </button>{" "}
+              <button
+                type="button"
+                disabled={replayAt >= replayEvents.length - 1}
+                onClick={() => setReplayAt((value) => Math.min(replayEvents.length - 1, value + 1))}
+              >
+                Next event
+              </button>
+            </div>
+          </article>
+        ) : null}
       </section>
       <p>
         Provenance: observed flow reads with deterministic position order;

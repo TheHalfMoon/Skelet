@@ -67,3 +67,15 @@ test("flow player documents the replay boundary", async () => {
   assert.ok(!text.includes("record.pagination"), "UI does not invent a pagination nest");
   assert.ok(text.includes("rrweb"), "UI names the follow-on replay surface");
 });
+
+test("flow player inspects consented replay sessions in recorded order", async () => {
+  const text = await source();
+  for (const route of ["/api/v1/replays/${encodeURIComponent(id)}/events"]) {
+    assert.ok(text.includes(route), `UI calls ${route}`);
+  }
+  for (const marker of ["Inspect replay", "Previous event", "Next event", "No replay inspected yet"]) {
+    assert.ok(text.includes(marker), `UI exposes ${marker}`);
+  }
+  assert.ok(text.includes("masked before storage"), "UI documents pre-storage masking");
+  assert.ok(text.includes('htmlFor="flows-replay"'), "UI labels its replay field");
+});
