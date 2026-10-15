@@ -448,21 +448,21 @@
       "source_url": "https://github.com/open-pencil/open-pencil",
       "source_kind": "git",
       "role": "adapter",
-      "status": "planned",
-      "capability": "Create/editor provider, editable design documents, MCP, and Figma-format interoperability.",
+      "status": "ready",
+      "capability": "Headless openpencil CLI (tree/node/query/info/export/convert) plus fig/pen libraries for editable documents; app-bridged MCP tools and Tauri desktop explicitly out of scope.",
       "permission_basis": {
         "type": "upstream_license",
-        "note": "Use is governed by the upstream license; exact license and scope must be verified before activation."
+        "note": "MIT License verified 2026-10-15 via GitHub API and LICENSE file at pinned commit. No source import in P14 evaluation; headless CLI plus fig/pen reuse shortlist recorded in docs/provenance/OPENPENCIL_EVALUATION_2026-10-15.md."
       },
-      "license": "VERIFY_AT_IMPORT",
+      "license": "MIT",
       "pin_policy": "git_commit_required",
-      "exact_commit_or_release": null,
-      "verification_date": null,
+      "exact_commit_or_release": "78355fd3890cc9da9539235ee3b38beb917f2ed6",
+      "verification_date": "2026-10-15",
       "rights_scope": {
         "code": "license-governed",
-        "data": "verify-at-import",
-        "assets": "verify-at-import",
-        "models": "verify-at-import",
+        "data": "not-applicable",
+        "assets": "not-applicable",
+        "models": "not-applicable",
         "services": "not-applicable",
         "trademarks": "restricted"
       },
