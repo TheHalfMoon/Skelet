@@ -32,7 +32,13 @@ Re-run on the release candidate before claiming launch readiness.
 ## Operator alert thresholds (self-hosted)
 
 With no hosted monitoring in the zero-founder-spend modes, operators
-configure these from local logs and job tables:
+configure these from local logs and job tables. The committed evaluator
+`apps/web/lib/abuse-alarms.ts` (`evaluateAbuseAlarms`, covered by
+`apps/web/tests/abuse-alarms.test.mjs`) operationalizes these exact
+thresholds as a pure deterministic function; feed it from the runbook
+procedure below. Managed alerting (paged on-call, hosted dashboards) is
+explicitly deferred until a budgeted hosted offer exists; the evaluator
+must never be mistaken for one.
 
 - Any `FORBIDDEN_OR_NOT_FOUND` rate spike across workspaces: investigate
   as a possible confused-deputy or enumeration attempt (never as proof
