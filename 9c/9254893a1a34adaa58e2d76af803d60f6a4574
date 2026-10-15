@@ -1,0 +1,35 @@
+docs/reviews/AC-00-ii_JEV_REVIEW.md
+  s_f53ed81473dbc3::t_6cfc367c9404f9 1-7
+docs/reviews/AC-00-ii_JEV_REVIEW.json
+  s_f53ed81473dbc3::t_36b4c6bdce975a 1
+tests/test_frame_extractor_closure.py
+  s_f53ed81473dbc3::t_7502e7d40429e1 1-106
+scripts/audit_frame_extractor_closure.py
+  s_f53ed81473dbc3::t_aecee3e9641239 1-154
+docs/reviews/AC-00-ii_JEV_SPEC.json
+  s_f53ed81473dbc3::t_36b4c6bdce975a 1
+tests/test_craft_audit_af01.py
+  s_f53ed81473dbc3::t_526a6f2426e7e3 137,139-142
+imports/craft-suite/frame-extractor-closure.json
+  s_f53ed81473dbc3::t_1b8e7f1706ac5a 1-69
+docs/reviews/AC-00-ii_PSTACK_PANELS.md
+  s_f53ed81473dbc3::t_05be5607706f72 1-21
+docs/reviews/AC-00-ii_OCR_DELEGATION.md
+  s_f53ed81473dbc3::t_5fa39d0cf6df57 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9c9254893a1a34adaa58e2d76af803d60f6a4574",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
