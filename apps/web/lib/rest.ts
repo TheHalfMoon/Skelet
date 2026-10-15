@@ -4,6 +4,7 @@ import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from 
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
+import { GalleryError, listProductsForActor, listProductVersionsForActor } from "../../../packages/db/src/gallery.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
@@ -742,6 +743,151 @@ export async function getChangesRoute(
         return { status: err.httpStatus, body: err.toFailureEnvelope() };
       }
       return invalidInput(requestId, "Version comparison is invalid.");
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/products — actor-scoped product gallery.
+ *
+ * AF-14d: a product is listed only when at least one of its artifacts
+ * is readable by the actor. Unknown products and fully-withheld
+ * products both read as an empty list, never as an oracle.
+ */
+export async function listProductsRoute(
+  db: DbClient,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  let offset = 0;
+  if (query.cursor !== undefined) {
+    try {
+      offset = decodeCursor(query.cursor);
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        const withId = new AgentContractError("INVALID_INPUT", {
+          message: "Pagination cursor is invalid.",
+          requestId,
+        });
+        return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+      }
+      return opaque(requestId);
+    }
+  }
+  try {
+    const outcome = await listProductsForActor(db, { actorId, limit, offset });
+    const warnings = outcome.truncated ? ["Product budget reached; results are a reproducible prefix."] : [];
+    const body = successEnvelope(
+      requestId,
+      {
+        products: outcome.products.map((product) => ({
+          uri: `skelet://product/${product.productId}`,
+          title: product.title,
+          versionCount: product.versionCount,
+          artifactCount: product.artifactCount,
+        })),
+        total: outcome.total,
+        truncated: outcome.truncated,
+      },
+      {
+        cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+        warnings: warnings.length > 0 ? warnings : undefined,
+        partial: outcome.truncated,
+        provenance: observedProvenance(),
+      },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof GalleryError) {
+      return invalidInput(requestId, "Gallery query is invalid.");
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/products/{id}/versions — actor-scoped version gallery.
+ *
+ * AF-14d: a version is listed only when at least one of its artifacts
+ * is readable by the actor. Unknown products read as an empty list;
+ * malformed identifiers answer INVALID_INPUT.
+ */
+export async function listProductVersionsRoute(
+  db: DbClient,
+  productId: string,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  let offset = 0;
+  if (query.cursor !== undefined) {
+    try {
+      offset = decodeCursor(query.cursor);
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        const withId = new AgentContractError("INVALID_INPUT", {
+          message: "Pagination cursor is invalid.",
+          requestId,
+        });
+        return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+      }
+      return opaque(requestId);
+    }
+  }
+  try {
+    const outcome = await listProductVersionsForActor(db, { actorId, productId, limit, offset });
+    const warnings = outcome.truncated ? ["Version budget reached; results are a reproducible prefix."] : [];
+    const body = successEnvelope(
+      requestId,
+      {
+        versions: outcome.versions.map((version) => ({
+          uri: `skelet://version/${version.versionId}`,
+          productId: version.productId,
+          versionNo: version.versionNo,
+          artifactCount: version.artifactCount,
+        })),
+        total: outcome.total,
+        truncated: outcome.truncated,
+      },
+      {
+        cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+        warnings: warnings.length > 0 ? warnings : undefined,
+        partial: outcome.truncated,
+        provenance: observedProvenance(),
+      },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof GalleryError) {
+      return invalidInput(requestId, "Gallery query is invalid.");
     }
     return opaque(requestId);
   }

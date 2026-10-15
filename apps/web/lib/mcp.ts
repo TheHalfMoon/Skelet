@@ -7,6 +7,7 @@ import { SIMILARITY_KINDS, compareArtifactsForActor, findSimilarForActor } from 
 import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
+import { GalleryError, listProductsForActor, listProductVersionsForActor } from "../../../packages/db/src/gallery.ts";
 import { buildRegistryItem } from "./registry.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import {
@@ -265,6 +266,33 @@ function toolSchemas(): unknown[] {
           requestId: requestIdProp,
         },
         required: ["fromVersionId", "toVersionId"],
+      },
+    },
+    {
+      name: "list_products",
+      description: "List research products that have at least one artifact readable by the caller.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          limit: { type: "number" },
+          cursor: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: [],
+      },
+    },
+    {
+      name: "list_product_versions",
+      description: "List versions of one product that have at least one artifact readable by the caller.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          productId: { type: "string" },
+          limit: { type: "number" },
+          cursor: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["productId"],
       },
     },
     {
@@ -1070,6 +1098,83 @@ async function callTool(
           throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
         }
         throw invalidInput("Version comparison is invalid.", requestId);
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "list_products" || name === "list_product_versions") {
+    const actorId = requireUser(ctx);
+    let limit: number;
+    try {
+      limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput(`${name}.limit is invalid.`, requestId);
+    }
+    let offset = 0;
+    if (params.cursor !== undefined) {
+      try {
+        offset = decodeCursor(params.cursor);
+      } catch {
+        throw invalidInput("Pagination cursor is invalid.", requestId);
+      }
+    }
+    try {
+      if (name === "list_products") {
+        const outcome = await listProductsForActor(db, { actorId, limit, offset });
+        return successEnvelope(
+          requestId,
+          {
+            products: outcome.products.map((product) => ({
+              uri: `skelet://product/${product.productId}`,
+              title: product.title,
+              versionCount: product.versionCount,
+              artifactCount: product.artifactCount,
+            })),
+            total: outcome.total,
+            truncated: outcome.truncated,
+          },
+          {
+            cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+            partial: outcome.truncated,
+            warnings: outcome.truncated ? ["Product budget reached; results are a reproducible prefix."] : undefined,
+            provenance: observedProvenance(),
+          },
+        );
+      }
+      if (typeof params.productId !== "string") {
+        throw invalidInput("list_product_versions.productId is invalid.", requestId);
+      }
+      const outcome = await listProductVersionsForActor(db, {
+        actorId,
+        productId: params.productId,
+        limit,
+        offset,
+      });
+      return successEnvelope(
+        requestId,
+        {
+          versions: outcome.versions.map((version) => ({
+            uri: `skelet://version/${version.versionId}`,
+            productId: version.productId,
+            versionNo: version.versionNo,
+            artifactCount: version.artifactCount,
+          })),
+          total: outcome.total,
+          truncated: outcome.truncated,
+        },
+        {
+          cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+          partial: outcome.truncated,
+          warnings: outcome.truncated ? ["Version budget reached; results are a reproducible prefix."] : undefined,
+          provenance: observedProvenance(),
+        },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Unknown products read as empty, never as an oracle; only
+      // malformed input fails validation on both transports.
+      if (thrown instanceof GalleryError) {
+        throw invalidInput("Gallery query is invalid.", requestId);
       }
       throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
     }

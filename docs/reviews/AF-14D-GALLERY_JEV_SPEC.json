@@ -1,0 +1,59 @@
+{
+ "description": "Skelet AF-14d: product/version gallery reads with actor-scoped visibility (MCP plus REST plus skill plus CI wiring)",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Does this grain preserve all contracts: skelet.agent.v1 envelope unchanged, existing tools/routes/rankings untouched, two new tools additive with MCP/REST deep-equal parity, inventory 22->24 updated in three tests, skill validator promotion, CI db suite gains one file? Any renamed tool, changed route, or altered behavior?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is the gallery correct: products/versions listed only with >=1 actor-readable artifact via the central gate (same predicate family as flows), unknown products read as empty with no oracle, malformed IDs fail invalid-input, deterministic title/id and version_no ordering with examined caps and truncation flags, version IDs feeding flow/change tools? Do the 6 db tests plus 3 transport tests prove counts, visibility, pagination, validation, isolation, determinism, and parity?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is evidence sufficient: db 133/133 (6 new), web/node/worker 128/128 (3 new), python 217/217, validators PASS, lint/typecheck clean on db plus web, graft green, CI wired for exact-head proof? Any passing-test-only claim without integration coverage?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Any nondeterminism or resource risk: per-entity gate checks bounded by examined caps (200) with truncation flags, stable orders, limit 1..50 with offset cap, read-only queries, no timeouts needed for bounded local reads?",
+   "type": "noul"
+  },
+  "scope": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Anything beyond bounded gallery reads: gallery UI, flow player, taxonomy, rrweb, embeddings, billing, transplants, or unrelated refactors? Are those explicitly still open?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Do the R2 guarantees hold: per-artifact central-gate checks before listing (private and orphan titles never in JSON on either transport), unknown and withheld products answer alike as empty, malformed IDs fail invalid-input identically on both transports, request IDs/cursors sanitized, error bodies static with leak assertions, no shell/subprocess/network?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "932c95834b288b7f59841d0ca91810fa039d4889",
+  "branch": "skelet/af14d-gallery-reads",
+  "change": "AF-14d gallery: packages/db/src/gallery.ts plus db tests, list_products/list_product_versions MCP tools plus two REST routes plus route files, research skill step plus validator promotion, tool-count 22->24, CI db suite wiring. Read-only, no migration.",
+  "head_sha": "WORKTREE"
+ }
+}

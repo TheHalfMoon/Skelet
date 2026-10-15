@@ -1,0 +1,1 @@
+{"answers":{"compatibility":{"noul":0.48,"type":"noul"},"correctness":{"noul":0.36,"type":"noul"},"evidence":{"noul":0.39,"type":"noul"},"reliability":{"noul":0.43,"type":"noul"},"scope":{"noul":0.35,"type":"noul"},"security":{"noul":0.3,"type":"noul"}},"latency_ms":503,"model":"jev-1.13.0","ok":true,"usage":{"input_tokens":982,"output_tokens":110}}
