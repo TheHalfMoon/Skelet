@@ -1,0 +1,48 @@
+.github/workflows/ci.yml
+  s_f53ed81473dbc3::t_1e7b11300edf9b 640
+apps/web/lib/rest.ts
+  s_f53ed81473dbc3::t_e98acac3ef1514 7
+  s_f53ed81473dbc3::t_6323b2023f3848 751-895
+apps/web/tests/interop-http.test.mjs
+  s_f53ed81473dbc3::t_50e2488ed7a966 143
+apps/web/tests/interop-stdio.test.mjs
+  s_f53ed81473dbc3::t_50e2488ed7a966 112
+apps/web/app/api/v1/products/[id]/versions/route.ts
+  s_f53ed81473dbc3::t_b04ff3c99f94ac 3-8
+apps/web/tests/gallery.test.mjs
+  s_f53ed81473dbc3::t_d775feae35c3a0 99-100
+  s_f53ed81473dbc3::t_8258b04350e8fc 107-109
+  s_f53ed81473dbc3::t_620d8882a2c335 1-98,101-106,110-193
+skills/skelet-research/SKILL.md
+  s_f53ed81473dbc3::t_6d62f87d67fdf0 18
+apps/web/tests/mcp.test.mjs
+  s_f53ed81473dbc3::t_dbb623a912fa86 105-106
+  s_f53ed81473dbc3::t_50e2488ed7a966 82
+apps/web/lib/mcp.ts
+  s_f53ed81473dbc3::t_f9c03ea72b3e40 272-297
+  s_f53ed81473dbc3::t_c146c193638fab 10
+  s_f53ed81473dbc3::t_bb552ebb954106 1105-1175,1177-1181
+  s_f53ed81473dbc3::t_0aa8e1531a687c 1176
+packages/db/src/gallery.ts
+  s_f53ed81473dbc3::t_6c514163ac7b70 1-170
+scripts/validate_skills.py
+  s_f53ed81473dbc3::t_4bfedf53034a40 36-37
+packages/db/tests/gallery.test.mjs
+  s_f53ed81473dbc3::t_7d675ec94c1689 1-176
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5e4976894dffa8ebc56824bc2331c9412b44a4b7",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
