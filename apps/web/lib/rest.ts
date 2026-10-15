@@ -6,6 +6,13 @@ import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/inges
 import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
 import { GalleryError, listProductsForActor, listProductVersionsForActor } from "../../../packages/db/src/gallery.ts";
 import { PatternError, getPatternForActor, listPatternsForActor } from "../../../packages/db/src/patterns.ts";
+import {
+  ReplayError,
+  closeReplaySession,
+  getReplayEvents,
+  openReplaySession,
+  recordReplayEvents,
+} from "../../../packages/db/src/replay.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
@@ -1018,6 +1025,181 @@ export async function getPatternRoute(
       }
       return invalidInput(requestId, "Pattern query is invalid.");
     }
+    return opaque(requestId);
+  }
+}
+
+/** Replay session URI helper shared by the replay REST routes. */
+function replayUri(sessionId: string): string {
+  return `skelet://replay/${sessionId}`;
+}
+
+function replayFailure(requestId: string, error: ReplayError): RestResult {
+  if (error.code === "replay/not-found") {
+    const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+    return { status: err.httpStatus, body: err.toFailureEnvelope() };
+  }
+  return invalidInput(requestId, `Replay ledger is invalid: ${error.code}.`);
+}
+
+/** POST /api/v1/replays — open a consented replay session for one readable flow. */
+export async function openReplaySessionRoute(
+  db: DbClient,
+  body: Record<string, unknown> | null,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  if (body === null || typeof body.flowId !== "string") {
+    return invalidInput(requestId, "Replay flow is invalid.");
+  }
+  if (body.workspaceId !== undefined && typeof body.workspaceId !== "string") {
+    return invalidInput(requestId, "Replay workspace is invalid.");
+  }
+  try {
+    const session = await openReplaySession(db, {
+      flowId: body.flowId,
+      actorId,
+      workspaceId: body.workspaceId as string | undefined,
+      consent: body.consent,
+    });
+    if (session === null) {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        {
+          session: { uri: replayUri(session.id), status: session.status, eventCount: session.eventCount },
+          total: 1,
+        },
+        { provenance: observedProvenance(replayUri(session.id)) },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof ReplayError) return replayFailure(requestId, error);
+    return opaque(requestId);
+  }
+}
+
+/** POST /api/v1/replays/{id}/events — record redacted events into an open session. */
+export async function recordReplayEventsRoute(
+  db: DbClient,
+  sessionId: string,
+  body: Record<string, unknown> | null,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  if (body === null || !Array.isArray(body.events)) {
+    return invalidInput(requestId, "Replay events are invalid.");
+  }
+  try {
+    const stored = await recordReplayEvents(db, { sessionId, actorId, events: body.events });
+    if (stored === null) {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        {
+          recorded: stored.recorded,
+          eventCount: stored.eventCount,
+          session: { uri: replayUri(sessionId), eventCount: stored.eventCount },
+          total: stored.recorded,
+        },
+        { provenance: observedProvenance(replayUri(sessionId)) },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof ReplayError) return replayFailure(requestId, error);
+    return opaque(requestId);
+  }
+}
+
+/** POST /api/v1/replays/{id}/close — close a replay session. */
+export async function closeReplaySessionRoute(
+  db: DbClient,
+  sessionId: string,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  try {
+    const session = await closeReplaySession(db, { sessionId, actorId });
+    if (session === null) {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        {
+          session: { uri: replayUri(session.id), status: session.status, eventCount: session.eventCount },
+          total: 1,
+        },
+        { provenance: observedProvenance(replayUri(session.id)) },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof ReplayError) return replayFailure(requestId, error);
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/replays/{id}/events — replay one session in deterministic order. */
+export async function getReplayEventsRoute(
+  db: DbClient,
+  sessionId: string,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  try {
+    const replay = await getReplayEvents(db, { sessionId, actorId });
+    if (replay === null) {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    return {
+      status: 200,
+      body: successEnvelope(
+        requestId,
+        {
+          session: {
+            uri: replayUri(replay.session.id),
+            status: replay.session.status,
+            eventCount: replay.session.eventCount,
+          },
+          events: replay.events,
+          total: replay.events.length,
+        },
+        { provenance: observedProvenance(replayUri(replay.session.id)) },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof ReplayError) return replayFailure(requestId, error);
     return opaque(requestId);
   }
 }

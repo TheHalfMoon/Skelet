@@ -17,6 +17,7 @@ Research real shipped references before proposing UI. Every claim must cite reco
 6. **Track version changes.** Call `get_changes` with two product version IDs to list added, removed, changed, and reordered artifacts and flows with evidence-linked records. Unreadable objects never appear; renames report as remove plus add without inferred intent.
 7. **Browse the gallery.** Call `list_products` to find research products with readable evidence, then `list_product_versions` to recover version IDs for flows and changes. Products without readable artifacts never appear.
 8. **Name the patterns.** Call `list_patterns` to find taxonomy entries with readable linked artifacts (optional `query` over slug/title), then `get_pattern` to recover each pattern by stable `skelet://pattern/{slug}` URI with its artifact links. Patterns without readable artifacts never appear.
+9. **Replay consented flows.** Call `replay_open_session` with a flow ID and explicit consent, then `replay_record_events` with redacted event envelopes, then `replay_get_events` to replay the session back in order by stable `skelet://replay/{id}` URI. Sessions for unreadable flows answer not-found; input values are masked before storage, so never put credentials in events.
 
 ## Rules
 
