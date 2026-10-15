@@ -1,0 +1,27 @@
+docs/reviews/P11-SCOPE_JEV_REVIEW.json
+  s_f53ed81473dbc3::t_a452e5efa3fca7 1
+docs/reviews/P11-SCOPE_OCR_DELEGATION.md
+  s_f53ed81473dbc3::t_92b38ad59ac1ad 1-9
+docs/reviews/P11-SCOPE_JEV_REVIEW.md
+  s_f53ed81473dbc3::t_52eee17e03b180 1-11
+docs/reviews/P11-SCOPE_PSTACK_PANELS.md
+  s_f53ed81473dbc3::t_ec166e676063a3 1-21
+docs/reviews/P11-SCOPE_JEV_SPEC.json
+  s_f53ed81473dbc3::t_a452e5efa3fca7 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "a7f608af884101aa90cb922d60f39a47cb90e6d2",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
