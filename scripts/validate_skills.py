@@ -35,6 +35,8 @@ IMPLEMENTED_TOOLS = frozenset(
         "get_changes",
         "list_products",
         "list_product_versions",
+        "list_patterns",
+        "get_pattern",
         "search_registry",
         "lens_create_job",
         "lens_poll_job",

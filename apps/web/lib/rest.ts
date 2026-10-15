@@ -5,6 +5,7 @@ import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
 import { GalleryError, listProductsForActor, listProductVersionsForActor } from "../../../packages/db/src/gallery.ts";
+import { PatternError, getPatternForActor, listPatternsForActor } from "../../../packages/db/src/patterns.ts";
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
@@ -888,6 +889,134 @@ export async function listProductVersionsRoute(
     }
     if (error instanceof GalleryError) {
       return invalidInput(requestId, "Gallery query is invalid.");
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/patterns — actor-scoped pattern taxonomy listing.
+ *
+ * P10-C: a pattern is listed only when at least one linked artifact is
+ * readable by the actor. Unknown slugs and fully-withheld patterns both
+ * read as empty, never as an oracle.
+ */
+export async function listPatternsRoute(
+  db: DbClient,
+  query: Record<string, string | string[] | undefined>,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  let limit: number;
+  try {
+    limit = parseSearchLimit(query.limit);
+  } catch (thrown) {
+    if (thrown instanceof AgentContractError) {
+      return { status: thrown.httpStatus, body: thrown.toFailureEnvelope() };
+    }
+    return opaque(requestId);
+  }
+  let offset = 0;
+  if (query.cursor !== undefined) {
+    try {
+      offset = decodeCursor(query.cursor);
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) {
+        const withId = new AgentContractError("INVALID_INPUT", {
+          message: "Pagination cursor is invalid.",
+          requestId,
+        });
+        return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+      }
+      return opaque(requestId);
+    }
+  }
+  const rawQuery = query.query;
+  if (rawQuery !== undefined && (typeof rawQuery !== "string" || rawQuery.length === 0)) {
+    return invalidInput(requestId, "Pattern query is invalid.");
+  }
+  try {
+    const outcome = await listPatternsForActor(db, {
+      actorId,
+      limit,
+      offset,
+      query: typeof rawQuery === "string" ? rawQuery : undefined,
+    });
+    const warnings = outcome.truncated ? ["Pattern budget reached; results are a reproducible prefix."] : [];
+    const body = successEnvelope(
+      requestId,
+      {
+        patterns: outcome.patterns.map((pattern) => ({
+          uri: `skelet://pattern/${pattern.slug}`,
+          title: pattern.title,
+          artifactCount: pattern.artifactCount,
+        })),
+        total: outcome.total,
+        truncated: outcome.truncated,
+      },
+      {
+        cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+        warnings: warnings.length > 0 ? warnings : undefined,
+        partial: outcome.truncated,
+        provenance: observedProvenance(),
+      },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof PatternError) {
+      return invalidInput(requestId, "Pattern query is invalid.");
+    }
+    return opaque(requestId);
+  }
+}
+
+/** GET /api/v1/patterns/{slug} — actor-scoped pattern detail.
+ *
+ * P10-C: patterns without a readable linked artifact answer
+ * FORBIDDEN_OR_NOT_FOUND without an oracle; malformed slugs fail closed.
+ */
+export async function getPatternRoute(
+  db: DbClient,
+  slug: string,
+  actorId: string,
+  providedRequestId?: unknown,
+): Promise<RestResult> {
+  const requestId = newRequestId(providedRequestId);
+  try {
+    const detail = await getPatternForActor(db, { actorId, slug });
+    if (detail === null) {
+      const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      return { status: err.httpStatus, body: err.toFailureEnvelope() };
+    }
+    const body = successEnvelope(
+      requestId,
+      {
+        pattern: {
+          uri: `skelet://pattern/${detail.slug}`,
+          title: detail.title,
+          description: detail.description ?? null,
+        },
+        links: detail.links,
+        total: detail.links.length,
+      },
+      { provenance: observedProvenance(`skelet://pattern/${detail.slug}`) },
+    );
+    return { status: 200, body };
+  } catch (error) {
+    if (error instanceof AgentContractError) {
+      const withId = new AgentContractError(error.code, { requestId });
+      return { status: withId.httpStatus, body: withId.toFailureEnvelope() };
+    }
+    if (error instanceof PatternError) {
+      if (error.code === "pattern/not-found") {
+        const err = new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        return { status: err.httpStatus, body: err.toFailureEnvelope() };
+      }
+      return invalidInput(requestId, "Pattern query is invalid.");
     }
     return opaque(requestId);
   }

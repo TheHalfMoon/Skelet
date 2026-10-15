@@ -8,6 +8,7 @@ import type { ComparedSide } from "../../../packages/assets/src/similarity.ts";
 import { getFlowStepsForActor, listFlowsForActor } from "../../../packages/ingest/src/corpus.ts";
 import { ChangesError, getChangesForActor } from "../../../packages/db/src/changes.ts";
 import { GalleryError, listProductsForActor, listProductVersionsForActor } from "../../../packages/db/src/gallery.ts";
+import { PatternError, getPatternForActor, listPatternsForActor } from "../../../packages/db/src/patterns.ts";
 import { buildRegistryItem } from "./registry.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import {
@@ -293,6 +294,32 @@ function toolSchemas(): unknown[] {
           requestId: requestIdProp,
         },
         required: ["productId"],
+      },
+    },
+    {
+      name: "list_patterns",
+      description: "List pattern taxonomy entries that have at least one artifact readable by the caller.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          query: { type: "string" },
+          limit: { type: "number" },
+          cursor: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: [],
+      },
+    },
+    {
+      name: "get_pattern",
+      description: "Inspect one pattern with its readable linked artifacts.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          slug: { type: "string" },
+          requestId: requestIdProp,
+        },
+        required: ["slug"],
       },
     },
     {
@@ -1175,6 +1202,85 @@ async function callTool(
       // malformed input fails validation on both transports.
       if (thrown instanceof GalleryError) {
         throw invalidInput("Gallery query is invalid.", requestId);
+      }
+      throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
+    }
+  }
+  if (name === "list_patterns" || name === "get_pattern") {
+    const actorId = requireUser(ctx);
+    let limit: number;
+    try {
+      limit = parseSearchLimit(params.limit);
+    } catch {
+      throw invalidInput(`${name}.limit is invalid.`, requestId);
+    }
+    let offset = 0;
+    if (params.cursor !== undefined) {
+      try {
+        offset = decodeCursor(params.cursor);
+      } catch {
+        throw invalidInput("Pagination cursor is invalid.", requestId);
+      }
+    }
+    try {
+      if (name === "list_patterns") {
+        if (params.query !== undefined && typeof params.query !== "string") {
+          throw invalidInput("list_patterns.query is invalid.", requestId);
+        }
+        const outcome = await listPatternsForActor(db, {
+          actorId,
+          limit,
+          offset,
+          query: params.query as string | undefined,
+        });
+        return successEnvelope(
+          requestId,
+          {
+            patterns: outcome.patterns.map((pattern) => ({
+              uri: `skelet://pattern/${pattern.slug}`,
+              title: pattern.title,
+              artifactCount: pattern.artifactCount,
+            })),
+            total: outcome.total,
+            truncated: outcome.truncated,
+          },
+          {
+            cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
+            partial: outcome.truncated,
+            warnings: outcome.truncated ? ["Pattern budget reached; results are a reproducible prefix."] : undefined,
+            provenance: observedProvenance(),
+          },
+        );
+      }
+      if (typeof params.slug !== "string") {
+        throw invalidInput("get_pattern.slug is invalid.", requestId);
+      }
+      const detail = await getPatternForActor(db, { actorId, slug: params.slug });
+      if (detail === null) {
+        throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+      }
+      return successEnvelope(
+        requestId,
+        {
+          pattern: {
+            uri: `skelet://pattern/${detail.slug}`,
+            title: detail.title,
+            description: detail.description ?? null,
+          },
+          links: detail.links,
+          total: detail.links.length,
+        },
+        { provenance: observedProvenance(`skelet://pattern/${detail.slug}`) },
+      );
+    } catch (thrown) {
+      if (thrown instanceof AgentContractError) throw thrown;
+      // Unknown slugs read as not-found without an oracle; only
+      // malformed input fails validation on both transports.
+      if (thrown instanceof PatternError) {
+        if (thrown.code === "pattern/not-found") {
+          throw new AgentContractError("FORBIDDEN_OR_NOT_FOUND", { requestId });
+        }
+        throw invalidInput("Pattern query is invalid.", requestId);
       }
       throw new AgentContractError("INTERNAL_OPAQUE", { requestId });
     }

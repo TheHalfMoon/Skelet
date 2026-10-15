@@ -39,7 +39,7 @@ EVIDENCE_MODES = {
     "unknown",
 }
 URI_RE = re.compile(
-    r"^skelet://(product|version|artifact|flow|collection|lens|reference-pack)/[A-Za-z0-9_\-]{1,128}$"
+    r"^skelet://(product|version|artifact|flow|collection|lens|reference-pack|pattern)/[A-Za-z0-9_\-]{1,128}$"
 )
 
 
