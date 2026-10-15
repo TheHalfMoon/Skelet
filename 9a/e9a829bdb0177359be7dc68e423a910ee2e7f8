@@ -1,0 +1,22 @@
+docs/qualification/P13_SCOPE_DISPOSITION.md
+  s_f53ed81473dbc3::t_46849d1466222a 1-38
+tests/test_p13_scope.py
+  s_f53ed81473dbc3::t_12084caed6ac6b 1-49,52-60
+  s_f53ed81473dbc3::t_07b335193771d8 50-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9ae9a829bdb0177359be7dc68e423a910ee2e7f8",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
