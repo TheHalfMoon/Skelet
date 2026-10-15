@@ -1,0 +1,40 @@
+docs/reviews/AF12-RECONCILE-2_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_5d6ff70df486a2 1
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_1b95f6ddfe4543::t_8b9ecea3d6e49d 433-441
+  s_1b95f6ddfe4543::t_6a3f7cace13f65 233-235
+  s_1b95f6ddfe4543::t_2be7b316a8da43 305-306
+  s_1b95f6ddfe4543::t_838b906586792b 331
+  s_1b95f6ddfe4543::t_811a2aa7b2b379 141
+  s_1b95f6ddfe4543::t_fcd6ed6f631bf0 184,186-187
+  s_1b95f6ddfe4543::t_309338924d842a 238-239
+  s_1b95f6ddfe4543::t_e7dc97222920d0 180-183
+  s_1b95f6ddfe4543::t_968eb97afe5a4b 390-391
+  s_1b95f6ddfe4543::t_93d05bb5722f0c 369
+  s_1b95f6ddfe4543::t_aed04bb11e9834 232
+  s_1b95f6ddfe4543::t_ac9ef40c85e6cd 3-4,6,8,10
+docs/reviews/AF12-RECONCILE-2_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_794562331028f8 1
+docs/reviews/AF12-RECONCILE-2_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_008a6b362c5277 1-21
+docs/reviews/AF12-RECONCILE-2_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_5dfa7bc7e3f819 1-15
+docs/reviews/AF12-RECONCILE-2_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_c9938e154b9d29 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6fd1878007b8cdf1ae44d35fe87d21872915154d",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
