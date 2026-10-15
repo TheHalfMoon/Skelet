@@ -1,0 +1,27 @@
+docs/reviews/P10-PATTERN-READS_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_df71fffbe0d01e 1-15
+docs/reviews/P10-PATTERN-READS_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_9f7848cde0cb64 1
+docs/reviews/P10-PATTERN-READS_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_e047ee3a8c602f 1-10
+docs/reviews/P10-PATTERN-READS_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_cda5e38c2607ee 1-21
+docs/reviews/P10-PATTERN-READS_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_a8a81795c99352 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "f7fb202a1e067034a17598e75a14d78e9bf0274d",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
