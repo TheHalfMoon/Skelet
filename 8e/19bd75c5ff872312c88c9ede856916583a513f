@@ -1,0 +1,27 @@
+docs/reviews/P10-REPLAY-LEDGER_JEV_REVIEW.json
+  s_1b95f6ddfe4543::t_2c377f118b47f8 1
+docs/reviews/P10-REPLAY-LEDGER_OCR_DELEGATION.md
+  s_1b95f6ddfe4543::t_d45d02349974a2 1-10
+docs/reviews/P10-REPLAY-LEDGER_PSTACK_PANELS.md
+  s_1b95f6ddfe4543::t_b9a2b9b1b0b451 1-21
+docs/reviews/P10-REPLAY-LEDGER_JEV_SPEC.json
+  s_1b95f6ddfe4543::t_26ea4512f39eb0 1
+docs/reviews/P10-REPLAY-LEDGER_JEV_REVIEW.md
+  s_1b95f6ddfe4543::t_716e7791420d12 1-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "8e19bd75c5ff872312c88c9ede856916583a513f",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
