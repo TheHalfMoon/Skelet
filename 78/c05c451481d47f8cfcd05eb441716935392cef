@@ -1,0 +1,42 @@
+packages/db/tests/patterns.test.mjs
+  s_1b95f6ddfe4543::t_903ebf58fc4750 95
+  s_1b95f6ddfe4543::t_fa5b37e0e0f435 1-94,96-178
+.github/workflows/ci.yml
+  s_1b95f6ddfe4543::t_3b5b7f31be8f00 644
+scripts/validate_agent_contract.py
+  s_1b95f6ddfe4543::t_67330fb2e36dc1 42
+apps/web/lib/mcp.ts
+  s_1b95f6ddfe4543::t_5c38a7b05a27f4 11
+  s_1b95f6ddfe4543::t_b28c9e4327d21e 1209-1287
+  s_1b95f6ddfe4543::t_fd2a634af8442a 300-324
+apps/web/lib/rest.ts
+  s_1b95f6ddfe4543::t_0a51f65028439c 897-1024
+  s_1b95f6ddfe4543::t_8b994e89f0776d 8
+skills/skelet-research/SKILL.md
+  s_1b95f6ddfe4543::t_4ef17a683c811e 19
+scripts/validate_skills.py
+  s_1b95f6ddfe4543::t_e447fcb29123a4 38-39
+apps/web/tests/mcp.test.mjs
+  s_1b95f6ddfe4543::t_180a8f4750d929 106
+  s_1b95f6ddfe4543::t_9698bcf04997a8 96
+apps/web/tests/patterns.test.mjs
+  s_1b95f6ddfe4543::t_3c1bf978fb3fb3 1-156
+packages/db/src/patterns.ts
+  s_1b95f6ddfe4543::t_8a6c5426f73ce1 1-252
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "78c05c451481d47f8cfcd05eb441716935392cef",
+  "prompts": {},
+  "sessions": {
+    "s_1b95f6ddfe4543": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec1d11ca6ffe2SAQcUzOzWk6vL",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
