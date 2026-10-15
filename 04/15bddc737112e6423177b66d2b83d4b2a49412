@@ -1,0 +1,24 @@
+packages/assets/src/similarity.ts
+  s_f53ed81473dbc3::t_f3e62ed711e783 267,281
+  s_f53ed81473dbc3::t_4e91860c50cbbb 268-273,279-280
+packages/assets/tests/similarity.test.mjs
+  s_f53ed81473dbc3::t_f08daf18d39fd2 366-410
+apps/web/tests/similar.test.mjs
+  s_f53ed81473dbc3::t_716eb798e0c7d8 318-367
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0415bddc737112e6423177b66d2b83d4b2a49412",
+  "prompts": {},
+  "sessions": {
+    "s_f53ed81473dbc3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ec3617eb6ffeMh4J7EfxbhA80F",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
