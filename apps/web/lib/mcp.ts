@@ -205,7 +205,7 @@ function toolSchemas(): unknown[] {
         type: "object",
         properties: {
           artifactId: { type: "string" },
-          kinds: { type: "array", items: { type: "string", enum: ["icon", "logo", "font"] } },
+          kinds: { type: "array", items: { type: "string", enum: ["screen", "page", "section", "component", "icon", "logo", "font", "illustration", "resource", "brief", "design"] } },
           limit: { type: "number" },
           cursor: { type: "string" },
           requestId: requestIdProp,
@@ -793,7 +793,7 @@ async function callTool(
       throw invalidInput("find_similar.artifactId is invalid.", requestId);
     }
     const actorId = requireUser(ctx);
-    let kinds: ("icon" | "logo" | "font")[] | undefined;
+    let kinds: string[] | undefined;
     if (params.kinds !== undefined) {
       if (
         !Array.isArray(params.kinds) ||
@@ -804,7 +804,7 @@ async function callTool(
       ) {
         throw invalidInput("find_similar.kinds is invalid.", requestId);
       }
-      kinds = params.kinds as ("icon" | "logo" | "font")[];
+      kinds = params.kinds as string[];
     }
     let limit: number;
     try {
