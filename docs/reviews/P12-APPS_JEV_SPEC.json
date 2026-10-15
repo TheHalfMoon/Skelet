@@ -1,0 +1,59 @@
+{
+ "description": "Skelet P12 Apps views disposition: deferred as progressive enhancement with qualified core intact (no code change)",
+ "questions": {
+  "compatibility": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Does this grain preserve all contracts: no product code, schema, API, MCP, migration, donor, dependency, or config change; only one disposition record plus one conformance test file? Any changed behavior?",
+   "type": "noul"
+  },
+  "correctness": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is the disposition fact-correct: no Apps SDK in web deps, no ui:// surface in MCP dispatch, qualified core tools present, plan 23.3 plus blueprint progressive-enhancement language quoted, -32601 degradation with REST fallback recorded, trigger with sandbox condition? Do the 4 conformance tests prove SDK absence, core existence, plan authorization, and trigger offline?",
+   "type": "noul"
+  },
+  "evidence": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Is evidence sufficient: 4/4 new conformance tests pass, full python suite 221/221 green, hygiene PASS, graft green, no network in CI? Any prose-only closure of a requirement?",
+   "type": "noul"
+  },
+  "reliability": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Any risk in the record: dependency absence scanned from the live manifest, tool presence read from live dispatch, plan strings quoted verbatim, trigger vocabulary asserted?",
+   "type": "noul"
+  },
+  "scope": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Anything beyond the P12 disposition: Apps implementation, SDK adoption, UI work, embeddings, billing, or unrelated refactors? Is the trigger a genuine adoption precondition rather than a smuggled approval?",
+   "type": "noul"
+  },
+  "security": {
+   "criteria": {
+    "false": "No demonstrated material issue",
+    "true": "Material issue exists"
+   },
+   "instructions": "Does the grain weaken any control: sandbox condition attached to any future embed, no new surface, no secrets, no network in CI?",
+   "type": "noul"
+  }
+ },
+ "state": {
+  "base_sha": "d3780f3e0f74f7969ba6a68a36d34c89e05a4607",
+  "branch": "skelet/p12-apps-disposition",
+  "change": "P12 Apps disposition: docs/qualification/P12_APPS_DISPOSITION.md (deferred with trigger) plus tests/test_p12_apps.py (4 machine-checked tests). No code change.",
+  "head_sha": "WORKTREE"
+ }
+}
