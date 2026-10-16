@@ -1,0 +1,33 @@
+docs/reviews/RELEASE-DECISION_JEV_SPEC.json
+  s_5d9e965208b16b::t_2544a7ee5d4f13 1
+docs/reviews/RELEASE-DECISION_JEV_REVIEW.json
+  s_5d9e965208b16b::t_3d8b151732d489 1
+docs/reviews/RELEASE-DECISION_PSTACK_PANELS.md
+  s_5d9e965208b16b::t_ede48a2bb5e9e3 1-21
+docs/reviews/RELEASE-DECISION_JEV_REVIEW.md
+  s_5d9e965208b16b::t_65fac3bac8ecaa 1-7
+docs/reviews/RELEASE-DECISION_OCR_DELEGATION.md
+  s_5d9e965208b16b::t_670825328f1ae6 1-6
+docs/qualification/V1_LOCAL_RELEASE_DECISION.md
+  s_5d9e965208b16b::t_647c8ad1fb4148 1-56
+tests/test_release_decision.py
+  s_5d9e965208b16b::t_de0bbe250e894e 58
+  s_5d9e965208b16b::t_4bf3544866d81b 36
+  s_5d9e965208b16b::t_27f8d10c114c13 1-35,37-57,59-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e465016dd358043e4a69d774551864fedaa6b14c",
+  "prompts": {},
+  "sessions": {
+    "s_5d9e965208b16b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc9f9396ffetD3BLOQPot0vaE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
