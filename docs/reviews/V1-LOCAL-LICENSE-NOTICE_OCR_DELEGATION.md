@@ -1,0 +1,9 @@
+# v1 Local License/NOTICE (OD-05) Alibaba OCR Delegation Record (not an LLM-backed scan)
+
+- Grain: OD-05 license packaging, branch `skelet/v1-local-license-notice-rc`, base `1cc3bbea14f859de5d4716615b12c459f5fd543c`.
+- OCR version: official `ocr` CLI, delegate mode (no OCR LLM provider credential configured), per `GOVERNANCE.md`: `ocr delegate preview` (workspace mode: spec/review JSONs reviewable, review .md files excluded as unsupported_ext, untracked `.ignore` listed) plus `ocr delegate rule` (JS group for the builder script; Python group for the two test files) executed as host-agent review against the exact diff `1cc3bbe..HEAD` (6 files, 693 insertions, 5 deletions).
+- Delegated rules executed:
+  - JS (builder one-line manifest string): no `var`; strict equality only (no `==` touched); no `eval`/`Function`/`innerHTML`/`document.write`; no network/fetch/http imports; `spawnSync` with fixed arg arrays unchanged; version-label regex unchanged; exit-code contract unchanged. The edited line is a static license-state string with no user input into shell. PASS, no finding.
+  - Python (new license suite + updated doc test): declaration-site spelling checked; unittest structure mirrors existing conformance tests; file reads are local-path only (no network); assertions bind to exact NOTICE/doc tokens and were verified green (10/10 new, 6/6 updated-file run in the 16-pass batch). PASS, no finding.
+  - Non-code artifacts (LICENSE verbatim Apache-2.0 text with 2026 copyright line; NOTICE static attribution/restriction text; RC doc paragraph; Jev review records): not OCR-reviewable file types; verified by exact-token conformance tests instead. No secret/key/credential material present; hygiene suite green.
+- Findings: zero unresolved blocking findings. Untracked `.ignore` intentionally NOT staged or committed. This record MUST NOT be described as an LLM-backed OCR scan.

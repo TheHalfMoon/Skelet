@@ -41,10 +41,13 @@ class ReleaseCandidateDocTests(unittest.TestCase):
             self.assertIn(token, self.doc, msg=f"doc missing: {token}")
         self.assertIn("FORBIDDEN_SEGMENTS", self.builder)
 
-    def test_license_gap_with_owner_decision(self) -> None:
-        for token in ("OD-05", "no root `LICENSE`", "NOTICE",
-                      "pending owner decision"):
+    def test_license_resolution_with_owner_decision(self) -> None:
+        for token in ("OD-05", "OD-05 (license, RESOLVED)",
+                      "root `LICENSE`", "root `NOTICE`",
+                      "no blocking conflict"):
             self.assertIn(token, self.doc, msg=f"doc missing: {token}")
+        self.assertNotIn("no root `LICENSE` file and no consolidated `NOTICE` file exist",
+                         self.doc, msg="doc still claims the OD-05 gap")
 
     def test_signing_and_publication_gates(self) -> None:
         for token in ("OD-02", "explicitly unsigned", "OD-03",

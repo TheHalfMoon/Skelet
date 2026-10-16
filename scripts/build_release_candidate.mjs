@@ -135,7 +135,7 @@ const manifest = {
   built_from: "git archive HEAD (tracked files only)",
   signed: false,
   signing: "pending owner ceremony OD-02; self-test signatures never qualify",
-  license: "pending owner decision OD-05; no root LICENSE is claimed by this manifest",
+  license: "Apache-2.0 for Skelet-owned code (root LICENSE, OD-05); two monet-registry files carved out per root NOTICE section 2; see NOTICE",
   files: tracked.length,
   artifacts: {
     tarball: tarballName,
