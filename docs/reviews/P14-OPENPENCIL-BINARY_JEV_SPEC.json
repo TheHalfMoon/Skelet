@@ -1,0 +1,59 @@
+{
+  "description": "Skelet P14 genuine OpenPencil binary qualification record (docs-only, no product code change)",
+  "state": {
+    "base_sha": "6d318a8dc44d5bacc7d7087def2e429f73a493f7",
+    "branch": "skelet/p14-openpencil-binary",
+    "change": "P14 genuine OpenPencil binary qualification: docs/qualification/OPENPENCIL_BINARY_QUALIFICATION.md (genuine bun-built binary at pin 78355fd, six allowlisted file-mode ops exercised through committed adapter, .pen/.fig handling, pack journey, fig round-trip, 20/20 suite with binary vs 19+1 skip without) plus AF-12 matrix Post-Audit Delta entry. No product code change; no schema/API/MCP/migration/config change.",
+    "head_sha": "WORKTREE"
+  },
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does this grain preserve all contracts: docs-only plus one matrix delta line; no product code, schema, API, MCP, migration, donor import, or config change; existing adapter/tests/routes unaffected? Any changed behavior?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is the qualification factually correct: pin 78355fd equals UPSTREAMS and OPENPENCIL_PIN; version 0.16.0; MIT license; bun install plus tsdown build with reproducible dist hash; wrapper uses bun runtime; six ops exercised with stated argv shapes; .pen/.fig handling and fig ID nuance recorded; query XPath nuance recorded; 20/20 with binary vs 19+1 skip without? Any claim without evidence?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is evidence sufficient: harness imports committed adapter at main HEAD; confined mkdtemp roots; availability ready; info/tree/node/query/export/convert outputs quoted; svg reopen dimensions; fig reopen info; pack journey; committed suite 20/20 with binary; no genuine-binary overclaim beyond exercised shape? Any test claim without a run?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any reliability risk: qualification does not install or redistribute the binary; operators must install bun plus pinned checkout themselves; adapter stays disabled by default with pin equality and confinement; dist hash recorded; build warnings disclosed?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond the qualification grain: .fig fidelity at scale stays per-document; PageDraw conditional unchanged; refused operations stay uninvoked; no UI/billing/transplant change? Are limits honestly stated rather than deferred silently?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the grain weaken any control: no binary committed; no secrets in doc; no network in CI; harness roots are local-only and removed; wrapper is local-only and uncommitted; no app-bridge token use? Any secret or path leakage?",
+      "type": "noul"
+    }
+  }
+}
