@@ -1,0 +1,151 @@
+apps/web/app/api/v1/lens/jobs/[id]/artifacts/route.ts
+  s_733d7ae58065dd::t_91f2c2d2f7268a 3
+  s_733d7ae58065dd::t_0d32735f5e37dc 37
+  s_733d7ae58065dd::t_8b57c5a62fd97b 20
+apps/web/app/api/v1/boards/[id]/handoff/route.ts
+  s_733d7ae58065dd::t_f88f69db0873e8 39
+  s_733d7ae58065dd::t_e201e243371be5 22
+  s_733d7ae58065dd::t_16560cda469685 3
+apps/web/app/api/v1/replays/route.ts
+  s_733d7ae58065dd::t_4cf703294e90cf 49
+  s_733d7ae58065dd::t_bca63a3ee4c750 20
+  s_733d7ae58065dd::t_64e5be2b3f0e55 3
+apps/web/lib/session.ts
+  s_733d7ae58065dd::t_04a020dcf2fa28 6,8
+  s_733d7ae58065dd::t_a9d9d548d86119 1-5,7,9-258,266-412
+  s_733d7ae58065dd::t_7cf5e05918aa52 259-265
+apps/web/app/api/v1/boards/route.ts
+  s_733d7ae58065dd::t_544eb76e8a32fe 3
+  s_733d7ae58065dd::t_d340b9d1353452 39
+  s_733d7ae58065dd::t_7c2fea0168efc4 19
+apps/web/app/api/v1/boards/[id]/validation/route.ts
+  s_733d7ae58065dd::t_e8e3cb78dbc7f6 20
+  s_733d7ae58065dd::t_d48f20da00c992 37
+  s_733d7ae58065dd::t_c4ba02530e9a80 3
+apps/web/app/api/v1/lens/jobs/[id]/route.ts
+  s_733d7ae58065dd::t_e496b79f3626b3 36
+  s_733d7ae58065dd::t_c5f319d0eeda65 3
+  s_733d7ae58065dd::t_558bf7be290366 19
+apps/web/tests/session.test.mjs
+  s_733d7ae58065dd::t_76c549f2b17ed8 170
+  s_733d7ae58065dd::t_6336f6987e9979 172-174
+  s_733d7ae58065dd::t_382c9989ead097 1-169,171,175-348
+tests/node/home-navigation.test.mjs
+  s_733d7ae58065dd::t_0eb7852ddc07f5 15-19
+apps/web/tests/auth-ui.test.mjs
+  s_733d7ae58065dd::t_cc73ec7d7acfab 1-51
+apps/web/app/api/v1/flows/route.ts
+  s_733d7ae58065dd::t_6186bd10cf053e 31
+  s_733d7ae58065dd::t_980cff990fbaea 3
+  s_733d7ae58065dd::t_8be5b03d1e9f20 50
+apps/web/app/api/v1/flows/[id]/steps/route.ts
+  s_733d7ae58065dd::t_25188de72c1feb 3
+  s_733d7ae58065dd::t_c207aad3c9059f 23
+  s_733d7ae58065dd::t_918f3425009fcd 42
+apps/web/app/api/v1/changes/route.ts
+  s_733d7ae58065dd::t_b6a4a2d2c5df54 50
+  s_733d7ae58065dd::t_e6a2bad6e7dd54 31
+  s_733d7ae58065dd::t_2ce5c168f6d481 3
+apps/web/app/api/v1/boards/[id]/handoffs/route.ts
+  s_733d7ae58065dd::t_4f73dd96928512 20
+  s_733d7ae58065dd::t_306ecff4262473 3
+  s_733d7ae58065dd::t_202f626b666bcd 37
+apps/web/app/api/v1/lens/jobs/[id]/resume/route.ts
+  s_733d7ae58065dd::t_723ef1be9250c9 37
+  s_733d7ae58065dd::t_84111dc007c4aa 3
+  s_733d7ae58065dd::t_8ffa5060f0eaa3 20
+apps/web/app/api/v1/lens/jobs/route.ts
+  s_733d7ae58065dd::t_6316e3e5c89502 3
+  s_733d7ae58065dd::t_17d37f32cb74c4 30
+  s_733d7ae58065dd::t_57b97e843f6921 50
+apps/web/app/api/v1/replays/[id]/events/route.ts
+  s_733d7ae58065dd::t_12e10c277cbf0f 20,66
+  s_733d7ae58065dd::t_e32f46a8fc3daf 3
+  s_733d7ae58065dd::t_9d22743e4dabab 39,95
+apps/web/app/api/v1/boards/[id]/move/route.ts
+  s_733d7ae58065dd::t_b168181700e920 20
+  s_733d7ae58065dd::t_bd293e4f0a9215 37
+  s_733d7ae58065dd::t_d2f222da5d30d6 3
+apps/web/app/api/v1/patterns/[slug]/route.ts
+  s_733d7ae58065dd::t_9cc46d9b0ad427 20
+  s_733d7ae58065dd::t_6926352a23080f 39
+  s_733d7ae58065dd::t_198440df306d30 3
+apps/web/app/api/v1/replays/[id]/close/route.ts
+  s_733d7ae58065dd::t_296ed785db5ec5 40
+  s_733d7ae58065dd::t_93e481d0a638b5 3
+  s_733d7ae58065dd::t_3c639cceee2c5c 19
+apps/web/app/api/v1/assets/[id]/route.ts
+  s_733d7ae58065dd::t_10bad78485b0a5 36
+  s_733d7ae58065dd::t_78544fd12d23eb 3
+  s_733d7ae58065dd::t_f2f92e17833f43 19
+apps/web/app/api/v1/products/route.ts
+  s_733d7ae58065dd::t_45f8f9e1b785dd 3
+  s_733d7ae58065dd::t_fc8cf683e2e47c 50
+  s_733d7ae58065dd::t_4f878943ec80c0 31
+apps/web/app/api/v1/boards/[id]/items/route.ts
+  s_733d7ae58065dd::t_2b1844c1188fa2 19
+  s_733d7ae58065dd::t_4d3aedce0e307b 3
+  s_733d7ae58065dd::t_a2ab5f18bef8ba 36
+apps/web/app/api/v1/patterns/route.ts
+  s_733d7ae58065dd::t_54cd54510cf314 50
+  s_733d7ae58065dd::t_55a807a8d114b7 31
+  s_733d7ae58065dd::t_7085535aa46761 3
+apps/web/app/api/v1/boards/[id]/route.ts
+  s_733d7ae58065dd::t_b4750bc57be746 3
+  s_733d7ae58065dd::t_6276c9a690c215 20
+  s_733d7ae58065dd::t_181816191caf0f 40
+apps/web/app/api/v1/products/[id]/versions/route.ts
+  s_733d7ae58065dd::t_2527cfbd957855 32
+  s_733d7ae58065dd::t_1b9dfb8c2c0a02 51
+  s_733d7ae58065dd::t_42b8fb21a7338d 3
+apps/web/app/api/mcp/route.ts
+  s_733d7ae58065dd::t_23b701b3929b8e 100-104,106
+  s_733d7ae58065dd::t_1e4e55cf1f569d 9-12
+  s_733d7ae58065dd::t_efc56b08099080 82-83
+apps/web/app/api/v1/lens/jobs/[id]/retry/route.ts
+  s_733d7ae58065dd::t_543344b1607341 20
+  s_733d7ae58065dd::t_5a6259ad0bdfcc 37
+  s_733d7ae58065dd::t_24a05befdba946 3
+apps/web/app/api/v1/assets/similar/route.ts
+  s_733d7ae58065dd::t_126dcb5c15f1b4 31
+  s_733d7ae58065dd::t_52ba8aabcbb274 50
+  s_733d7ae58065dd::t_56bac8388ff57b 3
+apps/web/app/api/v1/lens/jobs/[id]/cancel/route.ts
+  s_733d7ae58065dd::t_8c47d84ef60661 3
+  s_733d7ae58065dd::t_b591d6c10806f2 37
+  s_733d7ae58065dd::t_fb43436bf6fa62 20
+apps/web/app/api/v1/assets/compare/route.ts
+  s_733d7ae58065dd::t_d775a4b395d5da 3
+  s_733d7ae58065dd::t_3db09c0f524bf7 31
+  s_733d7ae58065dd::t_0b457c2de7d57a 50
+apps/web/app/api/v1/assets/route.ts
+  s_733d7ae58065dd::t_240582f80dcae2 27
+  s_733d7ae58065dd::t_c12e1b826a959b 46
+  s_733d7ae58065dd::t_ca01b4cacc402a 3
+apps/web/app/api/v1/boards/[id]/items/[artifactId]/route.ts
+  s_733d7ae58065dd::t_d310ef73138e3f 3
+  s_733d7ae58065dd::t_9ae6a322e16019 19
+  s_733d7ae58065dd::t_9dc9c229649e33 36
+apps/web/app/page.tsx
+  s_733d7ae58065dd::t_982006c6a898ff 35-42
+apps/web/app/api/v1/objects/route.ts
+  s_733d7ae58065dd::t_00269e444193b5 3
+  s_733d7ae58065dd::t_a55e5200236d9a 16
+  s_733d7ae58065dd::t_e6bbf84c784cab 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "79a905bdd28969b0e2dd24a87e0d516ddf0a5b5c",
+  "prompts": {},
+  "sessions": {
+    "s_733d7ae58065dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eb97c8aaaffeixv0AQoBNpC5mo",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}
