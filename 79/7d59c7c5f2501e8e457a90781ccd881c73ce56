@@ -1,0 +1,34 @@
+docs/qualification/CLEAN_INSTALL_PROOF.md
+  s_5d9e965208b16b::t_1e4879c150fcca 1-36
+docs/reviews/CLEAN-INSTALL_JEV_REVIEW.json
+  s_5d9e965208b16b::t_45ec16bb32cfeb 1
+docs/reviews/CLEAN-INSTALL_JEV_SPEC.json
+  s_5d9e965208b16b::t_ccce32a0b316e0 1
+docs/reviews/CLEAN-INSTALL_JEV_REVIEW.md
+  s_5d9e965208b16b::t_2461ad08ca2d54 1-7
+tests/test_clean_install_proof.py
+  s_5d9e965208b16b::t_0b1299da76f812 56
+  s_5d9e965208b16b::t_37ebe712bbdf4a 1-55,57-70
+docs/reviews/CLEAN-INSTALL_PSTACK_PANELS.md
+  s_5d9e965208b16b::t_39e283a618ff51 1-21
+docs/operations/CLEAN_INSTALL.md
+  s_5d9e965208b16b::t_24cab71d44de4e 1-66
+docs/reviews/CLEAN-INSTALL_OCR_DELEGATION.md
+  s_5d9e965208b16b::t_993fdce0933eaa 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "797d59c7c5f2501e8e457a90781ccd881c73ce56",
+  "prompts": {},
+  "sessions": {
+    "s_5d9e965208b16b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc9f9396ffetD3BLOQPot0vaE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
