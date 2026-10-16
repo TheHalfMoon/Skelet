@@ -1,5 +1,5 @@
 /**
- * AC-00 bundle baseline check (Skelet-owned, no-prod-dependency).
+ * AC-00 bundle baseline check (Skilit-owned, no-prod-dependency).
  *
  * Enforces the measured client-bundle rollback criterion for Issue #62
  * global gate 4: the Next.js production build must stay within the

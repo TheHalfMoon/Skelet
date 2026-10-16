@@ -52,7 +52,7 @@ export interface VideoFrameEvidence {
 }
 
 export interface VideoEvidence {
-  schema: "skelet/video-frame-evidence/1";
+  schema: "skilit/video-frame-evidence/1";
   videoSha256: string;
   fps: number;
   durationMs: number;
@@ -180,7 +180,7 @@ export function validateVideoEvidenceRecord(value: unknown): VideoEvidence {
     throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence must be an object.");
   }
   const candidate = value as Record<string, unknown>;
-  if (candidate.schema !== "skelet/video-frame-evidence/1") {
+  if (candidate.schema !== "skilit/video-frame-evidence/1") {
     throw new VideoFrameError("video-frame/corrupt-frame", "Video evidence schema is unsupported.");
   }
   if (typeof candidate.videoSha256 !== "string" || !HEX64.test(candidate.videoSha256.toLowerCase())) {
@@ -311,7 +311,7 @@ export function assembleVideoEvidence(
     }
   }
   const body = {
-    schema: "skelet/video-frame-evidence/1" as const,
+    schema: "skilit/video-frame-evidence/1" as const,
     videoSha256: spec.videoSha256,
     fps: spec.fps,
     durationMs: spec.durationMs,

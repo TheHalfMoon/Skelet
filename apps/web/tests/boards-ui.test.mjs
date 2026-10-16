@@ -25,7 +25,7 @@ test("boards UI serves the full curation lifecycle over the real REST contracts"
   for (const marker of ["List boards", "Create board", "Inspect", "Delete", "Save item", "Move item", "Remove", "Hand off board", "List handoffs", "Validate items"]) {
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
-  assert.ok(text.includes("skelet://collection/"), "UI renders the stable board identifier");
+  assert.ok(text.includes("skilit://collection/"), "UI renders the stable board identifier");
   assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
   assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
 });

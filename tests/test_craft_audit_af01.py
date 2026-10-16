@@ -128,6 +128,7 @@ class CraftAuditAf01Tests(unittest.TestCase):
         self.assertIn("No OpenAI", manifest["cve_and_dependency_notes"]["no_paid_services"])
         blob = json.dumps(manifest)
         self.assertIn("No OpenAI", blob)
+        # Historical manifest retains original key bytes.
         self.assertTrue(manifest["skelet_authoritative"]["collections_canonical"])
         self.assertTrue(manifest["skelet_authoritative"]["no_second_database"])
 
@@ -145,6 +146,7 @@ class CraftAuditAf01Tests(unittest.TestCase):
 
     def test_authorization_is_code_only_with_paid_prohibition(self) -> None:
         auth = self.auth
+        # Historical authorization record retains original project bytes; Skilit inherits as successor.
         self.assertEqual("Skelet", auth["project"])
         self.assertEqual(set(EXPECTED), set(auth["source_ids"]))
         self.assertEqual("user_authorization", auth["basis"])

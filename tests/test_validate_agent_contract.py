@@ -1,4 +1,4 @@
-"""AF-03a agent-contract fixture validation tests for Skelet."""
+"""AF-03a agent-contract fixture validation tests for Skilit."""
 
 from __future__ import annotations
 
@@ -75,14 +75,14 @@ class AgentContractTests(unittest.TestCase):
 
     def test_uri_rejects_traversal_and_unknown_kinds(self) -> None:
         for bad in (
-            "skelet://artifact/../../etc/passwd",
-            "skelet://unknown/abc",
+            "skilit://artifact/../../etc/passwd",
+            "skilit://unknown/abc",
             "https://example.com/x",
             "",
             None,
         ):
             self.assertTrue(validate_uri(bad), repr(bad))
-        self.assertEqual(validate_uri("skelet://artifact/icon-set-001"), [])
+        self.assertEqual(validate_uri("skilit://artifact/icon-set-001"), [])
 
     def test_gate_cli_passes(self) -> None:
         result = subprocess.run(
@@ -100,15 +100,15 @@ class AgentContractTests(unittest.TestCase):
         schema = json.loads(
             (ROOT / "schemas" / "agent-contract.schema.json").read_text(encoding="utf-8")
         )
-        self.assertEqual(schema["properties"]["schema_version"], {"const": "skelet.agent.v1"})
+        self.assertEqual(schema["properties"]["schema_version"], {"const": "skilit.agent.v1"})
         error_enum = schema["$defs"]["error"]["properties"]["code"]["enum"]
         self.assertEqual(set(error_enum), ERROR_CODES)
         self.assertEqual(len(error_enum), 13)
         pattern = schema["$defs"]["uri"]["pattern"]
         compiled = re_module.compile(pattern)
-        self.assertTrue(compiled.match("skelet://artifact/icon-set-001"))
-        self.assertFalse(compiled.match("skelet://artifact/../../etc/passwd"))
-        self.assertFalse(compiled.match("skelet://unknown/abc"))
+        self.assertTrue(compiled.match("skilit://artifact/icon-set-001"))
+        self.assertFalse(compiled.match("skilit://artifact/../../etc/passwd"))
+        self.assertFalse(compiled.match("skilit://unknown/abc"))
 
 
 if __name__ == "__main__":

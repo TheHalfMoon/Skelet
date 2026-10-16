@@ -102,7 +102,7 @@ class MoodboardClosureTests(unittest.TestCase):
         )
         self.assertGreater(len(flagged), 0)
 
-    def test_alias_imports_require_skelet_mapping(self) -> None:
+    def test_alias_imports_require_skilit_mapping(self) -> None:
         alias_users = [
             path for path, entry in self.by_path.items() if entry["imports"]["alias"]
         ]

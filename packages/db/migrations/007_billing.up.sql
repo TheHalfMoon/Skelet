@@ -26,7 +26,7 @@ create table billing_events (
 );
 create index billing_events_type_idx on billing_events(event_type);
 
-create function skelet_subscriptions_updated_at() returns trigger
+create function skilit_subscriptions_updated_at() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  new.updated_at = now();
@@ -34,4 +34,4 @@ begin
 end;
 $$;
 create trigger subscriptions_updated_at before update on subscriptions
- for each row execute function skelet_subscriptions_updated_at();
+ for each row execute function skilit_subscriptions_updated_at();

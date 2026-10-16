@@ -38,8 +38,8 @@ test("AF-13a-i: jaccard is deterministic with 4-decimal rounding", () => {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "similar-owner@skelet.example", password: "similar-password-01" });
-  const outsider = await signUp(db, { email: "similar-out@skelet.example", password: "similar-password-01" });
+  const owner = await signUp(db, { email: "similar-owner@skilit.example", password: "similar-password-01" });
+  const outsider = await signUp(db, { email: "similar-out@skilit.example", password: "similar-password-01" });
   const source = await createSource(db, { key: "similar-source", kind: "synthetic" });
   const reference = await registerAsset(db, {
     kind: "icon",
@@ -133,7 +133,7 @@ test("AF-13a-i: identical scores break ties by title then id", async () => {
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "similar-tie@skelet.example", password: "similar-password-01" });
+    const owner = await signUp(db, { email: "similar-tie@skilit.example", password: "similar-password-01" });
     const source = await createSource(db, { key: "similar-tie-source", kind: "synthetic" });
     const reference = await registerAsset(db, {
       kind: "icon",
@@ -294,8 +294,8 @@ test("AF-14b-i: research corpus screens share the lexical baseline with kinds fi
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "similar-screen@skelet.example", password: "similar-password-01" });
-    const outsider = await signUp(db, { email: "similar-screen-out@skelet.example", password: "similar-password-01" });
+    const owner = await signUp(db, { email: "similar-screen@skilit.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-screen-out@skilit.example", password: "similar-password-01" });
     const source = await createSource(db, { key: "similar-screen-source", kind: "synthetic" });
     const { createArtifact: make } = await import("../../db/src/graph.ts");
     const ref = await make(db, {
@@ -368,8 +368,8 @@ test("AF-14c: global non-public non-registry rows never leak into candidates", a
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "similar-gate@skelet.example", password: "similar-password-01" });
-    const outsider = await signUp(db, { email: "similar-gate-out@skelet.example", password: "similar-password-01" });
+    const owner = await signUp(db, { email: "similar-gate@skilit.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-gate-out@skilit.example", password: "similar-password-01" });
     const source = await createSource(db, { key: "similar-gate-source", kind: "synthetic" });
     const { createArtifact: make } = await import("../../db/src/graph.ts");
     const ref = await make(db, {

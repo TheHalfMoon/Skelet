@@ -30,7 +30,7 @@ function unauthorized(): NextResponse {
 
 export async function POST(request: Request): Promise<NextResponse> {
   // AF-03c: Streamable HTTP version negotiation. Official MCP clients send
-  // MCP-Protocol-Version as a header; older Skelet clients send it only in
+  // MCP-Protocol-Version as a header; older Skilit clients send it only in
   // initialize params. Both are accepted; the negotiated version is echoed
   // so independent clients can assert compatibility without forking logic.
   const headerVersion = request.headers.get("mcp-protocol-version");
@@ -95,7 +95,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: err.httpStatus, headers: headerOut },
     );
   }
-  // The bearer credential IS a Skelet session token: the actor identity
+  // The bearer credential IS a Skilit session token: the actor identity
   // is server-resolved here, never taken from client arguments. Token
   // issuance upgrades (OAuth metadata, PKCE) land in a later P08 grain.
   try {

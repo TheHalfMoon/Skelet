@@ -2,7 +2,7 @@
 
 Machine-checks every Tier-1 static fact cited in
 docs/qualification/AC-01_VIDEO_FRAME_DECISION.md directly from repo
-sources (Skelet engine + AC-00-ii closure JSON), offline. Tier-2 facts
+sources (Skilit engine + AC-00-ii closure JSON), offline. Tier-2 facts
 (donor timeout constants, error-kind names, PNG egress) were observed
 at audit time from the SHA-verified blob; this file pins those observed
 values and asserts the decision cites them verbatim, while
@@ -46,7 +46,7 @@ class Ac01DecisionTests(unittest.TestCase):
         cls.closure = load_json(CLOSURE_PATH)
         cls.by_path = {entry["path"]: entry for entry in cls.closure["files"]}
 
-    def test_skelet_budgets_match_engine_and_decision(self) -> None:
+    def test_skilit_budgets_match_engine_and_decision(self) -> None:
         budgets = dict(re.findall(r"(max\w+):\s*([\d_]+)", self.engine))
         expected = {
             "maxFrames": "64",
@@ -60,20 +60,20 @@ class Ac01DecisionTests(unittest.TestCase):
         for raw in ("64", "4096", "16 Mpx", "120", "600 s", "8 MiB"):
             self.assertIn(raw, self.doc, f"decision must cite budget {raw}")
 
-    def test_skelet_engine_is_dependency_free(self) -> None:
+    def test_skilit_engine_is_dependency_free(self) -> None:
         imports = re.findall(r"""from\s+['"]([^'"]+)['"]""", self.engine)
         self.assertEqual(sorted(set(imports)), ["./jpeg-evidence.ts", "node:crypto"])
         self.assertIn("node:crypto", self.doc)
 
-    def test_skelet_error_taxonomy_cited(self) -> None:
+    def test_skilit_error_taxonomy_cited(self) -> None:
         for code in ("invalid-spec", "over-budget", "corrupt-frame"):
             self.assertIn(code, self.engine)
             self.assertIn(code, self.doc)
 
-    def test_skelet_ingress_is_jpeg_only(self) -> None:
+    def test_skilit_ingress_is_jpeg_only(self) -> None:
         self.assertIn("0xd8", self.jpeg, "JPEG SOI marker check must exist")
         combined = self.engine + self.jpeg
-        self.assertNotIn("png", combined.lower(), "no PNG path may exist in the Skelet ingress")
+        self.assertNotIn("png", combined.lower(), "no PNG path may exist in the Skilit ingress")
         self.assertIn("JPEG-only", self.doc)
 
     def test_donor_candidate_facts_come_from_verified_closure(self) -> None:
@@ -93,6 +93,7 @@ class Ac01DecisionTests(unittest.TestCase):
             self.assertIn(value, self.doc, f"decision must cite observed value {value}")
 
     def test_verdict_is_keep_with_revisit_trigger(self) -> None:
+        # Historical decision record retains original project bytes.
         self.assertIn("KEEP Skelet-owned", self.doc)
         self.assertIn("adopt nothing", self.doc.lower())
         self.assertIn("Revisit trigger", self.doc)

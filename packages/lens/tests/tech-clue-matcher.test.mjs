@@ -52,7 +52,7 @@ function script(value, ref = "html:nth(0) > head:nth(0) > script:nth(0)") {
 }
 
 test("rule set is frozen, versioned, and honestly calibrated", () => {
-  assert.equal(TECH_CLUE_RULES_VERSION, "skelet.tech-rules.v1");
+  assert.equal(TECH_CLUE_RULES_VERSION, "skilit.tech-rules.v1");
   assert.ok(Object.isFrozen(TECH_CLUE_RULES));
   const ids = TECH_CLUE_RULES.map((rule) => rule.id);
   assert.equal(new Set(ids).size, ids.length);
@@ -203,7 +203,7 @@ test("clue validator accepts graded clues and rejects certainty or shapes", () =
 });
 
 test("provider descriptor mirrors the G05-02 contract shape", async () => {
-  assert.equal(TECH_CLUE_PROVIDER.id, "skelet-tech-clues");
+  assert.equal(TECH_CLUE_PROVIDER.id, "skilit-tech-clues");
   assert.equal(TECH_CLUE_PROVIDER.capability, "technology-clues");
   assert.equal(TECH_CLUE_PROVIDER.version, TECH_CLUE_RULES_VERSION);
   assert.equal(TECH_CLUE_PROVIDER.egress, "none");
@@ -218,7 +218,7 @@ test("provider descriptor mirrors the G05-02 contract shape", async () => {
   assert.equal(TECH_CLUE_PROVIDER.checkOutput([{ technology: "X", confidence: 1 }]), false);
   assert.deepEqual(await TECH_CLUE_PROVIDER.health(), { ok: true, detail: "ready" });
   const provenance = TECH_CLUE_PROVIDER.provenance(signals, output);
-  assert.equal(provenance.providerId, "skelet-tech-clues");
+  assert.equal(provenance.providerId, "skilit-tech-clues");
   assert.equal(provenance.capability, "technology-clues");
   assert.equal(provenance.egress, "none");
   assert.equal(provenance.rulesVersion, TECH_CLUE_RULES_VERSION);

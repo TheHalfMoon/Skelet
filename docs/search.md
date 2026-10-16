@@ -1,6 +1,6 @@
-# Skelet Deterministic Design Search (AF-04)
+# Skilit Deterministic Design Search (AF-04)
 
-Status: implementation grain `skelet/af04-deterministic-search`, base `d1bb6437ccee7cb7a47a03ab65749316d30d9cc9`.
+Status: implementation grain `skilit/af04-deterministic-search`, base `d1bb6437ccee7cb7a47a03ab65749316d30d9cc9`.
 Scope: lexical search only. This document describes semantics, limitations, configuration, and operations.
 
 ## 1. What search is
@@ -21,7 +21,7 @@ Two execution modes, both deterministic:
 
 The response envelope carries `result.search_mode` so callers can observe which path ran.
 REST (`GET /api/v1/assets`) and MCP (`search_assets`) expose the same mode, filters,
-facets, cursor pagination, validation, and error taxonomy over `skelet.agent.v1`.
+facets, cursor pagination, validation, and error taxonomy over `skilit.agent.v1`.
 
 ## 2. Corpus and ranking
 
@@ -94,7 +94,7 @@ No raw database errors leak to clients.
   (`INTERNAL_OPAQUE`) with no internals.
 - Unknown and denied objects share `FORBIDDEN_OR_NOT_FOUND`; restricted rights
   answer `RIGHTS_RESTRICTED` after the actor gate passes. The frozen
-  `skelet.agent.v1` envelope and error catalog are unchanged.
+  `skilit.agent.v1` envelope and error catalog are unchanged.
 
 ## 6. Limitations
 

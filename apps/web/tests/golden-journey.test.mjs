@@ -21,7 +21,7 @@ import {
 import { AGENT_SCHEMA_VERSION } from "../lib/agent-contract.ts";
 
 const SOURCE_VERSION = "golden-journey-1";
-const ARTIFACT_URI_RE = /^skelet:\/\/artifact\/[A-Za-z0-9_-]{1,128}$/;
+const ARTIFACT_URI_RE = /^skilit:\/\/artifact\/[A-Za-z0-9_-]{1,128}$/;
 
 function assertStableEnvelope(envelope, context) {
   assert.equal(envelope.schema_version, AGENT_SCHEMA_VERSION, `${context}: schema_version`);
@@ -143,8 +143,8 @@ function corpus(privateSpace) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "golden-owner@skelet.example", password: "golden-password-01" });
-  const outsider = await signUp(db, { email: "golden-out@skelet.example", password: "golden-password-01" });
+  const owner = await signUp(db, { email: "golden-owner@skilit.example", password: "golden-password-01" });
+  const outsider = await signUp(db, { email: "golden-out@skilit.example", password: "golden-password-01" });
   const source = await createSource(db, { key: "golden-source", kind: "synthetic" });
   const space = await createWorkspace(db, { name: "Golden private", ownerId: owner.id });
   // Private artifacts require an owner binding alongside the workspace.

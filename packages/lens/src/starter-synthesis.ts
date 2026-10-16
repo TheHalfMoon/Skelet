@@ -4,7 +4,7 @@
  * Pure and dependency-free: given a kit analysis identity plus an
  * observed section inventory, produce the fixed `starter/` file set
  * (package.json, app/layout.tsx, app/page.tsx, README.md). The starter
- * is Skelet synthesis, never original website source:
+ * is Skilit synthesis, never original website source:
  *
  * - structural placeholders only; observed site text is NEVER copied
  *   into starter files (a dedicated test feeds distinctive text and
@@ -30,13 +30,13 @@ export const STARTER_FILES = [
   "starter/README.md",
 ] as const;
 
-export const SYNTHESIS_HEADER = "Skelet synthesis — not original website source." as const;
+export const SYNTHESIS_HEADER = "Skilit synthesis — not original website source." as const;
 
 const MAX_SECTIONS = 12;
 const MAX_TAG_CHARS = 64;
 const HEX64 = /^[0-9a-f]{64}$/;
 
-/** Pinned Skelet synthesis defaults (not claims about the analyzed site). */
+/** Pinned Skilit synthesis defaults (not claims about the analyzed site). */
 const PINNED_DEPS = {
   next: "14.2.5",
   react: "18.3.1",
@@ -156,7 +156,7 @@ export function synthesizeStarterArtifacts(input: StarterRequest): StarterFile[]
   const sectionBlocks = kept.map((tag) => {
     const safe = escapeHtml(tag);
     return [
-      `      <section data-skelet-section="${safe}" className="mx-auto w-full max-w-3xl px-4 py-8">`,
+      `      <section data-skilit-section="${safe}" className="mx-auto w-full max-w-3xl px-4 py-8">`,
       `        <h2 className="text-xl font-semibold">Section: ${safe}</h2>`,
       `        <p className="mt-2 text-sm opacity-70">Replace with your own copy. Observed tag: ${safe}.</p>`,
       `      </section>`,
@@ -174,7 +174,7 @@ export function synthesizeStarterArtifacts(input: StarterRequest): StarterFile[]
       path: "starter/package.json",
       content: [
         `{`,
-        `  "name": "skelet-starter",`,
+        `  "name": "skilit-starter",`,
         `  "private": true,`,
         `  "version": "0.1.0",`,
         `  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "typecheck": "tsc --noEmit" },`,
@@ -301,7 +301,7 @@ export function synthesizeStarterArtifacts(input: StarterRequest): StarterFile[]
     {
       path: "starter/README.md",
       content: [
-        `# Skelet starter`,
+        `# Skilit starter`,
         ``,
         `> ${SYNTHESIS_HEADER}`,
         `> Analysis \`${input.analysisId}\`.`,

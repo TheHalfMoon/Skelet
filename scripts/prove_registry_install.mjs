@@ -1,4 +1,4 @@
-/** Clean-consumer install proof for the Skelet component registry (G07-02).
+/** Clean-consumer install proof for the Skilit component registry (G07-02).
  *
  * Proves the P07 exit criterion without a deployed server: given a
  * registry item document (the exact JSON served at
@@ -24,8 +24,8 @@ const NPM = process.platform === "win32" ? "npm.cmd" : "npm";
 const execFileAsync = promisify(execFile);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_ITEMS = [
-  "apps/web/registry/skelet-button.json",
-  "apps/web/registry/skelet-card.json",
+  "apps/web/registry/skilit-button.json",
+  "apps/web/registry/skilit-card.json",
 ];
 
 const PINNED_DEPS = {
@@ -74,10 +74,10 @@ async function run(cwd, command, args, useShell = false) {
 
 async function main() {
   const itemPaths = process.argv.length > 2 ? process.argv.slice(2) : DEFAULT_ITEMS;
-  const sandbox = await mkdtemp(join(tmpdir(), "skelet-registry-proof-"));
+  const sandbox = await mkdtemp(join(tmpdir(), "skilit-registry-proof-"));
   try {
     const packageJson = {
-      name: "skelet-registry-proof",
+      name: "skilit-registry-proof",
       version: "0.0.0",
       private: true,
       type: "module",
@@ -207,17 +207,17 @@ async function main() {
 
     const renderImports = [];
     const renderAsserts = [];
-    if (installed.includes("skelet-button")) {
-      renderImports.push('import { SkeletButton } from "./components/skelet-button.js";');
+    if (installed.includes("skilit-button")) {
+      renderImports.push('import { SkilitButton } from "./components/skilit-button.js";');
       renderAsserts.push(
-        'const button = renderToStaticMarkup(SkeletButton({ children: "Ship it", evidenceUri: "skelet://artifact/demo" }));',
+        'const button = renderToStaticMarkup(SkilitButton({ children: "Ship it", evidenceUri: "skilit://artifact/demo" }));',
         'if (!button.includes("Ship it") || !button.includes("data-evidence-uri")) throw new Error("button render mismatch");',
       );
     }
-    if (installed.includes("skelet-card")) {
-      renderImports.push('import { SkeletCard } from "./components/skelet-card.js";');
+    if (installed.includes("skilit-card")) {
+      renderImports.push('import { SkilitCard } from "./components/skilit-card.js";');
       renderAsserts.push(
-        'const card = renderToStaticMarkup(SkeletCard({ title: "Demo", summary: "Summary", rightsNote: "MIT", evidenceUri: "skelet://artifact/demo" }));',
+        'const card = renderToStaticMarkup(SkilitCard({ title: "Demo", summary: "Summary", rightsNote: "MIT", evidenceUri: "skilit://artifact/demo" }));',
         'if (!card.includes("Demo") || !card.includes("MIT") || !card.includes("data-evidence-uri")) throw new Error("card render mismatch");',
       );
     }

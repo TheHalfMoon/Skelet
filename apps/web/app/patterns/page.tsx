@@ -83,7 +83,7 @@ function cursorOf(payload: unknown): string | null {
 }
 
 function slugOf(uri: string): string {
-  return uri.replace("skelet://pattern/", "");
+  return uri.replace("skilit://pattern/", "");
 }
 
 export default function PatternsPage() {

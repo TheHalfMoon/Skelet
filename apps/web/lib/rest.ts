@@ -16,7 +16,7 @@ import {
 import { getArtifactForActor } from "../../../packages/db/src/artifact-access.ts";
 import { searchRegistryIndex } from "./registry.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
-import { exportReferencePack, parseSkeletUri } from "./reference-packs.ts";
+import { exportReferencePack, parseSkilitUri } from "./reference-packs.ts";
 import {
   AGENT_SCHEMA_VERSION,
   AgentContractError,
@@ -35,7 +35,7 @@ import type { AgentEnvelope } from "./agent-contract.ts";
 /**
  * AF-03b REST API v1 read parity: the human/UI-readable surface over the
  * same canonical envelope the MCP tools serve. Versioned by URL (/api/v1)
- * for transport and by skelet.agent.v1 for the envelope; breaking envelope
+ * for transport and by skilit.agent.v1 for the envelope; breaking envelope
  * changes require a governed contract revision. Every endpoint requires a
  * session-bound identity; unknown and denied objects both answer
  * FORBIDDEN_OR_NOT_FOUND so existence is not an oracle.
@@ -61,7 +61,7 @@ function agentAssetView(record: {
   contentHash: string;
 }): Record<string, unknown> {
   return {
-    uri: `skelet://artifact/${record.artifactId}`,
+    uri: `skilit://artifact/${record.artifactId}`,
     kind: record.kind,
     title: record.title,
     license: record.license,
@@ -271,7 +271,7 @@ export async function getAssetRoute(
     if (record.rightsClassification === "restricted") {
       const err = new AgentContractError("RIGHTS_RESTRICTED", {
         requestId,
-        provenance: observedProvenance(`skelet://artifact/${artifactId}`),
+        provenance: observedProvenance(`skilit://artifact/${artifactId}`),
       });
       return { status: err.httpStatus, body: err.toFailureEnvelope() };
     }
@@ -282,7 +282,7 @@ export async function getAssetRoute(
       { asset: agentAssetView(record) },
       {
         warnings: warnings.length > 0 ? warnings : undefined,
-        provenance: observedProvenance(`skelet://artifact/${record.artifactId}`),
+        provenance: observedProvenance(`skilit://artifact/${record.artifactId}`),
       },
     );
     return { status: 200, body };
@@ -370,7 +370,7 @@ export async function findSimilarRoute(
     if (outcome.reference.rightsClassification === "restricted") {
       const err = new AgentContractError("RIGHTS_RESTRICTED", {
         requestId,
-        provenance: observedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+        provenance: observedProvenance(`skilit://artifact/${outcome.reference.artifactId}`),
       });
       return { status: err.httpStatus, body: err.toFailureEnvelope() };
     }
@@ -381,7 +381,7 @@ export async function findSimilarRoute(
       requestId,
       {
         reference: {
-          uri: `skelet://artifact/${outcome.reference.artifactId}`,
+          uri: `skilit://artifact/${outcome.reference.artifactId}`,
           kind: outcome.reference.kind,
           title: outcome.reference.title,
         },
@@ -393,7 +393,7 @@ export async function findSimilarRoute(
         cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
         warnings: warnings.length > 0 ? warnings : undefined,
         partial: outcome.truncated,
-        provenance: computedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+        provenance: computedProvenance(`skilit://artifact/${outcome.reference.artifactId}`),
       },
     );
     return { status: 200, body };
@@ -496,7 +496,7 @@ export async function compareArtifactsRoute(
       return { status: err.httpStatus, body: err.toFailureEnvelope() };
     }
     const withUris = (side: ComparedSide) => ({
-      uri: `skelet://artifact/${side.artifactId}`,
+      uri: `skilit://artifact/${side.artifactId}`,
       kind: side.kind,
       title: side.title,
       summary: side.summary,
@@ -590,7 +590,7 @@ export async function listFlowsRoute(
       requestId,
       {
         flows: outcome.flows.map((flow) => ({
-          uri: `skelet://flow/${flow.flowId}`,
+          uri: `skilit://flow/${flow.flowId}`,
           productVersionId: flow.productVersionId,
           title: flow.title,
           stepCount: flow.stepCount,
@@ -641,19 +641,19 @@ export async function getFlowStepsRoute(
       requestId,
       {
         flow: {
-          uri: `skelet://flow/${outcome.flowId}`,
+          uri: `skilit://flow/${outcome.flowId}`,
           productVersionId: outcome.productVersionId,
           title: outcome.title,
         },
         steps: outcome.steps.map((step) => ({
           position: step.position,
-          uri: `skelet://artifact/${step.artifactId}`,
+          uri: `skilit://artifact/${step.artifactId}`,
           kind: step.kind,
           title: step.title,
           interaction: step.interaction,
         })),
       },
-      { provenance: observedProvenance(`skelet://flow/${outcome.flowId}`) },
+      { provenance: observedProvenance(`skilit://flow/${outcome.flowId}`) },
     );
     return { status: 200, body };
   } catch (error) {
@@ -800,7 +800,7 @@ export async function listProductsRoute(
       requestId,
       {
         products: outcome.products.map((product) => ({
-          uri: `skelet://product/${product.productId}`,
+          uri: `skilit://product/${product.productId}`,
           title: product.title,
           versionCount: product.versionCount,
           artifactCount: product.artifactCount,
@@ -873,7 +873,7 @@ export async function listProductVersionsRoute(
       requestId,
       {
         versions: outcome.versions.map((version) => ({
-          uri: `skelet://version/${version.versionId}`,
+          uri: `skilit://version/${version.versionId}`,
           productId: version.productId,
           versionNo: version.versionNo,
           artifactCount: version.artifactCount,
@@ -954,7 +954,7 @@ export async function listPatternsRoute(
       requestId,
       {
         patterns: outcome.patterns.map((pattern) => ({
-          uri: `skelet://pattern/${pattern.slug}`,
+          uri: `skilit://pattern/${pattern.slug}`,
           title: pattern.title,
           artifactCount: pattern.artifactCount,
         })),
@@ -1003,14 +1003,14 @@ export async function getPatternRoute(
       requestId,
       {
         pattern: {
-          uri: `skelet://pattern/${detail.slug}`,
+          uri: `skilit://pattern/${detail.slug}`,
           title: detail.title,
           description: detail.description ?? null,
         },
         links: detail.links,
         total: detail.links.length,
       },
-      { provenance: observedProvenance(`skelet://pattern/${detail.slug}`) },
+      { provenance: observedProvenance(`skilit://pattern/${detail.slug}`) },
     );
     return { status: 200, body };
   } catch (error) {
@@ -1031,7 +1031,7 @@ export async function getPatternRoute(
 
 /** Replay session URI helper shared by the replay REST routes. */
 function replayUri(sessionId: string): string {
-  return `skelet://replay/${sessionId}`;
+  return `skilit://replay/${sessionId}`;
 }
 
 function replayFailure(requestId: string, error: ReplayError): RestResult {
@@ -1204,7 +1204,7 @@ export async function getReplayEventsRoute(
   }
 }
 
-/** GET /api/v1/objects?uri= — retrieve by stable Skelet URI. */
+/** GET /api/v1/objects?uri= — retrieve by stable Skilit URI. */
 export async function getObjectRoute(
   db: DbClient,
   uri: string | undefined,
@@ -1217,7 +1217,7 @@ export async function getObjectRoute(
   }
   let parsed;
   try {
-    parsed = parseSkeletUri(uri);
+    parsed = parseSkilitUri(uri);
   } catch {
     return invalidInput(requestId, "Object URI is invalid.");
   }

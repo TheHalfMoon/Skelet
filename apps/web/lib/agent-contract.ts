@@ -1,5 +1,5 @@
 /**
- * AF-03b canonical agent contract implementation (skelet.agent.v1).
+ * AF-03b canonical agent contract implementation (skilit.agent.v1).
  *
  * Single tested canonical envelope and error-policy module shared by MCP
  * and REST. Both transports return the same versioned envelope shape for
@@ -15,7 +15,10 @@
 
 import { randomUUID } from "node:crypto";
 
-export const AGENT_SCHEMA_VERSION = "skelet.agent.v1" as const;
+export const AGENT_SCHEMA_VERSION = "skilit.agent.v1" as const;
+
+/** Legacy envelope version from before the Skilit rebrand; accepted on read. */
+export const LEGACY_AGENT_SCHEMA_VERSION = "skelet.agent.v1" as const;
 
 export type AgentErrorCode =
   | "INVALID_INPUT"
@@ -91,7 +94,32 @@ export const AGENT_ERROR_CATALOG: Record<AgentErrorCode, ErrorMapping> = {
 };
 
 export const AGENT_URI_PATTERN =
+  /^skilit:\/\/(product|version|artifact|flow|collection|lens|reference-pack)\/[A-Za-z0-9_-]{1,128}$/;
+
+/** Legacy URI scheme from before the Skilit rebrand; accepted on read. */
+export const LEGACY_AGENT_URI_PATTERN =
   /^skelet:\/\/(product|version|artifact|flow|collection|lens|reference-pack)\/[A-Za-z0-9_-]{1,128}$/;
+
+/**
+ * Normalize a persisted or client-supplied URI to the canonical skilit://
+ * scheme. Canonical skilit:// values pass through; legacy skelet:// values
+ * are upgraded. Anything else is returned unchanged for callers to reject.
+ */
+export function normalizeSkilitUri(uri: string): string {
+  if (typeof uri !== "string") return uri;
+  const trimmed = uri.trim();
+  if (trimmed.toLowerCase().startsWith("skelet://")) {
+    return `skilit://${trimmed.slice("skelet://".length)}`;
+  }
+  return trimmed;
+}
+
+/** True for canonical or legacy Skilit URIs (migration-readable). */
+export function isSkilitUri(uri: unknown): boolean {
+  if (typeof uri !== "string") return false;
+  const trimmed = uri.trim();
+  return AGENT_URI_PATTERN.test(trimmed) || LEGACY_AGENT_URI_PATTERN.test(trimmed);
+}
 
 export const REQUEST_ID_MAX = 128;
 export const CURSOR_MAX = 256;
@@ -292,7 +320,11 @@ export function mcpCodeFor(code: AgentErrorCode): number {
 export function isAgentEnvelope(value: unknown): value is AgentEnvelope {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
   const record = value as Record<string, unknown>;
-  if (record.schema_version !== AGENT_SCHEMA_VERSION) return false;
+  if (
+    record.schema_version !== AGENT_SCHEMA_VERSION &&
+    record.schema_version !== LEGACY_AGENT_SCHEMA_VERSION
+  )
+    return false;
   if (typeof record.request_id !== "string" || record.request_id.length === 0) return false;
   if (record.status !== "complete" && record.status !== "partial") return false;
   if (typeof record.result !== "object" || record.result === null || Array.isArray(record.result)) return false;
@@ -341,11 +373,14 @@ export function parseSearchLimit(raw: unknown): number {
 
 /**
  * Capability gate for explicitly disabled operations. Reads
- * SKELET_DISABLED_CAPABILITIES (comma-separated, e.g. "packs,registry").
+ * SKILIT_DISABLED_CAPABILITIES (comma-separated, e.g. "packs,registry").
+ * Legacy SKELET_DISABLED_CAPABILITIES remains readable; SKILIT_* wins.
  * Unknown names are ignored. Empty means everything enabled.
  */
 export function isCapabilityEnabled(capability: string): boolean {
-  const raw = process.env.SKELET_DISABLED_CAPABILITIES;
+  const raw =
+    process.env.SKILIT_DISABLED_CAPABILITIES ??
+    process.env.SKELET_DISABLED_CAPABILITIES;
   if (typeof raw !== "string" || raw.trim().length === 0) return true;
   const disabled = raw
     .split(",")
@@ -363,14 +398,14 @@ export function requireCapability(capability: string, requestId?: string): void 
 /**
  * AF-03c capability advertisement. The two operator-gated capabilities are
  * packs (save_reference, create_reference_pack, collection get_object) and
- * registry (get_registry_item). Clients negotiate via initialize.skelet and
+ * registry (get_registry_item). Clients negotiate via initialize.skilit and
  * must handle PROVIDER_DISABLED with a REST or degraded fallback instead
  * of retrying the same disabled tool.
  */
-export const SKELET_CAPABILITIES = ["packs", "registry"] as const;
-export type SkeletCapability = (typeof SKELET_CAPABILITIES)[number];
+export const SKILIT_CAPABILITIES = ["packs", "registry"] as const;
+export type SkilitCapability = (typeof SKILIT_CAPABILITIES)[number];
 
-export function describeCapabilities(): Record<SkeletCapability, boolean> {
+export function describeCapabilities(): Record<SkilitCapability, boolean> {
   return { packs: isCapabilityEnabled("packs"), registry: isCapabilityEnabled("registry") };
 }
 

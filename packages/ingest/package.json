@@ -1,12 +1,12 @@
 {
-  "name": "skelet-ingest",
+  "name": "skilit-ingest",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "dependencies": {
-    "skelet-db": "workspace:*",
-    "skelet-providers": "workspace:*",
-    "skelet-storage": "workspace:*"
+    "skilit-db": "workspace:*",
+    "skilit-providers": "workspace:*",
+    "skilit-storage": "workspace:*"
   },
   "scripts": {
     "lint": "eslint .",

@@ -1,7 +1,7 @@
 -- G09b-02: Lens Build Kit AnalysisRun job lifecycle foundation.
 -- Durable nine-state lifecycle (queued, capturing, extracting, generating,
 -- validating, completed, partial, failed, canceled) bound to the frozen
--- skelet.lens.build-kit.v1 manifest contract. Tenant-scoped identities,
+-- skilit.lens.build-kit.v1 manifest contract. Tenant-scoped identities,
 -- idempotent submission, optimistic-concurrency revisions, worker leases,
 -- quota ledger, and retention/expiry. No public API is activated here;
 -- service operations live in packages/db/src/build-kit.ts.
@@ -84,7 +84,7 @@ create table lens_build_kit_quotas (
  updated_at timestamptz not null default now()
 );
 
-create function skelet_kit_run_transition_guard() returns trigger
+create function skilit_kit_run_transition_guard() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  if tg_op = 'INSERT' then
@@ -163,11 +163,11 @@ begin
 end;
 $$;
 create trigger lens_kit_run_insert before insert on lens_build_kit_runs
- for each row execute function skelet_kit_run_transition_guard();
+ for each row execute function skilit_kit_run_transition_guard();
 create trigger lens_kit_run_transition before update on lens_build_kit_runs
- for each row execute function skelet_kit_run_transition_guard();
+ for each row execute function skilit_kit_run_transition_guard();
 
-create function skelet_kit_runs_updated_at() returns trigger
+create function skilit_kit_runs_updated_at() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  new.updated_at = now();
@@ -175,4 +175,4 @@ begin
 end;
 $$;
 create trigger lens_kit_runs_updated_at before update on lens_build_kit_runs
- for each row execute function skelet_kit_runs_updated_at();
+ for each row execute function skilit_kit_runs_updated_at();

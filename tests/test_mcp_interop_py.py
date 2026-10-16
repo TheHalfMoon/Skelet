@@ -95,7 +95,7 @@ def success_envelope(response, context):
     assert payload.get("jsonrpc") == "2.0", context
     text = payload["result"]["content"][0]["text"]
     envelope = json.loads(text)
-    assert envelope["schema_version"] == "skelet.agent.v1", context
+    assert envelope["schema_version"] == "skilit.agent.v1", context
     assert isinstance(envelope.get("request_id"), str) and envelope["request_id"], context
     return envelope
 
@@ -129,7 +129,7 @@ class McpInteropPythonTests(unittest.TestCase):
             )
             self.assertEqual(payload["result"]["protocolVersion"], "2025-03-26")
             self.assertEqual(negotiated, "2025-03-26")
-            self.assertEqual(payload["result"]["skelet"]["capabilities"], {"packs": True, "registry": True})
+            self.assertEqual(payload["result"]["skilit"]["capabilities"], {"packs": True, "registry": True})
         finally:
             stop_server(proc)
 
@@ -199,13 +199,13 @@ class McpInteropPythonTests(unittest.TestCase):
                 info["baseUrl"], info["outsiderToken"],
                 {"jsonrpc": "2.0", "id": 4, "method": "tools/call",
                  "params": {"name": "get_object",
-                            "arguments": {"uri": f"skelet://artifact/{info['privateId']}"}}},
+                            "arguments": {"uri": f"skilit://artifact/{info['privateId']}"}}},
             )
             missing = mcp(
                 info["baseUrl"], info["outsiderToken"],
                 {"jsonrpc": "2.0", "id": 5, "method": "tools/call",
                  "params": {"name": "get_object",
-                            "arguments": {"uri": "skelet://artifact/11111111-2222-4333-8444-555555555555"}}},
+                            "arguments": {"uri": "skilit://artifact/11111111-2222-4333-8444-555555555555"}}},
             )
             self.assertEqual(failure_envelope(denied, "denied")["error"]["code"], "FORBIDDEN_OR_NOT_FOUND")
             self.assertEqual(failure_envelope(missing, "missing")["error"]["code"], "FORBIDDEN_OR_NOT_FOUND")
@@ -217,7 +217,7 @@ class McpInteropPythonTests(unittest.TestCase):
                 info["baseUrl"], info["memberToken"],
                 {"jsonrpc": "2.0", "id": 6, "method": "tools/call",
                  "params": {"name": "get_object",
-                            "arguments": {"uri": f"skelet://artifact/{info['restrictedId']}"}}},
+                            "arguments": {"uri": f"skilit://artifact/{info['restrictedId']}"}}},
             )
             self.assertEqual(failure_envelope(rights, "rights")["error"]["code"], "RIGHTS_RESTRICTED")
             # Unsupported extensions fall back without breaking the session.
@@ -236,17 +236,17 @@ class McpInteropPythonTests(unittest.TestCase):
                 info["baseUrl"], info["ownerToken"],
                 {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
                  "params": {"name": "get_object",
-                            "arguments": {"uri": f"skelet://artifact/{info['artifactId']}"}}},
+                            "arguments": {"uri": f"skilit://artifact/{info['artifactId']}"}}},
             )
             uri = success_envelope(created, "mcp object")["result"]["object"]["uri"]
-            self.assertTrue(uri.startswith("skelet://artifact/"))
+            self.assertTrue(uri.startswith("skilit://artifact/"))
             # Same canonical URI over REST with the Python SDK shape.
             url = info["baseUrl"] + "/api/v1/objects?" + urllib.parse.urlencode({"uri": uri})
             request = urllib.request.Request(url, headers={"Authorization": f"Bearer {info['ownerToken']}"})
             with urllib.request.urlopen(request, timeout=15) as response:
                 body = json.loads(response.read().decode("utf-8"))
                 self.assertEqual(response.status, 200)
-                self.assertEqual(body["schema_version"], "skelet.agent.v1")
+                self.assertEqual(body["schema_version"], "skilit.agent.v1")
                 self.assertEqual(body["result"]["object"]["uri"], uri)
                 self.assertIsInstance(body.get("request_id"), str)
         finally:

@@ -386,7 +386,7 @@ export default function BoardsPage() {
       <p>
         List, create, inspect, curate, reorder, and delete boards backed by
         the ordered collections domain. Every board is addressed by its
-        stable <code>skelet://collection/{"{id}"}</code> identifier.
+        stable <code>skilit://collection/{"{id}"}</code> identifier.
       </p>
 
       <section aria-label="Credentials">

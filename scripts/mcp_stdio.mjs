@@ -33,9 +33,9 @@ import { dispatchMcp } from "../apps/web/lib/mcp.ts";
 async function buildFixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "stdio-owner@skelet.example", password: "stdio-password-01" });
-  const outsider = await signUp(db, { email: "stdio-outsider@skelet.example", password: "stdio-password-01" });
-  const member = await signUp(db, { email: "stdio-member@skelet.example", password: "stdio-password-01" });
+  const owner = await signUp(db, { email: "stdio-owner@skilit.example", password: "stdio-password-01" });
+  const outsider = await signUp(db, { email: "stdio-outsider@skilit.example", password: "stdio-password-01" });
+  const member = await signUp(db, { email: "stdio-member@skilit.example", password: "stdio-password-01" });
   const source = await createSource(db, { key: "stdio-source", kind: "synthetic" });
   const space = await createWorkspace(db, { name: "Stdio space", ownerId: owner.id });
   await addMember(db, { workspaceId: space.workspace.id, userId: member.id, role: "member", actorId: owner.id });

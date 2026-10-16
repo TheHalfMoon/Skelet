@@ -23,7 +23,7 @@ import {
 } from "../lib/agent-contract.ts";
 import { createReferencePack } from "../lib/reference-packs.ts";
 
-const URI_RE = /^skelet:\/\/(product|version|artifact|flow|collection|lens|reference-pack)\/[A-Za-z0-9_-]{1,128}$/;
+const URI_RE = /^skilit:\/\/(product|version|artifact|flow|collection|lens|reference-pack)\/[A-Za-z0-9_-]{1,128}$/;
 const ERROR_CODES = Object.keys(AGENT_ERROR_CATALOG);
 
 function assertStableEnvelope(envelope, context) {
@@ -87,8 +87,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "parity-owner@skelet.example", password: "parity-password-01" });
-  const outsider = await signUp(db, { email: "parity-out@skelet.example", password: "parity-password-01" });
+  const owner = await signUp(db, { email: "parity-owner@skilit.example", password: "parity-password-01" });
+  const outsider = await signUp(db, { email: "parity-out@skilit.example", password: "parity-password-01" });
   const source = await createSource(db, { key: "parity-source", kind: "synthetic" });
   const icon = await registerAsset(db, {
     kind: "icon",
@@ -106,7 +106,7 @@ async function fixture() {
 test("AF-03b: successful object lookup returns versioned envelope on both transports", async () => {
   const fx = await fixture();
   try {
-    const uri = `skelet://artifact/${fx.icon.artifactId}`;
+    const uri = `skilit://artifact/${fx.icon.artifactId}`;
     const rest = await getObjectRoute(fx.db, uri, fx.owner.id, "req-parity-lookup-01");
     assert.equal(rest.status, 200);
     assert.equal(rest.body.request_id, "req-parity-lookup-01");
@@ -134,7 +134,7 @@ test("AF-03b: public asset access succeeds with stable URI and serving policy", 
     const rest = await getAssetRoute(fx.db, fx.icon.artifactId, fx.outsider.id);
     assert.equal(rest.status, 200);
     assertStableEnvelope(rest.body, "REST public asset");
-    assert.equal(rest.body.result.asset.uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(rest.body.result.asset.uri, `skilit://artifact/${fx.icon.artifactId}`);
     assert.equal(rest.body.result.asset.serving, "download");
 
     const mcp = await mcpCall(fx.db, { userId: fx.outsider.id }, "tools/call", {
@@ -153,8 +153,8 @@ test("AF-03b: authorized workspace and private artifact reads succeed for member
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "parity-ws-a@skelet.example", password: "parity-password-01" });
-    const member = await signUp(db, { email: "parity-ws-b@skelet.example", password: "parity-password-01" });
+    const owner = await signUp(db, { email: "parity-ws-a@skilit.example", password: "parity-password-01" });
+    const member = await signUp(db, { email: "parity-ws-b@skilit.example", password: "parity-password-01" });
     const space = await createWorkspace(db, { name: "Parity WS", ownerId: owner.id });
     await addMember(db, { workspaceId: space.workspace.id, userId: member.id, role: "member", actorId: owner.id });
     const source = await createSource(db, { key: "parity-ws-source", kind: "synthetic" });
@@ -178,18 +178,18 @@ test("AF-03b: authorized workspace and private artifact reads succeed for member
       workspaceId: space.workspace.id,
       ownerSubject: owner.id,
     });
-    const wsRest = await getObjectRoute(db, `skelet://artifact/${wsArtifact.id}`, member.id);
+    const wsRest = await getObjectRoute(db, `skilit://artifact/${wsArtifact.id}`, member.id);
     assert.equal(wsRest.status, 200);
     assertStableEnvelope(wsRest.body, "REST workspace read");
     assert.equal(wsRest.body.result.object.title, "Parity workspace screen");
 
-    const privRest = await getObjectRoute(db, `skelet://artifact/${privArtifact.id}`, owner.id);
+    const privRest = await getObjectRoute(db, `skilit://artifact/${privArtifact.id}`, owner.id);
     assert.equal(privRest.status, 200);
     assertStableEnvelope(privRest.body, "REST private owner read");
 
     const wsMcp = await mcpCall(db, { userId: member.id }, "tools/call", {
       name: "get_object",
-      arguments: { uri: `skelet://artifact/${wsArtifact.id}` },
+      arguments: { uri: `skilit://artifact/${wsArtifact.id}` },
     });
     assertStableEnvelope(mcpEnvelopeOf(wsMcp), "MCP workspace read");
   } finally {
@@ -211,8 +211,8 @@ test("AF-03b: cross-workspace denial and unknown IDs share FORBIDDEN_OR_NOT_FOUN
       workspaceId: fx.space.workspace.id,
       ownerSubject: fx.owner.id,
     });
-    const uri = `skelet://artifact/${priv.id}`;
-    const missingUri = "skelet://artifact/11111111-2222-4333-8444-555555555555";
+    const uri = `skilit://artifact/${priv.id}`;
+    const missingUri = "skilit://artifact/11111111-2222-4333-8444-555555555555";
 
     const deniedRest = await getObjectRoute(fx.db, uri, fx.outsider.id);
     const missingRest = await getObjectRoute(fx.db, missingUri, fx.outsider.id);
@@ -277,7 +277,7 @@ test("AF-03b: invalid and expired credentials map UNAUTHENTICATED consistently",
   try {
     const { signIn, signOut } = await import("../../../packages/db/src/auth.ts");
     const { resolveRequestUser } = await import("../lib/mcp.ts");
-    const signed = await signIn(fx.db, { email: "parity-owner@skelet.example", password: "parity-password-01" });
+    const signed = await signIn(fx.db, { email: "parity-owner@skilit.example", password: "parity-password-01" });
     assert.equal(await resolveRequestUser(fx.db, signed.token), fx.owner.id);
     await signOut(fx.db, signed.token);
     await assert.rejects(() => resolveRequestUser(fx.db, signed.token));
@@ -304,8 +304,8 @@ test("AF-03b: insufficient scope answers FORBIDDEN_OR_NOT_FOUND, never UNAUTHENT
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "parity-scope-a@skelet.example", password: "parity-password-01" });
-    const outsider = await signUp(db, { email: "parity-scope-b@skelet.example", password: "parity-password-01" });
+    const owner = await signUp(db, { email: "parity-scope-a@skilit.example", password: "parity-password-01" });
+    const outsider = await signUp(db, { email: "parity-scope-b@skilit.example", password: "parity-password-01" });
     const space = await createWorkspace(db, { name: "Parity scope", ownerId: owner.id });
     const source = await createSource(db, { key: "parity-scope-source", kind: "synthetic" });
     const screen = await createArtifact(db, {
@@ -339,8 +339,8 @@ test("AF-03b: rights-restricted content returns RIGHTS_RESTRICTED after the acto
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "parity-rights@skelet.example", password: "parity-password-01" });
-    const member = await signUp(db, { email: "parity-rights-r@skelet.example", password: "parity-password-01" });
+    const owner = await signUp(db, { email: "parity-rights@skilit.example", password: "parity-password-01" });
+    const member = await signUp(db, { email: "parity-rights-r@skilit.example", password: "parity-password-01" });
     const space = await createWorkspace(db, { name: "Parity rights WS", ownerId: owner.id });
     await addMember(db, { workspaceId: space.workspace.id, userId: member.id, role: "member", actorId: owner.id });
     const source = await createSource(db, { key: "parity-rights-source", kind: "synthetic" });
@@ -354,14 +354,14 @@ test("AF-03b: rights-restricted content returns RIGHTS_RESTRICTED after the acto
       workspaceId: space.workspace.id,
       ownerSubject: owner.id,
     });
-    const rest = await getObjectRoute(db, `skelet://artifact/${restricted.id}`, member.id);
+    const rest = await getObjectRoute(db, `skilit://artifact/${restricted.id}`, member.id);
     assert.equal(rest.status, 403);
     assertStableEnvelope(rest.body, "REST rights-restricted");
     assert.equal(rest.body.error.code, "RIGHTS_RESTRICTED");
 
     const mcp = await mcpCall(db, { userId: member.id }, "tools/call", {
       name: "get_object",
-      arguments: { uri: `skelet://artifact/${restricted.id}` },
+      arguments: { uri: `skilit://artifact/${restricted.id}` },
     });
     assert.equal(mcp.error.code, -32000);
     const envelope = mcpFailureEnvelopeOf(mcp);
@@ -377,7 +377,7 @@ test("AF-03b: malformed pagination fails INVALID_INPUT and cursors paginate dete
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "parity-page@skelet.example", password: "parity-password-01" });
+    const owner = await signUp(db, { email: "parity-page@skilit.example", password: "parity-password-01" });
     const source = await createSource(db, { key: "parity-page-source", kind: "synthetic" });
     for (let index = 0; index < 3; index += 1) {
       await registerAsset(db, {
@@ -443,8 +443,8 @@ test("AF-03b: malformed pagination fails INVALID_INPUT and cursors paginate dete
 
 test("AF-03b: disabled capabilities return PROVIDER_DISABLED on both transports", async () => {
   const fx = await fixture();
-  const previous = process.env.SKELET_DISABLED_CAPABILITIES;
-  process.env.SKELET_DISABLED_CAPABILITIES = "packs";
+  const previous = process.env.SKILIT_DISABLED_CAPABILITIES;
+  process.env.SKILIT_DISABLED_CAPABILITIES = "packs";
   try {
     const mcp = await mcpCall(fx.db, { userId: fx.owner.id }, "tools/call", {
       name: "create_reference_pack",
@@ -457,13 +457,13 @@ test("AF-03b: disabled capabilities return PROVIDER_DISABLED on both transports"
 
     const { createReferencePack } = await import("../lib/reference-packs.ts");
     void createReferencePack;
-    const pack = await getObjectRoute(fx.db, "skelet://collection/11111111-2222-4333-8444-555555555555", fx.owner.id);
+    const pack = await getObjectRoute(fx.db, "skilit://collection/11111111-2222-4333-8444-555555555555", fx.owner.id);
     assert.ok([404, 503].includes(pack.status));
   } finally {
     if (previous === undefined) {
-      delete process.env.SKELET_DISABLED_CAPABILITIES;
+      delete process.env.SKILIT_DISABLED_CAPABILITIES;
     } else {
-      process.env.SKELET_DISABLED_CAPABILITIES = previous;
+      process.env.SKILIT_DISABLED_CAPABILITIES = previous;
     }
     await fx.db.close();
   }
@@ -473,8 +473,8 @@ test("AF-03b: partial pack exports carry warnings without leaking withheld items
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const ownerA = await signUp(db, { email: "parity-partial-a@skelet.example", password: "parity-password-01" });
-    const memberB = await signUp(db, { email: "parity-partial-b@skelet.example", password: "parity-password-01" });
+    const ownerA = await signUp(db, { email: "parity-partial-a@skilit.example", password: "parity-password-01" });
+    const memberB = await signUp(db, { email: "parity-partial-b@skilit.example", password: "parity-password-01" });
     const space = await createWorkspace(db, { name: "Parity partial", ownerId: ownerA.id });
     await addMember(db, { workspaceId: space.workspace.id, userId: memberB.id, role: "member", actorId: ownerA.id });
     const source = await createSource(db, { key: "parity-partial-source", kind: "synthetic" });
@@ -517,7 +517,7 @@ test("AF-13b-i: registry search matches on MCP and REST with deep-equal results"
     assert.equal(rest.body.result.total, 1);
     assert.deepEqual(
       rest.body.result.items.map((entry) => entry.name),
-      ["skelet-card"],
+      ["skilit-card"],
     );
 
     const mcp = await mcpCall(fx.db, { userId: fx.owner.id }, "tools/call", {
@@ -583,7 +583,7 @@ test("AF-03b: request IDs, cursors, and envelope helpers stay within contract bo
   assertStableEnvelope(ok, "helper success");
   const partial = successEnvelope(
     "req-helper-02",
-    { pack: { uri: "skelet://collection/11111111-2222-4333-8444-555555555555" } },
+    { pack: { uri: "skilit://collection/11111111-2222-4333-8444-555555555555" } },
     { warnings: ["Withheld one item."], partial: true },
   );
   assert.equal(partial.status, "partial");

@@ -258,7 +258,7 @@ export default function GalleryPage() {
                 {product.title} (versions {product.versionCount}, artifacts {product.artifactCount})
               </span>{" "}
               <span>{product.uri}</span>{" "}
-              <button type="button" onClick={() => void inspectVersions(product.uri.replace("skelet://product/", ""))}>
+              <button type="button" onClick={() => void inspectVersions(product.uri.replace("skilit://product/", ""))}>
                 Inspect versions
               </button>
             </li>

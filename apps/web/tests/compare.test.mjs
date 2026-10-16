@@ -12,7 +12,7 @@ import { compareArtifactsRoute } from "../lib/rest.ts";
 import { AGENT_SCHEMA_VERSION } from "../lib/agent-contract.ts";
 
 const HASH = (char) => char.repeat(64);
-const URI_RE = /^skelet:\/\/artifact\/[A-Za-z0-9_-]{1,128}$/;
+const URI_RE = /^skilit:\/\/artifact\/[A-Za-z0-9_-]{1,128}$/;
 
 function assertStableEnvelope(envelope, context) {
   assert.equal(envelope.schema_version, AGENT_SCHEMA_VERSION, `${context}: schema_version`);
@@ -49,8 +49,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "compare-t-owner@skelet.example", password: "compare-password-01" });
-  const outsider = await signUp(db, { email: "compare-t-out@skelet.example", password: "compare-password-01" });
+  const owner = await signUp(db, { email: "compare-t-owner@skilit.example", password: "compare-password-01" });
+  const outsider = await signUp(db, { email: "compare-t-out@skilit.example", password: "compare-password-01" });
   const source = await createSource(db, { key: "compare-t-source", kind: "synthetic" });
   const left = await registerAsset(db, {
     kind: "icon",
@@ -109,8 +109,8 @@ test("AF-13a-ii: MCP and REST serve identical comparison diffs", async () => {
     assertStableEnvelope(mcpEnvelope, "MCP compare_design");
     assert.equal(mcpEnvelope.request_id, "req-compare-parity-01");
     assert.equal(mcpEnvelope.error, undefined);
-    assert.equal(mcpEnvelope.result.left.uri, `skelet://artifact/${fx.left.artifactId}`);
-    assert.equal(mcpEnvelope.result.right.uri, `skelet://artifact/${fx.right.artifactId}`);
+    assert.equal(mcpEnvelope.result.left.uri, `skilit://artifact/${fx.left.artifactId}`);
+    assert.equal(mcpEnvelope.result.right.uri, `skilit://artifact/${fx.right.artifactId}`);
     assert.ok(URI_RE.test(mcpEnvelope.result.left.uri));
     assert.equal(mcpEnvelope.result.identical, false);
     assert.equal(mcpEnvelope.result.score, 0.6);

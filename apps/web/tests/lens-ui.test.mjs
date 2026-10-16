@@ -23,7 +23,7 @@ test("lens UI serves the full lifecycle over the real REST contracts", async () 
   for (const marker of ["Poll status", "Inspect", "Watch until terminal", "Cancel", "Retry", "Resume", "Download manifest", "Download evidence"]) {
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
-  assert.ok(text.includes("skelet://lens/"), "UI renders the stable lens identifier");
+  assert.ok(text.includes("skilit://lens/"), "UI renders the stable lens identifier");
   assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
   assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
 });

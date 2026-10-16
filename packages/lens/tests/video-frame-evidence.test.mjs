@@ -138,7 +138,7 @@ test("evidence assembly binds mapping and digests deterministically", () => {
   const refs = selectFrameRefs(real, 4);
   const frames = refs.map((ref) => authenticateFrame(real, ref.index, jpeg));
   const first = assembleVideoEvidence(real, frames, new Date("2026-10-13T00:00:00.000Z"));
-  assert.equal(first.schema, "skelet/video-frame-evidence/1");
+  assert.equal(first.schema, "skilit/video-frame-evidence/1");
   assert.equal(first.frames.length, 4);
   assert.equal(first.videoSha256, "b".repeat(64));
   assert.ok(first.evidenceSha256.length === 64);

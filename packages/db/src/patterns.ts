@@ -243,7 +243,7 @@ export async function getPatternForActor(
     title: String(row.title),
     description: row.description == null ? undefined : String(row.description),
     links: links.map((link) => ({
-      uri: `skelet://artifact/${link.id}`,
+      uri: `skilit://artifact/${link.id}`,
       kind: link.kind,
       title: link.title,
       relation: link.relation,

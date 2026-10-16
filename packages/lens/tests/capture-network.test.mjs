@@ -116,11 +116,11 @@ test("deadline, incorrect mime and compressed responses reject", async () => {
 });
 
 test("child-process environment is actually secret-free", async () => {
-  const dir = mkdtempSync(join(tmpdir(), "skelet-lens-env-"));
+  const dir = mkdtempSync(join(tmpdir(), "skilit-lens-env-"));
   const fixture = join(dir, "probe.cjs");
-  const original = process.env.SKELET_PRIVATE_CLOUD_KEY;
+  const original = process.env.SKILIT_PRIVATE_CLOUD_KEY;
   try {
-    process.env.SKELET_PRIVATE_CLOUD_KEY = "SECRET_DO_NOT_COPY";
+    process.env.SKILIT_PRIVATE_CLOUD_KEY = "SECRET_DO_NOT_COPY";
     writeFileSync(fixture, `process.send({ env: process.env });\n`);
     const got = await new Promise((resolve, reject) => {
       const child = fork(fixture, [], {
@@ -130,7 +130,7 @@ test("child-process environment is actually secret-free", async () => {
       child.on("message", resolve);
       child.on("error", reject);
     });
-    assert.equal(got.env.SKELET_PRIVATE_CLOUD_KEY, undefined);
+    assert.equal(got.env.SKILIT_PRIVATE_CLOUD_KEY, undefined);
     assert.equal(got.env.NODE_OPTIONS, undefined);
     assert.equal(got.env.GITHUB_TOKEN, undefined);
     assert.equal(got.env.HOME, dir);
@@ -140,8 +140,8 @@ test("child-process environment is actually secret-free", async () => {
       "HOME", "LANG", "LC_ALL", "PATH", "PLAYWRIGHT_BROWSERS_PATH", "TEMP", "TMP", "TMPDIR", "TZ",
     ]);
   } finally {
-    if (original === undefined) delete process.env.SKELET_PRIVATE_CLOUD_KEY;
-    else process.env.SKELET_PRIVATE_CLOUD_KEY = original;
+    if (original === undefined) delete process.env.SKILIT_PRIVATE_CLOUD_KEY;
+    else process.env.SKILIT_PRIVATE_CLOUD_KEY = original;
     rmSync(dir, { recursive: true, force: true });
   }
 });

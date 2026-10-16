@@ -45,7 +45,7 @@ test("AF-04 REST search exposes mode, facets, filters, and pagination", async ()
   try {
     const ok = await searchAssetsRoute(fx.db, { query: "af04rest" }, fx.owner.id);
     assert.equal(ok.status, 200);
-    assert.equal(ok.body.schema_version, "skelet.agent.v1");
+    assert.equal(ok.body.schema_version, "skilit.agent.v1");
     assert.ok(["postgres-fts", "literal-like"].includes(ok.body.result.search_mode));
     assert.equal(ok.body.result.assets.length, 2);
 
@@ -93,7 +93,7 @@ test("AF-04 MCP search_assets exposes mode, facets, filters, and errors", async 
   const ctx = { userId: fx.owner.id };
   try {
     const ok = await mcpCall(fx.db, ctx, "search_assets", { query: "af04rest" });
-    assert.equal(ok.schema_version, "skelet.agent.v1");
+    assert.equal(ok.schema_version, "skilit.agent.v1");
     assert.ok(["postgres-fts", "literal-like"].includes(ok.result.search_mode));
     assert.equal(ok.result.assets.length, 2);
 

@@ -1,4 +1,4 @@
-# Skelet Governance
+# Skilit Governance
 
 Status: canonical repository governance
 
@@ -31,7 +31,7 @@ Do not combine unrelated donor imports, schema work, UI redesign, provider integ
 
 Branch naming pattern:
 
-`skelet/pXX-gYY-short-name`
+`skilit/pXX-gYY-short-name`
 
 History rules:
 

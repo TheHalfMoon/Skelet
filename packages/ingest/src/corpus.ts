@@ -20,7 +20,7 @@ import {
 import { getArtifactForActor } from "../../db/src/artifact-access.ts";
 
 /**
- * AF-14a authorized fixture-corpus importer (Skelet-owned, no donor runtime).
+ * AF-14a authorized fixture-corpus importer (Skilit-owned, no donor runtime).
  *
  * Imports a bounded, rights-explicit research corpus — products, versions,
  * screen/flow artifacts, and ordered flows — through the canonical

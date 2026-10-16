@@ -1,5 +1,5 @@
 /**
- * P15-3 release-artifact signing procedure (Skelet-owned, no-prod-dependency).
+ * P15-3 release-artifact signing procedure (Skilit-owned, no-prod-dependency).
  *
  * Implements the operator signing ceremony for release artifacts (SBOM,
  * build manifests, starter kits) as an executable script with two modes:
@@ -88,17 +88,17 @@ function selfTest() {
   if (!gpgAvailable()) {
     fail(3, "gpg is unavailable; signing procedure cannot run here.");
   }
-  const home = mkdtempSync(join(tmpdir(), "skelet-sign-"));
+  const home = mkdtempSync(join(tmpdir(), "skilit-sign-"));
   const env = { ...process.env, GNUPGHOME: home };
   try {
     const payloadPath = join(home, "payload.txt");
-    writeFileSync(payloadPath, `skelet signing self-test ${randomBytes(8).toString("hex")}\n`);
-    const gen = runGpg(["--batch", "--pinentry-mode", "loopback", "--passphrase", "skelet-self-test-only", "--quick-generate-key", "skelet-self-test <self-test@local>", "ed25519", "sign"], { env });
+    writeFileSync(payloadPath, `skilit signing self-test ${randomBytes(8).toString("hex")}\n`);
+    const gen = runGpg(["--batch", "--pinentry-mode", "loopback", "--passphrase", "skilit-self-test-only", "--quick-generate-key", "skilit-self-test <self-test@local>", "ed25519", "sign"], { env });
     if (!gen.ok) {
       fail(1, "ephemeral key generation failed.");
     }
     const sigPath = join(home, "payload.txt.asc");
-    const sign = runGpg(["--batch", "--pinentry-mode", "loopback", "--passphrase", "skelet-self-test-only", "--detach-sign", "--armor", "--output", sigPath, payloadPath], { env });
+    const sign = runGpg(["--batch", "--pinentry-mode", "loopback", "--passphrase", "skilit-self-test-only", "--detach-sign", "--armor", "--output", sigPath, payloadPath], { env });
     if (!sign.ok) {
       fail(1, "ephemeral signing failed.");
     }

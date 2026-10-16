@@ -22,9 +22,9 @@ async function fixture(tag) {
   seq += 1;
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: `mcpboard-${tag}-${seq}@skelet.example`, password: "board-member-01" });
-  const fellow = await signUp(db, { email: `mcpboard-fellow-${tag}-${seq}@skelet.example`, password: "board-member-01" });
-  const outsider = await signUp(db, { email: `mcpboard-out-${tag}-${seq}@skelet.example`, password: "board-member-01" });
+  const owner = await signUp(db, { email: `mcpboard-${tag}-${seq}@skilit.example`, password: "board-member-01" });
+  const fellow = await signUp(db, { email: `mcpboard-fellow-${tag}-${seq}@skilit.example`, password: "board-member-01" });
+  const outsider = await signUp(db, { email: `mcpboard-out-${tag}-${seq}@skilit.example`, password: "board-member-01" });
   const space = await createWorkspace(db, { name: `MCP Board ${tag} ${seq}`, ownerId: owner.id });
   await addMember(db, { workspaceId: space.workspace.id, userId: fellow.id, role: "member", actorId: owner.id });
   return { db, owner, fellow, outsider, workspaceId: space.workspace.id, ctx: { userId: owner.id } };
@@ -96,7 +96,7 @@ test("MCP handoff assigns ledger proof and REST converges on the same board", as
       fx.db, created.id, { workspaceId: fx.workspaceId, artifactId: first.id }, fx.owner.id,
     );
     assert.equal(saved.status, 200);
-    const uri = `skelet://collection/${created.id}`;
+    const uri = `skilit://collection/${created.id}`;
     const handed = await mcpCall(fx.db, fx.ctx, "board_handoff", {
       uri,
       workspaceId: fx.workspaceId,
@@ -104,7 +104,7 @@ test("MCP handoff assigns ledger proof and REST converges on the same board", as
       requestId: "req-board-handoff-1",
     });
     const handedEnv = mcpEnvelopeOf(handed);
-    assert.equal(handedEnv.schema_version, "skelet.agent.v1");
+    assert.equal(handedEnv.schema_version, "skilit.agent.v1");
     assert.equal(handedEnv.request_id, "req-board-handoff-1");
     assert.equal(handedEnv.result.handoff.toSubject, fx.fellow.id);
     assert.equal(handedEnv.result.handoff.boardUri, uri);
@@ -157,7 +157,7 @@ test("MCP handoff denies outsiders without an existence oracle", async () => {
     assert.equal(mcpFailureOf(malformed).envelope.error.code, "FORBIDDEN_OR_NOT_FOUND");
     const mismatched = await mcpCall(fx.db, fx.ctx, "board_list_handoffs", {
       boardId: created.id,
-      uri: "skelet://collection/00000000-0000-4000-8000-000000000000",
+      uri: "skilit://collection/00000000-0000-4000-8000-000000000000",
     });
     assert.equal(mcpFailureOf(mismatched).envelope.error.code, "INVALID_INPUT");
     const missingId = await mcpCall(fx.db, fx.ctx, "board_list_handoffs", {});

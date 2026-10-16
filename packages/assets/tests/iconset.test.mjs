@@ -21,7 +21,7 @@ function fixtureSet() {
     prefix: "fx",
     width: 24,
     height: 24,
-    info: { name: "Fixture set", author: "Skelet", license: { title: "MIT", spdx: "MIT" } },
+    info: { name: "Fixture set", author: "Skilit", license: { title: "MIT", spdx: "MIT" } },
     icons: {
       "arrow-right": { body: ARROW_BODY },
       check: { body: CHECK_BODY, width: 16, height: 16 },
@@ -38,7 +38,7 @@ async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
   const source = await createSource(db, { key: "iconset-source", kind: "synthetic" });
-  const root = await mkdtemp(join(tmpdir(), "skelet-iconset-"));
+  const root = await mkdtemp(join(tmpdir(), "skilit-iconset-"));
   const storage = new LocalContentAddressedStorage({ rootDir: root });
   return { db, source, storage, root };
 }

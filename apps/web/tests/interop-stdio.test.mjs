@@ -87,7 +87,7 @@ function successEnvelope(response, context) {
   assert.equal(response.jsonrpc, "2.0", `${context}: jsonrpc`);
   assert.ok(response.result?.content?.[0]?.text, `${context}: envelope text`);
   const envelope = JSON.parse(response.result.content[0].text);
-  assert.equal(envelope.schema_version, "skelet.agent.v1", `${context}: schema`);
+  assert.equal(envelope.schema_version, "skilit.agent.v1", `${context}: schema`);
   assert.ok(typeof envelope.request_id === "string" && envelope.request_id.length > 0, `${context}: request_id`);
   return envelope;
 }
@@ -107,7 +107,7 @@ test("AF-03c stdio: versions, tools, and search pagination match HTTP semantics"
     }
     const unknown = await bridge.call({ jsonrpc: "2.0", method: "initialize", params: { protocolVersion: "1999-01-01" } });
     assert.equal(unknown.result.protocolVersion, "2026-07-28");
-    assert.deepEqual(unknown.result.skelet.capabilities, { packs: true, registry: true });
+    assert.deepEqual(unknown.result.skilit.capabilities, { packs: true, registry: true });
     const list = await bridge.call({ jsonrpc: "2.0", method: "tools/list", params: {} });
     assert.equal(list.result.tools.length, 30);
     const first = await bridge.call({
@@ -172,16 +172,16 @@ test("AF-03c stdio: actor gate denies outsider private without oracle", async ()
   try {
     const own = await bridge.call({
       jsonrpc: "2.0", method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${bridge.info.privateId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${bridge.info.privateId}` } },
     });
     assert.equal(successEnvelope(own, "stdio own private").result.object.title, "Stdio private screen");
     const denied = await bridge.call({
       jsonrpc: "2.0", method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${bridge.info.outsiderPrivateId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${bridge.info.outsiderPrivateId}` } },
     });
     const missing = await bridge.call({
       jsonrpc: "2.0", method: "tools/call",
-      params: { name: "get_object", arguments: { uri: "skelet://artifact/11111111-2222-4333-8444-555555555555" } },
+      params: { name: "get_object", arguments: { uri: "skilit://artifact/11111111-2222-4333-8444-555555555555" } },
     });
     assert.equal(denied.error.code, -32000);
     assert.equal(missing.error.code, -32000);
@@ -189,7 +189,7 @@ test("AF-03c stdio: actor gate denies outsider private without oracle", async ()
     assert.equal(failureEnvelope(missing, "stdio missing").error.code, "FORBIDDEN_OR_NOT_FOUND");
     const rights = await bridge.call({
       jsonrpc: "2.0", method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${bridge.info.restrictedId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${bridge.info.restrictedId}` } },
     });
     // The stdio owner passes the actor gate, so restricted surfaces as
     // RIGHTS_RESTRICTED (the same post-gate ordering as HTTP).
@@ -208,7 +208,7 @@ test("AF-03c stdio: actor gate denies outsider private without oracle", async ()
       jsonrpc: "2.0", method: "tools/call",
       params: { name: "get_object", arguments: { uri: packUri } },
     });
-    assert.equal(successEnvelope(fetched, "stdio pack fetch").result.pack.items[0].uri, `skelet://artifact/${bridge.info.artifactId}`);
+    assert.equal(successEnvelope(fetched, "stdio pack fetch").result.pack.items[0].uri, `skilit://artifact/${bridge.info.artifactId}`);
   } finally {
     await bridge.stop();
   }

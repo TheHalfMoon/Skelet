@@ -117,7 +117,7 @@ test("isolated child can launch the pinned headless browser without inheriting H
   const { join } = await import("node:path");
   const { isolatedWorkerEnv } = await import("../src/capture-worker.ts");
 
-  const home = mkdtempSync(join(tmpdir(), "skelet-child-browser-"));
+  const home = mkdtempSync(join(tmpdir(), "skilit-child-browser-"));
   const probe = join(home, "browser-probe.mjs");
   try {
     const moduleUrl = new URL("../node_modules/playwright-core/index.mjs", import.meta.url).href;

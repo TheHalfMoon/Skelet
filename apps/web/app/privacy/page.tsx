@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy — Skelet",
+  title: "Privacy — Skilit",
   description:
-    "How Skelet handles workspace data: local-first storage, workspace isolation, redaction, and no third-party AI egress on qualified paths.",
+    "How Skilit handles workspace data: local-first storage, workspace isolation, redaction, and no third-party AI egress on qualified paths.",
 };
 
 export default function Privacy() {
@@ -11,7 +11,7 @@ export default function Privacy() {
     <main style={{ maxWidth: 720, margin: "64px auto", padding: "0 24px" }}>
       <h1>Privacy</h1>
       <p>
-        Skelet is local-first and self-hosted. Workspace data lives in the
+        Skilit is local-first and self-hosted. Workspace data lives in the
         operator&apos;s own PostgreSQL database and content-addressed store —
         not in a founder-hosted cloud account.
       </p>

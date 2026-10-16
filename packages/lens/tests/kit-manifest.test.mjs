@@ -49,7 +49,7 @@ test("valid request assembles the frozen manifest shape", () => {
   assert.equal(manifest.kit_id, HEX_A);
   assert.equal(manifest.status, "generating");
   assert.deepEqual(manifest.lens_report, {
-    schema: "skelet.lens.report.v1",
+    schema: "skilit.lens.report.v1",
     analysis_id: HEX_B,
     sha256: HEX_C,
   });

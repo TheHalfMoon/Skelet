@@ -1,10 +1,10 @@
-# Skelet Data Provenance Policy
+# Skilit Data Provenance Policy
 
 Status: canonical data, asset, and derived-metadata provenance policy
 
 ## Purpose
 
-Skelet's product value depends on design evidence: screenshots, flows, logos, icons, fonts, components, extracted tokens, OCR text, metadata, and derived relationships. Those materials do not all share the same rights or serving policy.
+Skilit's product value depends on design evidence: screenshots, flows, logos, icons, fonts, components, extracted tokens, OCR text, metadata, and derived relationships. Those materials do not all share the same rights or serving policy.
 
 Data provenance is governed separately from code provenance.
 
@@ -43,7 +43,7 @@ Allowed classifications are:
 - `license-governed`: use is governed by a verified license;
 - `verify-at-import`: rights have not yet been resolved for activation;
 - `not-applicable`: the source does not provide that material for the planned capability;
-- `restricted`: Skelet must not assume redistribution/use beyond the documented restricted purpose.
+- `restricted`: Skilit must not assume redistribution/use beyond the documented restricted purpose.
 
 A source may not become an active data importer while a required dimension remains `verify-at-import`.
 
@@ -53,9 +53,9 @@ Rights to index metadata and rights to redistribute bytes are separate.
 
 Every downloadable or remotely served Asset must have an explicit serving policy such as:
 
-- `serve`: Skelet may deliver the retained bytes;
-- `metadata-only`: Skelet may index descriptive metadata but not redistribute bytes;
-- `link-only`: Skelet exposes the authoritative external source URL only;
+- `serve`: Skilit may deliver the retained bytes;
+- `metadata-only`: Skilit may index descriptive metadata but not redistribute bytes;
+- `link-only`: Skilit exposes the authoritative external source URL only;
 - `private-workspace-only`: retained bytes may be used only inside the authorized workspace;
 - `restricted`: no public delivery until rights are resolved.
 
@@ -89,7 +89,7 @@ Brand assets should retain:
 - trademark/brand-guideline URL when available;
 - serving policy.
 
-Skelet must not represent a brand as endorsing Skelet merely because the logo can be indexed or displayed as design evidence.
+Skilit must not represent a brand as endorsing Skilit merely because the logo can be indexed or displayed as design evidence.
 
 ## Fonts
 
@@ -111,7 +111,7 @@ Its provenance must preserve:
 - external service requirements;
 - original source URL and immutable pin.
 
-A component may not be published through the Skelet registry merely because its source file can be copied if its bundled assets or dependencies are not redistributable.
+A component may not be published through the Skilit registry merely because its source file can be copied if its bundled assets or dependencies are not redistributable.
 
 ## Model Weights and Training Data
 
@@ -147,7 +147,7 @@ Private workspace content must remain workspace-scoped.
 
 It must not enter:
 
-- the public Skelet corpus;
+- the public Skilit corpus;
 - global similarity/ranking training sets;
 - cross-customer analytics containing recoverable content;
 - an external AI provider request;
@@ -166,7 +166,7 @@ Every material dataset import must record:
 - rights/serving policy used for the batch;
 - transformation/enrichment steps;
 - validation failures;
-- canonical Skelet IDs created or updated.
+- canonical Skilit IDs created or updated.
 
 Imports must be idempotent and replayable where the governing source permits replay.
 

@@ -21,13 +21,13 @@ def write_registry(tmp: Path, index: dict, items: dict[str, dict]) -> Path:
 
 def valid_index() -> dict:
     return {
-        "name": "skelet-registry",
+        "name": "skilit-registry",
         "version": "0.1.0",
         "items": [
             {
-                "name": "skelet-button",
+                "name": "skilit-button",
                 "type": "registry:ui",
-                "title": "Skelet Button",
+                "title": "Skilit Button",
                 "description": "A button.",
             }
         ],
@@ -36,9 +36,9 @@ def valid_index() -> dict:
 
 def valid_item() -> dict:
     return {
-        "name": "skelet-button",
+        "name": "skilit-button",
         "type": "registry:ui",
-        "title": "Skelet Button",
+        "title": "Skilit Button",
         "description": "A button.",
         "dependencies": [],
         "devDependencies": [],
@@ -53,7 +53,7 @@ class RegistryValidatorTests(unittest.TestCase):
 
     def test_minimal_fixture_is_valid(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            directory = write_registry(Path(tmp), valid_index(), {"skelet-button": valid_item()})
+            directory = write_registry(Path(tmp), valid_index(), {"skilit-button": valid_item()})
             self.assertEqual([], validate(directory))
 
     def test_missing_item_document_fails(self) -> None:
@@ -66,7 +66,7 @@ class RegistryValidatorTests(unittest.TestCase):
         item = valid_item()
         item["files"] = [{"path": "components/x.tsx", "type": "registry:ui", "content": ""}]
         with tempfile.TemporaryDirectory() as tmp:
-            directory = write_registry(Path(tmp), valid_index(), {"skelet-button": item})
+            directory = write_registry(Path(tmp), valid_index(), {"skilit-button": item})
             errors = validate(directory)
             self.assertTrue(any("file entry invalid" in error for error in errors), errors)
 
@@ -74,7 +74,7 @@ class RegistryValidatorTests(unittest.TestCase):
         index = valid_index()
         index["items"] = copy.deepcopy(index["items"]) + copy.deepcopy(index["items"])
         with tempfile.TemporaryDirectory() as tmp:
-            directory = write_registry(Path(tmp), index, {"skelet-button": valid_item()})
+            directory = write_registry(Path(tmp), index, {"skilit-button": valid_item()})
             errors = validate(directory)
             self.assertTrue(any("duplicate index entry" in error for error in errors), errors)
 

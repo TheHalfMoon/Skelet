@@ -1,5 +1,5 @@
 /**
- * AF-11 public surface for Skelet editor adapters.
+ * AF-11 public surface for Skilit editor adapters.
  * Exposes the optional local vector adapter (AF-10), the optional local
  * raster adapter (AF-11), and the optional local OpenPencil adapter (P14).
  * PageDraw transplant remains a separate conditional future grain

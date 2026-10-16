@@ -55,7 +55,7 @@ async function main() {
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "bench-boards@skelet.example", password: "bench-password-01" });
+    const owner = await signUp(db, { email: "bench-boards@skilit.example", password: "bench-password-01" });
     const source = await createSource(db, { key: "bench-boards-source", kind: "synthetic" });
     const versionIds = [];
     let firstArtifactId = "";

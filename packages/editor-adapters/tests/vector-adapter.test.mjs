@@ -37,7 +37,7 @@ function requestor() {
 }
 
 async function makeRoot() {
-  const dir = await mkdtemp(join(tmpdir(), "skelet-af10-"));
+  const dir = await mkdtemp(join(tmpdir(), "skilit-af10-"));
   return dir;
 }
 
@@ -214,7 +214,7 @@ test("valid opt-in configuration converts, infos, and lists commands", async () 
     assert.ok((converted.outputFile ?? "").endsWith("out.svg"));
     assert.ok((converted.outputBytes ?? 0) > 0);
     assert.match(converted.outputSha256 ?? "", /^[a-f0-9]{64}$/);
-    assert.equal(converted.provenance.adapterId, "vectorcraft-local");
+    assert.equal(converted.provenance.adapterId, "skilit-vector");
     assert.equal(converted.provenance.capability, "vector-export");
     assert.equal(converted.provenance.version, VECTORCRAFT_PIN);
     assert.equal(converted.provenance.egress, "local");
@@ -678,8 +678,8 @@ test("shell metacharacters never reach a shell", async () => {
 
 test("scrubbed environment never leaks caller secrets to the child", async () => {
   const root = await makeRoot();
-  const previous = process.env.SKELET_AF10_TEST_SECRET;
-  process.env.SKELET_AF10_TEST_SECRET = "s3cr3t-marker-af10";
+  const previous = process.env.SKILIT_AF10_TEST_SECRET;
+  process.env.SKILIT_AF10_TEST_SECRET = "s3cr3t-marker-af10";
   try {
     const binDir = join(root, "bin");
     await mkdir(binDir, { recursive: true });
@@ -694,8 +694,8 @@ test("scrubbed environment never leaks caller secrets to the child", async () =>
     const dumped = await readFile(join(root, "env.json"), "utf8");
     assert.ok(!dumped.includes("s3cr3t-marker-af10"), "child environment must not carry caller secrets");
   } finally {
-    if (previous === undefined) delete process.env.SKELET_AF10_TEST_SECRET;
-    else process.env.SKELET_AF10_TEST_SECRET = previous;
+    if (previous === undefined) delete process.env.SKILIT_AF10_TEST_SECRET;
+    else process.env.SKILIT_AF10_TEST_SECRET = previous;
     await rm(root, { recursive: true, force: true });
   }
 });
@@ -759,9 +759,9 @@ test("executable symlinks and directories are unavailable, never executed", asyn
 
 test("no-model operation and static egress posture", async () => {
   const root = await makeRoot();
-  const previousNoModel = process.env.SKELET_NO_MODEL;
+  const previousNoModel = process.env.SKILIT_NO_MODEL;
   const previousOpenAI = process.env.OPENAI_API_KEY;
-  process.env.SKELET_NO_MODEL = "1";
+  process.env.SKILIT_NO_MODEL = "1";
   delete process.env.OPENAI_API_KEY;
   try {
     const exe = await setupGood(root);
@@ -781,8 +781,8 @@ test("no-model operation and static egress posture", async () => {
     assert.ok(!source.includes("shell: true"), "adapter must never enable a shell");
     assert.ok(source.includes("--automation-read-root") || source.includes("confined root"), "confinement documented");
   } finally {
-    if (previousNoModel === undefined) delete process.env.SKELET_NO_MODEL;
-    else process.env.SKELET_NO_MODEL = previousNoModel;
+    if (previousNoModel === undefined) delete process.env.SKILIT_NO_MODEL;
+    else process.env.SKILIT_NO_MODEL = previousNoModel;
     if (previousOpenAI !== undefined) process.env.OPENAI_API_KEY = previousOpenAI;
     await rm(root, { recursive: true, force: true });
   }

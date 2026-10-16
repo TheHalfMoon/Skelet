@@ -12,7 +12,7 @@ import { findSimilarRoute } from "../lib/rest.ts";
 import { AGENT_SCHEMA_VERSION } from "../lib/agent-contract.ts";
 
 const HASH = (char) => char.repeat(64);
-const URI_RE = /^skelet:\/\/artifact\/[A-Za-z0-9_-]{1,128}$/;
+const URI_RE = /^skilit:\/\/artifact\/[A-Za-z0-9_-]{1,128}$/;
 
 function assertStableEnvelope(envelope, context) {
   assert.equal(envelope.schema_version, AGENT_SCHEMA_VERSION, `${context}: schema_version`);
@@ -49,8 +49,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "similar-t-owner@skelet.example", password: "similar-password-01" });
-  const outsider = await signUp(db, { email: "similar-t-out@skelet.example", password: "similar-password-01" });
+  const owner = await signUp(db, { email: "similar-t-owner@skilit.example", password: "similar-password-01" });
+  const outsider = await signUp(db, { email: "similar-t-out@skilit.example", password: "similar-password-01" });
   const source = await createSource(db, { key: "similar-t-source", kind: "synthetic" });
   const reference = await registerAsset(db, {
     kind: "icon",
@@ -118,7 +118,7 @@ test("AF-13a-i: MCP and REST serve identical similar rankings", async () => {
     assertStableEnvelope(mcpEnvelope, "MCP find_similar");
     assert.equal(mcpEnvelope.request_id, "req-similar-parity-01");
     assert.equal(mcpEnvelope.error, undefined);
-    assert.equal(mcpEnvelope.result.reference.uri, `skelet://artifact/${fx.reference.artifactId}`);
+    assert.equal(mcpEnvelope.result.reference.uri, `skilit://artifact/${fx.reference.artifactId}`);
     assert.ok(mcpEnvelope.result.similar.length >= 2);
     assert.equal(mcpEnvelope.result.total, mcpEnvelope.result.similar.length);
     assert.equal(mcpEnvelope.result.truncated, false);
@@ -233,7 +233,7 @@ test("AF-13a-i: unknown, denied, and restricted references share no oracle", asy
     // Private candidates never leak to outsiders.
     const outside = await findSimilarRoute(fx.db, { artifactId: fx.reference.artifactId }, fx.outsider.id);
     assert.equal(outside.status, 200);
-    assert.ok(!outside.body.result.similar.some((entry) => entry.uri === `skelet://artifact/${fx.hidden.artifactId}`));
+    assert.ok(!outside.body.result.similar.some((entry) => entry.uri === `skilit://artifact/${fx.hidden.artifactId}`));
   } finally {
     await fx.db.close();
   }
@@ -244,8 +244,8 @@ test("AF-14b-i: screens serve identical similarity rankings on MCP and REST", as
   try {
     await migrateUp(db);
     const { createArtifact: make } = await import("../../../packages/db/src/graph.ts");
-    const owner = await signUp(db, { email: "similar-ts-owner@skelet.example", password: "similar-password-01" });
-    const outsider = await signUp(db, { email: "similar-ts-out@skelet.example", password: "similar-password-01" });
+    const owner = await signUp(db, { email: "similar-ts-owner@skilit.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-ts-out@skilit.example", password: "similar-password-01" });
     const source = await createSource(db, { key: "similar-ts-source", kind: "synthetic" });
     const ref = await make(db, {
       sourceId: source.id,
@@ -306,7 +306,7 @@ test("AF-14b-i: screens serve identical similarity rankings on MCP and REST", as
     // Private screens never leak to outsiders on either transport.
     const outside = await findSimilarRoute(db, { artifactId: ref.id }, outsider.id);
     assert.equal(outside.status, 200);
-    assert.ok(!outside.body.result.similar.some((entry) => entry.uri === `skelet://artifact/${hidden.id}`));
+    assert.ok(!outside.body.result.similar.some((entry) => entry.uri === `skilit://artifact/${hidden.id}`));
     const denied = mcpFailureEnvelopeOf(
       await mcpCall(db, { userId: outsider.id }, "find_similar", { artifactId: hidden.id }),
     );
@@ -321,8 +321,8 @@ test("AF-14c: global-private screens never leak over either transport", async ()
   try {
     await migrateUp(db);
     const { createArtifact: make } = await import("../../../packages/db/src/graph.ts");
-    const owner = await signUp(db, { email: "similar-gate-t@skelet.example", password: "similar-password-01" });
-    const outsider = await signUp(db, { email: "similar-gate-o@skelet.example", password: "similar-password-01" });
+    const owner = await signUp(db, { email: "similar-gate-t@skilit.example", password: "similar-password-01" });
+    const outsider = await signUp(db, { email: "similar-gate-o@skilit.example", password: "similar-password-01" });
     const source = await createSource(db, { key: "similar-gate-t-source", kind: "synthetic" });
     const ref = await make(db, {
       sourceId: source.id,
@@ -348,10 +348,10 @@ test("AF-14c: global-private screens never leak over either transport", async ()
       const via = actor === owner ? owner.id : outsider.id;
       const mcp = mcpEnvelopeOf(await mcpCall(db, { userId: via }, "find_similar", { artifactId: ref.id }));
       assertStableEnvelope(mcp, "AF-14c similar candidates");
-      assert.ok(!mcp.result.similar.some((entry) => entry.uri === `skelet://artifact/${orphan.id}`));
+      assert.ok(!mcp.result.similar.some((entry) => entry.uri === `skilit://artifact/${orphan.id}`));
       const rest = await findSimilarRoute(db, { artifactId: ref.id }, via);
       assert.equal(rest.status, 200);
-      assert.ok(!rest.body.result.similar.some((entry) => entry.uri === `skelet://artifact/${orphan.id}`));
+      assert.ok(!rest.body.result.similar.some((entry) => entry.uri === `skilit://artifact/${orphan.id}`));
       const denied = mcpFailureEnvelopeOf(
         await mcpCall(db, { userId: via }, "find_similar", { artifactId: orphan.id }),
       );

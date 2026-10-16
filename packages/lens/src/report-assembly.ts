@@ -68,7 +68,7 @@ interface DtcgExport {
 }
 
 export interface LensReport {
-  schemaVersion: "skelet.lens.report.v1";
+  schemaVersion: "skilit.lens.report.v1";
   status: "partial";
   analysisId: string;
   source: {
@@ -305,7 +305,7 @@ function assemble(
     a.ref !== b.ref ? (a.ref < b.ref ? -1 : 1) :
     a.detail !== b.detail ? (a.detail < b.detail ? -1 : 1) : 0);
   const report: LensReport = {
-    schemaVersion: "skelet.lens.report.v1",
+    schemaVersion: "skilit.lens.report.v1",
     status: "partial",
     analysisId: "",
     source: {
@@ -364,7 +364,7 @@ function assemble(
   // returned report (with the identity field blank), not a weaker token
   // fingerprint or a selected subset of metadata.
   report.analysisId = createHash("sha256")
-    .update("skelet.lens.report.v1\0")
+    .update("skilit.lens.report.v1\0")
     .update(JSON.stringify(report))
     .digest("hex");
   return report;
@@ -381,7 +381,7 @@ function assemble(
 export function attachVideoEvidence(report: LensReport, evidence: unknown): LensReport {
   if (
     typeof report !== "object" || report === null || Array.isArray(report) ||
-    report.schemaVersion !== "skelet.lens.report.v1" ||
+    report.schemaVersion !== "skilit.lens.report.v1" ||
     typeof report.observed !== "object" || report.observed === null ||
     typeof report.provenance !== "object" || report.provenance === null
   ) {
@@ -406,7 +406,7 @@ export function attachVideoEvidence(report: LensReport, evidence: unknown): Lens
   }
   next.analysisId = "";
   next.analysisId = createHash("sha256")
-    .update("skelet.lens.report.v1\0")
+    .update("skilit.lens.report.v1\0")
     .update(JSON.stringify(next))
     .digest("hex");
   return next;

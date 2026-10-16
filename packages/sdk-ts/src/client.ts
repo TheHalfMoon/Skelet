@@ -1,7 +1,7 @@
 /**
- * G08-05 Skelet TypeScript SDK: a thin typed client over REST API v1.
+ * G08-05 Skilit TypeScript SDK: a thin typed client over REST API v1.
  * Zero runtime dependencies; works in Node 20+ with the global fetch.
- * Every method returns domain objects with stable Skelet URIs; transport
+ * Every method returns domain objects with stable Skilit URIs; transport
  * failures surface as typed SdkError codes, never raw responses.
  */
 
@@ -90,7 +90,7 @@ export interface SearchAssetsInput {
   requestId?: string | undefined;
 }
 
-export interface SkeletClientOptions {
+export interface SkilitClientOptions {
   baseUrl: string;
   token: string;
   /**
@@ -111,7 +111,7 @@ function statusToCode(status: number): SdkErrorCode {
 }
 
 /**
- * AF-03b: unwrap the skelet.agent.v1 envelope. Accepts the versioned
+ * AF-03b: unwrap the skilit.agent.v1 envelope. Accepts the versioned
  * envelope (result object) and the pre-AF-03b bare shape for backward
  * compatibility during migration; prefers the envelope when present.
  *
@@ -122,7 +122,12 @@ function statusToCode(status: number): SdkErrorCode {
 function envelopeResult(body: unknown): Record<string, unknown> | null {
   if (typeof body !== "object" || body === null) return null;
   const record = body as Record<string, unknown>;
-  if (record.schema_version === "skelet.agent.v1" && typeof record.result === "object" && record.result !== null) {
+  if (
+    (record.schema_version === "skilit.agent.v1" ||
+      record.schema_version === "skelet.agent.v1") &&
+    typeof record.result === "object" &&
+    record.result !== null
+  ) {
     return record.result as Record<string, unknown>;
   }
   return record;
@@ -182,13 +187,13 @@ function extractResultArray(body: unknown, field: string): unknown[] | null {
   return Array.isArray(value) ? value : null;
 }
 
-export class SkeletClient {
+export class SkilitClient {
   private readonly baseUrl: string;
   private readonly token: string;
   private readonly fetchImpl: typeof fetch;
   private readonly timeoutMs: number;
 
-  constructor(options: SkeletClientOptions) {
+  constructor(options: SkilitClientOptions) {
     if (typeof options.baseUrl !== "string") {
       throw new SdkError("sdk/invalid", 0, "Base URL is invalid.");
     }
@@ -363,7 +368,7 @@ export class SkeletClient {
     return asset as SdkAsset;
   }
 
-  /** Retrieve a canonical object by stable Skelet URI. */
+  /** Retrieve a canonical object by stable Skilit URI. */
   async getObject(uri: string, options?: { requestId?: string | undefined }): Promise<SdkObject | SdkPack> {
     if (typeof uri !== "string" || uri.length === 0) {
       throw new SdkError("sdk/invalid", 0, "URI is invalid.");

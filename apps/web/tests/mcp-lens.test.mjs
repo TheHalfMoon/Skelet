@@ -39,8 +39,8 @@ async function fixture(tag) {
   seq += 1;
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: `mcplens-${tag}-${seq}@skelet.example`, password: "lens-member-01" });
-  const outsider = await signUp(db, { email: `mcplens-out-${tag}-${seq}@skelet.example`, password: "lens-member-01" });
+  const owner = await signUp(db, { email: `mcplens-${tag}-${seq}@skilit.example`, password: "lens-member-01" });
+  const outsider = await signUp(db, { email: `mcplens-out-${tag}-${seq}@skilit.example`, password: "lens-member-01" });
   const space = await createWorkspace(db, { name: `MCP Lens ${tag} ${seq}`, ownerId: owner.id });
   return { db, owner, outsider, workspaceId: space.workspace.id, ctx: { userId: owner.id } };
 }
@@ -118,7 +118,7 @@ test("MCP create assigns durable identifiers and replays idempotently", async ()
     const args = createArgs(fx.workspaceId);
     const first = await mcpCall(fx.db, fx.ctx, "lens_create_job", { ...args, requestId: "req-mcp-create-1" });
     const firstEnv = mcpEnvelopeOf(first);
-    assert.equal(firstEnv.schema_version, "skelet.agent.v1");
+    assert.equal(firstEnv.schema_version, "skilit.agent.v1");
     assert.equal(firstEnv.request_id, "req-mcp-create-1");
     assert.equal(firstEnv.result.created, true);
     const job = firstEnv.result.job;
@@ -249,7 +249,7 @@ test("MCP lens failures stay code-identical with REST", async () => {
         code: "FORBIDDEN_OR_NOT_FOUND",
       },
       {
-        mcp: () => mcpCall(fx.db, fx.ctx, "lens_get_job", { workspaceId: fx.workspaceId, uri: "skelet://lens/short" }),
+        mcp: () => mcpCall(fx.db, fx.ctx, "lens_get_job", { workspaceId: fx.workspaceId, uri: "skilit://lens/short" }),
         code: "FORBIDDEN_OR_NOT_FOUND",
       },
       {
@@ -291,7 +291,7 @@ test("MCP lens failures stay code-identical with REST", async () => {
     for (const [index, entry] of cases.entries()) {
       const failure = mcpFailureOf(await entry.mcp());
       assert.equal(failure.envelope.error.code, entry.code, `case ${index}`);
-      assert.equal(failure.envelope.schema_version, "skelet.agent.v1", `case ${index}`);
+      assert.equal(failure.envelope.schema_version, "skilit.agent.v1", `case ${index}`);
     }
     const created = await mcpCall(fx.db, fx.ctx, "lens_create_job", createArgs(fx.workspaceId));
     const job = mcpEnvelopeOf(created).result.job;

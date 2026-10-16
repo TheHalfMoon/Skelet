@@ -2,8 +2,8 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const registryIndex = require("../registry/registry.json") as RegistryIndexFile;
-const buttonItem = require("../registry/skelet-button.json") as RegistryItem;
-const cardItem = require("../registry/skelet-card.json") as RegistryItem;
+const buttonItem = require("../registry/skilit-button.json") as RegistryItem;
+const cardItem = require("../registry/skilit-card.json") as RegistryItem;
 
 export interface RegistryIndexEntry {
   name: string;
@@ -42,15 +42,26 @@ interface RegistryIndexFile {
 }
 
 const ITEMS: Record<string, RegistryItem> = {
-  "skelet-button": buttonItem,
-  "skelet-card": cardItem,
+  "skilit-button": buttonItem,
+  "skilit-card": cardItem,
+};
+
+/** Legacy Skilit predecessor names; accepted on read, canonical on write. */
+const LEGACY_REGISTRY_ALIASES: Record<string, string> = {
+  "skelet-button": "skilit-button",
+  "skelet-card": "skilit-card",
+  "skelet-registry": "skilit-registry",
 };
 
 function lookupItem(name: string): RegistryItem | undefined {
   // hasOwn, not truthiness: __proto__/constructor must fail closed
   // to not-found instead of reaching the prototype chain.
-  if (!Object.hasOwn(ITEMS, name)) return undefined;
-  return ITEMS[name];
+  if (Object.hasOwn(ITEMS, name)) return ITEMS[name];
+  const canonical = LEGACY_REGISTRY_ALIASES[name];
+  if (canonical !== undefined && Object.hasOwn(ITEMS, canonical)) {
+    return ITEMS[canonical];
+  }
+  return undefined;
 }
 
 export class RegistryError extends Error {

@@ -7,14 +7,14 @@ import {createWorkspace} from "../src/workspaces.ts";
 import {BuildKitError,advanceKitRun,cancelKitRun,createKitRun,
  pollKitRun,resumeKitRun} from "../src/build-kit.ts";
 
-const connectionString=process.env.SKELET_TEST_DATABASE_URL;
+const connectionString=process.env.SKILIT_TEST_DATABASE_URL;
 const enabled=Boolean(connectionString);
 function fixtureGuard() {
- if(!connectionString||process.env.SKELET_DB_TEST_CONFIRM!=="yes")
+ if(!connectionString||process.env.SKILIT_DB_TEST_CONFIRM!=="yes")
   throw new Error("Explicit local fixture guard required");
  const url=new URL(connectionString);
  if(!["127.0.0.1","localhost"].includes(url.hostname) ||
-  url.username!=="skelet_test" || url.pathname!=="/skelet_test")
+  url.username!=="skilit_test" || url.pathname!=="/skilit_test")
   throw new Error("Refusing to mutate a non-fixture PostgreSQL database");
 }
 const BASE=new Date("2026-10-10T06:00:00.000Z");
@@ -36,7 +36,7 @@ test("real PostgreSQL migration ledger includes the kit lifecycle",{
   assert.deepEqual(await migrateUp(db),
    ["001_sources_products","002_design_graph","003_workflows","004_auth",
     "005_workspaces","006_collections_auth","007_billing","008_jobs",
-    "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"]);
+    "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"]);
  } finally {await migrateDown(db);await db.close();}
 });
 
@@ -47,7 +47,7 @@ test("real PostgreSQL concurrent create converges to one run",{
  const second=await openDatabase({connectionString});
  try {
   await migrateUp(db);
-  const owner=await tenant(db,"pg-kit-race@skelet.example","PG kit race");
+  const owner=await tenant(db,"pg-kit-race@skilit.example","PG kit race");
   const attempt=(client)=>createKitRun(client,{workspaceId:owner.workspaceId,
    actorId:owner.actorId,request:request({idempotencyKey:"race-key"}),now:BASE});
   const outcomes=await Promise.all([
@@ -75,7 +75,7 @@ test("real PostgreSQL concurrent submissions respect the quota race",{
  const second=await openDatabase({connectionString});
  try {
   await migrateUp(db);
-  const owner=await tenant(db,"pg-kit-quota@skelet.example","PG kit quota");
+  const owner=await tenant(db,"pg-kit-quota@skilit.example","PG kit quota");
   const attempt=(client,index)=>createKitRun(client,{workspaceId:owner.workspaceId,
    actorId:owner.actorId,request:request({idempotencyKey:`quota-race-${index}`}),
    now:BASE}).then((o)=>({ok:true,run:o.run}),
@@ -103,7 +103,7 @@ test("real PostgreSQL cancel versus complete race stays deterministic",{
  try {
   await migrateUp(db);
   for(let round=0;round<5;round+=1) {
-   const owner=await tenant(db,`pg-kit-duel-${round}@skelet.example`,`PG duel ${round}`);
+   const owner=await tenant(db,`pg-kit-duel-${round}@skilit.example`,`PG duel ${round}`);
    const made=await createKitRun(db,{workspaceId:owner.workspaceId,
     actorId:owner.actorId,request:request({idempotencyKey:`duel-${round}`}),now:BASE});
    let run=made.run;
@@ -142,7 +142,7 @@ test("real PostgreSQL worker crash recovers through lease expiry",{
  const db=await openDatabase({connectionString});
  try {
   await migrateUp(db);
-  const owner=await tenant(db,"pg-kit-crash@skelet.example","PG kit crash");
+  const owner=await tenant(db,"pg-kit-crash@skilit.example","PG kit crash");
   const made=await createKitRun(db,{workspaceId:owner.workspaceId,
    actorId:owner.actorId,request:request({idempotencyKey:"crash-key"}),now:BASE});
   const started=await advanceKitRun(db,{workspaceId:owner.workspaceId,

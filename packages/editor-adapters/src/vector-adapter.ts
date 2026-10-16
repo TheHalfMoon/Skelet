@@ -1,5 +1,5 @@
 /**
- * AF-10 P14 local vector adapter (Skelet-owned, no donor vendoring).
+ * AF-10 P14 local vector adapter (Skilit-owned, no donor vendoring).
  *
  * Optional headless adapter for the pinned VectorCraft CLI contract at
  * `6c3f9f60aa69ac151f9908b94cf00a387746eea4` (verified 2026-10-11, MIT OR
@@ -17,7 +17,7 @@
  * - `bench`/`perf` are benchmark harnesses and are NOT allowlisted here;
  * - `--connect ADDR` (unauthenticated TCP control) is never used here.
  *
- * Skelet confinement mirrors the upstream root model with a single
+ * Skilit confinement mirrors the upstream root model with a single
  * operator-owned root directory: every input must resolve inside the root,
  * every output must resolve inside the root, links are followed via
  * realpath, and a path that escapes is refused with a deterministic
@@ -39,16 +39,19 @@ import { constants } from "node:fs";
 import { access, lstat, realpath, readFile } from "node:fs/promises";
 import { isAbsolute, resolve, sep } from "node:path";
 
-export const VECTOR_ADAPTER_ID = "vectorcraft-local" as const;
+export const VECTOR_ADAPTER_ID = "skilit-vector" as const;
 export const VECTOR_CAPABILITY = "vector-export" as const;
 /** Exact upstream pin from UPSTREAMS.lock.yml (vectorcraft, ready). */
 export const VECTORCRAFT_PIN =
   "6c3f9f60aa69ac151f9908b94cf00a387746eea4" as const;
 
+/** Legacy adapter ID from before the Skilit rebrand; accepted on read. */
+export const LEGACY_VECTOR_ADAPTER_ID = "vectorcraft-local" as const;
+
 export const VECTOR_OPERATIONS = ["convert", "info", "commands"] as const;
 export type VectorOperation = (typeof VECTOR_OPERATIONS)[number];
 
-/** Operations the real CLI supports but Skelet deliberately refuses. */
+/** Operations the real CLI supports but Skilit deliberately refuses. */
 const REFUSED_OPERATIONS: readonly string[] = [
   "run",
   "mcp",
@@ -690,7 +693,7 @@ function escapeXml(text: string): string {
 }
 
 /**
- * Pure deterministic token-to-SVG export (Skelet-owned, no CLI required).
+ * Pure deterministic token-to-SVG export (Skilit-owned, no CLI required).
  * Produces a fixed swatch grid from qualified DTCG-style values so the
  * reference-pack -> SVG -> reopen -> Asset journey is testable offline.
  */
@@ -712,7 +715,7 @@ export function tokensToSvg(raw: unknown): string {
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
   );
-  parts.push(`<title>${escapeXml("Skelet token swatches")}</title>`);
+  parts.push(`<title>${escapeXml("Skilit token swatches")}</title>`);
   const colors = input.colors.length > 0 ? input.colors : ["#000000"];
   colors.forEach((color, index) => {
     const row = Math.floor(index / columns);

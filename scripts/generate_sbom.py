@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a deterministic CycloneDX SBOM for the Skelet release record.
+"""Generate a deterministic CycloneDX SBOM for the Skilit release record.
 
 Reads `pnpm-lock.yaml` (lockfile v9 `packages`) and `requirements-ci.txt`
 (hash-pinned Python dependencies) and writes a sorted CycloneDX 1.5 minimal
@@ -79,7 +79,7 @@ def build_bom(repo_head: str) -> dict:
         "bomFormat": "CycloneDX",
         "specVersion": "1.5",
         "metadata": {
-            "component": {"name": "skelet"},
+            "component": {"name": "skilit"},
             "repoHead": repo_head,
         },
         "components": components,

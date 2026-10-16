@@ -1,5 +1,5 @@
 /**
- * AF-14 P14 local OpenPencil adapter (Skelet-owned, no donor vendoring).
+ * AF-14 P14 local OpenPencil adapter (Skilit-owned, no donor vendoring).
  *
  * Optional headless adapter for the pinned OpenPencil CLI contract at
  * `78355fd3890cc9da9539235ee3b38beb917f2ed6` (verified 2026-10-15, MIT,
@@ -30,10 +30,10 @@
  *   CLI but are deliberately NOT allowlisted here (app-bridged, mutating,
  *   or code-generation surface for a later grain, if ever).
  *
- * Skelet confinement mirrors the VectorCraft/PhotoCraft adapters (AF-10/11):
+ * Skilit confinement mirrors the VectorCraft/PhotoCraft adapters (AF-10/11):
  * every input must resolve inside the operator-owned root, every output must
  * resolve inside the root, links are followed via realpath, and escapes are
- * refused with a deterministic `openpencil/path-escape` error.
+ * refused with a deterministic `document/path-escape` error.
  * Check-then-use has an inherent TOCTOU race against other local software
  * swapping links between validation and spawn; the roots confine this
  * adapter's own invocation rather than defending against a hostile local
@@ -62,11 +62,14 @@ import { constants } from "node:fs";
 import { access, lstat, realpath, readFile, stat } from "node:fs/promises";
 import { isAbsolute, resolve, sep, extname } from "node:path";
 
-export const OPENPENCIL_ADAPTER_ID = "openpencil-local" as const;
+export const OPENPENCIL_ADAPTER_ID = "skilit-document" as const;
 export const OPENPENCIL_CAPABILITY = "editable-document" as const;
 /** Exact upstream pin from UPSTREAMS.lock.yml (openpencil, ready). */
 export const OPENPENCIL_PIN =
   "78355fd3890cc9da9539235ee3b38beb917f2ed6" as const;
+
+/** Legacy adapter ID from before the Skilit rebrand; accepted on read. */
+export const LEGACY_OPENPENCIL_ADAPTER_ID = "openpencil-local" as const;
 
 export const OPENPENCIL_OPERATIONS = [
   "tree",
@@ -78,7 +81,7 @@ export const OPENPENCIL_OPERATIONS = [
 ] as const;
 export type OpenpencilOperation = (typeof OPENPENCIL_OPERATIONS)[number];
 
-/** Operations the real CLI supports but Skelet deliberately refuses. */
+/** Operations the real CLI supports but Skilit deliberately refuses. */
 const REFUSED_OPERATIONS: readonly string[] = [
   "documents",
   "import",
@@ -139,8 +142,8 @@ const ERROR_MESSAGE_MAX_CHARS = 2_000;
 const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const PAGE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 _.-]{0,127}$/;
 const HEX_COLOR = /^#[0-9a-f]{6}$/;
-const SKELET_URI_PATTERN =
-  /^skelet:\/\/(artifact|collection)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const SKILIT_URI_PATTERN =
+  /^skilit:\/\/(artifact|collection)\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const WINDOWS_DEVICE_NAMES: readonly string[] = [
   "CON",
   "PRN",
@@ -167,18 +170,18 @@ const WINDOWS_DEVICE_NAMES: readonly string[] = [
 ];
 
 export type OpenpencilErrorCode =
-  | "openpencil/disabled"
-  | "openpencil/unavailable"
-  | "openpencil/invalid-config"
-  | "openpencil/invalid-input"
-  | "openpencil/path-escape"
-  | "openpencil/unsupported-operation"
-  | "openpencil/unsupported-format"
-  | "openpencil/malformed-output"
-  | "openpencil/timeout"
-  | "openpencil/canceled"
-  | "openpencil/failed"
-  | "openpencil/output-limit";
+  | "document/disabled"
+  | "document/unavailable"
+  | "document/invalid-config"
+  | "document/invalid-input"
+  | "document/path-escape"
+  | "document/unsupported-operation"
+  | "document/unsupported-format"
+  | "document/malformed-output"
+  | "document/timeout"
+  | "document/canceled"
+  | "document/failed"
+  | "document/output-limit";
 
 export class OpenpencilAdapterError extends Error {
   readonly code: OpenpencilErrorCode;
@@ -322,17 +325,17 @@ function validateId(value: unknown, label: string): string {
     value.length === 0 ||
     value.length > MAX_ID_CHARS
   ) {
-    fail("openpencil/invalid-input", `OpenPencil ${label} is invalid.`);
+    fail("document/invalid-input", `OpenPencil ${label} is invalid.`);
   }
   if (!ID_PATTERN.test(value as string)) {
-    fail("openpencil/invalid-input", `OpenPencil ${label} is invalid.`);
+    fail("document/invalid-input", `OpenPencil ${label} is invalid.`);
   }
   return value as string;
 }
 
 function validateRequestor(value: unknown): OpenpencilRequestor {
   if (!isRecord(value)) {
-    fail("openpencil/invalid-input", "OpenPencil requestor is invalid.");
+    fail("document/invalid-input", "OpenPencil requestor is invalid.");
   }
   const actorId = validateId(value.actorId, "actor identity");
   const workspaceId = validateId(value.workspaceId, "workspace identity");
@@ -346,7 +349,7 @@ function validateTimeout(value: unknown, fallback: number): number {
     (value as number) < MIN_TIMEOUT_MS ||
     (value as number) > MAX_TIMEOUT_MS
   ) {
-    fail("openpencil/invalid-config", "OpenPencil timeout is invalid.");
+    fail("document/invalid-config", "OpenPencil timeout is invalid.");
   }
   return value as number;
 }
@@ -358,7 +361,7 @@ function validateMaxOutput(value: unknown, fallback: number): number {
     (value as number) < MIN_MAX_OUTPUT_BYTES ||
     (value as number) > MAX_MAX_OUTPUT_BYTES
   ) {
-    fail("openpencil/invalid-config", "OpenPencil output limit is invalid.");
+    fail("document/invalid-config", "OpenPencil output limit is invalid.");
   }
   return value as number;
 }
@@ -369,15 +372,15 @@ function validateExecutablePath(value: unknown): string {
     value.length === 0 ||
     value.length > MAX_PATH_CHARS
   ) {
-    fail("openpencil/invalid-config", "OpenPencil executable path is invalid.");
+    fail("document/invalid-config", "OpenPencil executable path is invalid.");
   }
   const text = value as string;
   if (text.includes("\0")) {
-    fail("openpencil/invalid-config", "OpenPencil executable path is invalid.");
+    fail("document/invalid-config", "OpenPencil executable path is invalid.");
   }
   if (!isAbsolute(text)) {
     fail(
-      "openpencil/invalid-config",
+      "document/invalid-config",
       "OpenPencil executable path must be absolute; PATH lookup is refused.",
     );
   }
@@ -390,15 +393,15 @@ function validateRootDir(value: unknown): string {
     value.length === 0 ||
     value.length > MAX_PATH_CHARS
   ) {
-    fail("openpencil/invalid-config", "OpenPencil root directory is invalid.");
+    fail("document/invalid-config", "OpenPencil root directory is invalid.");
   }
   const text = value as string;
   if (text.includes("\0")) {
-    fail("openpencil/invalid-config", "OpenPencil root directory is invalid.");
+    fail("document/invalid-config", "OpenPencil root directory is invalid.");
   }
   if (!isAbsolute(text)) {
     fail(
-      "openpencil/invalid-config",
+      "document/invalid-config",
       "OpenPencil root directory must be absolute.",
     );
   }
@@ -415,7 +418,7 @@ export function validateOpenpencilAdapterConfig(
 ): ResolvedOpenpencilConfig | { enabled: false } {
   if (!isRecord(raw)) {
     fail(
-      "openpencil/invalid-config",
+      "document/invalid-config",
       "OpenPencil adapter configuration is invalid.",
     );
   }
@@ -432,7 +435,7 @@ export function validateOpenpencilAdapterConfig(
   const versionPin = raw.versionPin;
   if (versionPin !== OPENPENCIL_PIN) {
     fail(
-      "openpencil/invalid-config",
+      "document/invalid-config",
       "OpenPencil adapter version pin must match the qualified OpenPencil commit.",
     );
   }
@@ -452,18 +455,18 @@ async function resolveRootReal(rootDir: string): Promise<string> {
   try {
     info = await lstat(rootDir);
   } catch {
-    fail("openpencil/invalid-config", "OpenPencil root directory is unavailable.");
+    fail("document/invalid-config", "OpenPencil root directory is unavailable.");
   }
   if (!info.isDirectory() || info.isSymbolicLink()) {
     fail(
-      "openpencil/invalid-config",
+      "document/invalid-config",
       "OpenPencil root directory must be a real directory.",
     );
   }
   try {
     return await realpath(rootDir);
   } catch {
-    fail("openpencil/invalid-config", "OpenPencil root directory is unavailable.");
+    fail("document/invalid-config", "OpenPencil root directory is unavailable.");
   }
 }
 
@@ -471,7 +474,7 @@ function rejectDeviceName(abs: string): void {
   const base = abs.split("/").pop() ?? "";
   const stem = base.split(".")[0] ?? "";
   if (WINDOWS_DEVICE_NAMES.includes(stem.toUpperCase())) {
-    fail("openpencil/invalid-input", "OpenPencil file path is invalid.");
+    fail("document/invalid-input", "OpenPencil file path is invalid.");
   }
 }
 
@@ -496,10 +499,10 @@ export async function resolveConfinedOpenpencilPath(
     userPath.length === 0 ||
     userPath.length > MAX_PATH_CHARS
   ) {
-    fail("openpencil/invalid-input", "OpenPencil file path is invalid.");
+    fail("document/invalid-input", "OpenPencil file path is invalid.");
   }
   if (userPath.includes("\0")) {
-    fail("openpencil/invalid-input", "OpenPencil file path is invalid.");
+    fail("document/invalid-input", "OpenPencil file path is invalid.");
   }
   const abs = isAbsolute(userPath)
     ? resolve(userPath)
@@ -507,13 +510,13 @@ export async function resolveConfinedOpenpencilPath(
   rejectDeviceName(abs);
   if (!insideRoot(abs, rootReal)) {
     fail(
-      "openpencil/path-escape",
+      "document/path-escape",
       "OpenPencil file path escapes the confined root.",
     );
   }
   if (abs === rootReal) {
     fail(
-      "openpencil/invalid-input",
+      "document/invalid-input",
       "OpenPencil file path must name a file inside the root.",
     );
   }
@@ -522,11 +525,11 @@ export async function resolveConfinedOpenpencilPath(
     try {
       real = await realpath(abs);
     } catch {
-      fail("openpencil/invalid-input", "OpenPencil input file is unavailable.");
+      fail("document/invalid-input", "OpenPencil input file is unavailable.");
     }
     if (!insideRoot(real as string, rootReal)) {
       fail(
-        "openpencil/path-escape",
+        "document/path-escape",
         "OpenPencil file path escapes the confined root.",
       );
     }
@@ -534,11 +537,11 @@ export async function resolveConfinedOpenpencilPath(
     try {
       info = await lstat(real as string);
     } catch {
-      fail("openpencil/invalid-input", "OpenPencil input file is unavailable.");
+      fail("document/invalid-input", "OpenPencil input file is unavailable.");
     }
     if (!info.isFile() || info.isSymbolicLink()) {
       fail(
-        "openpencil/path-escape",
+        "document/path-escape",
         "OpenPencil file path escapes the confined root.",
       );
     }
@@ -555,19 +558,19 @@ export async function resolveConfinedOpenpencilPath(
       const slash = cursor.lastIndexOf(sep);
       if (slash < 0) {
         fail(
-          "openpencil/path-escape",
+          "document/path-escape",
           "OpenPencil file path escapes the confined root.",
         );
       }
       const leaf = cursor.slice(slash + 1);
       if (leaf === "" || leaf === "." || leaf === "..") {
         fail(
-          "openpencil/path-escape",
+          "document/path-escape",
           "OpenPencil file path escapes the confined root.",
         );
       }
       if (leaf.length > 255 || leaf.includes("\0")) {
-        fail("openpencil/invalid-input", "OpenPencil file path is invalid.");
+        fail("document/invalid-input", "OpenPencil file path is invalid.");
       }
       missing.unshift(leaf);
       cursor = cursor.slice(0, slash) || sep;
@@ -578,18 +581,18 @@ export async function resolveConfinedOpenpencilPath(
   try {
     ancestorReal = await realpath(cursor);
   } catch {
-    fail("openpencil/invalid-input", "OpenPencil output path is unavailable.");
+    fail("document/invalid-input", "OpenPencil output path is unavailable.");
   }
   if (!insideRoot(ancestorReal as string, rootReal)) {
     fail(
-      "openpencil/path-escape",
+      "document/path-escape",
       "OpenPencil file path escapes the confined root.",
     );
   }
   for (const leaf of missing) {
     if (leaf === ".." || leaf.includes(sep)) {
       fail(
-        "openpencil/path-escape",
+        "document/path-escape",
         "OpenPencil file path escapes the confined root.",
       );
     }
@@ -601,7 +604,7 @@ function validateInputExtension(filePath: string): void {
   const extension = extname(filePath).toLowerCase();
   if (!INPUT_EXTENSIONS.includes(extension)) {
     fail(
-      "openpencil/unsupported-format",
+      "document/unsupported-format",
       "OpenPencil input format is not supported; only .fig and .pen documents are editable.",
     );
   }
@@ -620,7 +623,7 @@ function validateOutputExtensionForExport(
     (expected !== "jpg" && expected !== "jpeg" && normalized === expected);
   if (!pair) {
     fail(
-      "openpencil/invalid-input",
+      "document/invalid-input",
       "OpenPencil export output extension must match its format.",
     );
   }
@@ -633,14 +636,14 @@ function validatePage(value: unknown): string | undefined {
     value.length === 0 ||
     value.length > MAX_PAGE_CHARS
   ) {
-    fail("openpencil/invalid-input", "OpenPencil page is invalid.");
+    fail("document/invalid-input", "OpenPencil page is invalid.");
   }
   const text = value as string;
   if (text.includes("\0") || text.startsWith("-")) {
-    fail("openpencil/invalid-input", "OpenPencil page is invalid.");
+    fail("document/invalid-input", "OpenPencil page is invalid.");
   }
   if (!PAGE_PATTERN.test(text)) {
-    fail("openpencil/invalid-input", "OpenPencil page is invalid.");
+    fail("document/invalid-input", "OpenPencil page is invalid.");
   }
   return text;
 }
@@ -655,10 +658,10 @@ function validateSelector(value: unknown): string {
     value.length === 0 ||
     value.length > MAX_SELECTOR_CHARS
   ) {
-    fail("openpencil/invalid-input", "OpenPencil selector is invalid.");
+    fail("document/invalid-input", "OpenPencil selector is invalid.");
   }
   if ((value as string).includes("\0")) {
-    fail("openpencil/invalid-input", "OpenPencil selector is invalid.");
+    fail("document/invalid-input", "OpenPencil selector is invalid.");
   }
   return value as string;
 }
@@ -670,7 +673,7 @@ function validateDepth(value: unknown): number | undefined {
     (value as number) < 1 ||
     (value as number) > MAX_DEPTH
   ) {
-    fail("openpencil/invalid-input", "OpenPencil depth is invalid.");
+    fail("document/invalid-input", "OpenPencil depth is invalid.");
   }
   return value as number;
 }
@@ -682,7 +685,7 @@ function validateLimit(value: unknown): number | undefined {
     (value as number) < 1 ||
     (value as number) > MAX_LIMIT
   ) {
-    fail("openpencil/invalid-input", "OpenPencil limit is invalid.");
+    fail("document/invalid-input", "OpenPencil limit is invalid.");
   }
   return value as number;
 }
@@ -694,7 +697,7 @@ function validateScale(value: unknown): number | undefined {
     (value as number) < MIN_SCALE ||
     (value as number) > MAX_SCALE
   ) {
-    fail("openpencil/invalid-input", "OpenPencil scale is invalid.");
+    fail("document/invalid-input", "OpenPencil scale is invalid.");
   }
   return value as number;
 }
@@ -706,14 +709,14 @@ function validateQuality(value: unknown): number | undefined {
     (value as number) < MIN_QUALITY ||
     (value as number) > MAX_QUALITY
   ) {
-    fail("openpencil/invalid-input", "OpenPencil quality is invalid.");
+    fail("document/invalid-input", "OpenPencil quality is invalid.");
   }
   return value as number;
 }
 
 function validateFormat(value: unknown): OpenpencilExportFormat {
   if (typeof value !== "string") {
-    fail("openpencil/invalid-input", "OpenPencil format is invalid.");
+    fail("document/invalid-input", "OpenPencil format is invalid.");
   }
   const normalized = (value as string).toLowerCase();
   if (
@@ -723,11 +726,11 @@ function validateFormat(value: unknown): OpenpencilExportFormat {
       ["pdf", "pptx", "html", "jsx", "storybook", "pen", "json"].includes(normalized)
     ) {
       fail(
-        "openpencil/unsupported-format",
+        "document/unsupported-format",
         `OpenPencil format is not supported in this grain: ${value as string}.`,
       );
     }
-    fail("openpencil/invalid-input", "OpenPencil format is invalid.");
+    fail("document/invalid-input", "OpenPencil format is invalid.");
   }
   return normalized as OpenpencilExportFormat;
 }
@@ -750,22 +753,22 @@ export interface ValidatedOpenpencilInput {
 /** Strict input validation; unknown operations classify as unsupported. */
 export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput {
   if (!isRecord(raw)) {
-    fail("openpencil/invalid-input", "OpenPencil input is invalid.");
+    fail("document/invalid-input", "OpenPencil input is invalid.");
   }
   const requestor = validateRequestor(raw.requestor);
   const operation = raw.operation;
   if (typeof operation !== "string") {
-    fail("openpencil/invalid-input", "OpenPencil operation is invalid.");
+    fail("document/invalid-input", "OpenPencil operation is invalid.");
   }
   if (REFUSED_OPERATIONS.includes(operation as string)) {
     fail(
-      "openpencil/unsupported-operation",
+      "document/unsupported-operation",
       `OpenPencil operation is not supported: ${operation as string}.`,
     );
   }
   if (!OPENPENCIL_OPERATIONS.includes(operation as OpenpencilOperation)) {
     fail(
-      "openpencil/unsupported-operation",
+      "document/unsupported-operation",
       "OpenPencil operation is not supported.",
     );
   }
@@ -773,7 +776,7 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
   for (const key of ["document-id", "documentId", "page-id", "pageId", "app", "port", "socket"]) {
     if (raw[key] !== undefined) {
       fail(
-        "openpencil/unsupported-operation",
+        "document/unsupported-operation",
         "OpenPencil app-bridge targeting is not supported.",
       );
     }
@@ -781,14 +784,14 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
   const op = operation as OpenpencilOperation;
   if (op === "tree") {
     if (typeof raw.inputFile !== "string") {
-      fail("openpencil/invalid-input", "OpenPencil tree input requires an input file.");
+      fail("document/invalid-input", "OpenPencil tree input requires an input file.");
     }
     const page = validatePage(raw.page);
     const depth = validateDepth(raw.depth);
     const extra = ["outputFile", "format", "nodeId", "selector", "limit", "scale", "quality"];
     for (const key of extra) {
       if (raw[key] !== undefined) {
-        fail("openpencil/invalid-input", "OpenPencil tree input carries unsupported fields.");
+        fail("document/invalid-input", "OpenPencil tree input carries unsupported fields.");
       }
     }
     const validated: ValidatedOpenpencilInput = { operation: op, requestor, inputFile: raw.inputFile as string };
@@ -798,20 +801,20 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
   }
   if (op === "node") {
     if (typeof raw.inputFile !== "string") {
-      fail("openpencil/invalid-input", "OpenPencil node input requires an input file.");
+      fail("document/invalid-input", "OpenPencil node input requires an input file.");
     }
     const nodeId = validateNodeId(raw.nodeId);
     const extra = ["outputFile", "format", "page", "selector", "depth", "limit", "scale", "quality"];
     for (const key of extra) {
       if (raw[key] !== undefined) {
-        fail("openpencil/invalid-input", "OpenPencil node input carries unsupported fields.");
+        fail("document/invalid-input", "OpenPencil node input carries unsupported fields.");
       }
     }
     return { operation: op, requestor, inputFile: raw.inputFile as string, nodeId };
   }
   if (op === "query") {
     if (typeof raw.inputFile !== "string") {
-      fail("openpencil/invalid-input", "OpenPencil query input requires an input file.");
+      fail("document/invalid-input", "OpenPencil query input requires an input file.");
     }
     const selector = validateSelector(raw.selector);
     const page = validatePage(raw.page);
@@ -819,7 +822,7 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
     const extra = ["outputFile", "format", "nodeId", "depth", "scale", "quality"];
     for (const key of extra) {
       if (raw[key] !== undefined) {
-        fail("openpencil/invalid-input", "OpenPencil query input carries unsupported fields.");
+        fail("document/invalid-input", "OpenPencil query input carries unsupported fields.");
       }
     }
     const validated: ValidatedOpenpencilInput = {
@@ -834,19 +837,19 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
   }
   if (op === "info") {
     if (typeof raw.inputFile !== "string") {
-      fail("openpencil/invalid-input", "OpenPencil info input requires an input file.");
+      fail("document/invalid-input", "OpenPencil info input requires an input file.");
     }
     const extra = ["outputFile", "format", "page", "nodeId", "selector", "depth", "limit", "scale", "quality"];
     for (const key of extra) {
       if (raw[key] !== undefined) {
-        fail("openpencil/invalid-input", "OpenPencil info input carries unsupported fields.");
+        fail("document/invalid-input", "OpenPencil info input carries unsupported fields.");
       }
     }
     return { operation: op, requestor, inputFile: raw.inputFile as string };
   }
   if (op === "export") {
     if (typeof raw.inputFile !== "string" || typeof raw.outputFile !== "string") {
-      fail("openpencil/invalid-input", "OpenPencil export input requires input and output files.");
+      fail("document/invalid-input", "OpenPencil export input requires input and output files.");
     }
     const format = validateFormat(raw.format);
     const page = validatePage(raw.page);
@@ -854,21 +857,21 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
     const scale = validateScale(raw.scale);
     const quality = validateQuality(raw.quality);
     if (page !== undefined && nodeId !== undefined) {
-      fail("openpencil/invalid-input", "OpenPencil export accepts page or node, not both.");
+      fail("document/invalid-input", "OpenPencil export accepts page or node, not both.");
     }
     if ((format === "fig" || format === "svg") && (scale !== undefined || quality !== undefined)) {
-      fail("openpencil/invalid-input", "OpenPencil scale/quality apply only to raster exports.");
+      fail("document/invalid-input", "OpenPencil scale/quality apply only to raster exports.");
     }
     if ((format === "png" || format === "jpg" || format === "jpeg" || format === "webp") && quality !== undefined && (format === "png")) {
-      fail("openpencil/invalid-input", "OpenPencil quality applies only to JPG/WEBP exports.");
+      fail("document/invalid-input", "OpenPencil quality applies only to JPG/WEBP exports.");
     }
     if (format !== "jpg" && format !== "jpeg" && format !== "webp" && quality !== undefined) {
-      fail("openpencil/invalid-input", "OpenPencil quality applies only to JPG/WEBP exports.");
+      fail("document/invalid-input", "OpenPencil quality applies only to JPG/WEBP exports.");
     }
     const extra = ["selector", "depth", "limit"];
     for (const key of extra) {
       if (raw[key] !== undefined) {
-        fail("openpencil/invalid-input", "OpenPencil export input carries unsupported fields.");
+        fail("document/invalid-input", "OpenPencil export input carries unsupported fields.");
       }
     }
     const validated: ValidatedOpenpencilInput = {
@@ -885,12 +888,12 @@ export function validateOpenpencilInput(raw: unknown): ValidatedOpenpencilInput 
     return validated;
   }
   if (typeof raw.inputFile !== "string" || typeof raw.outputFile !== "string") {
-    fail("openpencil/invalid-input", "OpenPencil convert input requires input and output files.");
+    fail("document/invalid-input", "OpenPencil convert input requires input and output files.");
   }
   const extra = ["format", "page", "nodeId", "selector", "depth", "limit", "scale", "quality"];
   for (const key of extra) {
     if (raw[key] !== undefined) {
-      fail("openpencil/invalid-input", "OpenPencil convert input carries unsupported fields.");
+      fail("document/invalid-input", "OpenPencil convert input carries unsupported fields.");
     }
   }
   return {
@@ -962,12 +965,12 @@ export function buildOpenpencilArgs(
 export function validateOpenpencilSvgOutput(svg: string, maxBytes: number): void {
   const bytes = Buffer.byteLength(svg, "utf8");
   if (bytes === 0 || bytes > maxBytes) {
-    fail("openpencil/output-limit", "OpenPencil SVG output exceeds its byte budget.");
+    fail("document/output-limit", "OpenPencil SVG output exceeds its byte budget.");
   }
   const head = svg.slice(0, 2_048).toLowerCase();
   const hasSvgOpen = head.includes("<svg");
   if (!hasSvgOpen || !svg.toLowerCase().includes("</svg>")) {
-    fail("openpencil/malformed-output", "OpenPencil SVG output is malformed.");
+    fail("document/malformed-output", "OpenPencil SVG output is malformed.");
   }
   const lowered = svg.toLowerCase();
   if (
@@ -977,10 +980,10 @@ export function validateOpenpencilSvgOutput(svg: string, maxBytes: number): void
     lowered.includes("<!entity") ||
     lowered.includes("<?import")
   ) {
-    fail("openpencil/malformed-output", "OpenPencil SVG output carries unsafe content.");
+    fail("document/malformed-output", "OpenPencil SVG output carries unsafe content.");
   }
   if (/on[a-z]+\s*=/i.test(svg)) {
-    fail("openpencil/malformed-output", "OpenPencil SVG output carries unsafe content.");
+    fail("document/malformed-output", "OpenPencil SVG output carries unsafe content.");
   }
 }
 
@@ -998,7 +1001,7 @@ export function inspectOpenpencilSvg(svg: string): OpenpencilSvgInspection {
   const width = widthMatch?.[1] !== undefined ? Number(widthMatch[1]) : NaN;
   const height = heightMatch?.[1] !== undefined ? Number(heightMatch[1]) : NaN;
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-    fail("openpencil/malformed-output", "OpenPencil SVG dimensions are invalid.");
+    fail("document/malformed-output", "OpenPencil SVG dimensions are invalid.");
   }
   const shapes = (svg.match(/<(rect|circle|ellipse|path|line|polyline|polygon|g)\b/gi) ?? []).length;
   return { width: width as number, height: height as number, shapes };
@@ -1012,21 +1015,21 @@ export interface PenTokenInput {
 }
 
 export interface PenPackReference {
-  /** Stable Skelet collection URI that authorized this document. */
+  /** Stable Skilit collection URI that authorized this document. */
   packUri: string;
   workspaceId: string;
 }
 
 function validatePenTokens(raw: unknown): PenTokenInput {
   if (!isRecord(raw)) {
-    fail("openpencil/invalid-input", "OpenPencil token input is invalid.");
+    fail("document/invalid-input", "OpenPencil token input is invalid.");
   }
   const colors = raw.colors;
   const sizes = raw.sizes;
   const spacing = raw.spacing;
   const radius = raw.radius;
   if (!Array.isArray(colors) || !Array.isArray(sizes) || !Array.isArray(spacing) || !Array.isArray(radius)) {
-    fail("openpencil/invalid-input", "OpenPencil token input is invalid.");
+    fail("document/invalid-input", "OpenPencil token input is invalid.");
   }
   if (
     (colors as unknown[]).length > 24 ||
@@ -1034,17 +1037,17 @@ function validatePenTokens(raw: unknown): PenTokenInput {
     (spacing as unknown[]).length > 24 ||
     (radius as unknown[]).length > 24
   ) {
-    fail("openpencil/invalid-input", "OpenPencil token input exceeds its budget.");
+    fail("document/invalid-input", "OpenPencil token input exceeds its budget.");
   }
   for (const color of colors as unknown[]) {
     if (typeof color !== "string" || !HEX_COLOR.test(color)) {
-      fail("openpencil/invalid-input", "OpenPencil token color is invalid.");
+      fail("document/invalid-input", "OpenPencil token color is invalid.");
     }
   }
   for (const group of [sizes, spacing, radius] as unknown[][]) {
     for (const value of group) {
       if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 4_096) {
-        fail("openpencil/invalid-input", "OpenPencil token dimension is invalid.");
+        fail("document/invalid-input", "OpenPencil token dimension is invalid.");
       }
     }
   }
@@ -1058,17 +1061,17 @@ function validatePenTokens(raw: unknown): PenTokenInput {
 
 function validatePackReference(raw: unknown): PenPackReference {
   if (!isRecord(raw)) {
-    fail("openpencil/invalid-input", "OpenPencil pack reference is invalid.");
+    fail("document/invalid-input", "OpenPencil pack reference is invalid.");
   }
-  if (typeof raw.packUri !== "string" || !SKELET_URI_PATTERN.test(raw.packUri as string)) {
-    fail("openpencil/invalid-input", "OpenPencil pack reference is invalid.");
+  if (typeof raw.packUri !== "string" || !SKILIT_URI_PATTERN.test(raw.packUri as string)) {
+    fail("document/invalid-input", "OpenPencil pack reference is invalid.");
   }
   const workspaceId = validateId(raw.workspaceId, "workspace identity");
   return { packUri: raw.packUri as string, workspaceId };
 }
 
 /**
- * Pure deterministic pack-to-editable-document helper (Skelet-owned, no CLI).
+ * Pure deterministic pack-to-editable-document helper (Skilit-owned, no CLI).
  * Authors a minimal valid `.pen` JSON document (version + frame + rectangle
  * swatches) from qualified design tokens and an authorized reference-pack
  * reference, so the pack -> editable-document -> export -> reopen journey is
@@ -1077,12 +1080,12 @@ function validatePackReference(raw: unknown): PenPackReference {
  */
 export function buildPenDocument(raw: unknown): string {
   if (!isRecord(raw)) {
-    fail("openpencil/invalid-input", "OpenPencil pen input is invalid.");
+    fail("document/invalid-input", "OpenPencil pen input is invalid.");
   }
   const requestor = validateRequestor(raw.requestor);
   const pack = validatePackReference(raw.pack);
   if (pack.workspaceId !== requestor.workspaceId) {
-    fail("openpencil/invalid-input", "OpenPencil pack workspace does not match the requestor.");
+    fail("document/invalid-input", "OpenPencil pack workspace does not match the requestor.");
   }
   const tokens = validatePenTokens(raw.tokens);
   const colors = tokens.colors.length > 0 ? tokens.colors : ["#000000"];
@@ -1101,8 +1104,8 @@ export function buildPenDocument(raw: unknown): string {
     children: [
       {
         type: "frame",
-        id: "skelet-tokens",
-        name: "Skelet Tokens",
+        id: "skilit-tokens",
+        name: "Skilit Tokens",
         width: 360,
         height: Math.max(56, Math.ceil(children.length / 6) * 56 + 8),
         children,
@@ -1115,10 +1118,10 @@ export function buildPenDocument(raw: unknown): string {
   try {
     parsed = JSON.parse(json);
   } catch {
-    fail("openpencil/malformed-output", "OpenPencil pen document is malformed.");
+    fail("document/malformed-output", "OpenPencil pen document is malformed.");
   }
   if (!isRecord(parsed) || !Array.isArray((parsed as Record<string, unknown>).children)) {
-    fail("openpencil/malformed-output", "OpenPencil pen document is malformed.");
+    fail("document/malformed-output", "OpenPencil pen document is malformed.");
   }
   return json;
 }
@@ -1205,7 +1208,7 @@ function spawnOpenpencil(
   return new Promise<SpawnOutcome>((resolvePromise, rejectPromise) => {
     if (signal?.aborted === true) {
       rejectPromise(
-        new OpenpencilAdapterError("openpencil/canceled", "OpenPencil operation was canceled."),
+        new OpenpencilAdapterError("document/canceled", "OpenPencil operation was canceled."),
       );
       return;
     }
@@ -1224,7 +1227,7 @@ function spawnOpenpencil(
       (error, stdout, stderr) => {
         if (signal?.aborted === true) {
           rejectPromise(
-            new OpenpencilAdapterError("openpencil/canceled", "OpenPencil operation was canceled."),
+            new OpenpencilAdapterError("document/canceled", "OpenPencil operation was canceled."),
           );
           return;
         }
@@ -1236,14 +1239,14 @@ function spawnOpenpencil(
           };
           if (typed.code === "ETIMEDOUT" || typed.killed === true) {
             rejectPromise(
-              new OpenpencilAdapterError("openpencil/timeout", "OpenPencil operation timed out."),
+              new OpenpencilAdapterError("document/timeout", "OpenPencil operation timed out."),
             );
             return;
           }
           if (typed.code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
             rejectPromise(
               new OpenpencilAdapterError(
-                "openpencil/output-limit",
+                "document/output-limit",
                 "OpenPencil output exceeds its byte budget.",
               ),
             );
@@ -1253,7 +1256,7 @@ function spawnOpenpencil(
           if (typeof exit === "number") {
             rejectPromise(
               new OpenpencilAdapterError(
-                "openpencil/failed",
+                "document/failed",
                 truncate(`OpenPencil operation failed with exit ${exit}: ${String(stderr).slice(0, 512)}`),
               ),
             );
@@ -1261,7 +1264,7 @@ function spawnOpenpencil(
           }
           rejectPromise(
             new OpenpencilAdapterError(
-              "openpencil/failed",
+              "document/failed",
               truncate(`OpenPencil operation failed: ${error.message}`),
             ),
           );
@@ -1277,7 +1280,7 @@ function spawnOpenpencil(
         // Kill failures still settle via the execFile callback.
       }
       rejectPromise(
-        new OpenpencilAdapterError("openpencil/canceled", "OpenPencil operation was canceled."),
+        new OpenpencilAdapterError("document/canceled", "OpenPencil operation was canceled."),
       );
     };
     signal?.addEventListener("abort", onAbort, { once: true });
@@ -1289,18 +1292,18 @@ async function assertInputSize(abs: string): Promise<void> {
   try {
     info = await stat(abs);
   } catch {
-    fail("openpencil/invalid-input", "OpenPencil input file is unavailable.");
+    fail("document/invalid-input", "OpenPencil input file is unavailable.");
   }
   if ((info as { size: number }).size > MAX_INPUT_BYTES) {
-    fail("openpencil/invalid-input", "OpenPencil input file exceeds its size budget.");
+    fail("document/invalid-input", "OpenPencil input file exceeds its size budget.");
   }
 }
 
 /**
  * Invoke the configured OpenPencil CLI for one allowlisted file-mode operation.
- * Disabled configurations fail with openpencil/disabled; missing executables
- * fail with openpencil/unavailable; confinement violations fail with
- * openpencil/path-escape. No network, no model, no shell, no app-bridge.
+ * Disabled configurations fail with document/disabled; missing executables
+ * fail with document/unavailable; confinement violations fail with
+ * document/path-escape. No network, no model, no shell, no app-bridge.
  */
 export async function invokeOpenpencil(
   rawInput: unknown,
@@ -1310,7 +1313,7 @@ export async function invokeOpenpencil(
   const started = Date.now();
   const parsed = validateOpenpencilAdapterConfig(rawConfig);
   if (parsed.enabled !== true) {
-    fail("openpencil/disabled", "OpenPencil adapter is disabled.");
+    fail("document/disabled", "OpenPencil adapter is disabled.");
   }
   const config = parsed as ResolvedOpenpencilConfig;
   const timeoutMs =
@@ -1318,7 +1321,7 @@ export async function invokeOpenpencil(
       ? validateTimeout(options.timeoutMs, config.timeoutMs)
       : config.timeoutMs;
   if (options?.signal?.aborted === true) {
-    fail("openpencil/canceled", "OpenPencil operation was canceled.");
+    fail("document/canceled", "OpenPencil operation was canceled.");
   }
   const validated = validateOpenpencilInput(rawInput);
   let rootReal: string;
@@ -1326,17 +1329,17 @@ export async function invokeOpenpencil(
     rootReal = await resolveRootReal(config.rootDir);
   } catch (error) {
     if (error instanceof OpenpencilAdapterError) throw error;
-    fail("openpencil/invalid-config", "OpenPencil root directory is unavailable.");
+    fail("document/invalid-config", "OpenPencil root directory is unavailable.");
   }
   try {
     await access(config.executablePath, constants.X_OK);
     const info = await lstat(config.executablePath);
     if (!info.isFile() || info.isSymbolicLink()) {
-      fail("openpencil/unavailable", "OpenPencil executable is unavailable.");
+      fail("document/unavailable", "OpenPencil executable is unavailable.");
     }
   } catch (error) {
     if (error instanceof OpenpencilAdapterError) throw error;
-    fail("openpencil/unavailable", "OpenPencil executable is unavailable.");
+    fail("document/unavailable", "OpenPencil executable is unavailable.");
   }
   let inputAbs: string | undefined;
   let outputAbs: string | undefined;
@@ -1352,16 +1355,16 @@ export async function invokeOpenpencil(
         try {
           text = await readFile(inputAbs, "utf8");
         } catch {
-          fail("openpencil/invalid-input", "OpenPencil input file is unavailable.");
+          fail("document/invalid-input", "OpenPencil input file is unavailable.");
         }
         let parsedPen: unknown;
         try {
           parsedPen = JSON.parse(text as string);
         } catch {
-          fail("openpencil/malformed-output", "OpenPencil pen document is malformed.");
+          fail("document/malformed-output", "OpenPencil pen document is malformed.");
         }
         if (!isRecord(parsedPen) || !Array.isArray((parsedPen as Record<string, unknown>).children)) {
-          fail("openpencil/malformed-output", "OpenPencil pen document is malformed.");
+          fail("document/malformed-output", "OpenPencil pen document is malformed.");
         }
       }
     }
@@ -1374,7 +1377,7 @@ export async function invokeOpenpencil(
     if (validated.operation === "convert") {
       if (extname(outputAbs).toLowerCase() !== ".fig") {
         fail(
-          "openpencil/unsupported-format",
+          "document/unsupported-format",
           "OpenPencil convert output must be a .fig document.",
         );
       }
@@ -1385,7 +1388,7 @@ export async function invokeOpenpencil(
       outputAbs !== undefined &&
       inputAbs === outputAbs
     ) {
-      fail("openpencil/invalid-input", "OpenPencil convert refuses to overwrite its input.");
+      fail("document/invalid-input", "OpenPencil convert refuses to overwrite its input.");
     }
   }
   const args = buildOpenpencilArgs(validated, { inputAbs, outputAbs });
@@ -1405,13 +1408,13 @@ export async function invokeOpenpencil(
   ) {
     const bytes = Buffer.byteLength(outcome.stdout, "utf8");
     if (bytes === 0 || bytes > config.maxOutputBytes) {
-      fail("openpencil/output-limit", "OpenPencil output exceeds its byte budget.");
+      fail("document/output-limit", "OpenPencil output exceeds its byte budget.");
     }
     let parsedJson: unknown;
     try {
       parsedJson = JSON.parse(outcome.stdout);
     } catch {
-      fail("openpencil/malformed-output", "OpenPencil output is malformed.");
+      fail("document/malformed-output", "OpenPencil output is malformed.");
     }
     return {
       operation: validated.operation,
@@ -1425,10 +1428,10 @@ export async function invokeOpenpencil(
   try {
     data = await readFile(outPath);
   } catch {
-    fail("openpencil/malformed-output", "OpenPencil output file is missing.");
+    fail("document/malformed-output", "OpenPencil output file is missing.");
   }
   if ((data as Buffer).length === 0 || (data as Buffer).length > config.maxOutputBytes) {
-    fail("openpencil/output-limit", "OpenPencil output exceeds its byte budget.");
+    fail("document/output-limit", "OpenPencil output exceeds its byte budget.");
   }
   if (outPath.toLowerCase().endsWith(".svg")) {
     validateOpenpencilSvgOutput((data as Buffer).toString("utf8"), config.maxOutputBytes);

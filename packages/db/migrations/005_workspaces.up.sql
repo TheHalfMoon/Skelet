@@ -17,7 +17,7 @@ create table workspace_members (
 );
 create index workspace_members_user_idx on workspace_members(user_id);
 
-create function skelet_workspaces_updated_at() returns trigger
+create function skilit_workspaces_updated_at() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  new.updated_at = now();
@@ -25,4 +25,4 @@ begin
 end;
 $$;
 create trigger workspaces_updated_at before update on workspaces
- for each row execute function skelet_workspaces_updated_at();
+ for each row execute function skilit_workspaces_updated_at();

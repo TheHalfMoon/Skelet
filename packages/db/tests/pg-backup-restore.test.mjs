@@ -13,19 +13,19 @@ import {
   wipeCorpusTables,
 } from "../src/backup.ts";
 
-const connectionString = process.env.SKELET_TEST_DATABASE_URL;
+const connectionString = process.env.SKILIT_TEST_DATABASE_URL;
 const enabled = Boolean(connectionString);
 
 /** Never run the destructive wipe drill against a non-fixture database. */
 function requireFixtureDatabase() {
-  if (!connectionString || process.env.SKELET_DB_TEST_CONFIRM !== "yes") {
+  if (!connectionString || process.env.SKILIT_DB_TEST_CONFIRM !== "yes") {
     throw new Error("Explicit fixture database confirmation is required");
   }
   const url = new URL(connectionString);
   if (
     !["127.0.0.1", "localhost"].includes(url.hostname) ||
-    url.pathname !== "/skelet_test" ||
-    url.username !== "skelet_test"
+    url.pathname !== "/skilit_test" ||
+    url.username !== "skilit_test"
   ) {
     throw new Error("Refusing integration tests against a non-local/non-fixture database");
   }
@@ -37,7 +37,7 @@ test("AF-12-ops: real PostgreSQL corpus backup round-trip preserves identities",
   try {
     await migrateUp(db);
     const owner = await signUp(db, {
-      email: `pg-drill-${Date.now()}@skelet.example`,
+      email: `pg-drill-${Date.now()}@skilit.example`,
       password: "drill-password-01",
     });
     const source = await createSource(db, { key: `pg-drill-source-${Date.now()}`, kind: "synthetic" });

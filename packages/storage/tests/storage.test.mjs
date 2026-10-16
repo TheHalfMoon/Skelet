@@ -7,7 +7,7 @@ import test from "node:test";
 import {LocalContentAddressedStorage,StorageError} from "../src/storage.ts";
 
 async function fixture() {
- const root=await mkdtemp(join(tmpdir(),"skelet-storage-"));
+ const root=await mkdtemp(join(tmpdir(),"skilit-storage-"));
  const storage=new LocalContentAddressedStorage({rootDir:root,maxBytes:4*1024*1024,
   maxTimeoutMs:5000});
  return {root,storage,close:()=>rm(root,{recursive:true,force:true})};
@@ -25,7 +25,7 @@ function digest(buffer){return createHash("sha256").update(buffer).digest("hex")
 test("streams bytes to deterministic SHA-256 key and verifies before reading",async()=>{
  const {root,storage,close}=await fixture();
  try{
-  const bytes=Buffer.from("Skelet qualified fixture: one");
+  const bytes=Buffer.from("Skilit qualified fixture: one");
   const object=await storage.put(stream(bytes.subarray(0,12),bytes.subarray(12)));
   assert.equal(object.sha256,digest(bytes));
   assert.equal(object.storageKey,`sha256/${object.sha256.slice(0,2)}/${object.sha256}`);
@@ -123,7 +123,7 @@ test("garbage collection touches only older UUID-named temporary files",async()=
 
 test("storage root and hash directories reject symlink escape where supported",async(t)=>{
  const {root,storage,close}=await fixture();
- const outside=await mkdtemp(join(tmpdir(),"skelet-outside-"));
+ const outside=await mkdtemp(join(tmpdir(),"skilit-outside-"));
  try {
   await mkdir(root,{recursive:true});
   try{

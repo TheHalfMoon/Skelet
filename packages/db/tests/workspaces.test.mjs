@@ -25,7 +25,7 @@ const SIX = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename",
 ];
 
 async function fixtureDb() {
@@ -39,7 +39,7 @@ async function users(db, count) {
   for (let index = 0; index < count; index += 1) {
     created.push(
       await signUp(db, {
-        email: `workspace-user-${index}@skelet.example`,
+        email: `workspace-user-${index}@skilit.example`,
         password: "workspace-password-01",
       }),
     );

@@ -21,7 +21,7 @@ import { searchRegistryIndex } from "./registry.ts";
 import {
   createReferencePack,
   exportReferencePack,
-  parseSkeletUri,
+  parseSkilitUri,
 } from "./reference-packs.ts";
 import { listReferences } from "../../../packages/db/src/collections.ts";
 import {
@@ -68,7 +68,7 @@ import {
  * PKCE) arrives in a later P08 grain — this layer only verifies
  * caller-supplied tokens against server configuration.
  *
- * AF-03b: every domain tool payload is a skelet.agent.v1 envelope. The
+ * AF-03b: every domain tool payload is a skilit.agent.v1 envelope. The
  * JSON-RPC transport stays backward compatible (same methods, same
  * transport codes); domain semantics (typed errors, request IDs,
  * pagination, warnings, rights, capabilities) live in the envelope so MCP
@@ -76,14 +76,14 @@ import {
  */
 
 export const MCP_PROTOCOL_VERSIONS = ["2026-07-28", "2025-06-18", "2025-03-26", "2024-11-05"];
-export const MCP_SERVER_NAME = "skelet";
+export const MCP_SERVER_NAME = "skilit";
 export const MCP_SERVER_VERSION = "0.1.0";
 export const MCP_MAX_BATCH = 32;
 export const MCP_MAX_BODY_CHARS = 256 * 1024;
 
 export interface McpContext {
   /**
-   * Server-resolved caller identity (Skelet user ID), bound by the route
+   * Server-resolved caller identity (Skilit user ID), bound by the route
    * from a validated session token. Null only in tests exercising denial;
    * the route never dispatches tools without an identity.
    */
@@ -127,8 +127,10 @@ export function negotiateVersion(requested: unknown): string | null {
  * and stdio clients negotiate without calling a disabled tool first.
  * Unknown capability names are ignored by design.
  */
-export function getSkeletCapabilities(): { packs: boolean; registry: boolean } {
-  const raw = process.env.SKELET_DISABLED_CAPABILITIES;
+export function getSkilitCapabilities(): { packs: boolean; registry: boolean } {
+  const raw =
+    process.env.SKILIT_DISABLED_CAPABILITIES ??
+    process.env.SKELET_DISABLED_CAPABILITIES;
   if (typeof raw !== "string" || raw.trim().length === 0) {
     return { packs: true, registry: true };
   }
@@ -158,7 +160,7 @@ function toolSchemas(): unknown[] {
   return [
     {
       name: "search_assets",
-      description: "Search Skelet icons, logos, and fonts with rights metadata.",
+      description: "Search Skilit icons, logos, and fonts with rights metadata.",
       inputSchema: {
         type: "object",
         properties: {
@@ -412,7 +414,7 @@ function toolSchemas(): unknown[] {
     },
     {
       name: "get_object",
-      description: "Retrieve a canonical object by Skelet URI (skelet://artifact/{id}, skelet://collection/{id}).",
+      description: "Retrieve a canonical object by Skilit URI (skilit://artifact/{id}, skilit://collection/{id}).",
       inputSchema: {
         type: "object",
         properties: { uri: { type: "string" }, requestId: requestIdProp },
@@ -444,7 +446,7 @@ function toolSchemas(): unknown[] {
     },
     {
       name: "lens_poll_job",
-      description: "Read the current persisted progress of a Lens job by stable ID or skelet://lens/{id} URI.",
+      description: "Read the current persisted progress of a Lens job by stable ID or skilit://lens/{id} URI.",
       inputSchema: {
         type: "object",
         properties: {
@@ -530,7 +532,7 @@ function toolSchemas(): unknown[] {
     },
     {
       name: "board_handoff",
-      description: "Hand off board ownership to a workspace member with ledger proof. Address the board by ID or skelet://collection/{id} URI.",
+      description: "Hand off board ownership to a workspace member with ledger proof. Address the board by ID or skilit://collection/{id} URI.",
       inputSchema: {
         type: "object",
         properties: {
@@ -545,7 +547,7 @@ function toolSchemas(): unknown[] {
     },
     {
       name: "board_list_handoffs",
-      description: "Read the provenance chain of a board. Address the board by ID or skelet://collection/{id} URI.",
+      description: "Read the provenance chain of a board. Address the board by ID or skilit://collection/{id} URI.",
       inputSchema: {
         type: "object",
         properties: {
@@ -585,7 +587,7 @@ function toAgentAsset(record: {
 }): Record<string, unknown> {
   // Canonical stable URI scheme per the agent platform contract.
   return {
-    uri: `skelet://artifact/${record.artifactId}`,
+    uri: `skilit://artifact/${record.artifactId}`,
     kind: record.kind,
     title: record.title,
     license: record.license,
@@ -607,7 +609,7 @@ const LENS_KIT_HEX64 = /^[0-9a-f]{64}$/;
 
 /**
  * AF-05e Lens identity resolution: callers address a job by raw kitId or
- * by stable `skelet://lens/{id}` URI. Both must agree when both are given;
+ * by stable `skilit://lens/{id}` URI. Both must agree when both are given;
  * neither is an existence oracle (unknown answers FORBIDDEN_OR_NOT_FOUND
  * from the store layer, never INVALID_INPUT).
  */
@@ -657,7 +659,7 @@ const BOARD_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 
 /**
  * AF-09-ii board identity resolution: callers address a board by raw UUID
- * or by stable `skelet://collection/{id}` URI. Both must agree when both
+ * or by stable `skilit://collection/{id}` URI. Both must agree when both
  * are given; malformed identifiers answer FORBIDDEN_OR_NOT_FOUND (no
  * existence oracle), while a missing identifier is INVALID_INPUT.
  */
@@ -676,7 +678,7 @@ function resolveBoardId(params: Record<string, unknown>, requestId: string): str
       throw opaque();
     }
     try {
-      const parsed = parseSkeletUri(params.uri);
+      const parsed = parseSkilitUri(params.uri);
       if (parsed.type !== "collection") {
         throw opaque();
       }
@@ -883,7 +885,7 @@ async function callTool(
       if (record.rightsClassification === "restricted") {
         throw new AgentContractError("RIGHTS_RESTRICTED", {
           requestId,
-          provenance: observedProvenance(`skelet://artifact/${params.artifactId}`),
+          provenance: observedProvenance(`skilit://artifact/${params.artifactId}`),
         });
       }
       const warnings =
@@ -893,7 +895,7 @@ async function callTool(
         { asset: toAgentAsset(record) },
         {
           warnings: warnings.length > 0 ? warnings : undefined,
-          provenance: observedProvenance(`skelet://artifact/${record.artifactId}`),
+          provenance: observedProvenance(`skilit://artifact/${record.artifactId}`),
         },
       );
     } catch (thrown) {
@@ -947,7 +949,7 @@ async function callTool(
       if (outcome.reference.rightsClassification === "restricted") {
         throw new AgentContractError("RIGHTS_RESTRICTED", {
           requestId,
-          provenance: observedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+          provenance: observedProvenance(`skilit://artifact/${outcome.reference.artifactId}`),
         });
       }
       const warnings = outcome.truncated
@@ -957,7 +959,7 @@ async function callTool(
         requestId,
         {
           reference: {
-            uri: `skelet://artifact/${outcome.reference.artifactId}`,
+            uri: `skilit://artifact/${outcome.reference.artifactId}`,
             kind: outcome.reference.kind,
             title: outcome.reference.title,
           },
@@ -969,7 +971,7 @@ async function callTool(
           cursor: outcome.total > offset + limit ? encodeCursor(offset + limit) : undefined,
           warnings: warnings.length > 0 ? warnings : undefined,
           partial: outcome.truncated,
-          provenance: computedProvenance(`skelet://artifact/${outcome.reference.artifactId}`),
+          provenance: computedProvenance(`skilit://artifact/${outcome.reference.artifactId}`),
         },
       );
     } catch (thrown) {
@@ -1002,7 +1004,7 @@ async function callTool(
         });
       }
       const withUris = (side: ComparedSide) => ({
-        uri: `skelet://artifact/${side.artifactId}`,
+        uri: `skilit://artifact/${side.artifactId}`,
         kind: side.kind,
         title: side.title,
         summary: side.summary,
@@ -1068,7 +1070,7 @@ async function callTool(
         requestId,
         {
           flows: outcome.flows.map((flow) => ({
-            uri: `skelet://flow/${flow.flowId}`,
+            uri: `skilit://flow/${flow.flowId}`,
             productVersionId: flow.productVersionId,
             title: flow.title,
             stepCount: flow.stepCount,
@@ -1108,19 +1110,19 @@ async function callTool(
         requestId,
         {
           flow: {
-            uri: `skelet://flow/${outcome.flowId}`,
+            uri: `skilit://flow/${outcome.flowId}`,
             productVersionId: outcome.productVersionId,
             title: outcome.title,
           },
           steps: outcome.steps.map((step) => ({
             position: step.position,
-            uri: `skelet://artifact/${step.artifactId}`,
+            uri: `skilit://artifact/${step.artifactId}`,
             kind: step.kind,
             title: step.title,
             interaction: step.interaction,
           })),
         },
-        { provenance: observedProvenance(`skelet://flow/${outcome.flowId}`) },
+        { provenance: observedProvenance(`skilit://flow/${outcome.flowId}`) },
       );
     } catch (thrown) {
       if (thrown instanceof AgentContractError) throw thrown;
@@ -1210,7 +1212,7 @@ async function callTool(
           requestId,
           {
             products: outcome.products.map((product) => ({
-              uri: `skelet://product/${product.productId}`,
+              uri: `skilit://product/${product.productId}`,
               title: product.title,
               versionCount: product.versionCount,
               artifactCount: product.artifactCount,
@@ -1239,7 +1241,7 @@ async function callTool(
         requestId,
         {
           versions: outcome.versions.map((version) => ({
-            uri: `skelet://version/${version.versionId}`,
+            uri: `skilit://version/${version.versionId}`,
             productId: version.productId,
             versionNo: version.versionNo,
             artifactCount: version.artifactCount,
@@ -1295,7 +1297,7 @@ async function callTool(
           requestId,
           {
             patterns: outcome.patterns.map((pattern) => ({
-              uri: `skelet://pattern/${pattern.slug}`,
+              uri: `skilit://pattern/${pattern.slug}`,
               title: pattern.title,
               artifactCount: pattern.artifactCount,
             })),
@@ -1321,14 +1323,14 @@ async function callTool(
         requestId,
         {
           pattern: {
-            uri: `skelet://pattern/${detail.slug}`,
+            uri: `skilit://pattern/${detail.slug}`,
             title: detail.title,
             description: detail.description ?? null,
           },
           links: detail.links,
           total: detail.links.length,
         },
-        { provenance: observedProvenance(`skelet://pattern/${detail.slug}`) },
+        { provenance: observedProvenance(`skilit://pattern/${detail.slug}`) },
       );
     } catch (thrown) {
       if (thrown instanceof AgentContractError) throw thrown;
@@ -1350,7 +1352,7 @@ async function callTool(
     name === "replay_get_events"
   ) {
     const actorId = requireUser(ctx);
-    const sessionUri = (id: string): string => `skelet://replay/${id}`;
+    const sessionUri = (id: string): string => `skilit://replay/${id}`;
     try {
       if (name === "replay_open_session") {
         if (typeof params.flowId !== "string") {
@@ -1522,8 +1524,8 @@ async function callTool(
     }
     return successEnvelope(
       requestId,
-      { saved: true, uri: `skelet://artifact/${params.artifactId}` },
-      { provenance: observedProvenance(`skelet://artifact/${params.artifactId}`) },
+      { saved: true, uri: `skilit://artifact/${params.artifactId}` },
+      { provenance: observedProvenance(`skilit://artifact/${params.artifactId}`) },
     );
   }
   if (name === "create_reference_pack") {
@@ -1632,7 +1634,7 @@ async function callTool(
       throw invalidInput("get_object.uri is invalid.", requestId);
     }
     try {
-      const parsed = parseSkeletUri(params.uri);
+      const parsed = parseSkilitUri(params.uri);
       if (parsed.type === "artifact") {
         const actorId = requireUser(ctx);
         const artifact = await getArtifactForActor(db, parsed.id, actorId);
@@ -1823,7 +1825,7 @@ async function handleOne(
     const version = negotiateVersion(
       isRecord(params) ? (params as { protocolVersion?: unknown }).protocolVersion : undefined,
     );
-    // AF-03c: advertise operator-gated Skelet capabilities alongside the
+    // AF-03c: advertise operator-gated Skilit capabilities alongside the
     // standard MCP capabilities so independent clients negotiate without
     // calling a disabled tool first. Unknown future fields are ignored by
     // older clients; the core protocolVersion/tools contract is unchanged.
@@ -1834,7 +1836,7 @@ async function handleOne(
         protocolVersion: version,
         serverInfo: { name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION },
         capabilities: { tools: {} },
-        skelet: { agentContract: AGENT_SCHEMA_VERSION, capabilities: getSkeletCapabilities() },
+        skilit: { agentContract: AGENT_SCHEMA_VERSION, capabilities: getSkilitCapabilities() },
       },
     };
   }

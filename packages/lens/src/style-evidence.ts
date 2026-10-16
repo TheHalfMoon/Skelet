@@ -1,5 +1,5 @@
 /**
- * G09-09: source-linked style evidence for Skelet Lens.
+ * G09-09: source-linked style evidence for Skilit Lens.
  *
  * Pure, offline, dependency-free projection of raw computed-style snapshots
  * (collected by the capture worker from an offline, JavaScript-disabled

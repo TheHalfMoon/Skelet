@@ -5,62 +5,62 @@ import { loadEnv } from "../src/env.ts";
 
 test("loadEnv applies documented defaults", () => {
   const env = loadEnv({});
-  assert.equal(env.SKELET_ENV, "development");
-  assert.equal(env.SKELET_WORKER_CONCURRENCY, 4);
-  assert.equal(env.SKELET_LOG_LEVEL, "info");
-  assert.equal(env.SKELET_NO_MODEL, true);
+  assert.equal(env.SKILIT_ENV, "development");
+  assert.equal(env.SKILIT_WORKER_CONCURRENCY, 4);
+  assert.equal(env.SKILIT_LOG_LEVEL, "info");
+  assert.equal(env.SKILIT_NO_MODEL, true);
 });
 
 test("loadEnv accepts valid overrides", () => {
   const env = loadEnv({
-    SKELET_ENV: "production",
-    SKELET_WORKER_CONCURRENCY: "8",
-    SKELET_LOG_LEVEL: "warn",
-    SKELET_NO_MODEL: "0",
+    SKILIT_ENV: "production",
+    SKILIT_WORKER_CONCURRENCY: "8",
+    SKILIT_LOG_LEVEL: "warn",
+    SKILIT_NO_MODEL: "0",
   });
-  assert.equal(env.SKELET_ENV, "production");
-  assert.equal(env.SKELET_WORKER_CONCURRENCY, 8);
-  assert.equal(env.SKELET_LOG_LEVEL, "warn");
-  assert.equal(env.SKELET_NO_MODEL, false);
+  assert.equal(env.SKILIT_ENV, "production");
+  assert.equal(env.SKILIT_WORKER_CONCURRENCY, 8);
+  assert.equal(env.SKILIT_LOG_LEVEL, "warn");
+  assert.equal(env.SKILIT_NO_MODEL, false);
 });
 
 test("loadEnv accepts explicit strict flag", () => {
-  assert.equal(loadEnv({ SKELET_NO_MODEL: "1" }).SKELET_NO_MODEL, true);
+  assert.equal(loadEnv({ SKILIT_NO_MODEL: "1" }).SKILIT_NO_MODEL, true);
 });
 
 test("loadEnv rejects invalid values", () => {
-  assert.throws(() => loadEnv({ SKELET_ENV: "staging" }), /SKELET_ENV/);
+  assert.throws(() => loadEnv({ SKILIT_ENV: "staging" }), /SKILIT_ENV/);
   assert.throws(
-    () => loadEnv({ SKELET_WORKER_CONCURRENCY: "0" }),
-    /SKELET_WORKER_CONCURRENCY/,
+    () => loadEnv({ SKILIT_WORKER_CONCURRENCY: "0" }),
+    /SKILIT_WORKER_CONCURRENCY/,
   );
   assert.throws(
-    () => loadEnv({ SKELET_WORKER_CONCURRENCY: "many" }),
-    /SKELET_WORKER_CONCURRENCY/,
+    () => loadEnv({ SKILIT_WORKER_CONCURRENCY: "many" }),
+    /SKILIT_WORKER_CONCURRENCY/,
   );
-  assert.throws(() => loadEnv({ SKELET_LOG_LEVEL: "verbose" }), /SKELET_LOG_LEVEL/);
-  assert.throws(() => loadEnv({ SKELET_NO_MODEL: "strict" }), /SKELET_NO_MODEL/);
-  assert.throws(() => loadEnv({ SKELET_NO_MODEL: "true" }), /SKELET_NO_MODEL/);
-  assert.throws(() => loadEnv({ SKELET_NO_MODEL: "" }), /SKELET_NO_MODEL/);
+  assert.throws(() => loadEnv({ SKILIT_LOG_LEVEL: "verbose" }), /SKILIT_LOG_LEVEL/);
+  assert.throws(() => loadEnv({ SKILIT_NO_MODEL: "strict" }), /SKILIT_NO_MODEL/);
+  assert.throws(() => loadEnv({ SKILIT_NO_MODEL: "true" }), /SKILIT_NO_MODEL/);
+  assert.throws(() => loadEnv({ SKILIT_NO_MODEL: "" }), /SKILIT_NO_MODEL/);
 });
 
 test("loadEnv enforces concurrency boundaries strictly", () => {
-  assert.equal(loadEnv({ SKELET_WORKER_CONCURRENCY: "1" }).SKELET_WORKER_CONCURRENCY, 1);
-  assert.equal(loadEnv({ SKELET_WORKER_CONCURRENCY: "32" }).SKELET_WORKER_CONCURRENCY, 32);
+  assert.equal(loadEnv({ SKILIT_WORKER_CONCURRENCY: "1" }).SKILIT_WORKER_CONCURRENCY, 1);
+  assert.equal(loadEnv({ SKILIT_WORKER_CONCURRENCY: "32" }).SKILIT_WORKER_CONCURRENCY, 32);
   for (const bad of ["0", "33", "1.5", "", "0x8", "1e1", " 8 ", "08x"]) {
     assert.throws(
-      () => loadEnv({ SKELET_WORKER_CONCURRENCY: bad }),
-      /SKELET_WORKER_CONCURRENCY/,
+      () => loadEnv({ SKILIT_WORKER_CONCURRENCY: bad }),
+      /SKILIT_WORKER_CONCURRENCY/,
       `expected rejection for ${JSON.stringify(bad)}`,
     );
   }
 });
 
-test("loadEnv rejects unknown SKELET_ keys", () => {
-  assert.throws(() => loadEnv({ SKELET_TYPO_VAR: "1" }), /SKELET_TYPO_VAR/);
+test("loadEnv rejects unknown SKILIT_ keys", () => {
+  assert.throws(() => loadEnv({ SKILIT_TYPO_VAR: "1" }), /SKILIT_TYPO_VAR/);
 });
 
-test("loadEnv ignores non-Skelet keys", () => {
+test("loadEnv ignores non-Skilit keys", () => {
   const env = loadEnv({ PATH: "/usr/bin", HOME: "/root" });
-  assert.equal(env.SKELET_ENV, "development");
+  assert.equal(env.SKILIT_ENV, "development");
 });

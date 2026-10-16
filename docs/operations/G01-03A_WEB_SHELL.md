@@ -1,13 +1,13 @@
-# G01-03a — Skelet-Owned Web Application Shell
+# G01-03a — Skilit-Owned Web Application Shell
 
-Status: candidate for exact-HEAD review; first runnable Skelet application.
+Status: candidate for exact-HEAD review; first runnable Skilit application.
 
 ## Scope
 
-A clean Skelet-owned Next.js workspace with zero donor code, donor branding,
+A clean Skilit-owned Next.js workspace with zero donor code, donor branding,
 or donor data. No `src/components/`, `public/`, `data/`, or generated corpus
 material was copied; the landing page and health endpoint are written for
-Skelet in English.
+Skilit in English.
 
 | Decision | Value |
 | --- | --- |
@@ -21,10 +21,10 @@ Skelet in English.
 ## Contract
 
 - `GET /api/health` returns `200` with
-  `{status: "ok", service: "skelet-web", version}` (`version` read from the
+  `{status: "ok", service: "skilit-web", version}` (`version` read from the
   web package manifest at runtime; the payload builder is framework-free so
   the contract is unit-testable without the Next runtime).
-- `GET /` returns `200` and identifies Skelet.
+- `GET /` returns `200` and identifies Skilit.
 
 ## Qualification (mechanical gate)
 
@@ -38,7 +38,7 @@ node scripts/smoke-web.mjs 3103
 ```
 
 GitHub Actions runs the same gate as the `web` job against the exact PR
-HEAD, alongside `bootstrap`, `graft`, and `monet-screenshot-queue`.
+HEAD, alongside `bootstrap`, `graft`, and `skilit-screenshot-queue`.
 
 ## Deliberate limitations
 

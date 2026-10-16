@@ -30,7 +30,7 @@ class SkillsValidatorTests(unittest.TestCase):
 
     def test_expected_skill_set(self) -> None:
         self.assertEqual(
-            ["skelet-assets", "skelet-lens", "skelet-reference-pack", "skelet-research"],
+            ["skilit-assets", "skilit-lens", "skilit-reference-pack", "skilit-research"],
             sorted(EXPECTED_SKILLS),
         )
 
@@ -62,10 +62,10 @@ class SkillsValidatorTests(unittest.TestCase):
             root = fixture_root(Path(tmp))
             skill = root / EXPECTED_SKILLS[0] / "SKILL.md"
             skill.write_text(
-                skill.read_text(encoding="utf-8") + "\nSee skelet:///missing-type.\n", encoding="utf-8"
+                skill.read_text(encoding="utf-8") + "\nSee skilit:///missing-type.\n", encoding="utf-8"
             )
             errors = validate(root)
-            self.assertTrue(any("malformed Skelet URI" in error for error in errors), errors)
+            self.assertTrue(any("malformed Skilit URI" in error for error in errors), errors)
 
     def test_denied_instruction_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

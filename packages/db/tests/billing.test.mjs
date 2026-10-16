@@ -25,7 +25,7 @@ const SEVEN = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename",
 ];
 const SECRET = "whsec_test_fixture_only_not_a_secret";
 const NOW = new Date("2026-10-09T03:00:00.000Z");
@@ -49,7 +49,7 @@ async function fixtureDb() {
 
 async function workspaceFixture(db) {
   const user = await signUp(db, {
-    email: "billing-fixture@skelet.example",
+    email: "billing-fixture@skilit.example",
     password: "billing-password-01",
   });
   const created = await createWorkspace(db, {

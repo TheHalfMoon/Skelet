@@ -1,33 +1,33 @@
-# Skelet: Agent-First, No Founder-Funded AI/Cloud — Execution Blueprint
+# Skilit: Agent-First, No Founder-Funded AI/Cloud — Execution Blueprint
 
 Status: PROPOSED, implementation-ready planning amendment; **not** code activation and **not** a claim of release qualification.
 Prepared: 2026-10-11.
-Scope: TheHalfMoon/Skelet. Primary tracking issue: #62; canonical execution record: #34; Build Kit: #9.
+Scope: TheHalfMoon/Skilit. Primary tracking issue: #62; canonical execution record: #34; Build Kit: #9.
 Parent contracts: PRODUCT.md; ARCHITECTURE.md; SECURITY.md; CODE_PROVENANCE.md; DATA_PROVENANCE.md; docs/IMPLEMENTATION_PLAN.md; docs/architecture/PLAN_HARDENING_2026-10-08.md; docs/operations/PLAN_GAP_REGISTER_2026-10-08.md.
 Priority: All existing P0 security/rights/launch gates stay binding. This is an ADDITIVE plan to resolve the founder's clarified business and technical objective.
 
 ## 0. Non-negotiable product decision
 
-**Skelet must be the best trustworthy, low-friction design-research and design-evidence infrastructure for external AI agents, without Skelet providing/funding AI inference or founder-funded compute.**
+**Skilit must be the best trustworthy, low-friction design-research and design-evidence infrastructure for external AI agents, without Skilit providing/funding AI inference or founder-funded compute.**
 
-Skelet does NOT own the agent brain. It owns verifiable design evidence, structured data, search, change detection, design-system tokens, registry assets, reproducible Build Kits, editing handoffs, and reliable agent-access protocols.
+Skilit does NOT own the agent brain. It owns verifiable design evidence, structured data, search, change detection, design-system tokens, registry assets, reproducible Build Kits, editing handoffs, and reliable agent-access protocols.
 
-- Users and clients bring their own AI agent/model and pay their agent/model provider or run it on their own machines; Skelet neither hosts an LLM nor proxies customer model credentials by default.
+- Users and clients bring their own AI agent/model and pay their agent/model provider or run it on their own machines; Skilit neither hosts an LLM nor proxies customer model credentials by default.
 - Required workflows run with **no AI key, no GPU, no paid cloud account, and no hosted model**. Offline mode means previously available/local evidence is usable without a network. Public URL capture legitimately needs target-site network access, but **not** paid AI/cloud services.
 - Self-hosted/local installs run storage/CPU/Playwright at the user's expense. A public managed SaaS incurs real costs and **cannot** promise zero infrastructure cost; commercial hosting must be separately budgeted and explicitly approved.
 - Native agents are primary clients; human UI is a first-class optional viewer of the same canonical objects. No feature may exist exclusively behind a UI that agents cannot access.
 - No generic chatbot, autonomous research agent, model router for inference, cloud image generation, or duplicated Figma-class editor is in launch-critical scope.
-- Never import donor complexity because permission exists. Each transplant must beat existing Skelet capabilities in a measured, rights-qualified way.
+- Never import donor complexity because permission exists. Each transplant must beat existing Skilit capabilities in a measured, rights-qualified way.
 
 ### Why this improves on an ordinary design catalogue
-The differentiation is **agent task success**: one agent can discover a real example, retrieve the exact evidence/rights/tokens, build or update an interface with its OWN model, save a stable pack, and a different agent can recover the same references. Skelet supplies evidence and tools rather than unverifiable synthetic design advice.
+The differentiation is **agent task success**: one agent can discover a real example, retrieve the exact evidence/rights/tokens, build or update an interface with its OWN model, save a stable pack, and a different agent can recover the same references. Skilit supplies evidence and tools rather than unverifiable synthetic design advice.
 
 ## 1. Verified baseline and non-destructive execution rule
 
 The live examination found:
-- Skelet web: Next.js 15 / React 19 / pnpm workspace; PostgreSQL-backed domain, workspaces/collections, REST and MCP entrypoints.
+- Skilit web: Next.js 15 / React 19 / pnpm workspace; PostgreSQL-backed domain, workspaces/collections, REST and MCP entrypoints.
 - Existing apps/web/lib/mcp.ts tools include search_assets, get_asset, get_registry_item, save_reference, create_reference_pack, get_object. Broader planned tools are **not proven implemented** merely because they appear in the roadmap.
-- Existing apps/web/lib/reference-packs.ts exports skelet/reference-pack/1 over collections, with skelet://collection/{id} and artifact links. **Preserve and extend**, do not fork into ArtCraft's board storage.
+- Existing apps/web/lib/reference-packs.ts exports skilit/reference-pack/1 over collections, with skilit://collection/{id} and artifact links. **Preserve and extend**, do not fork into ArtCraft's board storage.
 - Existing plan P11 mentions pgvector and local embeddings; these are **optional enhancements**, not mandatory readiness under this decision. PostgreSQL lexical search is the dependable baseline.
 - G09b-05 PR #61 was confirmed merged, merge commit d4f4a1c7070fd9c0cdece2aeb0ef734b0e2aaa17 at the time of planning. Revalidate main and #34 before each grain, never force an old SHA.
 - Issue #62 is the ArtCraft/Craft selective reuse track. This document adds exact business boundaries, sequence, tests, owner-cost model, and go/no-go criteria without changing PR #61 or previous canonically merged grains.
@@ -38,37 +38,37 @@ Current security and gap-register P0 items remain OPEN until their own required 
 
 ## 2. Deployment / cost contract
 
-| Mode | Who hosts storage, jobs, inference | What Skelet guarantees | Scope |
+| Mode | Who hosts storage, jobs, inference | What Skilit guarantees | Scope |
 | --- | --- | --- | --- |
 | Local single-user | Customer workstation: local PostgreSQL, filesystem, browser capture; own external agent | No account on a paid cloud or model service required; local evidence and agents work offline after installation | First supported zero-founder-spend mode |
 | Customer/team self-hosted | Customer server/LAN/VPS, customer pays compute/transfer/backup | Containerized web, worker, PostgreSQL and file storage; no dependency on founder SaaS | Paid Team / Business route |
-| Remote MCP on customer domain | Customer hosts HTTPS endpoint, auth and infrastructure | Published secure protocol + same Skelet tools; no founder proxy | Self-hosted extension |
+| Remote MCP on customer domain | Customer hosts HTTPS endpoint, auth and infrastructure | Published secure protocol + same Skilit tools; no founder proxy | Self-hosted extension |
 | Founder-hosted managed SaaS | Founder bears CPU, browser, bandwidth, DB, backups, operational risk | **NOT OFFERED** until measured caps/pricing/margin, abuse protection and budget approval | Explicit future optional business |
 
 No mandatory: third-party vector DB, paid search SaaS, model APIs, hosted embeddings, proprietary CDN, cloud GPU, ArtCraft credits/services, monthly metered donor endpoint, analytics SaaS, email delivery SaaS, or recurring licensing server to access local core features.
 
-Allowed only with consent/config: network-dependent URL capture, updates, optional telemetry (off by default in private/local deployments), customer-supplied storage, and customer-paid AI (processed by the **external agent**, not Skelet).
+Allowed only with consent/config: network-dependent URL capture, updates, optional telemetry (off by default in private/local deployments), customer-supplied storage, and customer-paid AI (processed by the **external agent**, not Skilit).
 
 Operations details:
 - Use filesystem content-addressed assets and PostgreSQL locally; the existing S3-compatible adapter stays optional for the customer. Define migrations, backups, retention, restore and safe upgrades in self-hosted distribution.
 - Provide documented Docker Compose/dev bootstrap if qualified, pinned images with SBOM, a secrets/env preflight, health/readiness, default loopback binding and no surprise external port exposure. Do not promise an easy packaged installer until clean-machine proof.
 - Long jobs are bounded by CPU, RAM, bytes, pages, wall time, concurrency and per-account/workspace quotas. Untrusted imports never get network access except an explicit egress policy.
-- Subscription revenue: software features, collaboration, support, team licenses and self-hosted enterprise; user-paid model compute is outside Skelet. Offline entitlement can be a signed, time-bounded file with an explicit documented grace period; do not silently depend on a cloud license beacon. Commercial/legal accounting still incurs payment processor/support/tax costs, even if the core server spend is zero.
+- Subscription revenue: software features, collaboration, support, team licenses and self-hosted enterprise; user-paid model compute is outside Skilit. Offline entitlement can be a signed, time-bounded file with an explicit documented grace period; do not silently depend on a cloud license beacon. Commercial/legal accounting still incurs payment processor/support/tax costs, even if the core server spend is zero.
 - Cost dashboard/report counts: browser-seconds, object bytes and lifetime, network egress, DB/storage growth, job CPU-seconds, backups, memory peak and requests per workspace. Show **resource units**, not invented dollar savings. For any later hosted offer, estimate actual unit prices and enforce hard operator budgets and circuit breakers.
 
 ## 3. Canonical ownership and packages
 
-The existing PostgreSQL design graph and Skelet storage/provenance/contracts remain **the only canonical truth**. ArtCraft boards, VectorCraft files and optional editors are projections or foreign interchange formats, not alternative identity/workspace systems.
+The existing PostgreSQL design graph and Skilit storage/provenance/contracts remain **the only canonical truth**. ArtCraft boards, VectorCraft files and optional editors are projections or foreign interchange formats, not alternative identity/workspace systems.
 
 Proposed additional packages or feature slices (actual directories only after acceptance):
 - packages/agent-contracts: schema-versioned object/tool envelopes, stable URI parser/formatter, compact context format, pagination and error taxonomy. Fold into an existing qualified package instead if it already exists.
 - packages/search: rights-filtered PostgreSQL FTS, trigram/facet ranking, lightweight deterministic similarity functions and search evaluation fixtures; embeddings as optional plugin.
-- packages/reference-board-ui: selective React/Konva board UI, client-only dynamic import with portable SkeletAdapter; persistence via Skelet collections and optimistic revision checks.
+- packages/reference-board-ui: selective React/Konva board UI, client-only dynamic import with portable SkilitAdapter; persistence via Skilit collections and optimistic revision checks.
 - packages/media-reference: bounded browser-video frame extraction, sanitization, source timestamps and provenance mapping.
 - packages/editor-adapters: versioned headless VectorCraft/PhotoCraft/OpenPencil adapters, disabled unless executable is installed, pinned and sandboxed.
 - packages/testkit: MCP/REST golden fixtures, replayable captured HTML/video/images, rights and prompt-injection negative cases and agent journey harness.
 
-Skelet public contracts:
+Skilit public contracts:
 1. Stable typed URIs for each public object. Internal DB IDs or vendor tokens never leak as authority.
 2. Exactly one canonical retrieval/search/rights service used by UI, MCP, REST and future SDK/CLI. No per-interface permission or ranking fork.
 3. Domain identity is immutable; deleted/retracted/unavailable objects return explicit tombstone/rights state, not silently replaced screenshots.
@@ -100,7 +100,7 @@ Uniform result envelope: schema_version, request_id, object URI(s), typed result
 Define stable error classes and HTTP/MCP mapping: INVALID_INPUT, UNAUTHENTICATED, FORBIDDEN_OR_NOT_FOUND, NOT_AVAILABLE, RIGHTS_RESTRICTED, STALE_REVISION, RATE_LIMITED, QUOTA_EXCEEDED, PROVIDER_DISABLED, JOB_PENDING, JOB_FAILED, TIMEOUT, INTERNAL_OPAQUE. No raw stack traces, credentials, path disclosure or different existence oracles for inaccessible workspaces.
 
 ### Transport/auth
-- Local stdio: binds to an explicitly chosen Skelet local profile/workspace; private transport over OS/process, no unrestricted shell or network side effect. The OAuth-for-HTTP profile does not apply automatically to stdio.
+- Local stdio: binds to an explicitly chosen Skilit local profile/workspace; private transport over OS/process, no unrestricted shell or network side effect. The OAuth-for-HTTP profile does not apply automatically to stdio.
 - Remote Streamable HTTP: follow the official MCP 2026-07-28 protocol, with tested version negotiation/backward compatibility and official SDK conformance; OAuth Protected Resource Metadata, valid issuer, audience-bound tokens, PKCE for public clients, least-privilege scopes, expiration/revocation, no token passthrough. Auth MUST be enforced by the server, not by prompting the agent.
 - Support Tasks extension only when a client advertises it; REST job status/cancel/retry works for other clients. MCP Apps are progressive enhancement, not required to access core evidence; embed only via official UI resources with sandbox.
 - Separate minimum scopes for evidence:read, collection:write, capture:run, export:run and workspace:admin. Reads are default; write/destructive/capture/export actions require a separate authority grant. Audit principal, workspace, resource, tool version, job ID and redacted outcome.
@@ -108,7 +108,7 @@ Define stable error classes and HTTP/MCP mapping: INVALID_INPUT, UNAUTHENTICATED
 - Publish machine-usable docs, tool examples, JSON schemas, TypeScript SDK and Python SDK/CLI only as their own tested bounded grains. Client onboarding should take one environment-specific configuration and a working sample call.
 
 ### Prompt-injection and tool trust
-All page DOM, OCR text, metadata, image alt text, donor content, user-entered labels and tool results are **data**, never Skelet policy or instructions. Render context packs with explicit untrusted-data boundaries. Hostile captured content must not direct a tool call, leak tokens, change rights or change workspace. Schema validation, allowlists and operation authorization are independent of any LLM interpreting the text. Pin tool definitions; defend tool shadowing, argument injection, path traversal, mixed-trust context, cache leaks and tool-description poisoning.
+All page DOM, OCR text, metadata, image alt text, donor content, user-entered labels and tool results are **data**, never Skilit policy or instructions. Render context packs with explicit untrusted-data boundaries. Hostile captured content must not direct a tool call, leak tokens, change rights or change workspace. Schema validation, allowlists and operation authorization are independent of any LLM interpreting the text. Pin tool definitions; defend tool shadowing, argument injection, path traversal, mixed-trust context, cache leaks and tool-description poisoning.
 
 ## 5. Deterministic zero-model research and search
 
@@ -123,7 +123,7 @@ No-AI visual aids:
 - Existing PostgreSQL / pgvector extension may remain installed if already qualified but cannot be a required extension for the plain lexical path. Reconcile P11 wording to this superseding no-model fallback decision in a later dedicated amendment/contract grain.
 - A frozen human-rated retrieval dataset with query types, relevance labels, rights constraints, recall and latency baselines is required before claiming "best for agents."
 
-Lens + Build Kit must remain reproducible from URL/DOM/screenshots, extraction and source-linked tokens; generated React starter must build cleanly and explicitly mark unobserved interactions as stubs. No model inference is a prerequisite; optional user-run agents may later improve descriptions outside Skelet.
+Lens + Build Kit must remain reproducible from URL/DOM/screenshots, extraction and source-linked tokens; generated React starter must build cleanly and explicitly mark unobserved interactions as stubs. No model inference is a prerequisite; optional user-run agents may later improve descriptions outside Skilit.
 
 ## 6. ArtCraft/Craft donor incorporation decisions
 
@@ -131,7 +131,7 @@ Source/use scope is based on verified code presence, not marketing. Existing Art
 
 | Donor | Decision | Proposed implementation | Exclusions |
 | --- | --- | --- | --- |
-| storytold/artcraft frontend/libs/components/moodboard | SELECTIVE TRANSPLANT at P12 | Shared board model, grid/canvas/presentation, drag/snap/history, serialization behind SkeletAdapter. Preserve copyright/NOTICE. | ArtCraft cloud sync, hosted media, brand/design tokens, private media datasets |
+| storytold/artcraft frontend/libs/components/moodboard | SELECTIVE TRANSPLANT at P12 | Shared board model, grid/canvas/presentation, drag/snap/history, serialization behind SkilitAdapter. Preserve copyright/NOTICE. | ArtCraft cloud sync, hosted media, brand/design tokens, private media datasets |
 | storytold/artcraft-services frame-extractor/lib/extract-frames.ts | NARROW TRANSPLANT at P10 | Client-side bounded seek/capture with cancel, CORS/decode/timeouts, restore playhead; attach source video hash/timestamps | ArtCraft API, paywalled media, user-gallery subscription |
 | storytold/artcraft frontend/libs/components/pagedraw | CONDITIONAL TRANSPLANT at P14 | Only local draw/mask/layer primitives that pass dependency and browser SSR audit | ArtCraft hosted generation calls and model-list/provider tokens |
 | storytold/vectorcraft CLI/MCP | OPTIONAL HEADLESS ADAPTER at P14 | Explicitly installed per host with exact binary pin and root-constrained file access; SVG and editable vector output | Whole engine vendored into web, unauthenticated TCP control and unrestricted scripts |
@@ -220,7 +220,7 @@ Readiness dimensions: R0 provenance, R1 runnable shell, R2 tenant/domain/storage
 
 **Commercial self-hosted Agent Core** ships after P15/R7 only when real no-model agent journeys, licensed evidence, API/MCP security and local deployment gates pass. P09b Build Kit is launch-critical per adopted plan. Advanced Create, VectorCraft, PhotoCraft, DesignCraft, EffectCraft, FilmCraft, LightCraft, Time Machine scheduling and mandatory semantic embeddings are NOT required for initial zero-founder-spend edition.
 
-Stop any grain immediately (while continuing independent qualified work) if: permission for that exact imported file is insufficient; 3rd-party media rights are unknown; existing Skelet capability already passes acceptance without import; paid/cloud service is unavoidable; bundle/resource budget overflows; authorization/audience/SSRF/egress fails; tests are not reproducible; exact-head review/CI is missing; or an owner-authored branch has changed concurrently.
+Stop any grain immediately (while continuing independent qualified work) if: permission for that exact imported file is insufficient; 3rd-party media rights are unknown; existing Skilit capability already passes acceptance without import; paid/cloud service is unavoidable; bundle/resource budget overflows; authorization/audience/SSRF/egress fails; tests are not reproducible; exact-head review/CI is missing; or an owner-authored branch has changed concurrently.
 
 Rollback by module: feature flag off, block new jobs, expire/revoke its old resource URIs with clear state, restore previous search index/revision, preserve lineage and audit, and do not delete user originals or legitimate packs. Imported donor binaries must be separately removable.
 
@@ -229,7 +229,7 @@ Rollback by module: feature flag off, block new jobs, expire/revoke its old reso
 - [ ] Revalidate HEAD on main, #34 frontier, #9, #62 and any active PRs. Create exact-base non-overlapping grain.
 - [ ] Prioritize AF-SEC-00 before exposing additional MCP/REST capabilities; check actor-bound read access tests and file a narrow security follow-up with least disclosure needed.
 - [ ] Freeze donors' full 40-char commits and per-file SHA; compare ArtCraft main/services overlapping blobs before selecting source.
-- [ ] Generate dependency closure inventories for Moodboard and FrameExtractor; enumerate internal packages, CSS/fonts/WASM/assets/API calls. Record alternative existing Skelet implementation.
+- [ ] Generate dependency closure inventories for Moodboard and FrameExtractor; enumerate internal packages, CSS/fonts/WASM/assets/API calls. Record alternative existing Skilit implementation.
 - [ ] Prepare include/exclude manifests and permissions for code vs data/assets/models/services/marks; preserve NOTICE and copyright.
 - [ ] Define performance bundle cap and local memory budget using a measured baseline on project hardware.
 - [ ] Add negative contract fixtures for cloud/model egress, tenant privacy, media rights and an idempotent import.

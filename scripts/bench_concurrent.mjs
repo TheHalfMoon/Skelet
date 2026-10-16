@@ -1,5 +1,5 @@
 /**
- * P15 concurrent-load bench (Skelet-owned, no-prod-dependency).
+ * P15 concurrent-load bench (Skilit-owned, no-prod-dependency).
  *
  * Seeds a fixed synthetic corpus into embedded PGlite, then fires
  * parallel lexical searches to prove the search path behaves under

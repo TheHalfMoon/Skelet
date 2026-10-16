@@ -6,6 +6,6 @@
   },
   "request_id": "req-af03a-0002",
   "result": {},
-  "schema_version": "skelet.agent.v1",
+  "schema_version": "skilit.agent.v1",
   "status": "complete"
 }

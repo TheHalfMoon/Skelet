@@ -53,8 +53,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "replay-t-owner@skelet.example", password: "replay-password-01" });
-  const outsider = await signUp(db, { email: "replay-t-out@skelet.example", password: "replay-password-01" });
+  const owner = await signUp(db, { email: "replay-t-owner@skilit.example", password: "replay-password-01" });
+  const outsider = await signUp(db, { email: "replay-t-out@skilit.example", password: "replay-password-01" });
   const source = await createSource(db, { key: "replay-t-source", kind: "synthetic" });
   const product = await createProduct(db, { sourceId: source.id, title: "Replay transport app" });
   const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
@@ -89,7 +89,7 @@ test("P10-D2: MCP and REST serve identical replay lifecycles", async () => {
     );
     assertStableEnvelope(mcpOpened, "MCP replay_open_session");
     assert.equal(mcpOpened.request_id, "req-replay-parity-01");
-    assert.ok(String(mcpOpened.result.session.uri).startsWith("skelet://replay/"));
+    assert.ok(String(mcpOpened.result.session.uri).startsWith("skilit://replay/"));
     const sessionId = sessionIdOf(mcpOpened.result.session.uri);
 
     const restRecorded = await recordReplayEventsRoute(fx.db, sessionId, { events: [META(), TYPING()] }, fx.owner.id);
@@ -123,7 +123,7 @@ test("P10-D2: MCP and REST serve identical replay lifecycles", async () => {
       "req-replay-parity-02",
     );
     assert.equal(restOpened.status, 200);
-    assert.deepEqual(restOpened.body.result.session.uri.startsWith("skelet://replay/"), true);
+    assert.deepEqual(restOpened.body.result.session.uri.startsWith("skilit://replay/"), true);
   } finally {
     await fx.db.close();
   }

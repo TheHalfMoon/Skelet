@@ -1,4 +1,4 @@
--- G04-01: Skelet-owned authentication baseline (Better Auth-compatible shapes).
+-- G04-01: Skilit-owned authentication baseline (Better Auth-compatible shapes).
 -- Users hold salted password verifiers; sessions hold SHA-256 hashes of
 -- opaque tokens, never the tokens themselves. No workspace, billing,
 -- collection, or public API surface is activated by this schema.
@@ -22,7 +22,7 @@ create table sessions (
 );
 create index sessions_user_idx on sessions(user_id);
 
-create function skelet_users_updated_at() returns trigger
+create function skilit_users_updated_at() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  new.updated_at = now();
@@ -30,4 +30,4 @@ begin
 end;
 $$;
 create trigger users_updated_at before update on users
- for each row execute function skelet_users_updated_at();
+ for each row execute function skilit_users_updated_at();

@@ -1,7 +1,7 @@
 /** Reproducible v1 Local release-candidate builder (offline, no secrets).
  *
  * `node scripts/build_release_candidate.mjs --out <dir> [--version <label>]`
- * Produces in <out>: `skelet-<version>-<shortsha>.tar.gz` (via `git archive HEAD`),
+ * Produces in <out>: `skilit-<version>-<shortsha>.tar.gz` (via `git archive HEAD`),
  * `manifest.json`, and `SHA256SUMS`. Fails closed on: forbidden tracked paths
  * (secrets, credentials, private keys, env files), oversize archives, missing
  * tooling, or SBOM absence. Exit 0 ok, 2 invalid input, 3 tool unavailable.
@@ -105,7 +105,7 @@ if (!existsSync(sbomPath)) {
 }
 
 mkdirSync(outDir, { recursive: true });
-const tarballName = `skelet-${version}-${short}.tar.gz`;
+const tarballName = `skilit-${version}-${short}.tar.gz`;
 const tarballPath = join(outDir, tarballName);
 
 const archive = spawnSync("git", ["-C", REPO_ROOT, "archive", "--format=tar", "HEAD"], {
@@ -129,13 +129,13 @@ if (gz.stdout.length > MAX_ARCHIVE_BYTES) {
 writeFileSync(tarballPath, gz.stdout);
 
 const manifest = {
-  name: "skelet-v1-local-release-candidate",
+  name: "skilit-v1-local-release-candidate",
   version,
   commit: head,
   built_from: "git archive HEAD (tracked files only)",
   signed: false,
   signing: "pending owner ceremony OD-02; self-test signatures never qualify",
-  license: "Apache-2.0 for Skelet-owned code (root LICENSE, OD-05); two monet-registry files carved out per root NOTICE section 2; see NOTICE",
+  license: "Apache-2.0 for Skilit-owned code (root LICENSE, OD-05); two monet-registry files carved out per root NOTICE section 2; see NOTICE",
   files: tracked.length,
   artifacts: {
     tarball: tarballName,

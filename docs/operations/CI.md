@@ -1,4 +1,4 @@
-# Skelet CI Contract
+# Skilit CI Contract
 
 Status: bootstrap CI contract introduced by G00-03.
 
@@ -33,7 +33,7 @@ Graft output is architecture/change-impact evidence. It does not replace unit, i
 
 ### `web`
 
-The web job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It installs pnpm `9.12.0`, performs a frozen-lockfile install, and must pass the Skelet web application gate on the exact candidate revision:
+The web job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It installs pnpm `9.12.0`, performs a frozen-lockfile install, and must pass the Skilit web application gate on the exact candidate revision:
 
 - `eslint` over `apps/web`;
 - strict `tsc --noEmit`;
@@ -45,16 +45,16 @@ A passing bootstrap compile or planning validator is never reported as this appl
 
 ### `worker`
 
-The worker job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It performs the same frozen install, then must pass the Skelet worker shell gate on the exact candidate revision:
+The worker job runs on the explicit `ubuntu-24.04` image with a 15-minute timeout. It performs the same frozen install, then must pass the Skilit worker shell gate on the exact candidate revision:
 
 - `eslint` over `apps/worker`;
 - strict `tsc --noEmit`;
 - the worker Node.js test suites (`apps/worker/tests/`);
 - the `health` command, which validates the environment and prints the worker health contract.
 
-### `monet-screenshot-queue`
+### `skilit-screenshot-queue`
 
-The isolated Monet screenshot-queue code transplant is validated in its own
+The isolated Skilit capture-queue module (vendored implementation detail) is validated in its own
 hosted Node job before any public runtime activation. This exact-HEAD job uses
 Node `22.23.1`, a pinned TypeScript `5.9.3` typecheck, and Node's native
 type-stripping test runner against deterministic queue contract tests.
@@ -68,7 +68,7 @@ remain open until their bounded implementation grains are qualified.
 
 TypeSafe Jev and Alibaba Open Code Review remain governed pre-merge review gates under `GOVERNANCE.md`. They are not replaced by unrelated external reviewer statuses.
 
-CodeRabbit, Cubic, Qodo, and similar reviewer statuses are not accepted as Skelet governance evidence even if GitHub displays them on a pull request.
+CodeRabbit, Cubic, Qodo, and similar reviewer statuses are not accepted as Skilit governance evidence even if GitHub displays them on a pull request.
 
 ## Failure behavior
 

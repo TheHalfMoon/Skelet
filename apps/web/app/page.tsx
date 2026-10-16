@@ -11,13 +11,13 @@ const features = [
 export default function Home() {
   return (
     <main style={{ maxWidth: 760, margin: "48px auto", padding: "0 24px", fontFamily: "system-ui, sans-serif" }}>
-      <h1>Skelet</h1>
+      <h1>Skilit</h1>
       <p>
         A local-first design intelligence workspace for people and AI agents:
         research, assets, URL Lens, and reusable evidence.
       </p>
 
-      <nav aria-label="Explore Skelet">
+      <nav aria-label="Explore Skilit">
         <h2>Explore</h2>
         <ul style={{ display: "grid", gap: 12, paddingLeft: 24 }}>
           {features.map(({ href, title, description }) => (

@@ -115,7 +115,7 @@ def audit_snapshot(source: Path, manifest: dict, rows: list[dict[str, str]]) -> 
         "code_candidates": qualified,
         "quarantined": quarantined,
         "limitations": [
-            "Candidates are not yet copied into the Skelet repository.",
+            "Candidates are not yet copied into the Skilit repository.",
             "Candidate files are not independently runtime-qualified.",
             "Quarantine requires human review and safe English-language adaptation.",
             "Dataset, screenshot, asset, model, service, and trademark rights remain excluded.",

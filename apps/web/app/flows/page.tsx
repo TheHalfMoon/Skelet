@@ -116,7 +116,7 @@ function cursorOf(payload: unknown): string | null {
 }
 
 function flowIdOf(uri: string): string {
-  return uri.replace("skelet://flow/", "");
+  return uri.replace("skilit://flow/", "");
 }
 
 export default function FlowsPage() {
@@ -232,7 +232,7 @@ export default function FlowsPage() {
   const currentReplay = replayEvents === null ? null : replayEvents[Math.min(replayAt, replayEvents.length - 1)] ?? null;
 
   async function inspectReplay(target?: string): Promise<void> {
-    const id = (target ?? replayId).trim().replace("skelet://replay/", "");
+    const id = (target ?? replayId).trim().replace("skilit://replay/", "");
     if (id === "") {
       setFailure({ code: "UNKNOWN", message: "Enter a replay session ID before inspecting." });
       return;

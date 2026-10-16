@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Support — Skelet",
+  title: "Support — Skilit",
   description:
-    "How to get help with self-hosted Skelet: health checks, runbooks, issue tracker, and support boundaries.",
+    "How to get help with self-hosted Skilit: health checks, runbooks, issue tracker, and support boundaries.",
 };
 
 export default function Support() {
@@ -11,7 +11,7 @@ export default function Support() {
     <main style={{ maxWidth: 720, margin: "64px auto", padding: "0 24px" }}>
       <h1>Support</h1>
       <p>
-        Skelet is self-hosted software. There is no hosted help desk and no
+        Skilit is self-hosted software. There is no hosted help desk and no
         uptime commitment for operator-run instances: the operator owns
         availability, backups, and upgrades.
       </p>

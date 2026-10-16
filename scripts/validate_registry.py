@@ -1,4 +1,4 @@
-"""Validate the Skelet shadcn-compatible component registry.
+"""Validate the Skilit shadcn-compatible component registry.
 
 Checks the index against its item documents: every indexed entry must
 resolve to an item file, every item must satisfy the registry contract
@@ -29,7 +29,7 @@ def read_json(path: Path):
 
 
 def item_path_for(directory: Path, name: str) -> Path | None:
-    if not re.fullmatch(r"skelet-[a-z0-9-]+", name):
+    if not re.fullmatch(r"skilit-[a-z0-9-]+", name):
         return None
     candidate_path = directory / f"{name}.json"
     try:

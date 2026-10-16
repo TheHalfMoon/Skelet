@@ -1,5 +1,5 @@
 {
-  "name": "skelet-assets",
+  "name": "skilit-assets",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "skelet-db": "workspace:*",
-    "skelet-storage": "workspace:*"
+    "skilit-db": "workspace:*",
+    "skilit-storage": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.20.5",

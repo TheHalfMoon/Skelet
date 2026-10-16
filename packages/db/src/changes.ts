@@ -186,7 +186,7 @@ function toSnapshot(artifact: Artifact): ArtifactSnapshot {
     rightsClassification: artifact.rightsClassification,
     visibility: artifact.visibility ?? "private",
     tags: artifactTags(artifact),
-    uri: `skelet://artifact/${artifact.id}`,
+    uri: `skilit://artifact/${artifact.id}`,
   };
 }
 
@@ -444,10 +444,10 @@ export async function getChangesForActor(
         from: {
           flowId: from.flowId,
           title: from.title,
-          uri: `skelet://flow/${from.flowId}`,
+          uri: `skilit://flow/${from.flowId}`,
           steps: ordered.map((step) => ({
             position: step.position,
-            uri: `skelet://artifact/${step.artifactId}`,
+            uri: `skilit://artifact/${step.artifactId}`,
             key: fromArtifactKeyById.get(step.artifactId) ?? `artifact::${step.artifactId}`,
           })),
         },
@@ -466,10 +466,10 @@ export async function getChangesForActor(
         to: {
           flowId: to.flowId,
           title: to.title,
-          uri: `skelet://flow/${to.flowId}`,
+          uri: `skilit://flow/${to.flowId}`,
           steps: ordered.map((step) => ({
             position: step.position,
-            uri: `skelet://artifact/${step.artifactId}`,
+            uri: `skilit://artifact/${step.artifactId}`,
             key: toArtifactKeyById.get(step.artifactId) ?? `artifact::${step.artifactId}`,
           })),
         },
@@ -498,20 +498,20 @@ export async function getChangesForActor(
         from: {
           flowId: from.flowId,
           title: from.title,
-          uri: `skelet://flow/${from.flowId}`,
+          uri: `skilit://flow/${from.flowId}`,
           steps: fromOrdered.map((step) => ({
             position: step.position,
-            uri: `skelet://artifact/${step.artifactId}`,
+            uri: `skilit://artifact/${step.artifactId}`,
             key: fromArtifactKeyById.get(step.artifactId) ?? `artifact::${step.artifactId}`,
           })),
         },
         to: {
           flowId: to.flowId,
           title: to.title,
-          uri: `skelet://flow/${to.flowId}`,
+          uri: `skilit://flow/${to.flowId}`,
           steps: toOrdered.map((step) => ({
             position: step.position,
-            uri: `skelet://artifact/${step.artifactId}`,
+            uri: `skilit://artifact/${step.artifactId}`,
             key: toArtifactKeyById.get(step.artifactId) ?? `artifact::${step.artifactId}`,
           })),
         },

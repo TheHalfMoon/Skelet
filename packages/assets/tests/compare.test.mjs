@@ -14,8 +14,8 @@ const HASH = (char) => char.repeat(64);
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "compare-owner@skelet.example", password: "compare-password-01" });
-  const outsider = await signUp(db, { email: "compare-out@skelet.example", password: "compare-password-01" });
+  const owner = await signUp(db, { email: "compare-owner@skilit.example", password: "compare-password-01" });
+  const outsider = await signUp(db, { email: "compare-out@skilit.example", password: "compare-password-01" });
   const source = await createSource(db, { key: "compare-source", kind: "synthetic" });
   const left = await registerAsset(db, {
     kind: "icon",

@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/TheHalfMoon/Skelet/schemas/agent-contract.schema.json",
-  "title": "Skelet agent contract (AF-03a frozen v1)",
-  "description": "Versioned agent result envelope, stable Skelet URI patterns, and typed error classes shared by MCP, REST, SDK, and CLI. Additive contract freeze before any parity behavior change. No existing route or tool changes behavior by adopting this file.",
+  "$id": "https://github.com/TheHalfMoon/Skilit/schemas/agent-contract.schema.json",
+  "title": "Skilit agent contract (AF-03a frozen v1)",
+  "description": "Versioned agent result envelope, stable Skilit URI patterns, and typed error classes shared by MCP, REST, SDK, and CLI. Additive contract freeze before any parity behavior change. No existing route or tool changes behavior by adopting this file.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,7 +12,7 @@
     "result"
   ],
   "properties": {
-    "schema_version": { "const": "skelet.agent.v1" },
+    "schema_version": { "const": "skilit.agent.v1" },
     "request_id": { "type": "string", "minLength": 1, "maxLength": 128 },
     "status": { "enum": ["complete", "partial"] },
     "result": { "type": "object" },
@@ -72,7 +72,7 @@
     },
     "uri": {
       "type": "string",
-      "pattern": "^skelet://(product|version|artifact|flow|collection|lens|reference-pack)/[A-Za-z0-9_\\-]{1,128}$"
+      "pattern": "^skilit://(product|version|artifact|flow|collection|lens|reference-pack)/[A-Za-z0-9_\\-]{1,128}$"
     }
   }
 }

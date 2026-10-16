@@ -1,5 +1,5 @@
 /**
- * P15-2 operator abuse-alarm CLI (Skelet-owned, no-prod-dependency).
+ * P15-2 operator abuse-alarm CLI (Skilit-owned, no-prod-dependency).
  *
  * Implements the manual abuse-triage procedure in
  * `docs/operations/RUNBOOK.md` section 4 as an executable operator

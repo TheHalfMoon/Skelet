@@ -3,7 +3,7 @@
 Machine-checks every traceability fact cited in
 docs/qualification/P10_NORMALIZATION_NOTE.md directly from repo
 sources (taxonomy/flows model + mobbin-mcp lock entry + plan lines),
-offline. The Skelet-owned normalization vehicle must exist on the
+offline. The Skilit-owned normalization vehicle must exist on the
 agent contract; the Mobbin reference must resolve to an unpinned,
 unimported, reference-only lock entry; no Mobbin code dependency may
 exist in product paths.
@@ -46,7 +46,7 @@ class P10NormalizationTests(unittest.TestCase):
                      "get_pattern", "list_products", "list_product_versions"):
             self.assertIn(tool, self.mcp)
         for token in ("Flow`/`FlowStep`/`Artifact`", "corpus importer",
-                      "pattern taxonomy", "`skelet://`"):
+                      "pattern taxonomy", "`skelet://`"):  # Historical note retains original URI scheme bytes.
             self.assertIn(token, self.doc)
 
     def test_mobbin_reference_only_never_imported(self) -> None:

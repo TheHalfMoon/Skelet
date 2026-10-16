@@ -1,5 +1,5 @@
 /**
- * AF-11 P14 local raster adapter (Skelet-owned, no donor vendoring).
+ * AF-11 P14 local raster adapter (Skilit-owned, no donor vendoring).
  *
  * Optional headless adapter for the pinned PhotoCraft CLI contract at
  * `97136485f0743251ab330d096ca6c9d0f0f6f54c` (verified 2026-10-11, MIT OR
@@ -28,7 +28,7 @@
  *   and is never enabled by this adapter;
  * - GPU and cloud paths are rejected: only local convert/info/commands run.
  *
- * Skelet confinement mirrors the upstream root model with a single
+ * Skilit confinement mirrors the upstream root model with a single
  * operator-owned root directory: every input must resolve inside the root,
  * every output must resolve inside the root, links are followed via
  * realpath, and a path that escapes is refused with a deterministic
@@ -66,16 +66,19 @@ import { constants } from "node:fs";
 import { access, lstat, realpath, readFile } from "node:fs/promises";
 import { isAbsolute, resolve, sep, extname } from "node:path";
 
-export const RASTER_ADAPTER_ID = "photocraft-local" as const;
+export const RASTER_ADAPTER_ID = "skilit-raster" as const;
 export const RASTER_CAPABILITY = "raster-export" as const;
 /** Exact upstream pin from UPSTREAMS.lock.yml (photocraft, ready). */
 export const PHOTOCRAFT_PIN =
   "97136485f0743251ab330d096ca6c9d0f0f6f54c" as const;
 
+/** Legacy adapter ID from before the Skilit rebrand; accepted on read. */
+export const LEGACY_RASTER_ADAPTER_ID = "photocraft-local" as const;
+
 export const RASTER_OPERATIONS = ["convert", "info", "commands"] as const;
 export type RasterOperation = (typeof RASTER_OPERATIONS)[number];
 
-/** Operations the real CLI supports but Skelet deliberately refuses. */
+/** Operations the real CLI supports but Skilit deliberately refuses. */
 const REFUSED_OPERATIONS: readonly string[] = [
   "run",
   "batch",

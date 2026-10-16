@@ -63,7 +63,7 @@ test("section tags are HTML-escaped", () => {
   assert.ok(page.includes("&quot;&gt;"));
 });
 
-test("package.json carries pinned Skelet defaults and parses", () => {
+test("package.json carries pinned Skilit defaults and parses", () => {
   const files = synthesizeStarterArtifacts(request());
   const pkg = JSON.parse(byPath(files).get("starter/package.json") ?? "{}");
   assert.equal(pkg.private, true);
@@ -108,7 +108,7 @@ test("layout references the kit theme siblings and the section cap holds", () =>
   const many = Array.from({ length: 500 }, (_, i) => ({ tag: `s${i}` }));
   const files = synthesizeStarterArtifacts(request({ sections: many }));
   const page = byPath(files).get("starter/app/page.tsx") ?? "";
-  assert.equal((page.match(/data-skelet-section=/g) ?? []).length, 12);
+  assert.equal((page.match(/data-skilit-section=/g) ?? []).length, 12);
 });
 test("rebuilds are byte-identical", () => {
   const first = synthesizeStarterArtifacts(request());

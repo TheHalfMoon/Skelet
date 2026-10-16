@@ -77,7 +77,7 @@ export const pinnedHttp: PinnedHttpTransport = {
         headers: {
           "accept": "text/html,application/xhtml+xml",
           "accept-encoding": "identity",
-          "user-agent": "SkeletLensCapture/0.1",
+          "user-agent": "SkilitLensCapture/0.1",
         },
         lookup: (_hostname, options, cb) => {
           // Node autoSelectFamily requests options.all=true. Respect the lookup overload.

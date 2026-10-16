@@ -1,10 +1,17 @@
-Skelet v1 Local — Consolidated NOTICE
+Skilit v1 Local — Consolidated NOTICE
 ========================================
 
+Successor note (2026-10-16 rebrand): Skilit is the successor rebrand of
+Skelet. Historical authorization IDs retaining the `skelet-founder-`
+prefix (below) refer to the same founder authorizations and remain valid
+for Skilit. Legacy `SKELET_*` environment values and `skelet://` URIs
+remain readable at runtime; canonical identity is `SKILIT_*` and
+`skilit://`.
+
 This file consolidates copyright, license, attribution, and restriction
-records for the Skelet v1 Local release candidate (`v1.0.0-local-rc.1`).
+records for the Skilit v1 Local release candidate (`v1.0.0-local-rc.1`).
 It is placed at the release root under owner authorization OD-05
-(Apache License 2.0 for original Skelet-owned code; see GitHub Issue #34).
+(Apache License 2.0 for original Skilit-owned code; see GitHub Issue #34).
 
 It does not relicense any third-party material. Third-party code, data,
 assets, models, services, brands, and trademarks remain governed by
@@ -21,17 +28,17 @@ at last generation) and pnpm-lock.yaml are the complete transitive
 inventory.
 
 --------------------------------------------------------------------------------
-1. Skelet original code — Apache License 2.0
+1. Skilit original code — Apache License 2.0
 --------------------------------------------------------------------------------
-Copyright 2026 TheHalfMoon and Skelet contributors.
+Copyright 2026 TheHalfMoon and Skilit contributors.
 
-All original Skelet-owned code in this distribution (apps/, packages/,
-scripts/, skills/, schemas/, fixtures that are Skelet-authored synthetics,
+All original Skilit-owned code in this distribution (apps/, packages/,
+scripts/, skills/, schemas/, fixtures that are Skilit-authored synthetics,
 and documentation) is licensed under the Apache License, Version 2.0.
 See the root LICENSE file.
 
 EXCEPTIONS (third-party files inside this tree that are NOT covered by
-the Skelet Apache-2.0 grant — see §2):
+the Skilit Apache-2.0 grant — see §2):
   - apps/web/lib/utils.ts
   - packages/providers/monet/screenshot/queue.ts
 
@@ -54,7 +61,7 @@ under founder authorization, code scope only.
     skelet-founder-2026-10-04-listed-sources
     (docs/provenance/authorizations/monet-registry-2026-10-04.json),
     source-code-only scope. This file is distributed under that
-    authorization, NOT under the Skelet Apache-2.0 grant.
+    authorization, NOT under the Skilit Apache-2.0 grant.
   - Restricted (not granted, not distributed): datasets, screenshots,
     media/assets, model weights, hosted services, brands/trademarks.
   - Direct runtime imports exercised by this file: clsx 2.1.1 (MIT),
@@ -69,14 +76,14 @@ under founder authorization, code scope only.
   - Permission basis: same founder authorization as §2a,
     source-code-only scope (imports/monet-registry/accepted-code/
     screenshot-queue.json). Distributed under that authorization,
-    NOT under the Skelet Apache-2.0 grant. Isolated ephemeral capture
+    NOT under the Skilit Apache-2.0 grant. Isolated ephemeral capture
     helper; not part of the public product surface.
   - Restricted: same exclusions as §2a.
 
 No other donor source file is vendored into this candidate. In
 particular, no ArtCraft / ArtCraft-services / VectorCraft / PhotoCraft /
 DesignCraft / EffectCraft / FilmCraft / LightCraft source file is copied
-into this tree (AC-01 and AC-02 were decided KEEP Skelet-owned; AC-04
+into this tree (AC-01 and AC-02 were decided KEEP Skilit-owned; AC-04
 candidates are deferred). Any future transplant must preserve the
 applicable LICENSE-MIT / LICENSE-APACHE / NOTICE / ATTRIBUTION / OFL /
 third-party license texts listed in §3 before distribution.
@@ -88,7 +95,7 @@ The following sources are pinned and qualified in UPSTREAMS.lock.yml
 (status `ready`) but contribute NO source file to this candidate. They
 are recorded here for attribution, restriction, and future-import
 obligations. Editor adapters for VectorCraft / PhotoCraft / OpenPencil
-are Skelet-owned shims that invoke operator-installed external binaries;
+are Skilit-owned shims that invoke operator-installed external binaries;
 no donor binary, source, or weight is bundled.
 
 3a. artcraft — https://github.com/storytold/artcraft
@@ -159,7 +166,7 @@ no donor binary, source, or weight is bundled.
     `crates/segment` (Hugging Face Transformers SAM3 port) is
     Apache-2.0-only. SAM3 weights, RawNIND checkpoints, and AI denoise
     weights are never distributed with the donor and require separate
-    user-accepted terms; Skelet must never bundle them.
+    user-accepted terms; Skilit must never bundle them.
   - Rights: code authorized (deferred scope); data / assets / models
     restricted; trademarks restricted.
 
@@ -183,7 +190,7 @@ no donor binary, source, or weight is bundled.
   - Pin: 78355fd3890cc9da9539235ee3b38beb917f2ed6; License: MIT
     (0.16.0, live HEAD verified at evaluation time).
   - Headless adapter qualified against the genuine binary at this pin
-    (20/20 with SKELET_OPENPENCIL_BIN, 6 allowlisted ops, .pen/.fig
+    (20/20 with SKILIT_DOCUMENT_BIN (legacy SKILIT_OPENPENCIL_BIN accepted), 6 allowlisted ops, .pen/.fig
     handling, fig round-trip); no donor code vendored.
   - Rights: code license-governed; data / assets / models not
     applicable; trademarks restricted.
@@ -212,7 +219,7 @@ before import, per CODE_PROVENANCE.md.
 --------------------------------------------------------------------------------
 Reviewed before packaging, as required by OD-05:
 
-  - Skelet original code under Apache-2.0 combined with MIT-licensed
+  - Skilit original code under Apache-2.0 combined with MIT-licensed
     runtime dependencies (§6): COMPATIBLE. MIT permits sublicensing
     under Apache-2.0 terms for the combined work; no relicensing of
     the MIT components is claimed — their notices are preserved via
@@ -288,7 +295,7 @@ added without its own governed rights record:
     Source Serif 4, JetBrains Mono, Noto Serif, BIZ UDPGothic, Shippori
     Mincho, BIZ UDMincho, Noto Sans CJK SC, Noto Sans Arabic — governed
     by SIL OFL 1.1 texts that ship beside the fonts; fonts themselves
-    are NOT bundled here (Skelet indexes font metadata only)
+    are NOT bundled here (Skilit indexes font metadata only)
   - Font Awesome Free icons (CC BY 4.0); Lucide icons (ISC, plus MIT
     for Feather-derived icons); DesignCraft UI icons (original work)
   - SCOWL English word list (own license); Moby hyphenation list
@@ -324,7 +331,7 @@ added without its own governed rights record:
 --------------------------------------------------------------------------------
 ArtCraft API, paywalled media, gallery subscriptions, launcher
 downloads, telemetry, model SDKs, DNS update checks, and donor
-endpoints are not Skelet dependencies. No secret, credential,
+endpoints are not Skilit dependencies. No secret, credential,
 environment file, or private key is tracked or distributed (the RC
 builder fails closed on .env / .pem / .key / credentials.json /
 secrets.json / id_rsa / id_ed25519 / node_modules/ / .ignore).
@@ -332,7 +339,7 @@ secrets.json / id_rsa / id_ed25519 / node_modules/ / .ignore).
 --------------------------------------------------------------------------------
 10. Trademarks
 --------------------------------------------------------------------------------
-Skelet branding in this candidate is Skelet-owned. Upstream names,
+Skilit branding in this candidate is Skilit-owned. Upstream names,
 wordmarks, logos, and brand marks (ArtCraft, VectorCraft, PhotoCraft,
 DesignCraft, EffectCraft, FilmCraft, LightCraft, OpenPencil, Monet,
 and third-party provider/service marks) remain the property of their
@@ -350,14 +357,14 @@ this NOTICE file alongside LICENSE, preserve all copyright / patent /
 trademark / attribution notices from the Source form, and comply with
 the Apache License 2.0 §4(d) placement rules. The §2 carve-out travels
 with the two listed files: do not represent them as Apache-2.0-licensed
-Skelet originals. Upstream LICENSE-MIT / LICENSE-APACHE / NOTICE /
+Skilit originals. Upstream LICENSE-MIT / LICENSE-APACHE / NOTICE /
 ATTRIBUTION / OFL / third-party license texts must be added for any
 future vendored file before that file ships.
 
 --------------------------------------------------------------------------------
 12. Pointers
 --------------------------------------------------------------------------------
-  - Root license: LICENSE (Apache-2.0, Skelet original code)
+  - Root license: LICENSE (Apache-2.0, Skilit original code)
   - Provenance policy: CODE_PROVENANCE.md, DATA_PROVENANCE.md
   - Source lock: UPSTREAMS.lock.yml (38 sources: 14 ready, 24 planned)
   - Donor pins: imports/craft-suite/donor-pins.json

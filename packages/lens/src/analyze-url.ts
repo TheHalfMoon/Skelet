@@ -1,5 +1,5 @@
 /**
- * G09-13: paste-URL-to-report journey service for Skelet Lens.
+ * G09-13: paste-URL-to-report journey service for Skilit Lens.
  *
  * Pure orchestration over already-qualified stages: SSRF-guarded URL
  * validation (G09-01) -> isolated offline capture (G09-03) -> deterministic

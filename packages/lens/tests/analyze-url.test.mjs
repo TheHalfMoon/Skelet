@@ -58,7 +58,7 @@ test("paste URL journeys to a report and export bundle with graded clues", async
   assert.equal(first.report.observed.title, "Journey");
   assert.equal(first.report.unknown.technologyClues.length, 1);
   assert.equal(first.report.unknown.technologyClues[0].technology, "Hugo");
-  assert.equal(first.bundle.schemaVersion, "skelet.lens.export.v1");
+  assert.equal(first.bundle.schemaVersion, "skilit.lens.export.v1");
   assert.equal(first.bundle.analysisId, first.report.analysisId);
   assert.equal(first.bundle.artifacts.length, 7);
   const second = await analyzePublicUrl("https://example.org/journey", {

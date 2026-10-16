@@ -555,7 +555,7 @@ export async function validateCollectionItems(
     const artifact = await getArtifactForActor(tx, ref.artifactId, callerId);
     if (artifact !== null) {
       const status: CollectionItemStatus = {
-        uri: `skelet://artifact/${ref.artifactId}`,
+        uri: `skilit://artifact/${ref.artifactId}`,
         artifactId: ref.artifactId,
         status: "ok",
       };
@@ -567,7 +567,7 @@ export async function validateCollectionItems(
     }
     const exists = await tx.query("select id from artifacts where id = $1", [ref.artifactId]);
     items.push({
-      uri: `skelet://artifact/${ref.artifactId}`,
+      uri: `skilit://artifact/${ref.artifactId}`,
       artifactId: ref.artifactId,
       status: exists.rows[0] === undefined ? "missing" : "denied",
     });

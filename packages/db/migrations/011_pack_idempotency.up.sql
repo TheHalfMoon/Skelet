@@ -1,7 +1,7 @@
 -- AF-03c: agent write idempotency ledger for reference packs.
 -- Maps (user_id, idempotency_key) to the canonical collection created for
 -- that key so safe retries of create_reference_pack return the same
--- skelet://collection/{id} instead of duplicating canonical state.
+-- skilit://collection/{id} instead of duplicating canonical state.
 -- save_reference needs no ledger: it is idempotent via ON CONFLICT.
 create table pack_idempotency (
  user_id text not null

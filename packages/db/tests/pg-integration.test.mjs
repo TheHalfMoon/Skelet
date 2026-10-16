@@ -7,19 +7,19 @@ import { Pool } from "pg";
 import { openDatabase, SCHEMA_MIGRATION_ADVISORY_LOCK } from "../src/db.ts";
 import { migrateDown } from "../src/migrate.ts";
 
-const connectionString = process.env.SKELET_TEST_DATABASE_URL;
+const connectionString = process.env.SKILIT_TEST_DATABASE_URL;
 const enabled = Boolean(connectionString);
 
 /** Never run destructive migrations against a non-fixture database. */
 function requireFixtureDatabase() {
-  if (!connectionString || process.env.SKELET_DB_TEST_CONFIRM !== "yes") {
+  if (!connectionString || process.env.SKILIT_DB_TEST_CONFIRM !== "yes") {
     throw new Error("Explicit fixture database confirmation is required");
   }
   const url = new URL(connectionString);
   if (
     !["127.0.0.1", "localhost"].includes(url.hostname) ||
-    url.pathname !== "/skelet_test" ||
-    url.username !== "skelet_test"
+    url.pathname !== "/skilit_test" ||
+    url.username !== "skilit_test"
   ) {
     throw new Error("Refusing integration tests against a non-local/non-fixture database");
   }
@@ -94,7 +94,7 @@ test("real PostgreSQL serializes two demonstrably contending migration processes
   const results = await Promise.all(workers);
   assert.deepEqual(
     results.flat().sort(),
-    ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"],
+    ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"],
     "Only one blocked process may apply each migration",
   );
 
@@ -103,7 +103,7 @@ test("real PostgreSQL serializes two demonstrably contending migration processes
     const ledger = await db.query(
       "select filename from schema_migrations order by filename",
     );
-    assert.deepEqual(ledger.rows.map((row) => row.filename), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"]);
+    assert.deepEqual(ledger.rows.map((row) => row.filename), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"]);
     for (const table of ["sources", "products", "product_versions"]) {
       const result = await db.query("select to_regclass($1) as oid", ["public." + table]);
       assert.notEqual(result.rows[0]?.oid, null);

@@ -55,7 +55,7 @@ try {
     throw new Error(`expected /api/health 200, got ${health.status}`);
   }
   const payload = await health.json();
-  if (payload.status !== "ok" || payload.service !== "skelet-web") {
+  if (payload.status !== "ok" || payload.service !== "skilit-web") {
     throw new Error(`health contract violated: ${JSON.stringify(payload)}`);
   }
   if (typeof payload.version !== "string" || payload.version.length === 0) {
@@ -66,8 +66,8 @@ try {
     throw new Error(`expected / 200, got ${index.status}`);
   }
   const html = await index.text();
-  if (!html.includes("Skelet")) {
-    throw new Error("landing page does not identify Skelet");
+  if (!html.includes("Skilit")) {
+    throw new Error("landing page does not identify Skilit");
   }
   console.log("SMOKE_OK", JSON.stringify(payload));
 } catch (error) {

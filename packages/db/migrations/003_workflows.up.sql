@@ -9,7 +9,7 @@ create table flows (
  created_at timestamptz not null default now()
 );
 create index flows_version_idx on flows(product_version_id);
-create function skelet_flow_source_guard() returns trigger
+create function skilit_flow_source_guard() returns trigger
 language plpgsql set search_path = public,pg_temp as $$
 begin
  if tg_op = 'UPDATE' and
@@ -26,7 +26,7 @@ begin
 end;
 $$;
 create trigger flow_source_guard before insert or update of source_id,product_version_id
- on flows for each row execute function skelet_flow_source_guard();
+ on flows for each row execute function skilit_flow_source_guard();
 
 create table flow_steps (
  id uuid primary key default gen_random_uuid(),
@@ -39,7 +39,7 @@ create table flow_steps (
 );
 create index flow_steps_artifact_idx on flow_steps(artifact_id);
 
-create function skelet_flow_step_integrity() returns trigger
+create function skilit_flow_step_integrity() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 declare expected_version uuid; actual_version uuid; actual_product uuid; expected_product uuid;
         expected_source uuid; actual_source uuid;
@@ -62,7 +62,7 @@ begin
 end;
 $$;
 create trigger flow_step_integrity before insert or update of flow_id,artifact_id
- on flow_steps for each row execute function skelet_flow_step_integrity();
+ on flow_steps for each row execute function skilit_flow_step_integrity();
 
 create table collections (
  id uuid primary key default gen_random_uuid(),
@@ -136,7 +136,7 @@ alter table analysis_runs add constraint analysis_capture_source_matches
  foreign key(source_id,capture_run_id) references capture_runs(source_id,id) on delete restrict;
 create index analysis_capture_idx on analysis_runs(capture_run_id);
 
-create function skelet_run_insert_guard() returns trigger
+create function skilit_run_insert_guard() returns trigger
 language plpgsql set search_path = public,pg_temp as $$
 begin
  if new.status <> 'queued' or new.started_at is not null
@@ -148,10 +148,10 @@ begin
 end;
 $$;
 create trigger capture_run_insert before insert on capture_runs
- for each row execute function skelet_run_insert_guard();
+ for each row execute function skilit_run_insert_guard();
 create trigger analysis_run_insert before insert on analysis_runs
- for each row execute function skelet_run_insert_guard();
-create function skelet_run_transition_guard() returns trigger
+ for each row execute function skilit_run_insert_guard();
+create function skilit_run_transition_guard() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  if old.status in ('completed','partial','failed','canceled') then
@@ -182,9 +182,9 @@ begin
 end;
 $$;
 create trigger capture_run_transition before update on capture_runs
- for each row execute function skelet_run_transition_guard();
+ for each row execute function skilit_run_transition_guard();
 create trigger analysis_run_transition before update on analysis_runs
- for each row execute function skelet_run_transition_guard();
+ for each row execute function skilit_run_transition_guard();
 
 create table import_records (
  id uuid primary key default gen_random_uuid(),
@@ -198,10 +198,10 @@ create table import_records (
  unique(source_id,external_id,source_version)
 );
 create index import_records_canonical_idx on import_records(canonical_type,canonical_id);
-create function skelet_import_target_guard() returns trigger
+create function skilit_import_target_guard() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
- if not skelet_graph_ref_exists(new.canonical_type,new.canonical_id) then
+ if not skilit_graph_ref_exists(new.canonical_type,new.canonical_id) then
    raise exception 'import canonical target not found';
  end if;
  return new;
@@ -210,18 +210,18 @@ $$;
 -- AFTER INSERT prevents BEFORE triggers from rejecting an idempotent
 -- ON CONFLICT DO NOTHING before its existing mapping can be checked.
 create trigger import_target_guard after insert
- on import_records for each row execute function skelet_import_target_guard();
-create function skelet_import_immutable() returns trigger
+ on import_records for each row execute function skilit_import_target_guard();
+create function skilit_import_immutable() returns trigger
 language plpgsql set search_path = public,pg_temp as $$
 begin
  raise exception 'import records are immutable';
 end;
 $$;
 create trigger import_immutable_guard before update or delete on import_records
- for each row execute function skelet_import_immutable();
+ for each row execute function skilit_import_immutable();
 
 -- Preserve import-record referential integrity when canonical targets are removed.
-create function skelet_import_ref_delete_guard() returns trigger
+create function skilit_import_ref_delete_guard() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  if exists(select 1 from import_records
@@ -231,18 +231,18 @@ begin
 end;
 $$;
 create trigger import_product_guard before delete on products for each row
- execute function skelet_import_ref_delete_guard('product');
+ execute function skilit_import_ref_delete_guard('product');
 create trigger import_version_guard before delete on product_versions for each row
- execute function skelet_import_ref_delete_guard('product_version');
+ execute function skilit_import_ref_delete_guard('product_version');
 create trigger import_artifact_guard before delete on artifacts for each row
- execute function skelet_import_ref_delete_guard('artifact');
+ execute function skilit_import_ref_delete_guard('artifact');
 create trigger import_asset_guard before delete on assets for each row
- execute function skelet_import_ref_delete_guard('asset');
+ execute function skilit_import_ref_delete_guard('asset');
 create trigger import_pattern_guard before delete on patterns for each row
- execute function skelet_import_ref_delete_guard('pattern');
+ execute function skilit_import_ref_delete_guard('pattern');
 
 -- Canonical flow references cannot drift when referenced parent identities change.
-create function skelet_flow_parent_guard() returns trigger
+create function skilit_flow_parent_guard() returns trigger
 language plpgsql set search_path = public,pg_temp as $$
 begin
  if TG_ARGV[0]='artifact' then
@@ -268,8 +268,8 @@ begin
 end;
 $$;
 create trigger flow_artifact_parent_guard before update of product_id,product_version_id,source_id on artifacts
- for each row execute function skelet_flow_parent_guard('artifact');
+ for each row execute function skilit_flow_parent_guard('artifact');
 create trigger flow_version_parent_guard before update of product_id on product_versions
- for each row execute function skelet_flow_parent_guard('product_version');
+ for each row execute function skilit_flow_parent_guard('product_version');
 create trigger flow_product_parent_guard before update of source_id on products
- for each row execute function skelet_flow_parent_guard('product');
+ for each row execute function skilit_flow_parent_guard('product');

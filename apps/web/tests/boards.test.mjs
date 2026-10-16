@@ -40,9 +40,9 @@ async function fixture(tag) {
   seq += 1;
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: `board-${tag}-${seq}@skelet.example`, password: "board-member-01" });
-  const fellow = await signUp(db, { email: `board-fellow-${tag}-${seq}@skelet.example`, password: "board-member-01" });
-  const outsider = await signUp(db, { email: `board-out-${tag}-${seq}@skelet.example`, password: "board-member-01" });
+  const owner = await signUp(db, { email: `board-${tag}-${seq}@skilit.example`, password: "board-member-01" });
+  const fellow = await signUp(db, { email: `board-fellow-${tag}-${seq}@skilit.example`, password: "board-member-01" });
+  const outsider = await signUp(db, { email: `board-out-${tag}-${seq}@skilit.example`, password: "board-member-01" });
   const space = await createWorkspace(db, { name: `Board ${tag} ${seq}`, ownerId: owner.id });
   await addMember(db, { workspaceId: space.workspace.id, userId: fellow.id, role: "member", actorId: owner.id });
   return { db, owner, fellow, outsider, workspaceId: space.workspace.id };
@@ -80,7 +80,7 @@ test("board lifecycle returns stable URIs with ordered items", async () => {
   const fx = await fixture("lifecycle");
   try {
     const created = await board(fx.db, fx.owner, fx.workspaceId);
-    assert.ok(created.uri.startsWith("skelet://collection/"));
+    assert.ok(created.uri.startsWith("skilit://collection/"));
     assert.equal(created.title, "Moodboard");
     const listed = await listBoardsRoute(fx.db, { workspaceId: fx.workspaceId }, fx.owner.id);
     assert.equal(listed.status, 200);
@@ -100,7 +100,7 @@ test("board lifecycle returns stable URIs with ordered items", async () => {
     assert.equal(fetched.status, 200);
     assert.deepEqual(fetched.body.result.items.map((entry) => entry.artifactId), [first.id, second.id]);
     assert.deepEqual(fetched.body.result.items.map((entry) => entry.position), [0, 1]);
-    assert.ok(fetched.body.result.items.every((entry) => entry.uri.startsWith("skelet://artifact/")));
+    assert.ok(fetched.body.result.items.every((entry) => entry.uri.startsWith("skilit://artifact/")));
     const moved = await moveBoardItemRoute(
       fx.db, created.id, { workspaceId: fx.workspaceId, artifactId: first.id, toPosition: 1 }, fx.owner.id,
     );
@@ -136,7 +136,7 @@ test("board validation fails closed without leaking internals", async () => {
     for (const [index, call] of cases.entries()) {
       const result = await call();
       assert.ok([400, 404].includes(result.status), `case ${index}`);
-      assert.equal(result.body.schema_version, "skelet.agent.v1", `case ${index}`);
+      assert.equal(result.body.schema_version, "skilit.agent.v1", `case ${index}`);
     }
     const created = await board(fx.db, fx.owner, fx.workspaceId);
     const emptyUpdate = await updateBoardRoute(fx.db, created.id, {}, fx.owner.id);
@@ -222,12 +222,12 @@ test("board handoff transfers ownership with ledger proof and validation", async
     assert.equal(validated.body.result.items.length, 1);
     assert.equal(validated.body.result.items[0].status, "ok");
     assert.equal(validated.body.result.summary.ok, 1);
-    assert.ok(validated.body.result.board.uri.startsWith("skelet://collection/"));
+    assert.ok(validated.body.result.board.uri.startsWith("skilit://collection/"));
     const handed = await handOffBoardRoute(
       fx.db, created.id, { workspaceId: fx.workspaceId, toSubjectId: fx.fellow.id }, fx.owner.id,
     );
     assert.equal(handed.status, 200);
-    assert.ok(handed.body.result.handoff.boardUri.startsWith("skelet://collection/"));
+    assert.ok(handed.body.result.handoff.boardUri.startsWith("skilit://collection/"));
     assert.equal(handed.body.result.handoff.fromSubject, fx.owner.id);
     assert.equal(handed.body.result.handoff.toSubject, fx.fellow.id);
     assert.equal(handed.body.result.board.id, created.id);
@@ -301,7 +301,7 @@ test("board handoff fails closed on authority, recipient, and locator abuse", as
     ]) {
       const result = await call();
       assert.ok([400, 404].includes(result.status));
-      assert.equal(result.body.schema_version, "skelet.agent.v1");
+      assert.equal(result.body.schema_version, "skilit.agent.v1");
     }
   } finally {
     await fx.db.close();

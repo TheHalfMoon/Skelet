@@ -25,8 +25,8 @@ const INPUT = (text) => ({ type: 3, timestamp: 1_700_000_000_001, data: { source
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "replay-owner@skelet.example", password: "replay-password-01" });
-  const outsider = await signUp(db, { email: "replay-out@skelet.example", password: "replay-password-01" });
+  const owner = await signUp(db, { email: "replay-owner@skilit.example", password: "replay-password-01" });
+  const outsider = await signUp(db, { email: "replay-out@skilit.example", password: "replay-password-01" });
   const source = await createSource(db, { key: "replay-source", kind: "synthetic" });
   const product = await createProduct(db, { sourceId: source.id, title: "Replay app" });
   const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
