@@ -1,0 +1,19 @@
+docs/qualification/DEV_READINESS_2026-10-17.md
+  s_733d7ae58065dd::t_f143cae74a58b5 1-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "14f698cbe60bf8414554f81f783be86ace9fd7a3",
+  "prompts": {},
+  "sessions": {
+    "s_733d7ae58065dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eb97c8aaaffeixv0AQoBNpC5mo",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}

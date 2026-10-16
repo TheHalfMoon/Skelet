@@ -1,0 +1,25 @@
+apps/web/lib/session.ts
+  s_733d7ae58065dd::t_131f6dcd1da3b2 225,230-231
+  s_733d7ae58065dd::t_84ec66467b3d60 8-9
+  s_733d7ae58065dd::t_a34eb91a4a1ff8 259-272,282-284
+apps/web/tests/session.test.mjs
+  s_733d7ae58065dd::t_fe0e52f2fcef43 314-350
+packages/db/src/workspaces.ts
+  s_733d7ae58065dd::t_5286727d0dc176 120-130,136-154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c42693a066dedb1dedb49e6e2c30f3859d08ea5a",
+  "prompts": {},
+  "sessions": {
+    "s_733d7ae58065dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eb97c8aaaffeixv0AQoBNpC5mo",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}
