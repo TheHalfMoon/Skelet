@@ -1,0 +1,33 @@
+docs/reviews/P15-LEGAL_OCR_DELEGATION.md
+  s_36c890d79926e9::t_6793f8989eff82 1-11
+apps/web/tests/legal-surfaces.test.mjs
+  s_36c890d79926e9::t_0bddc8647395b7 1-50
+docs/reviews/P15-LEGAL_JEV_REVIEW.md
+  s_36c890d79926e9::t_940c2ff7847713 1-7
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36c890d79926e9::t_bc93d49833dace 451
+docs/reviews/P15-LEGAL_JEV_SPEC.json
+  s_36c890d79926e9::t_790510e772ec79 1
+docs/reviews/P15-LEGAL_JEV_REVIEW.json
+  s_36c890d79926e9::t_4328a20f26809c 1
+docs/reviews/P15-LEGAL_PSTACK_PANELS.md
+  s_36c890d79926e9::t_ff74717810db69 1-21
+apps/web/app/page.tsx
+  s_36c890d79926e9::t_fa343704685e6f 27-33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5963be06c4397830beb6e367b54cc7c52cb588d0",
+  "prompts": {},
+  "sessions": {
+    "s_36c890d79926e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebdaa4c68ffeiNwK51axQKEUXr",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
