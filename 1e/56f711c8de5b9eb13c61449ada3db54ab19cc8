@@ -1,0 +1,37 @@
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36c890d79926e9::t_8e89910e024704 448
+docs/reviews/AC-00-BUNDLE_JEV_SPEC.json
+  s_36c890d79926e9::t_b5eb27ce119f76 1
+docs/reviews/AC-00-BUNDLE_PSTACK_PANELS.md
+  s_36c890d79926e9::t_2042c5729440f5 1-21
+docs/qualification/BUNDLE_BASELINE.md
+  s_36c890d79926e9::t_1da8ad80c02775 1-44
+.github/workflows/ci.yml
+  s_36c890d79926e9::t_0d6e6aeeaa85f1 223-226
+docs/reviews/AC-00-BUNDLE_JEV_REVIEW.md
+  s_36c890d79926e9::t_d6af5cd1053116 1-7
+scripts/check_bundle_budget.mjs
+  s_36c890d79926e9::t_fbc770262732b6 1-142
+docs/reviews/AC-00-BUNDLE_OCR_DELEGATION.md
+  s_36c890d79926e9::t_7fd897d107f54b 1-12
+docs/reviews/AC-00-BUNDLE_JEV_REVIEW.json
+  s_36c890d79926e9::t_cabfa6129e251c 1
+tests/node/bundle-budget.test.mjs
+  s_36c890d79926e9::t_73e8f441a57b0c 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1e56f711c8de5b9eb13c61449ada3db54ab19cc8",
+  "prompts": {},
+  "sessions": {
+    "s_36c890d79926e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebdaa4c68ffeiNwK51axQKEUXr",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
