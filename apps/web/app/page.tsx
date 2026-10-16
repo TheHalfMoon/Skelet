@@ -188,9 +188,14 @@ export default function Home() {
         <div>
           <h2 id="sk-access-heading">Private by default. Ready when you are.</h2>
           <p>
-            Workspace views require an authorized session bearer token to access private data.
-            An operator-provisioned token is required for the current local version;
-            a browser sign-in screen is not yet provided. No paid AI account is required.
+            Workspace views require an authorized session. Sign in with your
+            installation account in the browser, or use an
+            operator-provisioned bearer token for agent and API access. No
+            paid AI account is required.
+          </p>
+          <p>
+            <Link href="/login">Sign in</Link>{" · "}
+            <Link href="/signup">Create the first owner account</Link>
           </p>
         </div>
       </section>

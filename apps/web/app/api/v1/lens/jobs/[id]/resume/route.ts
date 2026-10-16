@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { bearerToken, resolveRequestUser } from "../../../../../../../lib/mcp";
+import { requestToken, resolveRequestUserFromRequest } from "../../../../../../../lib/session";
 import { getSharedDb } from "../../../../../../../lib/mcp-db";
 import { checkRateLimit } from "../../../../../../../lib/rate-limit";
 import { clientKey } from "../../../../../../../lib/http";
@@ -17,7 +17,7 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const requestId = newRequestId(request.headers.get("x-request-id"));
-  const token = bearerToken(request.headers.get("authorization"));
+  const token = requestToken(request).token;
   const limit = checkRateLimit(`rest:${clientKey(request, token)}`);
   if (!limit.allowed) {
     const err = new AgentContractError("RATE_LIMITED", { requestId });
@@ -34,7 +34,7 @@ export async function POST(
     return NextResponse.json(err.toFailureEnvelope(), { status: err.httpStatus });
   }
   try {
-    const userId = await resolveRequestUser(db, token);
+    const userId = await resolveRequestUserFromRequest(db, request);
     const { id } = await context.params;
     const url = new URL(request.url);
     let workerId: unknown;

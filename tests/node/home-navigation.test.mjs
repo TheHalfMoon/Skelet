@@ -17,9 +17,11 @@ test("home has navigable links to the five qualified local views", () => {
   assert.match(source, /aria-label="Documentation and service links"/);
 });
 
-test("home does not advertise unimplemented browser sign-in", () => {
-  assert.match(source, /browser sign-in screen is not yet provided/);
-  assert.match(source, /operator-provisioned/);
+test("home links the first-party browser sign-in without overstating it", () => {
+  assert.match(source, /href="\/login"/);
+  assert.match(source, /href="\/signup"/);
+  assert.doesNotMatch(source, /browser sign-in screen is not yet provided/);
+  assert.match(source, /operator-provisioned bearer token for agent and API access/);
 });
 
 test("home includes health, registry, and informational routes", () => {
