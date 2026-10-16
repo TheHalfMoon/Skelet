@@ -1,0 +1,59 @@
+{
+  "description": "Issue #62 closeout evidence report (reconciliation only, no close action)",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does this grain preserve all contracts: docs-only plus one test module; no route/schema/API/MCP/migration/dependency/config change and no GitHub close action; python unittest discovery auto-wires the suite? Any changed behavior?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is the report factually correct: AC-00..AC-04 each dispositioned with real PR numbers and evidence files; 7 global gates addressed; 3 journeys graded honestly (a/b partial-pass on Skelet-owned paths, c pass); deferrals point at Cloud backlog rows; OD-03 presented as the single decision with no close claimed?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is evidence sufficient: 5 tests pass offline checking conditions, evidence files, gates/journeys, deferrals/rights, and the no-close rule? Any reconciliation claim without a repo source?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any reliability risk: test uses only stdlib file reads plus regex; no network; deterministic assertions?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond the closeout report: version tags, publication, license invention, paid provisioning, actual issue close, or unrelated refactors?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the grain weaken any control: rights/legal section preserves Fair Source scope verification, MIT rechecks, no-redistribution rule, OD-05 NOTICE remainder; no secrets; no new trust boundary?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "22f8dfb014460d2d3792be5596949af42750de9c",
+    "branch": "skelet/issue-62-closeout-report",
+    "change": "Issue #62 closeout-evidence grain: docs/qualification/ISSUE_62_CLOSEOUT_REPORT.md (AC-by-AC reconciliation, gates, journeys, deferrals, limitations, rights decisions, single OD-03 disposition; no close action) plus tests/test_issue_62_closeout.py (5 offline tests). No product code change; no migration; no dependency change.",
+    "head_sha": "WORKTREE"
+  }
+}
