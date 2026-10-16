@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Deterministic Skilit identity assets.
+
+The S silhouette was reconstructed from the founder-approved two-logo
+reference on 2026-10-17. The points below are editable vector source data,
+not a reference to an external branding library.
+"""
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PUBLIC = ROOT / "apps/web/public/brand"
+PUBLIC.mkdir(parents=True, exist_ok=True)
+
+# Approved organic S outline, relative to its 281 x 377 source box.
+POINTS = [
+    (267, 6), (248, 0), (226, 1), (149, 27), (68, 68), (22, 105),
+    (12, 124), (11, 144), (28, 169), (69, 188), (144, 204),
+    (151, 209), (145, 218), (56, 252), (14, 279), (1, 300),
+    (0, 320), (6, 334), (23, 351), (46, 363), (89, 374),
+    (131, 376), (157, 369), (170, 358), (173, 341), (165, 331),
+    (134, 318), (130, 306), (146, 295), (243, 255),
+    (268, 234), (276, 218), (277, 199), (271, 184),
+    (257, 169), (229, 154), (134, 127), (126, 119),
+    (132, 110), (265, 60), (280, 38), (279, 20),
+]
+
+ORANGE = "#F8793D"
+ORANGE_FIELD = "#F3A07C"
+CREAM = "#FAF9F6"
+INK = "#14161A"
+
+def outline():
+    coords = POINTS
+    n = len(coords)
+    parts = [f"M {coords[0][0]} {coords[0][1]}"]
+    for i in range(n):
+        a, b, c, dd = (coords[(i - 1) % n], coords[i], coords[(i + 1) % n], coords[(i + 2) % n])
+        c1 = (b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6)
+        c2 = (c[0] - (dd[0] - b[0]) / 6, c[1] - (dd[1] - b[1]) / 6)
+        parts.append(f"C {c1[0]:.1f} {c1[1]:.1f} {c2[0]:.1f} {c2[1]:.1f} {c[0]} {c[1]}")
+    return " ".join(parts) + " Z"
+
+PATH = outline()
+def svg(view_box, children, label):
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view_box}" role="img" '
+        f'aria-label="{label}">\n{children}\n</svg>\n'
+    )
+
+for name, color in [("skilit-mark-orange.svg", ORANGE), ("skilit-mark-black.svg", INK)]:
+    (PUBLIC / name).write_text(svg("0 0 281 377", f'<path d="{PATH}" fill="{color}"/>', "Skilit S mark"))
+
+# Both official full lockups share the exact geometry: no shadows/gradients.
+for name, background, mark, text_color in [
+    ("skilit-lockup-light.svg", CREAM, ORANGE, INK),
+    ("skilit-lockup-orange.svg", ORANGE_FIELD, INK, INK),
+]:
+    children = (
+        f'<rect width="1024" height="384" fill="{background}"/>\n'
+        f'<path d="{PATH}" transform="translate(126 78) scale(.60)" fill="{mark}"/>\n'
+        f'<text x="364" y="226" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="116" font-weight="500" letter-spacing="-3.5" fill="{text_color}">Skilit</text>'
+    )
+    (PUBLIC / name).write_text(svg("0 0 1024 384", children, "Skilit logo"))
+
+icon = (
+    f'<rect x="0" y="0" width="64" height="64" rx="14" fill="{ORANGE_FIELD}"/>'
+    f'<path d="{PATH}" transform="translate(17 7) scale(.13)" fill="{INK}"/>'
+)
+(ROOT / "apps/web/app/icon.svg").write_text(svg("0 0 64 64", icon, "Skilit app icon"))
+
+print("Generated 5 consistent, flat Skilit brand SVG assets")
