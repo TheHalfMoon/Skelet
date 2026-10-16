@@ -1,0 +1,27 @@
+docs/reviews/V1-LOCAL-LICENSE-NOTICE_JEV_REVIEW.json
+  s_3ac249a7072f60::t_db829be8b622eb 1
+docs/reviews/V1-LOCAL-LICENSE-NOTICE_JEV_SPEC.json
+  s_3ac249a7072f60::t_edce6e90cbed5c 1
+docs/reviews/V1-LOCAL-LICENSE-NOTICE_OCR_DELEGATION.md
+  s_3ac249a7072f60::t_f0077b586a6b9a 1-9
+docs/reviews/V1-LOCAL-LICENSE-NOTICE_PSTACK_PANELS.md
+  s_3ac249a7072f60::t_3c35044a5f519b 1-21
+docs/reviews/V1-LOCAL-LICENSE-NOTICE_JEV_REVIEW.md
+  s_3ac249a7072f60::t_4f81f203504844 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "cb71b88c99536003552565945f2fdbcc6da50591",
+  "prompts": {},
+  "sessions": {
+    "s_3ac249a7072f60": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc1e6649ffevUMT7Fl3kOE54t",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
