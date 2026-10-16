@@ -1,0 +1,533 @@
+apps/web/tests/search.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 48,96
+packages/ingest/tests/publish.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 22
+scripts/prove_starter_consumer.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 131,171
+scripts/validate_skills.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,6,21,73,100-102,161,164
+tests/test_ac01_frame_decision.py
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 96
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 5,49,63,68,73,76
+packages/db/src/changes.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 189,447,450,469,472,501,504,511,514
+packages/db/migrations/004_auth.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3
+packages/lens/src/capture-network.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 80
+tests/test_no_model.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,74-75,79,95
+apps/web/app/boards/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 389
+packages/no-model/tests/no-model.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 60,72,79-81,132
+packages/assets/tests/similarity.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 41-42,136,297-298,371-372
+apps/web/app/flows/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 119,235
+packages/lens/tests/kit-fixture-chain.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 117
+tests/node/home-navigation.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 11
+packages/sdk-ts/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/lens/tests/tech-clue-matcher.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 55,206,221
+docs/architecture/AGENT_FIRST_ZERO_FOUNDER_COST_BLUEPRINT_2026-10-11.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,5,11,13,15,20,23,28,30,41,45,50,56,61,66,71,103,111,126,134,223,232
+sbom.json
+  s_de9f7ddcbb4b12::t_c0a1110ec561eb 6,8
+packages/lens/src/style-evidence.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+docs/operations/CLEAN_INSTALL.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,13,24-25,34-35,39,47-48,63
+  s_de9f7ddcbb4b12::t_c8cdb82decf539 26
+apps/web/app/terms/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,6,18,21
+packages/db/tests/workspaces.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 42
+  s_de9f7ddcbb4b12::t_1cbe8dbc3cc818 28
+docs/operations/SLOS.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,69
+scripts/check_abuse_alarms.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/editor-adapters/src/vector-adapter.ts
+  s_de9f7ddcbb4b12::t_deaa93df899d4b 42,48-49
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,20,54,696,718
+packages/db/migrations/016_corpus_flow_import.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 13,33
+packages/ingest/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,7-9
+scripts/validate_agent_contract.py
+  s_de9f7ddcbb4b12::t_89e9742e4e8885 43
+  s_de9f7ddcbb4b12::t_f61329979f598a 77
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,5,17,78
+  s_de9f7ddcbb4b12::t_71e281e3e2afed 18
+packages/lens/tests/capture-network.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 119,121,123,133,143-144
+packages/db/tests/jobs.test.mjs
+  s_de9f7ddcbb4b12::t_1cbe8dbc3cc818 27
+ARCHITECTURE.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,7,15,56,70,95,113,119
+scripts/bench_concurrent.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/no-model/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+tests/test_p10_normalization.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 6
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 49
+packages/editor-adapters/tests/openpencil-adapter.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 20-21,40,531,533,545
+  s_de9f7ddcbb4b12::t_5d95700c3dc7f1 170,175,194,220,224,334,339,346,361,365,369,373,387,391,406,427,431,447,453,457,461,478,485,502,509,557,561,565,569,573,589,594
+  s_de9f7ddcbb4b12::t_0370a2d56ea58e 241
+  s_de9f7ddcbb4b12::t_d190131ba7e059 623-626,628
+apps/web/tests/abuse-alarms-cli.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 13,76
+packages/lens/src/capture-worker.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 101
+scripts/sign_release_artifact.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,91,95-96,101
+package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/lens/src/starter-synthesis.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 7,33,39,159,177,304
+apps/web/app/api/health/payload.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 12,19,26
+scripts/build_release_candidate.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,108,132,138
+packages/db/tests/pg-graph.test.mjs
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 25
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 9,13,16
+packages/ingest/src/pipeline.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 299
+packages/ingest/tests/corpus.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 70-71
+packages/db/tests/pg-workflows.test.mjs
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 29
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 12,15,19,41
+SECURITY.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,7,59,88
+apps/web/registry/registry.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,5,8,10,14,16
+apps/web/lib/rest.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 19,38,64,274,285,373,384,396,499,593,644,650,656,803,876,957,1006,1013,1034,1207,1220
+apps/web/tests/patterns-ui.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 22
+apps/web/tests/mcp-boards.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 25-27,99,107,160
+packages/db/migrations/002_design_graph.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,4,6,8,10,12,16,18,20
+apps/web/lib/lens-jobs.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 31,43,92
+  s_de9f7ddcbb4b12::t_99d80a7dd2bda8 95,100-104
+apps/web/tests/registry.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 13,17,26,36,40,42,70,74,77,81,84
+apps/worker/tests/cli.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 11,20,28,30,34,36,40,47,49
+tests/test_monet_import_manifest.py
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 159
+packages/db/src/replay.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 13
+packages/db/src/auth.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 10
+scripts/audit_monet_code.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 118
+apps/web/lib/abuse-alarms.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/db/migrations/008_jobs.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 32,40
+scripts/prove_registry_install.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,27-28,77,80,210-211,213,217-218,220
+packages/db/tests/changes.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 19-20
+packages/sdk-ts/tests/client.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,7,32-33,35,38-43,49,53-54,60,69,73-75,91,100,105,116,123,130,145,153,164,170-171,180-183,187
+tests/test_validate_skills.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 33,65,68
+packages/lens/src/video-frame-evidence.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 55,183,314
+packages/lens/src/report-assembly.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 71,308,367,384,409
+fixtures/agent-contract/valid-denied.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 9
+packages/lens/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+schemas/upstreams.schema.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3-4
+packages/db/migrations/007_billing.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 29,37
+apps/web/tests/rest.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 17-18,38,42,72,74,90,104,110,124,146,149,155
+scripts/mcp_test_server.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,56-61
+packages/db/src/build-kit.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 10
+packages/db/migrations/008_jobs.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3
+tests/test_moodboard_closure.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 105
+scripts/ci_hygiene.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/assets/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,11-12
+packages/lens/tests/capture-browser.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 120
+packages/lens/tests/report-assembly.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 48
+tests/test_validate_agent_contract.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,78-79,85,103,109-111
+docs/operations/RUNBOOK.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,11,29,84
+packages/db/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/editor-adapters/tests/raster-adapter.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 44,836-837,855-856,921,923,943-944
+  s_de9f7ddcbb4b12::t_0370a2d56ea58e 300
+scripts/bench_board_changes.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 58
+tests/test_mcp_interop_py.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 98,132,202,208,220,239,242,249
+apps/web/app/privacy/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,6,14
+packages/db/migrations/009_lens_build_kit_runs.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,87,166,168,170,178
+README.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,3
+apps/web/tests/golden-journey.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 24,146-147
+apps/web/tests/interop-http.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 90,127-128,200,265,276,284,296,300,309,320,329-330,334
+packages/db/tests/db-foundation.test.mjs
+  s_de9f7ddcbb4b12::t_1cbe8dbc3cc818 47
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 26,30,121,129
+packages/db/src/backup.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 10
+tests/test_validate_registry.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 24,28,30,39,41,56,69,77
+schemas/lens-build-kit.schema.json
+  s_de9f7ddcbb4b12::t_385b06b170b10d 30
+  s_de9f7ddcbb4b12::t_cf2c9b334e8ae2 21
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3-4,78
+apps/web/tests/changes.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 52-53
+schemas/agent-contract.schema.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3-5,15,75
+apps/web/tests/gallery.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 15-16,53-54
+apps/web/tests/lens-jobs.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 46-47,65-68,79
+apps/worker/tests/env.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 8-11,16-19,21-24,28,32,34-35,38-39,41-44,48-49,52-53,59-60,63,65
+docs/operations/PLAN_GAP_REGISTER_2026-10-08.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,52
+apps/web/tests/boards-ui.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 28
+packages/editor-adapters/src/raster-adapter.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,31,81
+  s_de9f7ddcbb4b12::t_085590402607e9 69,75-76
+packages/db/tests/billing.test.mjs
+  s_de9f7ddcbb4b12::t_1cbe8dbc3cc818 28
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 52
+packages/storage/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/db/tests/pg-backup-restore.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 16,21,27-28,40
+packages/db/tests/workflows.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 16
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 37,45,47
+packages/db/migrations/005_workspaces.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3
+apps/web/lib/reference-packs.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 13,21,63,65,73,77,119,141,149
+  s_de9f7ddcbb4b12::t_df3cdfa33087a4 67-71
+  s_de9f7ddcbb4b12::t_1ed6e646c684cf 23-31
+packages/db/tests/collections.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 47
+  s_de9f7ddcbb4b12::t_1cbe8dbc3cc818 35
+packages/lens/src/analyze-url.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+docs/architecture/PLAN_HARDENING_2026-10-08.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,9,11,15,33,41,49
+packages/no-model/src/no-model.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,4,30,38,51,94,192
+packages/db/tests/build-kit.test.mjs
+  s_de9f7ddcbb4b12::t_1cbe8dbc3cc818 35
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 53,55,68
+packages/db/tests/pg-migrate-worker.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4
+packages/db/migrations/011_pack_idempotency.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4
+apps/web/app/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 14,20
+packages/assets/src/similarity.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 8
+packages/sdk-ts/src/client.ts
+  s_de9f7ddcbb4b12::t_083a3293b30b91 125-130
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,4,93,114,190,196,371
+packages/db/tests/pg-build-kit.test.mjs
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 39
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 10,13,17,50,78,106,145
+apps/web/lib/agent-contract.ts
+  s_de9f7ddcbb4b12::t_0b86a87d71235f 323-327
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,18,97,376,401,405-406,408
+  s_de9f7ddcbb4b12::t_3b2fd240ae5624 99-100,103-123
+  s_de9f7ddcbb4b12::t_e2e53865782adc 20-21
+  s_de9f7ddcbb4b12::t_1231315628fc83 377,381-383
+packages/lens/tests/kit-manifest.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 52
+packages/db/migrations/018_skilit_rename.up.sql
+  s_de9f7ddcbb4b12::t_83a2e44297fdf4 1-74
+packages/db/tests/pg-integration.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 10,15,21-22
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 97,106
+apps/web/tests/flows.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 15,98-99
+packages/db/src/collections.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 558,570
+apps/web/tests/flows-ui.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 22-23
+apps/web/lib/boards.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 30,91,108
+apps/web/lib/registry.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 5-6,45-46
+  s_de9f7ddcbb4b12::t_3493b932122ff9 49-53,59-64
+docs/research/DONOR_REUSE_DECISIONS_2026-10-08.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,7,10,22-23,29,37,50,54,56,62,68,84
+packages/db/tests/auth.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 46-47,51,56,73,76,87-88,91,107-108,112,127,135,173-175,179,213-214,231-232,243
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 20
+apps/web/app/api/mcp/route.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 33,98
+packages/assets/tests/iconset.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 24,41
+apps/worker/src/env.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,5-8,20,26,60,81,85-89,97-98,102-103,110-111
+  s_de9f7ddcbb4b12::t_b77767f1d83421 64-80
+  s_de9f7ddcbb4b12::t_206f97ae87305a 99,104-108,112,116-118
+packages/lens/tests/analyze-url.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 61
+apps/web/tests/lens-recovery.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 23,79,106
+apps/web/tests/interop-stdio.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 90,110,175,180,184,192,211
+packages/lens/src/tech-signal-evidence.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3,31
+apps/web/tests/mcp.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 13,20,43,59,123,131,135,142-143,146,148,162,167,175,190-191,201-202,244-245,273,275,277,285,289,311,314,373-374,391,396
+packages/assets/tests/compare.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 17-18
+packages/lens/tests/starter-synthesis.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 66,111
+fixtures/agent-contract/invalid-uri.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,6
+docs/operations/G01-03A_WEB_SHELL.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,3,7,10,24,27
+  s_de9f7ddcbb4b12::t_b46140f64ea14c 41
+packages/editor-adapters/tests/vector-adapter.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 40,681-682,697-698,762,764,784-785
+  s_de9f7ddcbb4b12::t_0370a2d56ea58e 217
+docs/operations/RELEASE_SIGNING.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 30
+apps/web/tests/similar.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 15,52-53,121,236,247-248,309,324-325,351,354
+packages/db/tests/artifact-access.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 29-30,78
+packages/db/migrations/016_corpus_flow_import.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 7
+apps/web/tests/gallery-ui.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 22-23
+packages/db/migrations/002_design_graph.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 75,114,117,120,128,132,145-156
+apps/web/lib/mcp-db.ts
+  s_de9f7ddcbb4b12::t_7a171531aaed24 18-20
+packages/lens/src/design-tokens.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+PRODUCT.md
+  s_de9f7ddcbb4b12::t_6cccd4c2598df3 43
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,7,11,21,39,52,79,81,85
+apps/web/app/layout.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,6
+packages/providers/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/db/migrations/007_billing.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3
+scripts/check_no_model.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,4,7,102
+  s_de9f7ddcbb4b12::t_06b30e5d928bae 173
+  s_de9f7ddcbb4b12::t_7302cb38ab4fff 138-140
+packages/db/tests/backup-restore.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 61
+packages/lens/tests/video-frame-evidence.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 141
+packages/lens/tests/export-surface.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 116-123,129-130,229,235-238,247,310,337
+packages/lens/tests/style-evidence.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 171
+docs/operations/G02-02_WORKER_SHELL.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 7,17-19,21-22,28,38
+apps/web/tests/compare.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 15,52-53,112-113
+packages/db/src/patterns.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 246
+scripts/validate_upstreams.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/db/tests/replay.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 28-29
+tests/test_sbom.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 37
+scripts/check_bundle_budget.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+apps/web/tests/health-route.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 6,9
+packages/db/tests/patterns.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 22-23,126
+tests/test_v1_local_scope.py
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 62
+docs/IMPLEMENTATION_PLAN.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1-899,907,912,923-939
+packages/editor-adapters/src/openpencil-adapter.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,33,84,145-146,1018,1066,1074,1107-1108
+  s_de9f7ddcbb4b12::t_5d95700c3dc7f1 36,173-184,328,331,338,352,364,375,379,383,396,400,404,421,438,458,462,469,477,502,505,513,519,528,532,540,544,561,568,573,584,588,595,607,626,639,643,646,661,664,676,688,700,712,719,729,733,756,761,765,771,779,787,794,804,810,817,825,840,845,852,860,863,866,869,874,891,896,968,973,983,986,1004,1025,1032,1040,1044,1050,1064,1067,1083,1088,1121,1124,1211,1230,1242,1249,1259,1267,1283,1295,1298,1304-1306,1316,1324,1332,1338,1342,1358,1364,1367,1380,1391,1411,1417,1431,1434
+  s_de9f7ddcbb4b12::t_8b00009c17e1bb 65,71-72
+packages/lens/src/kit-manifest.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 6,25-26,28
+scripts/skilit.py
+  s_de9f7ddcbb4b12::t_9a379436b91a1e 24-25,28
+scripts/mcp_stdio.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 36-38
+apps/web/tests/lens-ui.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 26
+fixtures/agent-contract/valid-envelope.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 6,14,18
+packages/editor-adapters/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/db/migrations/003_workflows.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 7,10,14,23,25,32,38,40
+packages/db/migrations/009_lens_build_kit_runs.down.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3,7
+apps/web/tests/patterns.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 15,52-53,89,91
+apps/web/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/editor-adapters/src/index.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+scripts/validate_registry.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,32
+.github/workflows/ci.yml
+  s_de9f7ddcbb4b12::t_468c75a42009be 276-277,300,308
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 14,134,141,158,161,168,175-176,223,226,341,344,380,383,425,428,467,470,512,515,551,554,594-595,600,631,634,658-659,702,705
+apps/web/app/patterns/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 86
+packages/db/tests/gallery.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 18-19
+apps/web/tests/mcp-lens.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 42-43,121,252,294
+NOTICE
+  s_de9f7ddcbb4b12::t_475ad791cf39b9 193
+  s_de9f7ddcbb4b12::t_324fd6d27cf9ed 1,4-10,12,14,31,33,35-36,41,64,79,86,98,169,222,298,334,342,360,367
+packages/assets/tests/fixtures/search-relevance.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+apps/web/app/lens/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 312
+packages/db/migrations/004_auth.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,25,33
+packages/storage/tests/storage.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 10,28,126
+packages/ingest/src/corpus.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 23
+docs/search.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,3,24,97
+fixtures/build-kit/manifest.valid.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1
+apps/web/lib/mcp.ts
+  s_de9f7ddcbb4b12::t_c1a44db4a93155 131-133
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 24,71,79,86,130,163,417,449,535,550,590,612,662,681,888,898,952,962,974,1007,1073,1113,1119,1125,1215,1244,1300,1326,1333,1355,1527-1528,1637,1828,1839
+scripts/validate_build_kit.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,83,94,177
+  s_de9f7ddcbb4b12::t_5fdf7b43410940 93
+  s_de9f7ddcbb4b12::t_e45fd7d3e486d3 82
+LICENSE
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 189
+apps/web/app/gallery/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 261
+apps/worker/package.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2
+packages/db/migrations/003_workflows.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 12,29,42,65,139,151,153-154,185,187,201,204,213-214,221,224,234,236,238,240,242,245,271,273,275
+packages/db/migrations/018_skilit_rename.down.sql
+  s_de9f7ddcbb4b12::t_3a5021e986a311 1-66
+scripts/smoke-web.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 58,69-70
+apps/web/tests/boards.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 43-45,83,103,139,225,230,304
+tests/test_craft_audit_af01.py
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 131,149
+packages/db/tests/graph.test.mjs
+  s_de9f7ddcbb4b12::t_d0865d48e4d18e 27,33-34
+tests/node/release-candidate.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 15,28
+packages/lens/src/export-surface.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,68,71,551,573-580,608,611,650
+CODE_PROVENANCE.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,7,17,19,48,72,79,106,129,135
+scripts/skilit_sdk.py
+  s_de9f7ddcbb4b12::t_0cd73a11aa8274 52,55
+tests/test_license_notice.py
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 52
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,38,44
+packages/db/migrations/005_workspaces.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 20,28
+docs/operations/CI.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,36,48,71
+  s_de9f7ddcbb4b12::t_b46140f64ea14c 55,57
+apps/web/tests/envelope-parity.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 26,90-91,109,137,156-157,181,186,192,214-215,280,307-308,342-343,357,364,380,446-447,460,464,466,476-477,520,586
+packages/providers/src/provider.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 3,7
+scripts/generate_sbom.py
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,82
+DATA_PROVENANCE.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,7,46,56-58,92,114,150,169
+GOVERNANCE.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,34
+apps/web/tests/replay.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 56-57,92,126
+tests/test_ac02_board_decision.py
+  s_de9f7ddcbb4b12::t_bfa0ca767e5520 129
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 5-6,99,114,123-124
+tests/test_validate_build_kit.py
+  s_de9f7ddcbb4b12::t_e6d3fe72530af2 25-26
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 31
+packages/storage/README.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,10,17
+apps/web/app/support/page.tsx
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 4,6,14
+docs/operations/RELEASE_CANDIDATE.md
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 1,8,30-33,48
+fixtures/agent-contract/invalid-error.json
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 8
+packages/lens/tests/video-evidence-attachment.test.mjs
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 96,98
+apps/worker/src/cli.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 19,24,48,50-51,60-62
+packages/db/migrations/017_replay_sessions.up.sql
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 9
+packages/lens/src/tech-clue-matcher.ts
+  s_de9f7ddcbb4b12::t_c4f3760390ba9f 2,8,35,321,337
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9c5b677c81082cee2257f6031060cfa226bd1129",
+  "prompts": {},
+  "sessions": {
+    "s_de9f7ddcbb4b12": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eba7e6534ffeg0XPAPVJNcXfkK",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
