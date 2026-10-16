@@ -1,0 +1,31 @@
+docs/reviews/ISSUE62-REPORT_JEV_SPEC.json
+  s_5d9e965208b16b::t_7965d1863223c7 1-59
+docs/reviews/ISSUE62-REPORT_OCR_DELEGATION.md
+  s_5d9e965208b16b::t_3d2b154ec7da2c 1-6
+docs/reviews/ISSUE62-REPORT_PSTACK_PANELS.md
+  s_5d9e965208b16b::t_573e55175a488f 1-21
+docs/reviews/ISSUE62-REPORT_JEV_REVIEW.md
+  s_5d9e965208b16b::t_de56106381cc0f 1-7
+docs/qualification/ISSUE_62_CLOSEOUT_REPORT.md
+  s_5d9e965208b16b::t_02cccc16ae7a12 1-66
+docs/reviews/ISSUE62-REPORT_JEV_REVIEW.json
+  s_5d9e965208b16b::t_7965d1863223c7 1
+tests/test_issue_62_closeout.py
+  s_5d9e965208b16b::t_7d4967d73a4e47 1-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ba556761297a3bf02bda5ec5f35891e4726f22d6",
+  "prompts": {},
+  "sessions": {
+    "s_5d9e965208b16b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc9f9396ffetD3BLOQPot0vaE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
