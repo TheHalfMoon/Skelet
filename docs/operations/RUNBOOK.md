@@ -71,7 +71,10 @@ must implement.
   `QUOTA_EXCEEDED`, and `RATE_LIMITED` answers with workspace IDs and
   timestamps plus the stuck-job count, then evaluate with
   `evaluateAbuseAlarms` from `apps/web/lib/abuse-alarms.ts` (thresholds
-  in `docs/operations/SLOS.md`). `elevated` means investigate before the
+  in `docs/operations/SLOS.md`) or the operator CLI
+  `node --experimental-strip-types scripts/check_abuse_alarms.mjs --events <file.jsonl> [--stuck-jobs N] [--now ms]`
+  (exit 0 ok, 1 elevated, 2 critical, 3 invalid input; 8 MB file and
+  100 000-line budgets). `elevated` means investigate before the
   next release; `critical` means run the incident minimum below. The
   evaluator carries codes, counts, and workspace IDs only.
 - Upgrades: apply forward migrations only (`migrateUp`); every
