@@ -1,0 +1,32 @@
+docs/reviews/V1-LOCAL-CONTRACT_JEV_SPEC.json
+  s_5d9e965208b16b::t_cc1b819115b77e 1-59
+docs/reviews/V1-LOCAL-CONTRACT_PSTACK_PANELS.md
+  s_5d9e965208b16b::t_fe3ab8ecdedb2d 1-21
+tests/test_v1_local_scope.py
+  s_5d9e965208b16b::t_826a997b9577ce 1-94
+docs/qualification/V1_LOCAL_ACCEPTANCE_CONTRACT.md
+  s_5d9e965208b16b::t_8434e33789b33c 122
+  s_5d9e965208b16b::t_c4f1d784b41d1e 1-121,123-131
+docs/reviews/V1-LOCAL-CONTRACT_JEV_REVIEW.json
+  s_5d9e965208b16b::t_7ee19c6501a720 1
+docs/reviews/V1-LOCAL-CONTRACT_JEV_REVIEW.md
+  s_5d9e965208b16b::t_5195da594f6993 1-7
+docs/reviews/V1-LOCAL-CONTRACT_OCR_DELEGATION.md
+  s_5d9e965208b16b::t_130c7312de3dc4 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1db0411c636d4903f9e7e18410bdf5c35a082834",
+  "prompts": {},
+  "sessions": {
+    "s_5d9e965208b16b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc9f9396ffetD3BLOQPot0vaE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
