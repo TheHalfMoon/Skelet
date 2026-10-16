@@ -1,0 +1,21 @@
+apps/web/lib/rate-limit.ts
+  s_733d7ae58065dd::t_e77d575d48bc70 15-22,26-41,44,49,65-69,72
+apps/web/tests/rate-limit.test.mjs
+  s_733d7ae58065dd::t_feff665c6b6f70 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e71a978fdc24f26a3915de8433bd0340881a8a3d",
+  "prompts": {},
+  "sessions": {
+    "s_733d7ae58065dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_eb97c8aaaffeixv0AQoBNpC5mo",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Gocceri <azialshehri@gmail.com>"
+    }
+  }
+}
