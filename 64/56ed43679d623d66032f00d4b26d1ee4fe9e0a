@@ -1,0 +1,38 @@
+docs/operations/RELEASE_CANDIDATE.md
+  s_5d9e965208b16b::t_53c9c7be571af1 1-57
+tests/test_release_candidate_doc.py
+  s_5d9e965208b16b::t_0db84e02877c03 1-59
+tests/node/release-candidate.test.mjs
+  s_5d9e965208b16b::t_89eee356eafe38 40,46,48
+  s_5d9e965208b16b::t_1b27d18f2d0457 5
+  s_5d9e965208b16b::t_ba265ea7633709 1-4,6-39,41-45,47,49
+docs/reviews/RC-PREP_JEV_SPEC.json
+  s_5d9e965208b16b::t_76fcde2ac7a397 1-59
+docs/reviews/RC-PREP_OCR_DELEGATION.md
+  s_5d9e965208b16b::t_cb42a75e63a788 1-9
+docs/reviews/RC-PREP_JEV_REVIEW.md
+  s_5d9e965208b16b::t_5f0d7a93d5f177 2,5
+  s_5d9e965208b16b::t_772b95d1409fb0 1,3-4,6-7
+docs/reviews/RC-PREP_JEV_REVIEW.json
+  s_5d9e965208b16b::t_eeb552773e241f 1
+docs/reviews/RC-PREP_PSTACK_PANELS.md
+  s_5d9e965208b16b::t_b1363d04c4505c 1-21
+scripts/build_release_candidate.mjs
+  s_5d9e965208b16b::t_37b29346cc5342 1-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6456ed43679d623d66032f00d4b26d1ee4fe9e0a",
+  "prompts": {},
+  "sessions": {
+    "s_5d9e965208b16b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc9f9396ffetD3BLOQPot0vaE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
