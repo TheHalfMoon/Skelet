@@ -1,0 +1,31 @@
+docs/reviews/CLOUD-BACKLOG_OCR_DELEGATION.md
+  s_5d9e965208b16b::t_c06e81b73e8f4c 1-6
+docs/reviews/CLOUD-BACKLOG_JEV_REVIEW.json
+  s_5d9e965208b16b::t_d7e8962d132644 1
+docs/qualification/CLOUD_COMMERCIAL_BACKLOG.md
+  s_5d9e965208b16b::t_5574cede0f522e 1-39
+docs/reviews/CLOUD-BACKLOG_JEV_REVIEW.md
+  s_5d9e965208b16b::t_d717f6b5f38c21 1-7
+docs/reviews/CLOUD-BACKLOG_PSTACK_PANELS.md
+  s_5d9e965208b16b::t_4e6547d9f9f055 1-21
+tests/test_cloud_backlog.py
+  s_5d9e965208b16b::t_9a4404bd3ebbd0 1-67
+docs/reviews/CLOUD-BACKLOG_JEV_SPEC.json
+  s_5d9e965208b16b::t_d7e8962d132644 1-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "18ceff98adc8b21d95efa8ad96f09cb1c88ba016",
+  "prompts": {},
+  "sessions": {
+    "s_5d9e965208b16b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc9f9396ffetD3BLOQPot0vaE",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
