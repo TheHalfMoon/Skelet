@@ -1,0 +1,33 @@
+docs/reviews/P10-CAPTURE-DISPOSITION_JEV_REVIEW.json
+  s_36c890d79926e9::t_d31afc7f119cc4 1
+tests/test_p10_capture.py
+  s_36c890d79926e9::t_616758ab10f461 1-72
+docs/reviews/P10-CAPTURE-DISPOSITION_PSTACK_PANELS.md
+  s_36c890d79926e9::t_fedf49d04c73bf 1-21
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36c890d79926e9::t_abd101b1be3933 445
+docs/qualification/P10_CAPTURE_DISPOSITION.md
+  s_36c890d79926e9::t_327319517f7186 1-61
+docs/reviews/P10-CAPTURE-DISPOSITION_OCR_DELEGATION.md
+  s_36c890d79926e9::t_181c30ec9a28fd 1-10
+docs/reviews/P10-CAPTURE-DISPOSITION_JEV_SPEC.json
+  s_36c890d79926e9::t_0fbf3114c1ec9c 1
+docs/reviews/P10-CAPTURE-DISPOSITION_JEV_REVIEW.md
+  s_36c890d79926e9::t_7b97ac7c49d892 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4dd578800a9a083baed730e22ea9654da9328bbe",
+  "prompts": {},
+  "sessions": {
+    "s_36c890d79926e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebdaa4c68ffeiNwK51axQKEUXr",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
