@@ -14,9 +14,10 @@ they do **not** ask the user to copy session credentials or paste an API token.
 3. Visit `/gallery`, `/patterns`, `/flows`, `/boards` or `/lens`.
    The page displays its current session state, and normal API requests send
    the browser's same-origin cookie automatically.
-4. Gallery/Patterns/Flows can list the actor-scoped records immediately.
-   Boards and Lens still require a workspace UUID (authorization is enforced
-   server-side). The current UI does not invent a workspace selector.
+4. Gallery/Patterns/Flows can list actor-scoped records immediately. Boards
+   and Lens discover only the spaces returned by authenticated membership and
+   offer a real workspace chooser. A sole workspace is preselected; multiple
+   workspaces require explicit selection, never an invented default.
 5. When a session expires or is revoked, the page presents a sign-in link
    and server-side access is denied as before.
 

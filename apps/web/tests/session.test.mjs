@@ -196,6 +196,9 @@ test("session endpoint resolves the cookie identity; signout revokes and clears"
     );
     assert.equal(whoami.status, 200);
     assert.equal(whoami.body.result.user.id, ownerId);
+    assert.deepEqual(whoami.body.result.workspaces, [
+      { id: signup.body.result.workspaceId, name: "Personal" },
+    ], "owner bootstrap exposes only the authenticated owner's workspace");
 
     const tampered = await sessionStatusRoute(
       fx.db,
@@ -304,6 +307,16 @@ test("cookie identities stay workspace-scoped and bearer behavior is unchanged",
       "rid-scope-1",
     );
     assert.equal(resolved, ownerId);
+
+    const visible = await sessionStatusRoute(
+      fx.db,
+      httpRequest("/api/v1/auth/session", { headers: { Cookie: `${SESSION_COOKIE_NAME}=${ownerToken}` } }),
+      "rid-scope-list",
+    );
+    assert.equal(visible.status, 200);
+    assert.deepEqual(visible.body.result.workspaces, [
+      { id: first.body.result.workspaceId, name: "Personal" },
+    ], "a user cannot discover another actor's workspace");
 
     await assert.rejects(resolveRequestUserFromRequest(fx.db, httpRequest("/api/v1/boards"), "rid-scope-2"));
   } finally {

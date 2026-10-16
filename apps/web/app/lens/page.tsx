@@ -1,6 +1,7 @@
 "use client";
 
 import { SessionAccessBanner } from "../../components/session-access-banner";
+import { WorkspaceSelector } from "../../components/workspace-selector";
 import { sessionRequest } from "../../lib/browser-session";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -311,16 +312,8 @@ export default function LensJobsPage() {
         <h2>1. Workspace</h2>
         <form onSubmit={(e) => e.preventDefault()}>
           <div>
-            <label htmlFor="lens-workspace">Workspace ID</label>
-            <input
-              id="lens-workspace"
-              type="text"
-              autoComplete="off"
-              value={workspaceId}
-              onChange={(e) => setWorkspaceId(e.target.value)}
-              placeholder="00000000-0000-4000-8000-000000000000"
-              style={{ width: "100%" }}
-            />
+            <label htmlFor="lens-workspace">Workspace</label>
+            <WorkspaceSelector id="lens-workspace" value={workspaceId} onChange={setWorkspaceId} />
           </div>
         </form>
       </section>
