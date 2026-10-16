@@ -24,6 +24,13 @@ export default function Home() {
         {" · "}
         <Link href="/boards">Reference boards</Link>
       </p>
+      <p>
+        <Link href="/privacy">Privacy</Link>
+        {" · "}
+        <Link href="/terms">Terms</Link>
+        {" · "}
+        <Link href="/support">Support</Link>
+      </p>
     </main>
   );
 }
