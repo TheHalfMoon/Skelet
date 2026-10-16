@@ -20,8 +20,8 @@ test("pattern taxonomy UI serves reads over the real REST contracts", async () =
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
   assert.ok(text.includes("skilit://pattern/"), "UI renders the stable pattern identifier");
-  assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
-  assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
+  assert.ok(text.includes("sessionRequest"), "UI delegates credential transport to the cookie-safe helper");
+  assert.ok(!text.includes("Authorization"), "Browser UI never constructs an Authorization header");
 });
 
 test("pattern taxonomy UI shows loading, empty, failure, and filtered states", async () => {
@@ -51,7 +51,8 @@ test("pattern taxonomy UI uses native keyboard-operable controls with labels", a
   for (const tag of ["<form", "<label", "<input", "<button", "<ol", "<ul", "<article"]) {
     assert.ok(text.includes(tag), `UI uses native ${tag}`);
   }
-  assert.ok(text.includes('htmlFor="patterns-token"'), "UI labels its credential field");
+  assert.ok(text.includes("<SessionAccessBanner />"), "UI shows accessible session status");
+  assert.ok(!text.includes('id="patterns-token"'), "UI does not ask users to paste a token");
   assert.ok(text.includes('htmlFor="patterns-query"'), "UI labels its filter field");
   assert.ok(text.includes('htmlFor="patterns-slug"'), "UI labels its slug field");
   assert.ok(text.includes('"use client"'), "UI is a client component over the REST routes");

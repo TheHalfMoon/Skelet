@@ -26,8 +26,8 @@ test("boards UI serves the full curation lifecycle over the real REST contracts"
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
   assert.ok(text.includes("skilit://collection/"), "UI renders the stable board identifier");
-  assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
-  assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
+  assert.ok(text.includes("sessionRequest"), "UI delegates credential transport to the cookie-safe helper");
+  assert.ok(!text.includes("Authorization"), "Browser UI never constructs an Authorization header");
 });
 
 test("boards UI shows loading, empty, failure, and ordered states", async () => {
@@ -58,7 +58,8 @@ test("boards UI uses native keyboard-operable controls with labels", async () =>
   for (const tag of ["<form", "<label", "<input", "<button", "<ol", "<ul"]) {
     assert.ok(text.includes(tag), `UI uses native ${tag}`);
   }
-  assert.ok(text.includes('htmlFor="boards-token"'), "UI labels its credential field");
+  assert.ok(text.includes("<SessionAccessBanner />"), "UI shows accessible session status");
+  assert.ok(!text.includes('id="boards-token"'), "UI does not ask users to paste a token");
   assert.ok(text.includes('htmlFor="boards-id"'), "UI labels its board field");
   assert.ok(text.includes('htmlFor="boards-recipient"'), "UI labels its handoff recipient field");
   assert.ok(text.includes('"use client"'), "UI is a client component over the REST routes");

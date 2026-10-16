@@ -21,8 +21,8 @@ test("gallery UI serves product and version reads over the real REST contracts",
   }
   assert.ok(text.includes("skilit://product/"), "UI renders the stable product identifier");
   assert.ok(text.includes("skilit://version/") || text.includes("version.uri"), "UI renders version identifiers");
-  assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
-  assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
+  assert.ok(text.includes("sessionRequest"), "UI delegates credential transport to the cookie-safe helper");
+  assert.ok(!text.includes("Authorization"), "Browser UI never constructs an Authorization header");
 });
 
 test("gallery UI shows loading, empty, failure, and filtered states", async () => {
@@ -46,7 +46,7 @@ test("gallery UI renders persisted gallery fields without mock data", async () =
     assert.ok(!text.includes(forbidden), `UI must not contain ${JSON.stringify(forbidden)}`);
   }
   assert.ok(text.includes("Fully-withheld corpora read as empty"), "UI documents the no-oracle contract");
-  assert.ok(text.includes('"Content-Type": "application/json"') || text.includes("headers: authHeaders()"), "UI calls the real routes");
+  assert.ok(text.includes('"Content-Type": "application/json"') || text.includes("sessionRequest("), "UI calls the real routes");
 });
 
 test("gallery UI uses native keyboard-operable controls with labels", async () => {
@@ -54,7 +54,8 @@ test("gallery UI uses native keyboard-operable controls with labels", async () =
   for (const tag of ["<form", "<label", "<input", "<button", "<ol", "<ul"]) {
     assert.ok(text.includes(tag), `UI uses native ${tag}`);
   }
-  assert.ok(text.includes('htmlFor="gallery-token"'), "UI labels its credential field");
+  assert.ok(text.includes("<SessionAccessBanner />"), "UI shows accessible session status");
+  assert.ok(!text.includes('id="gallery-token"'), "UI does not ask users to paste a token");
   assert.ok(text.includes('htmlFor="gallery-filter"'), "UI labels its filter field");
   assert.ok(text.includes('htmlFor="gallery-product"'), "UI labels its product field");
   assert.ok(text.includes('"use client"'), "UI is a client component over the REST routes");

@@ -1,5 +1,8 @@
 "use client";
 
+import { SessionAccessBanner } from "../../components/session-access-banner";
+import { sessionRequest } from "../../lib/browser-session";
+
 import { useState } from "react";
 
 interface FlowView {
@@ -120,8 +123,7 @@ function flowIdOf(uri: string): string {
 }
 
 export default function FlowsPage() {
-  const [token, setToken] = useState("");
-  const [versionFilter, setVersionFilter] = useState("");
+    const [versionFilter, setVersionFilter] = useState("");
   const [flowId, setFlowId] = useState("");
   const [flows, setFlows] = useState<FlowView[] | null>(null);
   const [flowsCursor, setFlowsCursor] = useState<string | null>(null);
@@ -135,10 +137,6 @@ export default function FlowsPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<AgentFailure | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-
-  function authHeaders(): Record<string, string> {
-    return { Authorization: `Bearer ${token.trim()}` };
-  }
 
   function readFailure(payload: unknown, fallback: string): AgentFailure {
     const record = asRecord(payload);
@@ -159,7 +157,7 @@ export default function FlowsPage() {
     setFailure(null);
     setNotice(null);
     try {
-      const response = await fetch(path, init);
+      const response = await sessionRequest(path, init);
       const payload: unknown = await response.json();
       if (!response.ok) {
         setFailure(readFailure(payload, `${label} failed with HTTP ${response.status}.`));
@@ -180,17 +178,11 @@ export default function FlowsPage() {
   }
 
   async function listFlows(cursor?: string): Promise<void> {
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before listing." });
-      return;
-    }
     const params = new URLSearchParams();
     params.set("limit", "20");
     if (versionFilter.trim() !== "") params.set("productVersionId", versionFilter.trim());
     if (cursor !== undefined && cursor !== "") params.set("cursor", cursor);
-    await callJson("List flows", `/api/v1/flows?${params.toString()}`, {
-      headers: authHeaders(),
-    }, (result, payload) => {
+    await callJson("List flows", `/api/v1/flows?${params.toString()}`, {}, (result, payload) => {
       const list = asFlows(result);
       if (list === null) {
         setFailure({ code: "UNKNOWN", message: "List flows returned an unrecognized shape." });
@@ -208,13 +200,7 @@ export default function FlowsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a flow ID before inspecting steps." });
       return;
     }
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before inspecting." });
-      return;
-    }
-    await callJson("Inspect steps", `/api/v1/flows/${encodeURIComponent(flowIdOf(id))}/steps`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("Inspect steps", `/api/v1/flows/${encodeURIComponent(flowIdOf(id))}/steps`, {}, (result) => {
       const detail = asSteps(result);
       if (detail === null) {
         setFailure({ code: "UNKNOWN", message: "Inspect steps returned an unrecognized shape." });
@@ -237,13 +223,7 @@ export default function FlowsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a replay session ID before inspecting." });
       return;
     }
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before inspecting." });
-      return;
-    }
-    await callJson("Inspect replay", `/api/v1/replays/${encodeURIComponent(id)}/events`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("Inspect replay", `/api/v1/replays/${encodeURIComponent(id)}/events`, {}, (result) => {
       const parsed = asReplayEvents(result);
       if (parsed === null) {
         setFailure({ code: "UNKNOWN", message: "Inspect replay returned an unrecognized shape." });
@@ -266,20 +246,13 @@ export default function FlowsPage() {
         the whole flow. Interactions are recorded metadata only, never
         fabricated from screenshots.
       </p>
+      <SessionAccessBanner />
       <form
         onSubmit={(event) => {
           event.preventDefault();
           void listFlows();
         }}
       >
-        <label htmlFor="flows-token">Access token</label>
-        <input
-          id="flows-token"
-          type="password"
-          autoComplete="off"
-          value={token}
-          onChange={(event) => setToken(event.target.value)}
-        />
         <label htmlFor="flows-version">Product version filter</label>
         <input
           id="flows-version"

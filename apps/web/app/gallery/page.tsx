@@ -1,5 +1,8 @@
 "use client";
 
+import { SessionAccessBanner } from "../../components/session-access-banner";
+import { sessionRequest } from "../../lib/browser-session";
+
 import { useState } from "react";
 
 interface ProductView {
@@ -78,8 +81,7 @@ function cursorOf(payload: unknown): string | null {
 }
 
 export default function GalleryPage() {
-  const [token, setToken] = useState("");
-  const [filter, setFilter] = useState("");
+    const [filter, setFilter] = useState("");
   const [productId, setProductId] = useState("");
   const [products, setProducts] = useState<ProductView[] | null>(null);
   const [productsCursor, setProductsCursor] = useState<string | null>(null);
@@ -88,10 +90,6 @@ export default function GalleryPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<AgentFailure | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-
-  function authHeaders(): Record<string, string> {
-    return { Authorization: `Bearer ${token.trim()}` };
-  }
 
   function readFailure(payload: unknown, fallback: string): AgentFailure {
     const record = asRecord(payload);
@@ -112,7 +110,7 @@ export default function GalleryPage() {
     setFailure(null);
     setNotice(null);
     try {
-      const response = await fetch(path, init);
+      const response = await sessionRequest(path, init);
       const payload: unknown = await response.json();
       if (!response.ok) {
         setFailure(readFailure(payload, `${label} failed with HTTP ${response.status}.`));
@@ -133,16 +131,10 @@ export default function GalleryPage() {
   }
 
   async function listProducts(cursor?: string): Promise<void> {
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before listing." });
-      return;
-    }
     const params = new URLSearchParams();
     params.set("limit", "20");
     if (cursor !== undefined && cursor !== "") params.set("cursor", cursor);
-    await callJson("List products", `/api/v1/products?${params.toString()}`, {
-      headers: authHeaders(),
-    }, (result, payload) => {
+    await callJson("List products", `/api/v1/products?${params.toString()}`, {}, (result, payload) => {
       const list = asProducts(result);
       if (list === null) {
         setFailure({ code: "UNKNOWN", message: "List products returned an unrecognized shape." });
@@ -160,16 +152,10 @@ export default function GalleryPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a product ID before inspecting versions." });
       return;
     }
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before inspecting." });
-      return;
-    }
     const params = new URLSearchParams();
     params.set("limit", "20");
     if (cursor !== undefined && cursor !== "") params.set("cursor", cursor);
-    await callJson("Inspect versions", `/api/v1/products/${encodeURIComponent(id)}/versions?${params.toString()}`, {
-      headers: authHeaders(),
-    }, (result, payload) => {
+    await callJson("Inspect versions", `/api/v1/products/${encodeURIComponent(id)}/versions?${params.toString()}`, {}, (result, payload) => {
       const list = asVersions(result);
       if (list === null) {
         setFailure({ code: "UNKNOWN", message: "Inspect versions returned an unrecognized shape." });
@@ -193,20 +179,13 @@ export default function GalleryPage() {
         Actor-scoped products and versions over the qualified gallery reads.
         Fully-withheld corpora read as empty; unknown products read as empty.
       </p>
+      <SessionAccessBanner />
       <form
         onSubmit={(event) => {
           event.preventDefault();
           void listProducts();
         }}
       >
-        <label htmlFor="gallery-token">Access token</label>
-        <input
-          id="gallery-token"
-          type="password"
-          autoComplete="off"
-          value={token}
-          onChange={(event) => setToken(event.target.value)}
-        />
         <label htmlFor="gallery-filter">Filter products</label>
         <input
           id="gallery-filter"

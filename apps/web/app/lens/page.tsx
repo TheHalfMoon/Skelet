@@ -1,5 +1,8 @@
 "use client";
 
+import { SessionAccessBanner } from "../../components/session-access-banner";
+import { sessionRequest } from "../../lib/browser-session";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface LensJobView {
@@ -72,8 +75,7 @@ function asJobDetail(value: unknown): LensJobDetail | null {
 }
 
 export default function LensJobsPage() {
-  const [token, setToken] = useState("");
-  const [workspaceId, setWorkspaceId] = useState("");
+    const [workspaceId, setWorkspaceId] = useState("");
   const [sourceUrl, setSourceUrl] = useState("https://example.org/");
   const [mode, setMode] = useState("single-page");
   const [idempotencyKey, setIdempotencyKey] = useState(() => `ui-lens-${randomKey()}`);
@@ -85,10 +87,6 @@ export default function LensJobsPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [watching, setWatching] = useState(false);
   const watchTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const authHeaders = useCallback((): Record<string, string> => {
-    return { Authorization: `Bearer ${token.trim()}` };
-  }, [token]);
 
   function readFailure(payload: unknown, fallback: string): AgentFailure {
     const record = asRecord(payload);
@@ -123,7 +121,7 @@ export default function LensJobsPage() {
     setFailure(null);
     setNotice(null);
     try {
-      const response = await fetch(path, init);
+      const response = await sessionRequest(path, init);
       const payload: unknown = await response.json();
       if (!response.ok) {
         setFailure(readFailure(payload, `${label} failed with HTTP ${response.status}.`));
@@ -158,7 +156,7 @@ export default function LensJobsPage() {
     };
     await callJson("Create", "/api/v1/lens/jobs", {
       method: "POST",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }, (detail, view) => {
       if (view !== null) {
@@ -176,9 +174,7 @@ export default function LensJobsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a job ID before inspecting." });
       return;
     }
-    await callJson("Inspect", `/api/v1/lens/jobs/${encodeURIComponent(id)}?workspaceId=${encodeURIComponent(workspaceId.trim())}`, {
-      headers: authHeaders(),
-    }, (detail) => {
+    await callJson("Inspect", `/api/v1/lens/jobs/${encodeURIComponent(id)}?workspaceId=${encodeURIComponent(workspaceId.trim())}`, {}, (detail) => {
       if (detail !== null) {
         setJob(detail);
         setKitId(detail.kitId);
@@ -192,9 +188,7 @@ export default function LensJobsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a job ID before polling." });
       return;
     }
-    await callJson("Poll", `/api/v1/lens/jobs?workspaceId=${encodeURIComponent(workspaceId.trim())}&kitId=${encodeURIComponent(id)}`, {
-      headers: authHeaders(),
-    }, (_detail, view) => {
+    await callJson("Poll", `/api/v1/lens/jobs?workspaceId=${encodeURIComponent(workspaceId.trim())}&kitId=${encodeURIComponent(id)}`, {}, (_detail, view) => {
       if (view !== null && job !== null) {
         setJob({ ...job, status: view.status, revision: view.revision, attempt: view.attempt, purged: view.purged, expiresAt: view.expiresAt, errorClass: view.errorClass });
       } else if (view !== null) {
@@ -209,7 +203,7 @@ export default function LensJobsPage() {
       setFailure({ code: "UNKNOWN", message: `Enter a job ID before ${action}.` });
       return;
     }
-    const init: RequestInit = { method: "POST", headers: { ...authHeaders(), "Content-Type": "application/json" } };
+    const init: RequestInit = { method: "POST", headers: { "Content-Type": "application/json" } };
     if (withWorker && workerId.trim() !== "") init.body = JSON.stringify({ workerId: workerId.trim() });
     await callJson(label, `/api/v1/lens/jobs/${encodeURIComponent(id)}/${action}?workspaceId=${encodeURIComponent(workspaceId.trim())}`, init, (detail, view) => {
       if (view !== null) setNotice(`${label} applied: ${view.status} (revision ${view.revision}).`);
@@ -231,9 +225,9 @@ export default function LensJobsPage() {
     watchTimer.current = setInterval(() => {
       void (async () => {
         try {
-          const response = await fetch(
+          const response = await sessionRequest(
             `/api/v1/lens/jobs?workspaceId=${encodeURIComponent(workspaceId.trim())}&kitId=${encodeURIComponent(id)}`,
-            { headers: authHeaders() },
+            {  },
           );
           const payload: unknown = await response.json();
           if (!response.ok) {
@@ -274,9 +268,9 @@ export default function LensJobsPage() {
     setFailure(null);
     setNotice(null);
     try {
-      const response = await fetch(
+      const response = await sessionRequest(
         `/api/v1/lens/jobs/${encodeURIComponent(id)}/artifacts?workspaceId=${encodeURIComponent(workspaceId.trim())}&name=${encodeURIComponent(name)}`,
-        { headers: authHeaders() },
+        {  },
       );
       if (!response.ok) {
         const payload: unknown = await response.json().catch(() => null);
@@ -302,7 +296,7 @@ export default function LensJobsPage() {
     }
   }
 
-  const canAct = token.trim() !== "" && workspaceId.trim() !== "" && busy === null;
+  const canAct = workspaceId.trim() !== "" && busy === null;
 
   return (
     <main style={{ maxWidth: 880, margin: "48px auto", padding: "0 20px" }}>
@@ -311,22 +305,11 @@ export default function LensJobsPage() {
         Create, poll, inspect, download, cancel, retry, and resume the same durable Lens jobs served over REST
         and MCP, addressed by the stable <code>skilit://lens/{"{id}"}</code> identifier.
       </p>
+      <SessionAccessBanner />
 
-      <section aria-label="Credentials">
-        <h2>1. Credentials</h2>
+      <section aria-label="Workspace settings">
+        <h2>1. Workspace</h2>
         <form onSubmit={(e) => e.preventDefault()}>
-          <div>
-            <label htmlFor="lens-token">Session bearer token</label>
-            <input
-              id="lens-token"
-              type="password"
-              autoComplete="off"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Bearer token from sign-in"
-              style={{ width: "100%" }}
-            />
-          </div>
           <div>
             <label htmlFor="lens-workspace">Workspace ID</label>
             <input
