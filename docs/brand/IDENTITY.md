@@ -14,11 +14,53 @@ is used in the active UI.
 | `apps/web/public/brand/skilit-lockup-light.svg` | Full Skilit wordmark on cream |
 | `apps/web/public/brand/skilit-lockup-orange.svg` | Full Skilit wordmark on muted orange |
 | `apps/web/app/icon.svg` | Distinctive app/favicon mark (black on soft orange) |
+| `apps/web/public/brand/skilit-social-light.svg` | Editable 1200×630 social/repository composition on cream |
+| `apps/web/public/brand/skilit-social-orange.svg` | Editable reverse composition on muted orange |
+| `apps/web/public/brand/skilit-social-light.png` | Open Graph and default web card (1200×630) |
+| `apps/web/public/brand/skilit-social-orange.png` | Alternate social and GitHub preview (1200×630) |
 
 The entire identity can be regenerated with
 `python3 scripts/generate_skilit_brand.py`. The S uses one continuous,
 unbroken silhouette with no shadows, outlines, glow, highlights, or gradients.
 Do not stretch or rotate the symbol. Leave generous clear space around it.
+
+
+The active sidebar and authentication pages use **Skilit** exactly (capital S,
+no trailing period); the identity is not rebranded to any integration source
+name. The two social compositions use the *same* generated S path and the same
+ink and orange palette as the existing lockups. No alteration to the approved
+S silhouette is permitted without founder approval.
+
+## Regeneration and publishing boundaries
+
+From a frozen, fully installed checkout with pinned Chromium headless shell:
+
+```sh
+python3 scripts/generate_skilit_brand.py
+node scripts/render_skilit_social.mjs
+node --experimental-strip-types --test apps/web/tests/brand-identity.test.mjs apps/web/tests/brand-social.test.mjs
+```
+
+The renderer reuses `playwright-core` already pinned by the Lens package and
+makes **no network requests**. Generated PNGs are checked into Git so normal
+runtime/build and link-preview requests don't require Chromium.
+
+Next.js uses `skilit-social-light.png` for Open Graph and Twitter cards. The
+metadata origin defaults to `http://localhost:3000` for local development;
+a deliberately internet-facing installation must explicitly set
+`SKILIT_METADATA_ORIGIN=https://its-actual-hostname.example` **at build time**
+before publishing a link, otherwise third-party preview crawlers cannot
+retrieve images from localhost. The example hostname is explanatory only and
+not a Skilit deployment target.
+
+GitHub's repository social preview is a **repository Settings** control, not
+something README or metadata can update automatically. An authorized operator
+can manually upload `skilit-social-light.png` or
+`skilit-social-orange.png` in Settings → General → Social preview. These
+assets being committed do *not* imply that the GitHub preview has been set.
+
+No release tags, signed artifacts, deployment, or public announcement are
+affected by regenerating or updating the branding source.
 
 ## Palette (single canonical system)
 

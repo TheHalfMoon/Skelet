@@ -69,4 +69,26 @@ icon = (
 )
 (ROOT / "apps/web/app/icon.svg").write_text(svg("0 0 64 64", icon, "Skilit app icon"))
 
-print("Generated 5 consistent, flat Skilit brand SVG assets")
+
+# Exact shape + palette also drive social/repository preview images.
+# These are brand *compositions*, not new marks: the logo never changes.
+for name, background, mark, foreground, secondary in [
+    ("skilit-social-light.svg", CREAM, ORANGE, INK, "#5C5F61"),
+    ("skilit-social-orange.svg", ORANGE_FIELD, INK, INK, "#49372E"),
+]:
+    children = (
+        f'<rect width="1200" height="630" fill="{background}"/>\n'
+        f'<path d="{PATH}" transform="translate(146 106) scale(1.08)" fill="{mark}"/>\n'
+        f'<text x="540" y="283" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="114" font-weight="500" letter-spacing="-3" fill="{foreground}">Skilit</text>\n'
+        f'<rect x="546" y="322" width="522" height="2" fill="{foreground}" opacity=".16"/>\n'
+        f'<text x="547" y="377" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="22" font-weight="700" letter-spacing="4" fill="{foreground}">DESIGN INTELLIGENCE</text>\n'
+        f'<text x="547" y="427" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="25" font-weight="400" fill="{secondary}">For humans and AI agents</text>\n'
+        f'<text x="547" y="533" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="17" letter-spacing="2" fill="{secondary}">LOCAL-FIRST  /  AGENT-READY</text>'
+    )
+    (PUBLIC / name).write_text(svg("0 0 1200 630", children, "Skilit social preview"))
+
+print("Generated 7 consistent, flat Skilit brand SVG assets")

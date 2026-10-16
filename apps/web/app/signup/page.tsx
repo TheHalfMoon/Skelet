@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useState } from "react";
 
 interface AgentFailure {
@@ -71,7 +73,13 @@ export default function SignupPage() {
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: "48px auto", padding: "0 20px" }}>
+    <main className="sk-auth-page">
+      <div className="sk-auth-identity">
+        <span className="sk-auth-identity-icon" aria-hidden="true">
+          <Image src="/brand/skilit-mark-orange.svg" alt="" width={29} height={40} />
+        </span>
+        <span className="sk-auth-identity-copy">SKILIT / FIRST OWNER SETUP</span>
+      </div>
       <h1>Create the first owner account</h1>
       <p>
         Owner creation is available exactly once per installation: while no
