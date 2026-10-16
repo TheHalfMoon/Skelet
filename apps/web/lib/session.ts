@@ -5,8 +5,8 @@ import {
   signUp,
   validateSession,
 } from "../../../packages/db/src/auth.ts";
-import { createWorkspace } from "../../../packages/db/src/workspaces.ts";
-import type { DbClient } from "../../../packages/db/src/db.ts";
+import { createWorkspaceTx } from "../../../packages/db/src/workspaces.ts";
+import type { DbClient, DbTransaction } from "../../../packages/db/src/db.ts";
 import {
   AgentContractError,
   failureEnvelope,
@@ -222,10 +222,13 @@ function unauthenticated(requestId: string): SessionRouteResult {
   return { status: err.httpStatus, body: err.toFailureEnvelope() };
 }
 
-async function hasAnyUser(db: DbClient): Promise<boolean> {
+async function hasAnyUser(db: { query: DbTransaction["query"] }): Promise<boolean> {
   const result = await db.query("select exists (select 1 from users) as present");
   return (result.rows[0] as Record<string, unknown> | undefined)?.present === true;
 }
+
+/** Closed answer for every already-initialized or lost-race signup. */
+class SignupUnavailable extends Error {}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -253,16 +256,20 @@ export async function signupRoute(
     return invalidInput(requestId, "Email and password are required.");
   }
   try {
-    if (await hasAnyUser(db)) {
-      return invalidInput(requestId, "Signup is not available.");
-    }
-    // Sequential (never nested transactions): sign-up, then the personal
-    // workspace, then the session. A concurrent bootstrap loses on the
-    // unique email index and converges to the same closed answer below.
-    const user = await db.transaction(async (tx) => signUp(tx, { email, password }));
-    const space = await createWorkspace(db, { name: "Personal", ownerId: user.id });
-    const signed = await db.transaction(async (tx) => signIn(tx, { email, password }));
-    const created = { user, workspaceId: space.workspace.id, token: signed.token };
+    // One transaction for the whole bootstrap: lock, re-check, sign up,
+    // create the personal workspace, and sign in. The lock serializes
+    // concurrent bootstraps so a lost race re-checks to initialized and
+    // converges to the same closed 400; any failure rolls everything back
+    // so a retry starts from a clean empty users table (never a bricked
+    // orphan user with no workspace).
+    const created = await db.transaction(async (tx) => {
+      await tx.query("lock table users in exclusive mode");
+      if (await hasAnyUser(tx)) throw new SignupUnavailable();
+      const user = await signUp(tx, { email, password });
+      const space = await createWorkspaceTx(tx, { name: "Personal", ownerId: user.id });
+      const signed = await signIn(tx, { email, password });
+      return { user, workspaceId: space.workspace.id, token: signed.token };
+    });
     return {
       status: 201,
       body: successEnvelope(requestId, {
@@ -272,6 +279,9 @@ export async function signupRoute(
       setCookie: sessionCookieHeader(created.token, request),
     };
   } catch (error: unknown) {
+    if (error instanceof SignupUnavailable) {
+      return invalidInput(requestId, "Signup is not available.");
+    }
     if (error !== null && typeof error === "object" && "code" in error) {
       const code = String((error as { code: unknown }).code);
       // A concurrent bootstrap may win first: converge to the same closed

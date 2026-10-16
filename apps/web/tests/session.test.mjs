@@ -311,6 +311,43 @@ test("cookie identities stay workspace-scoped and bearer behavior is unchanged",
   }
 });
 
+test("concurrent bootstraps converge to one owner without orphans", async () => {
+  const fx = await fixture();
+  try {
+    const attempt = (email, rid) =>
+      signupRoute(
+        fx.db,
+        { email, password: "owner-password-01" },
+        jsonRequest("/api/v1/auth/signup", { email, password: "owner-password-01" }),
+        rid,
+      );
+    const [first, second] = await Promise.all([
+      attempt("first@skilit.example", "rid-race-1"),
+      attempt("second@skilit.example", "rid-race-2"),
+    ]);
+    const statuses = [first.status, second.status].sort();
+    assert.deepEqual(statuses, [201, 400]);
+    const loser = first.status === 400 ? first : second;
+    assert.equal(loser.body.error?.code, "INVALID_INPUT");
+    assert.equal(loser.setCookie, undefined);
+    const users = await fx.db.query("select count(*) as count from users");
+    assert.equal(String(users.rows[0].count), "1");
+    const spaces = await fx.db.query("select count(*) as count from workspaces");
+    assert.equal(String(spaces.rows[0].count), "1");
+    // The single winner is fully usable: retry-style signin works.
+    const winnerEmail = first.status === 201 ? "first@skilit.example" : "second@skilit.example";
+    const retry = await signinRoute(
+      fx.db,
+      { email: winnerEmail, password: "owner-password-01" },
+      jsonRequest("/api/v1/auth/signin", { email: winnerEmail, password: "owner-password-01" }),
+      "rid-race-3",
+    );
+    assert.equal(retry.status, 200);
+  } finally {
+    await fx.db.close();
+  }
+});
+
 test("cookie helpers parse strictly and flag secure contexts", () => {
   assert.equal(requestToken(httpRequest("/x")).token, null);
   const bearer = requestToken(

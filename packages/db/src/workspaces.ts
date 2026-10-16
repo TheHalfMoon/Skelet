@@ -117,31 +117,41 @@ export async function createWorkspace(
   client: DbClient,
   input: { name: string; ownerId: string },
 ): Promise<{ workspace: Workspace; membership: Membership }> {
+  return client.transaction(async (tx) => createWorkspaceTx(tx, input));
+}
+
+/**
+ * Transaction-scoped workspace creation for callers that already hold a
+ * transaction (e.g. bootstrap flows that must commit the user, workspace,
+ * and session atomically). Identical semantics to `createWorkspace`.
+ */
+export async function createWorkspaceTx(
+  tx: DbTransaction,
+  input: { name: string; ownerId: string },
+): Promise<{ workspace: Workspace; membership: Membership }> {
   const name = validateWorkspaceName(input.name);
   if (!isUuid(input.ownerId)) {
     throw new AuthError("auth/user-not-found", "User was not found.");
   }
-  return client.transaction(async (tx) => {
-    const owner = await tx.query("select id from users where id = $1", [
-      input.ownerId,
-    ]);
-    if (owner.rows.length === 0) {
-      throw new AuthError("auth/user-not-found", "User was not found.");
-    }
-    const created = await tx.query(
-      `insert into workspaces (name, created_by)
-       values ($1, $2) returning id, name, created_by, created_at, updated_at`,
-      [name, input.ownerId],
-    );
-    const workspace = toWorkspace(requireRow(created.rows));
-    const member = await tx.query(
-      `insert into workspace_members (workspace_id, user_id, role)
-       values ($1, $2, 'owner')
-       returning workspace_id, user_id, role, joined_at`,
-      [workspace.id, input.ownerId],
-    );
-    return { workspace, membership: toMembership(requireRow(member.rows)) };
-  });
+  const owner = await tx.query("select id from users where id = $1", [
+    input.ownerId,
+  ]);
+  if (owner.rows.length === 0) {
+    throw new AuthError("auth/user-not-found", "User was not found.");
+  }
+  const created = await tx.query(
+    `insert into workspaces (name, created_by)
+     values ($1, $2) returning id, name, created_by, created_at, updated_at`,
+    [name, input.ownerId],
+  );
+  const workspace = toWorkspace(requireRow(created.rows));
+  const member = await tx.query(
+    `insert into workspace_members (workspace_id, user_id, role)
+     values ($1, $2, 'owner')
+     returning workspace_id, user_id, role, joined_at`,
+    [workspace.id, input.ownerId],
+  );
+  return { workspace, membership: toMembership(requireRow(member.rows)) };
 }
 
 /** Membership role, or null when the user is not a member. Unknown or malformed identifiers read as null: no oracle. */
