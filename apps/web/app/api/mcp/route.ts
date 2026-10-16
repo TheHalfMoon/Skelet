@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 
 import {
-  bearerToken,
   dispatchMcp,
   MCP_MAX_BODY_CHARS,
   MCP_PROTOCOL_VERSIONS,
   negotiateVersion,
-  resolveRequestUser,
 } from "../../../lib/mcp";
+import {
+  requestToken,
+  resolveRequestUserFromRequest,
+} from "../../../lib/session";
 import { getSharedDb } from "../../../lib/mcp-db";
 import { checkRateLimit } from "../../../lib/rate-limit";
 import { AgentContractError, newRequestId } from "../../../lib/agent-contract";
@@ -77,8 +79,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: 400, headers: headerOut },
     );
   }
-  const token = bearerToken(request.headers.get("authorization"));
-  if (token === null) {
+  const presented = requestToken(request);
+  if (presented.token === null) {
     const unauthorizedBody = unauthorized();
     for (const [key, value] of Object.entries(headerOut)) {
       unauthorizedBody.headers.set(key, value);
@@ -95,11 +97,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       { status: err.httpStatus, headers: headerOut },
     );
   }
-  // The bearer credential IS a Skilit session token: the actor identity
-  // is server-resolved here, never taken from client arguments. Token
-  // issuance upgrades (OAuth metadata, PKCE) land in a later P08 grain.
+  // The presented credential (Bearer or session cookie) IS a Skilit
+  // session token: the actor identity is server-resolved here, never taken
+  // from client arguments. Cookie callers additionally pass the origin
+  // check inside resolveRequestUserFromRequest. Token issuance upgrades
+  // (OAuth metadata, PKCE) land in a later P08 grain.
   try {
-    const userId = await resolveRequestUser(db, token);
+    const userId = await resolveRequestUserFromRequest(db, request);
     const response = await dispatchMcp(db, { userId }, body);
     if (response === null) {
       return new NextResponse(null, { status: 202, headers: headerOut });

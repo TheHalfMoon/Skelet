@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { bearerToken, resolveRequestUser } from "../../../../lib/mcp";
+import { requestToken, resolveRequestUserFromRequest } from "../../../../lib/session";
 import { getSharedDb } from "../../../../lib/mcp-db";
 import { checkRateLimit } from "../../../../lib/rate-limit";
 import { clientKey } from "../../../../lib/http";
@@ -17,7 +17,7 @@ function requestIdOf(request: Request): string {
  */
 export async function POST(request: Request): Promise<NextResponse> {
   const requestId = requestIdOf(request);
-  const token = bearerToken(request.headers.get("authorization"));
+  const token = requestToken(request).token;
   const limit = checkRateLimit(`rest:${clientKey(request, token)}`);
   if (!limit.allowed) {
     const err = new AgentContractError("RATE_LIMITED", { requestId });
@@ -46,7 +46,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     // AF-SEC-00: identity is server-resolved and threaded as the actor so
     // sessions for unreadable flows answer not-found without an oracle.
-    const userId = await resolveRequestUser(db, token);
+    const userId = await resolveRequestUserFromRequest(db, request);
     const result = await openReplaySessionRoute(
       db,
       body,

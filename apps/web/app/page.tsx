@@ -32,10 +32,14 @@ export default function Home() {
       <section aria-labelledby="access-heading">
         <h2 id="access-heading">Access</h2>
         <p>
-          These workspace views require an authorized session bearer token to
-          read private data. The current local version uses operator-provisioned
-          tokens; a browser sign-in screen is not yet provided. No AI service
-          or paid account is required to explore the interface.
+          These workspace views require an authorized session. Sign in with
+          your installation account in the browser, or use an
+          operator-provisioned bearer token for agent and API access. No AI
+          service or paid account is required to explore the interface.
+        </p>
+        <p>
+          <Link href="/login">Sign in</Link>{" · "}
+          <Link href="/signup">Create the first owner account</Link>
         </p>
       </section>
 
