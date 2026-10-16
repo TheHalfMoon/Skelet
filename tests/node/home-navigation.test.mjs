@@ -6,9 +6,14 @@ const source = readFileSync(new URL("../../apps/web/app/page.tsx", import.meta.u
 
 test("home has navigable links to the five qualified local views", () => {
   for (const href of ["/gallery", "/flows", "/patterns", "/boards", "/lens"]) {
-    assert.match(source, new RegExp(`href: "${href}"`));
+    assert.ok(source.includes(`href: "${href}"`), `missing ${href}`);
   }
-  assert.match(source, /aria-label="Explore Skilit"/);
+  assert.match(source, /className="sk-tools-grid"/);
+  const shell = readFileSync(new URL("../../apps/web/components/skilit-shell.tsx", import.meta.url), "utf8");
+  assert.match(shell, /aria-label="Skilit primary navigation"/);
+  for (const href of ["/gallery", "/flows", "/patterns", "/boards", "/lens"]) {
+    assert.ok(shell.includes(`href: "${href}"`), `navigation missing ${href}`);
+  }
   assert.match(source, /aria-label="Documentation and service links"/);
 });
 
