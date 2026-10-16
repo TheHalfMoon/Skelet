@@ -125,6 +125,10 @@ button, input, select, textarea { font: inherit; }
 .sk-step-top { display: flex; justify-content: space-between; align-items: center; color: #9f4b29; font-weight: 800; font-size: 11px; }
 .sk-step h3 { font-size: 17px; margin: 18px 0 8px; letter-spacing: -.02em; }
 .sk-step p { color: #64605e; font-size: 12px; line-height: 1.7; margin: 0; }
+.sk-access-notice { display: flex; align-items: flex-start; gap: 17px; border: 1px solid #e6e1db; background: #f1efec; border-radius: 15px; padding: 22px 24px; margin: 3px 0 36px; }
+.sk-access-notice-symbol { flex: 0 0 auto; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: #e4dfd9; color: #51463e; }
+.sk-access-notice h2 { font-size: 15px; font-weight: 700; margin: 1px 0 8px; letter-spacing: -.025em; }
+.sk-access-notice p { color: #605d59; font-size: 12px; line-height: 1.75; margin: 0; max-width: 690px; }
 .sk-dashboard-footer { border-top: 1px solid var(--sk-line); display: flex; justify-content: space-between; gap: 24px; align-items: center; color: #666460; font-size: 11px; padding: 24px 0; }
 .sk-dashboard-footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
 .sk-dashboard-footer a { text-decoration: none; color: #666460; }

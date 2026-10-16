@@ -183,6 +183,18 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="sk-access-notice" aria-labelledby="sk-access-heading">
+        <div className="sk-access-notice-symbol"><SkilitIcon name="shield" size={21} /></div>
+        <div>
+          <h2 id="sk-access-heading">Private by default. Ready when you are.</h2>
+          <p>
+            Workspace views require an authorized session bearer token to access private data.
+            An operator-provisioned token is required for the current local version;
+            a browser sign-in screen is not yet provided. No paid AI account is required.
+          </p>
+        </div>
+      </section>
+
       <footer className="sk-dashboard-footer">
         <span>© Skilit · Design intelligence for people & agents</span>
         <nav aria-label="Documentation and service links">
