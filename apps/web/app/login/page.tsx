@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useCallback, useEffect, useState } from "react";
 
 interface SessionView {
@@ -121,7 +123,13 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: "48px auto", padding: "0 20px" }}>
+    <main className="sk-auth-page">
+      <div className="sk-auth-identity">
+        <span className="sk-auth-identity-icon" aria-hidden="true">
+          <Image src="/brand/skilit-mark-orange.svg" alt="" width={29} height={40} />
+        </span>
+        <span className="sk-auth-identity-copy">SKILIT / SECURE SIGN-IN</span>
+      </div>
       <h1>Sign in</h1>
       <p>
         First-party browser sign-in for this Skilit installation. Sessions are

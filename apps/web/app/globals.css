@@ -29,7 +29,6 @@ button, input, select, textarea { font: inherit; }
 .sk-brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: #fbfaf7; font-size: 26px; letter-spacing: -.055em; font-weight: 700; }
 .sk-brand-symbol { display: grid; place-items: center; border-radius: 11px; width: 42px; height: 44px; background: #313033; }
 .sk-brand-symbol img { object-fit: contain; }
-.sk-brand-dot { color: var(--sk-orange); }
 .sk-brand-caption { display: block; font-size: 9px; font-weight: 650; letter-spacing: .17em; color: #8e9096; margin: 16px 0 0 54px; white-space: nowrap; }
 .sk-nav-section-label { padding: 0 17px 11px; color: #8f9093; letter-spacing: .16em; font-size: 10px; font-weight: 700; }
 .sk-navigation { display: grid; gap: 6px; }
@@ -221,6 +220,39 @@ button, input, select, textarea { font: inherit; }
 }
 .sk-page-content > main:not(.sk-dashboard) > p:last-child {
   font-size: 11px; color: #67625e; padding-top: 13px;
+}
+
+/* Skilit identity treatment on existing first-party login/signup routes.
+   Preserve the verified native controls and CSRF/session semantics. */
+.sk-page-content > main.sk-auth-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px clamp(20px, 4vw, 45px) 78px;
+}
+.sk-auth-identity {
+  display: inline-flex; align-items: center; gap: 13px;
+  margin-bottom: 28px; color: #80513d;
+}
+.sk-auth-identity-icon {
+  display: grid; place-items: center; width: 54px; height: 54px;
+  background: #fbe6dc; border: 1px solid #f3d1c0; border-radius: 14px;
+}
+.sk-auth-identity-copy { font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.sk-page-content > main.sk-auth-page > section {
+  border-radius: 17px;
+  padding: clamp(20px, 4vw, 29px);
+}
+.sk-page-content > main.sk-auth-page > section form {
+  display: grid; gap: 19px; align-items: stretch;
+}
+.sk-page-content > main.sk-auth-page > section form > div { display: grid; gap: 8px; }
+.sk-page-content > main.sk-auth-page > section form input { width: 100%; min-height: 46px; }
+.sk-page-content > main.sk-auth-page > section form button[type=submit] {
+  min-height: 46px; justify-self: start;
+  padding: 0 24px; border-radius: 9px;
+}
+@media (max-width: 540px) {
+  .sk-page-content > main.sk-auth-page { padding: 35px 20px 54px; }
 }
 
 @media (max-width: 1080px) {
