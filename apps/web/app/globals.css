@@ -266,3 +266,21 @@ button, input, select, textarea { font: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* First-party browser session status; never asks for a pasted API bearer token. */
+.sk-session-banner {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  margin: 16px 0 22px; padding: 15px 17px;
+  border-radius: 13px; border: 1px solid #e0e4de;
+  background: #f0f4ef; color: #354b3e;
+}
+.sk-session-banner > svg { flex-shrink: 0; }
+.sk-session-banner-message { flex: 1 1 260px; min-width: 0; font-size: 12.5px; line-height: 1.65; overflow-wrap: anywhere; }
+.sk-session-banner-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 11px; background: #fff; border: 1px solid #cdd8cd;
+  border-radius: 9px; text-decoration: none; white-space: nowrap;
+  color: #334739; font-weight: 700; font-size: 12px;
+}
+.sk-session-banner-link:hover { background: #e4ece5; }
+@media (max-width: 540px) { .sk-session-banner { align-items: flex-start; } }

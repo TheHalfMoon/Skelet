@@ -24,8 +24,8 @@ test("lens UI serves the full lifecycle over the real REST contracts", async () 
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
   assert.ok(text.includes("skilit://lens/"), "UI renders the stable lens identifier");
-  assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
-  assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
+  assert.ok(text.includes("sessionRequest"), "UI delegates credential transport to the cookie-safe helper");
+  assert.ok(!text.includes("Authorization"), "Browser UI never constructs an Authorization header");
 });
 
 test("lens UI shows loading, empty, failure, and terminal states", async () => {
@@ -55,7 +55,8 @@ test("lens UI uses native keyboard-operable controls with labels", async () => {
   for (const tag of ["<form", "<label", "<input", "<button", "<select"]) {
     assert.ok(text.includes(tag), `UI uses native ${tag}`);
   }
-  assert.ok(text.includes('htmlFor="lens-token"'), "UI labels its credential field");
+  assert.ok(text.includes("<SessionAccessBanner />"), "UI shows accessible session status");
+  assert.ok(!text.includes('id="lens-token"'), "UI does not ask users to paste a token");
   assert.ok(text.includes('htmlFor="lens-kit"'), "UI labels its job field");
   assert.ok(text.includes('"use client"'), "UI is a client component over the REST routes");
 });

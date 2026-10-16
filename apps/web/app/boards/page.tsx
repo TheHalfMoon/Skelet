@@ -1,5 +1,8 @@
 "use client";
 
+import { SessionAccessBanner } from "../../components/session-access-banner";
+import { sessionRequest } from "../../lib/browser-session";
+
 import { useState } from "react";
 
 interface BoardView {
@@ -108,8 +111,7 @@ function asValidation(value: unknown): { items: ValidationView[]; summary: unkno
 }
 
 export default function BoardsPage() {
-  const [token, setToken] = useState("");
-  const [workspaceId, setWorkspaceId] = useState("");
+    const [workspaceId, setWorkspaceId] = useState("");
   const [title, setTitle] = useState("Moodboard");
   const [boardId, setBoardId] = useState("");
   const [artifactId, setArtifactId] = useState("");
@@ -122,10 +124,6 @@ export default function BoardsPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<AgentFailure | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-
-  function authHeaders(): Record<string, string> {
-    return { Authorization: `Bearer ${token.trim()}` };
-  }
 
   function readFailure(payload: unknown, fallback: string): AgentFailure {
     const record = asRecord(payload);
@@ -146,7 +144,7 @@ export default function BoardsPage() {
     setFailure(null);
     setNotice(null);
     try {
-      const response = await fetch(path, init);
+      const response = await sessionRequest(path, init);
       const payload: unknown = await response.json();
       if (!response.ok) {
         setFailure(readFailure(payload, `${label} failed with HTTP ${response.status}.`));
@@ -171,9 +169,7 @@ export default function BoardsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a workspace ID before listing." });
       return;
     }
-    await callJson("List", `/api/v1/boards?workspaceId=${encodeURIComponent(workspaceId.trim())}`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("List", `/api/v1/boards?workspaceId=${encodeURIComponent(workspaceId.trim())}`, {}, (result) => {
       const list = asBoards(result);
       if (list === null) {
         setFailure({ code: "UNKNOWN", message: "List returned an unrecognized shape." });
@@ -188,7 +184,7 @@ export default function BoardsPage() {
     event.preventDefault();
     await callJson("Create", "/api/v1/boards", {
       method: "POST",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ workspaceId: workspaceId.trim(), title: title.trim(), visibility: "workspace" }),
     }, (result) => {
       const board = asBoard(result);
@@ -209,9 +205,7 @@ export default function BoardsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a board ID before inspecting." });
       return;
     }
-    await callJson("Inspect", `/api/v1/boards/${encodeURIComponent(id)}`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("Inspect", `/api/v1/boards/${encodeURIComponent(id)}`, {}, (result) => {
       const board = asBoard(result);
       const list = asItems(result);
       if (board === null || list === null) {
@@ -232,7 +226,7 @@ export default function BoardsPage() {
     }
     await callJson("Save", `/api/v1/boards/${encodeURIComponent(id)}/items`, {
       method: "POST",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ workspaceId: workspaceId.trim(), artifactId: artifactId.trim() }),
     }, (result) => {
       const list = asItems(result);
@@ -254,7 +248,7 @@ export default function BoardsPage() {
     }
     await callJson("Move", `/api/v1/boards/${encodeURIComponent(id)}/move`, {
       method: "POST",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         workspaceId: workspaceId.trim(),
         artifactId: artifactId.trim(),
@@ -279,7 +273,6 @@ export default function BoardsPage() {
     }
     await callJson("Remove", `/api/v1/boards/${encodeURIComponent(id)}/items/${encodeURIComponent(target)}`, {
       method: "DELETE",
-      headers: authHeaders(),
     }, (result) => {
       const list = asItems(result);
       if (list === null) {
@@ -299,7 +292,6 @@ export default function BoardsPage() {
     }
     await callJson("Delete", `/api/v1/boards/${encodeURIComponent(id)}`, {
       method: "DELETE",
-      headers: authHeaders(),
     }, () => {
       setBoardId("");
       setItems(null);
@@ -323,7 +315,7 @@ export default function BoardsPage() {
     }
     await callJson("Handoff", `/api/v1/boards/${encodeURIComponent(id)}/handoff`, {
       method: "POST",
-      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ workspaceId: workspaceId.trim(), toSubjectId: toSubjectId.trim() }),
     }, (result) => {
       const board = asBoard(result);
@@ -346,9 +338,7 @@ export default function BoardsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a board ID before listing handoffs." });
       return;
     }
-    await callJson("Handoffs", `/api/v1/boards/${encodeURIComponent(id)}/handoffs`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("Handoffs", `/api/v1/boards/${encodeURIComponent(id)}/handoffs`, {}, (result) => {
       const chain = asHandoffs(result);
       if (chain === null) {
         setFailure({ code: "UNKNOWN", message: "Handoffs returned an unrecognized shape." });
@@ -365,9 +355,7 @@ export default function BoardsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a board ID before validating." });
       return;
     }
-    await callJson("Validate", `/api/v1/boards/${encodeURIComponent(id)}/validation`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("Validate", `/api/v1/boards/${encodeURIComponent(id)}/validation`, {}, (result) => {
       const parsed = asValidation(result);
       if (parsed === null) {
         setFailure({ code: "UNKNOWN", message: "Validation returned an unrecognized shape." });
@@ -378,7 +366,7 @@ export default function BoardsPage() {
     });
   }
 
-  const canAct = token.trim() !== "" && workspaceId.trim() !== "" && busy === null;
+  const canAct = workspaceId.trim() !== "" && busy === null;
 
   return (
     <main style={{ maxWidth: 880, margin: "48px auto", padding: "0 20px" }}>
@@ -388,22 +376,11 @@ export default function BoardsPage() {
         the ordered collections domain. Every board is addressed by its
         stable <code>skilit://collection/{"{id}"}</code> identifier.
       </p>
+      <SessionAccessBanner />
 
-      <section aria-label="Credentials">
-        <h2>1. Credentials</h2>
+      <section aria-label="Workspace settings">
+        <h2>1. Workspace</h2>
         <form onSubmit={(e) => e.preventDefault()}>
-          <div>
-            <label htmlFor="boards-token">Session bearer token</label>
-            <input
-              id="boards-token"
-              type="password"
-              autoComplete="off"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Bearer token from sign-in"
-              style={{ width: "100%" }}
-            />
-          </div>
           <div>
             <label htmlFor="boards-workspace">Workspace ID</label>
             <input

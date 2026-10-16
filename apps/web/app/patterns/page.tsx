@@ -1,5 +1,8 @@
 "use client";
 
+import { SessionAccessBanner } from "../../components/session-access-banner";
+import { sessionRequest } from "../../lib/browser-session";
+
 import { useState } from "react";
 
 interface PatternView {
@@ -87,8 +90,7 @@ function slugOf(uri: string): string {
 }
 
 export default function PatternsPage() {
-  const [token, setToken] = useState("");
-  const [query, setQuery] = useState("");
+    const [query, setQuery] = useState("");
   const [slug, setSlug] = useState("");
   const [patterns, setPatterns] = useState<PatternView[] | null>(null);
   const [patternsCursor, setPatternsCursor] = useState<string | null>(null);
@@ -96,10 +98,6 @@ export default function PatternsPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<AgentFailure | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-
-  function authHeaders(): Record<string, string> {
-    return { Authorization: `Bearer ${token.trim()}` };
-  }
 
   function readFailure(payload: unknown, fallback: string): AgentFailure {
     const record = asRecord(payload);
@@ -120,7 +118,7 @@ export default function PatternsPage() {
     setFailure(null);
     setNotice(null);
     try {
-      const response = await fetch(path, init);
+      const response = await sessionRequest(path, init);
       const payload: unknown = await response.json();
       if (!response.ok) {
         setFailure(readFailure(payload, `${label} failed with HTTP ${response.status}.`));
@@ -141,17 +139,11 @@ export default function PatternsPage() {
   }
 
   async function listPatterns(cursor?: string): Promise<void> {
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before listing." });
-      return;
-    }
     const params = new URLSearchParams();
     params.set("limit", "20");
     if (query.trim() !== "") params.set("query", query.trim());
     if (cursor !== undefined && cursor !== "") params.set("cursor", cursor);
-    await callJson("List patterns", `/api/v1/patterns?${params.toString()}`, {
-      headers: authHeaders(),
-    }, (result, payload) => {
+    await callJson("List patterns", `/api/v1/patterns?${params.toString()}`, {}, (result, payload) => {
       const list = asPatterns(result);
       if (list === null) {
         setFailure({ code: "UNKNOWN", message: "List patterns returned an unrecognized shape." });
@@ -169,13 +161,7 @@ export default function PatternsPage() {
       setFailure({ code: "UNKNOWN", message: "Enter a pattern slug before inspecting." });
       return;
     }
-    if (token.trim() === "") {
-      setFailure({ code: "UNKNOWN", message: "Enter an access token before inspecting." });
-      return;
-    }
-    await callJson("Inspect pattern", `/api/v1/patterns/${encodeURIComponent(slugOf(value))}`, {
-      headers: authHeaders(),
-    }, (result) => {
+    await callJson("Inspect pattern", `/api/v1/patterns/${encodeURIComponent(slugOf(value))}`, {}, (result) => {
       const parsed = asDetail(result);
       if (parsed === null) {
         setFailure({ code: "UNKNOWN", message: "Inspect pattern returned an unrecognized shape." });
@@ -195,20 +181,13 @@ export default function PatternsPage() {
         artifact and flow relationships. Patterns without readable linked
         artifacts read as empty; unknown slugs read as not found.
       </p>
+      <SessionAccessBanner />
       <form
         onSubmit={(event) => {
           event.preventDefault();
           void listPatterns();
         }}
       >
-        <label htmlFor="patterns-token">Access token</label>
-        <input
-          id="patterns-token"
-          type="password"
-          autoComplete="off"
-          value={token}
-          onChange={(event) => setToken(event.target.value)}
-        />
         <label htmlFor="patterns-query">Filter taxonomy</label>
         <input
           id="patterns-query"

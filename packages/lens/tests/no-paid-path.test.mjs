@@ -101,12 +101,20 @@ test("chain source performs no outbound network calls", async () => {
     // The UI's genuine transport is same-origin fetch to our own REST
     // routes (relative /api/ paths). Absolute-URL fetch is forbidden on
     // the chain path: providers, CDNs, and telemetry included.
-    for (const match of source.matchAll(/(?<![A-Za-z0-9_.])fetch\(/g)) {
+    for (const match of source.matchAll(/(?<![A-Za-z0-9_.])(?:fetch|sessionRequest)\(/g)) {
       const window = source.slice(match.index ?? 0, (match.index ?? 0) + 160);
       assert.ok(!/https?:\/\//.test(window), `${file} must not fetch an absolute URL`);
       sameOriginCalls += 1;
     }
   }
+  // Browser-session transport has replaced direct fetch in the Lens UI.
+  // Keep this static boundary rigorous: reject absolute URLs, reject
+  // bearer headers, and require browser cookies to stay same-origin.
+  const transport = await readFile(new URL("../../../apps/web/lib/browser-session.ts", import.meta.url), "utf8");
+  assert.match(transport, /Only same-origin Skilit API paths are permitted/);
+  assert.match(transport, /headers\.has\("authorization"\)/);
+  assert.match(transport, /credentials: "same-origin"/);
+  assert.match(transport, /return fetch|await fetch/);
   assert.ok(sameOriginCalls >= 3, "UI same-origin REST calls stay covered by the guard");
 });
 
