@@ -1,0 +1,375 @@
+Skelet v1 Local — Consolidated NOTICE
+========================================
+
+This file consolidates copyright, license, attribution, and restriction
+records for the Skelet v1 Local release candidate (`v1.0.0-local-rc.1`).
+It is placed at the release root under owner authorization OD-05
+(Apache License 2.0 for original Skelet-owned code; see GitHub Issue #34).
+
+It does not relicense any third-party material. Third-party code, data,
+assets, models, services, brands, and trademarks remain governed by
+their own terms as recorded below. Restricted material listed as
+excluded is NOT distributed with this candidate.
+
+Machine-readable provenance remains authoritative for pins and scope:
+UPSTREAMS.lock.yml, imports/craft-suite/donor-pins.json,
+imports/monet-registry/, CODE_PROVENANCE.md, DATA_PROVENANCE.md,
+docs/provenance/. Per-file license facts below were read from the
+installed dependency trees and the frozen provenance records at
+release-preparation time; the SBOM (sbom.json, CycloneDX, 380 components
+at last generation) and pnpm-lock.yaml are the complete transitive
+inventory.
+
+--------------------------------------------------------------------------------
+1. Skelet original code — Apache License 2.0
+--------------------------------------------------------------------------------
+Copyright 2026 TheHalfMoon and Skelet contributors.
+
+All original Skelet-owned code in this distribution (apps/, packages/,
+scripts/, skills/, schemas/, fixtures that are Skelet-authored synthetics,
+and documentation) is licensed under the Apache License, Version 2.0.
+See the root LICENSE file.
+
+EXCEPTIONS (third-party files inside this tree that are NOT covered by
+the Skelet Apache-2.0 grant — see §2):
+  - apps/web/lib/utils.ts
+  - packages/providers/monet/screenshot/queue.ts
+
+--------------------------------------------------------------------------------
+2. Vendored third-party code actually distributed in this candidate
+--------------------------------------------------------------------------------
+Only the two files below are third-party code vendored into the
+distributed tree. Both are verbatim copies (blob-SHA verified) reused
+under founder authorization, code scope only.
+
+2a. monet-registry — src/lib/utils.ts -> apps/web/lib/utils.ts
+  - Upstream: https://github.com/monet-design/monet-registry
+  - Pinned commit: 85c966f8d94572431bcbb4439f9fd7ea2a893321
+  - Tree: 9c0096e607a067a4f1917f5d49aab1a4dd1a9b46
+  - Source blob SHA-1: a5ef193506d07d0459fec4f187af08283094d7c8 (169 bytes)
+  - Upstream license status: NOT VERIFIED — the source tree contains no
+    repository-level LICENSE / LICENCE / COPYING / NOTICE / COPYRIGHT file
+    (recorded in imports/monet-registry/manifest.json).
+  - Permission basis: founder user-authorization
+    skelet-founder-2026-10-04-listed-sources
+    (docs/provenance/authorizations/monet-registry-2026-10-04.json),
+    source-code-only scope. This file is distributed under that
+    authorization, NOT under the Skelet Apache-2.0 grant.
+  - Restricted (not granted, not distributed): datasets, screenshots,
+    media/assets, model weights, hosted services, brands/trademarks.
+  - Direct runtime imports exercised by this file: clsx 2.1.1 (MIT),
+    tailwind-merge 2.6.0 (MIT) — see §6.
+
+2b. monet-registry — scripts/screenshot/queue.ts
+      -> packages/providers/monet/screenshot/queue.ts
+  - Upstream: https://github.com/monet-design/monet-registry
+  - Pinned commit: 85c966f8d94572431bcbb4439f9fd7ea2a893321
+  - Source blob SHA-1: ec78d916afc88d7ed6ee72a0b16dde9f7a2fbbe2 (481 bytes)
+  - Upstream license status: NOT VERIFIED (same record as §2a).
+  - Permission basis: same founder authorization as §2a,
+    source-code-only scope (imports/monet-registry/accepted-code/
+    screenshot-queue.json). Distributed under that authorization,
+    NOT under the Skelet Apache-2.0 grant. Isolated ephemeral capture
+    helper; not part of the public product surface.
+  - Restricted: same exclusions as §2a.
+
+No other donor source file is vendored into this candidate. In
+particular, no ArtCraft / ArtCraft-services / VectorCraft / PhotoCraft /
+DesignCraft / EffectCraft / FilmCraft / LightCraft source file is copied
+into this tree (AC-01 and AC-02 were decided KEEP Skelet-owned; AC-04
+candidates are deferred). Any future transplant must preserve the
+applicable LICENSE-MIT / LICENSE-APACHE / NOTICE / ATTRIBUTION / OFL /
+third-party license texts listed in §3 before distribution.
+
+--------------------------------------------------------------------------------
+3. Ready (pinned, qualified) donors — NOT distributed as code
+--------------------------------------------------------------------------------
+The following sources are pinned and qualified in UPSTREAMS.lock.yml
+(status `ready`) but contribute NO source file to this candidate. They
+are recorded here for attribution, restriction, and future-import
+obligations. Editor adapters for VectorCraft / PhotoCraft / OpenPencil
+are Skelet-owned shims that invoke operator-installed external binaries;
+no donor binary, source, or weight is bundled.
+
+3a. artcraft — https://github.com/storytold/artcraft
+  - Pin: 28a39a0de4a2fc2eccc237df2046c24245bd12ab
+  - License: MIT OR Apache-2.0 (LICENSE-MIT / LICENSE-APACHE / NOTICE
+    on file upstream; blob SHAs frozen in
+    imports/craft-suite/donor-pins.json).
+  - Copyright: 2026 ArtCraft Team and contributors (per upstream NOTICE).
+    Name, wordmark, and logos are trademarks; not covered by the code
+    license (upstream docs/brand/LICENSE-brand.txt).
+  - Authorization: founder authorization
+    skelet-founder-2026-10-11-craft-suite
+    (docs/provenance/authorizations/craft-suite-2026-10-11.json),
+    code paths admitted by imports/craft-suite/manifest.json only.
+  - Rights: code authorized; data / assets / models / services /
+    trademarks restricted.
+
+3b. artcraft-services — https://github.com/storytold/artcraft-services
+  - Pin: 02a3de2509662cfc7c12f51c09e7f4322618029a
+  - License: Fair Source WIP (upstream LICENSE.md, restrictive).
+    This is NOT an open-source grant. Any reuse rides SOLELY on the
+    founder authorization in §3a's record, for narrow code paths only
+    (frame-extractor closure: zero-import extract-frames.ts candidate
+    plus the excluded provider-coupled frame-actions.ts sibling).
+    No services-only import has been activated.
+  - Rights: code authorized (narrow); data / assets / models /
+    services / trademarks restricted.
+
+3c. vectorcraft — https://github.com/storytold/vectorcraft
+  - Pin: 6c3f9f60aa69ac151f9908b94cf00a387746eea4
+  - License: MIT OR Apache-2.0. Headless adapter qualified against the
+    genuine binary at this pin; no donor code vendored.
+  - Rights: code authorized (headless adapter scope); data / assets /
+    models restricted; trademarks restricted.
+
+3d. photocraft — https://github.com/storytold/photocraft
+  - Pin: 97136485f0743251ab330d096ca6c9d0f0f6f54c
+  - License: MIT OR Apache-2.0. Headless adapter qualified against the
+    genuine binary at this pin (incl. two genuine argv defects repaired
+    with regressions); no donor code vendored. Optional `heif` feature
+    stays OFF pending a separate rights review.
+  - Rights: code authorized (headless adapter scope); data / assets /
+    models restricted; trademarks restricted.
+
+3e. designcraft — https://github.com/storytold/designcraft
+  - Pin: 16a7365701f9ce8f93ca77a27a8dc2fffb807869
+  - License: MIT OR Apache-2.0. Post-launch evaluation only; nothing
+    imported.
+  - Rights: code authorized (evaluation scope); data / assets / models
+    restricted; trademarks restricted.
+
+3f. effectcraft — https://github.com/storytold/effectcraft
+  - Pin: 9a7d3e76991d5372448033b473dc12c2480a6a04
+  - License: MIT OR Apache-2.0. Post-launch evaluation only; nothing
+    imported.
+  - Rights: code authorized (evaluation scope); data / assets / models
+    restricted; trademarks restricted.
+
+3g. filmcraft — https://github.com/storytold/filmcraft
+  - Pin: 4e2d0bc2d3646f9cf27ef7aa8b2095c6858c7efe
+  - License: MIT OR Apache-2.0. Deferred; nothing imported.
+  - Rights: code authorized (deferred scope); data / assets / models
+    restricted; trademarks restricted.
+
+3h. lightcraft — https://github.com/storytold/lightcraft
+  - Pin: 0ba118de92a81f7463ca0e6d79e1323137b1adae
+  - License: MIT OR Apache-2.0, with the exception that
+    `crates/segment` (Hugging Face Transformers SAM3 port) is
+    Apache-2.0-only. SAM3 weights, RawNIND checkpoints, and AI denoise
+    weights are never distributed with the donor and require separate
+    user-accepted terms; Skelet must never bundle them.
+  - Rights: code authorized (deferred scope); data / assets / models
+    restricted; trademarks restricted.
+
+3i. dembrandt — https://github.com/dembrandt/dembrandt
+  - Pin: d2d570706dbd83d6531225c67923872d813be1a4; License: MIT.
+  - Evaluated only; no code distributed. Trademarks restricted.
+
+3j. openbrand — https://github.com/tight-studio/OpenBrand
+  - Pin: a21d34fadc3dcf15271d71fdb3f7d95baf7578d8; License: MIT.
+  - Evaluated only; no code distributed. Trademarks restricted.
+
+3k. opentechalyzer — https://github.com/Houseofmvps/opentechalyzer
+  - Pin: a3d30e479c91c06732ef88867d69b7feef8f3f35; License: MIT.
+  - Evaluated only; no code distributed. Trademarks restricted.
+
+3l. squirrelscan — https://github.com/squirrelscan/squirrelscan
+  - Pin: b0e209c44c14ef5340de030c36b3b075fa49a6ff; License: MIT.
+  - Evaluated only; no code distributed. Trademarks restricted.
+
+3m. openpencil — https://github.com/open-pencil/open-pencil
+  - Pin: 78355fd3890cc9da9539235ee3b38beb917f2ed6; License: MIT
+    (0.16.0, live HEAD verified at evaluation time).
+  - Headless adapter qualified against the genuine binary at this pin
+    (20/20 with SKELET_OPENPENCIL_BIN, 6 allowlisted ops, .pen/.fig
+    handling, fig round-trip); no donor code vendored.
+  - Rights: code license-governed; data / assets / models not
+    applicable; trademarks restricted.
+
+3n. Separate upstream references (NOT activated, NOT distributed):
+  craft-libs (rev 5c874d51eeb3de70e735c8ce87a59a7dedd47675) and
+  craft-fonts attribution, referenced by the Rust donors. Activation
+  would require their own governed pins and rights records.
+
+--------------------------------------------------------------------------------
+4. Planned sources — NOT distributed, NOT activated
+--------------------------------------------------------------------------------
+The following 24 UPSTREAMS.lock.yml entries remain `planned` with
+license VERIFY_AT_IMPORT. No file from any of them is in this
+candidate, and no permission is claimed beyond evaluation scoping:
+opensourceui, paceui-auth-starter, better-auth, iconify-icon-sets,
+iconserve, simple-icons, svgl, fontsource, shadcn-ui, rrweb, maestro,
+omniparser, docling, firecrawl, website-downloader, mobbin-mcp,
+appllama-skills, impeccable, unreal-agent, design-resources,
+personal-sites, dockhunt, designbookmark, briefbox.
+Any future activation must resolve the exact upstream license and scope
+before import, per CODE_PROVENANCE.md.
+
+--------------------------------------------------------------------------------
+5. License compatibility finding (OD-05 conflict review)
+--------------------------------------------------------------------------------
+Reviewed before packaging, as required by OD-05:
+
+  - Skelet original code under Apache-2.0 combined with MIT-licensed
+    runtime dependencies (§6): COMPATIBLE. MIT permits sublicensing
+    under Apache-2.0 terms for the combined work; no relicensing of
+    the MIT components is claimed — their notices are preserved via
+    this file and their own license texts travel with the packages.
+  - Apache-2.0 runtime dependencies (PGlite, Playwright-core): SAME
+    LICENSE family, no conflict.
+  - ISC-licensed pg-int8 (transitive): permissive, compatible.
+  - MPL-2.0 axe-core 4.14.0: dev-only transitive (via
+    eslint-plugin-jsx-a11y in the lint chain). NOT distributed in the
+    runtime candidate (node_modules are excluded from the source
+    tarball; dependencies arrive via the frozen lockfile at install
+    time). No MPL-licensed file is modified or bundled. NO CONFLICT
+    for this distribution; recorded here for completeness.
+  - Fair Source WIP (artcraft-services): restrictive and NOT an
+    open-source grant. No services file is distributed; reuse, if ever
+    activated, rides solely on the founder authorization for narrow
+    paths. NO CONFLICT because no restricted file ships.
+  - monet-registry files (§2): upstream license unverified; distributed
+    SOLELY under the recorded founder authorization, carved out of the
+    Apache-2.0 grant. NO RELICENSING is claimed. NO CONFLICT provided
+    this carve-out is preserved in redistribution.
+  - Restricted third-party assets, weights, services, brands (§7–§9):
+    EXCLUDED from the candidate. NO CONFLICT.
+
+Result: no genuine licensing conflict blocks this source-release
+candidate. If any future grain vendors additional donor code, modifies
+MPL-licensed files, enables HEIF, or bundles weights/fonts/assets, this
+finding must be redone before that distribution.
+
+--------------------------------------------------------------------------------
+6. JavaScript/TypeScript runtime dependencies (direct, bundled by
+    reference via frozen lockfile — not vendored in the tarball)
+--------------------------------------------------------------------------------
+The source tarball excludes node_modules/; consumers install via
+`pnpm install --frozen-lockfile` (pnpm 9.12.0). Direct runtime
+dependencies and their licenses (read from the installed trees):
+
+  - next 15.5.27 — MIT (Copyright Vercel, Inc.)
+  - react 19.3.0 — MIT (Copyright Meta Platforms, Inc. and affiliates)
+  - react-dom 19.3.0 — MIT (Copyright Meta Platforms, Inc. and affiliates)
+  - pg 8.23.1 — MIT (Copyright Brian Carlson and contributors)
+    transitives, all permissive: pg-pool 3.14.0 (MIT), pg-types 2.2.0
+    (MIT), postgres-array 2.0.0 (MIT), postgres-bytea 1.0.1 (MIT),
+    postgres-date 1.0.7 (MIT), postgres-interval 1.2.0 (MIT),
+    pg-connection-string 2.14.1 (MIT), pgpass 1.0.5 (MIT),
+    pg-protocol 1.16.1 (MIT), pg-int8 1.0.1 (ISC),
+    pg-cloudflare 1.4.1 (MIT)
+  - @electric-sql/pglite 0.5.8 — Apache-2.0 (Copyright ElectricSQL)
+  - clsx 2.1.1 — MIT (Copyright Luke Edwards)
+  - tailwind-merge 2.6.0 — MIT (Copyright Dany Castillo)
+  - playwright-core 1.56.1 — Apache-2.0 (Copyright Microsoft Corporation)
+
+Full transitive closure (380 components at last SBOM generation) is in
+sbom.json (CycloneDX) and pnpm-lock.yaml. Dev-only MPL-2.0 component:
+axe-core 4.14.0 (via eslint-plugin-jsx-a11y) — lint tooling only, not
+part of the runtime distribution (see §5).
+
+--------------------------------------------------------------------------------
+7. Third-party assets explicitly EXCLUDED (never distributed)
+--------------------------------------------------------------------------------
+The following were observed in donor audits and are quarantined by
+manifest prefix; none is present in this candidate and none may be
+added without its own governed rights record:
+
+  - Nintendo game sounds (Golden Sun, Metroid Prime, Zelda Ocarina of
+    Time, Mario RPG) under donor public/resources/sound/
+  - Meme images and likenesses under public/resources/memes/
+  - Third-party skybox packs (gray / night)
+  - Third-party MMD motion data (Lumine Idle cycle .vmd)
+  - Mixamo animation renders (characters_gif/)
+  - AI provider and service logos (trademarks of their owners)
+  - Brand fonts: Carter One, Inter, Archivo, Geist Mono, Source Sans 3,
+    Source Serif 4, JetBrains Mono, Noto Serif, BIZ UDPGothic, Shippori
+    Mincho, BIZ UDMincho, Noto Sans CJK SC, Noto Sans Arabic — governed
+    by SIL OFL 1.1 texts that ship beside the fonts; fonts themselves
+    are NOT bundled here (Skelet indexes font metadata only)
+  - Font Awesome Free icons (CC BY 4.0); Lucide icons (ISC, plus MIT
+    for Feather-derived icons); DesignCraft UI icons (original work)
+  - SCOWL English word list (own license); Moby hyphenation list
+    (public domain) plus trained CC0 patterns; Spanish hyphenation
+    (MIT via hypher crate)
+  - Adobe CMap resources (BSD-3-Clause via hayro-cmap); jpeg-encoder
+    (MIT/Apache plus IJG terms); wasmi (MIT/Apache plus wasmparser
+    Apache with LLVM exception)
+  - normalize.css (MIT, Nicolas Gallagher and Jonathan Neal);
+    three-dots (MIT, nzbin); tauri-plugin-http vendored fork
+    (MIT/Apache); ammo.js (zlib)
+  - docs/brand/ plus docs/brand/LICENSE-brand.txt: ArtCraft name,
+    wordmark, and logos are trademarks, not open source
+  - docs/images/: public-domain film and NASA frames plus CC0 music
+    where stated; Ansel Adams, Dorothea Lange, and NASA showcase
+    photos where stated — each requires per-file attribution checks
+    before any redistribution
+  - crates/vendor/tauri-plugin-http/ and vendor/windows-link/ (own
+    license texts)
+
+--------------------------------------------------------------------------------
+8. Models and weights — NOT distributed
+--------------------------------------------------------------------------------
+  - LightCraft SAM3 checkpoint: Meta SAM License (separate
+    user-accepted terms required; never bundle)
+  - RawNIND UtNet2 Bayer checkpoint: GPL-3.0 optional offer (never bundle)
+  - ArtCraft paid models; lib/ml/model.onnx plus onnxruntime-node where
+    present (separate terms; never bundle)
+  - No model weight file of any kind ships in this candidate.
+
+--------------------------------------------------------------------------------
+9. Services and credentials — NOT distributed, never mandatory
+--------------------------------------------------------------------------------
+ArtCraft API, paywalled media, gallery subscriptions, launcher
+downloads, telemetry, model SDKs, DNS update checks, and donor
+endpoints are not Skelet dependencies. No secret, credential,
+environment file, or private key is tracked or distributed (the RC
+builder fails closed on .env / .pem / .key / credentials.json /
+secrets.json / id_rsa / id_ed25519 / node_modules/ / .ignore).
+
+--------------------------------------------------------------------------------
+10. Trademarks
+--------------------------------------------------------------------------------
+Skelet branding in this candidate is Skelet-owned. Upstream names,
+wordmarks, logos, and brand marks (ArtCraft, VectorCraft, PhotoCraft,
+DesignCraft, EffectCraft, FilmCraft, LightCraft, OpenPencil, Monet,
+and third-party provider/service marks) remain the property of their
+respective owners. References in adapter identifiers (e.g.
+"vectorcraft-local", "photocraft-local") and provenance records are
+nominative compatibility references only and imply no endorsement.
+This License and this NOTICE grant no trademark rights except as
+required for reasonable and customary description of origin.
+
+--------------------------------------------------------------------------------
+11. What to preserve on redistribution
+--------------------------------------------------------------------------------
+Redistributions of this candidate (or Derivative Works) must retain
+this NOTICE file alongside LICENSE, preserve all copyright / patent /
+trademark / attribution notices from the Source form, and comply with
+the Apache License 2.0 §4(d) placement rules. The §2 carve-out travels
+with the two listed files: do not represent them as Apache-2.0-licensed
+Skelet originals. Upstream LICENSE-MIT / LICENSE-APACHE / NOTICE /
+ATTRIBUTION / OFL / third-party license texts must be added for any
+future vendored file before that file ships.
+
+--------------------------------------------------------------------------------
+12. Pointers
+--------------------------------------------------------------------------------
+  - Root license: LICENSE (Apache-2.0, Skelet original code)
+  - Provenance policy: CODE_PROVENANCE.md, DATA_PROVENANCE.md
+  - Source lock: UPSTREAMS.lock.yml (38 sources: 14 ready, 24 planned)
+  - Donor pins: imports/craft-suite/donor-pins.json
+  - Authorizations: docs/provenance/authorizations/
+      monet-registry-2026-10-04.json,
+      craft-suite-2026-10-11.json
+  - Closeout evidence: docs/qualification/ISSUE_62_CLOSEOUT_REPORT.md
+  - Release procedure: docs/operations/RELEASE_CANDIDATE.md
+  - Signing procedure: docs/operations/RELEASE_SIGNING.md
+    (candidate is explicitly UNSIGNED; production signing awaits the
+    owner ceremony OD-02)
+  - Acceptance contract: docs/qualification/V1_LOCAL_ACCEPTANCE_CONTRACT.md
+  - Cloud backlog: docs/qualification/CLOUD_COMMERCIAL_BACKLOG.md
+
+END OF NOTICE
