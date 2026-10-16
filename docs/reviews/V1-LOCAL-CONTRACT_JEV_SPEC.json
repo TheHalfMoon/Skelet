@@ -1,0 +1,59 @@
+{
+  "description": "Skelet v1 Local acceptance contract (release-scoped, original matrix intact)",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does this grain preserve all contracts: docs-only plus one test module; no route/schema/API/MCP/migration/dependency/config change; python unittest discovery auto-wires the suite? Any changed behavior?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is the contract factually correct: original 14/25 VERIFIED = 56.0% preserved verbatim; all 25 IDs dispositioned; Local statuses cite real evidence files and real suite counts from AF-12_FINAL_RERUN_4; deferred items assigned to Cloud with plan/disposition triggers; no invented evidence?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is evidence sufficient: 8 tests pass offline checking all-IDs, coverage preservation, counts, no-paid-service, live-deferral, signing-pending, cloud-preserved, tool-name note? Any claim in the doc without a repo source?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any reliability risk: test uses only stdlib + yaml + file reads; no network; deterministic assertions; regex guards against claiming live recorder shipped or production signing complete?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond the scope contract: release packaging, clean-install proof, #62 closeout action, version tags, or unrelated refactors? Is Cloud/Commercial preserved (not deleted) with traceability?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the grain weaken any control: no secrets/credentials in the doc or test; no provenance/rights weakening; signing ceremony stays owner-controlled; live capture stays consent-gated? Any leakage?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "1dba33e6a9800120d39e261ff92365e0d630c646",
+    "head_sha": "WORKTREE",
+    "branch": "skelet/v1-local-acceptance-contract",
+    "change": "V1 Local acceptance contract: docs/qualification/V1_LOCAL_ACCEPTANCE_CONTRACT.md (row-by-row Local vs Cloud traceability for P00-P15/R0-R7, original 14/25 preserved, 23 VERIFIED-LOCAL + 2 CONDITIONAL-LOCAL, OD-01/OD-02/OD-03/OD-04 decisions, supported/absent statement) plus tests/test_v1_local_scope.py (8 offline conformance tests). No product code change; no migration; no dependency change."
+  }
+}
