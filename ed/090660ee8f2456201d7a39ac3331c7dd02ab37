@@ -1,0 +1,36 @@
+docs/reviews/P15-ABUSE-CLI_JEV_REVIEW.md
+  s_36c890d79926e9::t_8a27639d2f807b 1-7
+scripts/check_abuse_alarms.mjs
+  s_36c890d79926e9::t_0881291131b995 1-120
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36c890d79926e9::t_d4a77b731c8825 446
+docs/reviews/P15-ABUSE-CLI_PSTACK_PANELS.md
+  s_36c890d79926e9::t_2bacd35c40e6f1 1-21
+docs/operations/RUNBOOK.md
+  s_36c890d79926e9::t_269b17beacba05 74-77
+apps/web/tests/abuse-alarms-cli.test.mjs
+  s_36c890d79926e9::t_37776b859d32cb 1-8,10-101
+  s_36c890d79926e9::t_4b7fb8349bcce8 9
+docs/reviews/P15-ABUSE-CLI_JEV_REVIEW.json
+  s_36c890d79926e9::t_a6d5a9081fd1c8 1
+docs/reviews/P15-ABUSE-CLI_JEV_SPEC.json
+  s_36c890d79926e9::t_0fbe67ad8d01a0 1
+docs/reviews/P15-ABUSE-CLI_OCR_DELEGATION.md
+  s_36c890d79926e9::t_3a08bcd0452737 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ed090660ee8f2456201d7a39ac3331c7dd02ab37",
+  "prompts": {},
+  "sessions": {
+    "s_36c890d79926e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebdaa4c68ffeiNwK51axQKEUXr",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
