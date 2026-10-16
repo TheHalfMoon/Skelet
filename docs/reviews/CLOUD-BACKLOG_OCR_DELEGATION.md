@@ -1,0 +1,6 @@
+# Cloud/Commercial Backlog Alibaba OCR Record (not an LLM-backed scan)
+
+- Grain: Cloud/Commercial backlog register, branch `skelet/cloud-commercial-backlog`, base `50cec19dc6f66d484c55599e0dbf4fde8a369637`.
+- OCR version: open-code-review v1.12.13 (fabbdb29) darwin/arm64. No OCR LLM provider credential is configured, so the official `ocr delegate` workflow preview is used per `GOVERNANCE.md`.
+- Exact-diff preview (workspace mode): `docs/qualification/CLOUD_COMMERCIAL_BACKLOG.md` [added] excluded: unsupported_ext; `tests/test_cloud_backlog.py` [added] excluded: default_path; `docs/reviews/CLOUD-BACKLOG_JEV_REVIEW.md` [added] excluded: unsupported_ext. Reviewable in workspace mode are only `docs/reviews/CLOUD-BACKLOG_JEV_SPEC.json` (this grain's own review spec), `docs/reviews/CLOUD-BACKLOG_JEV_REVIEW.json` (this grain's own genuine Jev output), and untracked `.ignore` (intentionally NOT staged or committed, preserved untracked per project policy).
+- Applicability verdict: **not applicable as a product code/configuration review** — zero product code or configuration files are reviewable under OCR rules (docs-only grain plus one offline Python conformance test excluded by default path). Preview evidence retained above. No blocking findings. This record MUST NOT be described as an LLM-backed OCR scan.
