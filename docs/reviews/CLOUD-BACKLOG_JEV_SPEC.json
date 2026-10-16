@@ -1,0 +1,59 @@
+{
+  "description": "Skelet Cloud/Commercial backlog register (Track B future work, traceability to v1 Local contract)",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does this grain preserve all contracts: docs-only plus one test module; no route/schema/API/MCP/migration/dependency/config change; python unittest discovery auto-wires the suite? Any changed behavior?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is the register factually correct: 19 rows CB-01..CB-19 each with original ID, deferral basis, entry trigger/gate, proof required, explicit non-claim; triggers cite real plan sections and disposition records; nothing described as complete?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is evidence sufficient: 7 tests pass offline checking all rows, original IDs, triggers, non-completion, no-paid-provisioning, contract-pointer consistency, table shape? Any claim without a repo source?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any reliability risk: test uses only stdlib file reads plus regex; no network; deterministic assertions?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond the backlog register: release packaging, clean-install proof, #62 closeout action, version tags, paid provisioning, or unrelated refactors? Are Cloud items preserved with traceability, not deleted?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the grain weaken any control: no secrets/credentials; no provenance/rights weakening; paid provisioning explicitly requires owner permission; hosted offer gated on budgets/margin/alerting/load/legal? Any leakage?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "50cec19dc6f66d484c55599e0dbf4fde8a369637",
+    "branch": "skelet/cloud-commercial-backlog",
+    "change": "Cloud/Commercial backlog register: docs/qualification/CLOUD_COMMERCIAL_BACKLOG.md (19 rows CB-01..CB-19 with original IDs, deferral basis, entry triggers, proof required, non-claims; global Track B rules) plus tests/test_cloud_backlog.py (7 offline tests). No product code change; no migration; no dependency change.",
+    "head_sha": "WORKTREE"
+  }
+}
