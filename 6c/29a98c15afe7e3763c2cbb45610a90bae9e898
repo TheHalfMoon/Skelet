@@ -1,0 +1,35 @@
+docs/reviews/P15-SIGNING_JEV_REVIEW.json
+  s_36c890d79926e9::t_ad495b24a1e477 1
+docs/operations/RELEASE_SIGNING.md
+  s_36c890d79926e9::t_eedd192f706b01 1-38
+docs/reviews/P15-SIGNING_OCR_DELEGATION.md
+  s_36c890d79926e9::t_0082885d7db7dd 1-11
+docs/reviews/P15-SIGNING_PSTACK_PANELS.md
+  s_36c890d79926e9::t_51bff27f297dd4 1-21
+docs/reviews/P15-SIGNING_JEV_SPEC.json
+  s_36c890d79926e9::t_7477aa1dab76d3 1
+scripts/sign_release_artifact.mjs
+  s_36c890d79926e9::t_0cdc05605f3568 1-156
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36c890d79926e9::t_8f775ed4e2c105 450
+tests/node/release-signing.test.mjs
+  s_36c890d79926e9::t_9fe3f776c9891f 1-48
+docs/reviews/P15-SIGNING_JEV_REVIEW.md
+  s_36c890d79926e9::t_90a3616c4ae600 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "6c29a98c15afe7e3763c2cbb45610a90bae9e898",
+  "prompts": {},
+  "sessions": {
+    "s_36c890d79926e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebdaa4c68ffeiNwK51axQKEUXr",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
