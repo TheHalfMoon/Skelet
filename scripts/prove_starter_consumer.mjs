@@ -128,7 +128,7 @@ async function main() {
     if (file.content.includes(CANARY)) fail(`observed copy leaked into ${file.path}`);
   }
 
-  const sandbox = await mkdtemp(join(tmpdir(), "skelet-starter-proof-"));
+  const sandbox = await mkdtemp(join(tmpdir(), "skilit-starter-proof-"));
   let server = null;
   try {
     const kit = join(sandbox, "kit");
@@ -168,7 +168,7 @@ async function main() {
     }
     if (response.status !== 200) fail(`expected starter HTTP 200, got ${response.status}`);
     const html = await response.text();
-    for (const marker of ['data-skelet-section="main"', "Replace with your own copy"]) {
+    for (const marker of ['data-skilit-section="main"', "Replace with your own copy"]) {
       if (!html.includes(marker)) fail(`starter serves no placeholder sections (missing ${marker})`);
     }
     if (html.includes(CANARY)) fail("observed copy leaked into served HTML");

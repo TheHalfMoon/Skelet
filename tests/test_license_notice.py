@@ -1,7 +1,7 @@
 """Root LICENSE + consolidated NOTICE conformance tests (OD-05).
 
 Machine-checks the OD-05 release-packaging remainder offline: the root
-Apache-2.0 LICENSE for original Skelet-owned code, the consolidated
+Apache-2.0 LICENSE for original Skilit-owned code, the consolidated
 NOTICE preserving upstream copyrights/licenses/attribution/restrictions
 with its compatibility finding, the monet carve-out (no relicensing),
 the builder manifest license state, and the updated RC procedure doc.
@@ -35,13 +35,13 @@ class LicenseNoticeTests(unittest.TestCase):
                       "Grant of Patent License",
                       "Disclaimer of Warranty",
                       "Limitation of Liability",
-                      "Copyright 2026 TheHalfMoon and Skelet contributors"):
+                      "Copyright 2026 TheHalfMoon and Skilit contributors"):
             self.assertIn(token, self.license_text, msg=f"LICENSE missing: {token}")
 
     def test_notice_scope_and_no_relicense(self) -> None:
         for token in ("v1.0.0-local-rc.1", "OD-05",
                       "does not relicense any third-party material",
-                      "NOT under the Skelet Apache-2.0 grant",
+                      "NOT under the Skilit Apache-2.0 grant",
                       "no genuine licensing conflict blocks"):
             self.assertIn(token, self.notice, msg=f"NOTICE missing: {token}")
 
@@ -49,6 +49,7 @@ class LicenseNoticeTests(unittest.TestCase):
         for token in ("apps/web/lib/utils.ts",
                       "packages/providers/monet/screenshot/queue.ts",
                       "85c966f8d94572431bcbb4439f9fd7ea2a893321",
+                      # Historical authorization ID retains original bytes (see NOTICE successor note).
                       "skelet-founder-2026-10-04-listed-sources",
                       "NOT VERIFIED"):
             self.assertIn(token, self.notice, msg=f"NOTICE missing: {token}")

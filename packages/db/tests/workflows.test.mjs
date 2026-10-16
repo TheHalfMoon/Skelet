@@ -13,7 +13,7 @@ import { createWorkspace } from "../src/workspaces.ts";
 
 const HASH="a".repeat(64);
 async function workspaceFixture(db) {
- const user=await signUp(db,{email:"workflows-fixture@skelet.example",
+ const user=await signUp(db,{email:"workflows-fixture@skilit.example",
   password:"workflows-password-01"});
  const created=await createWorkspace(db,{name:"Workflows fixture",ownerId:user.id});
  return created.workspace.id;
@@ -34,7 +34,7 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
  const db=await openDatabase();
  try {
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"]);
    assert.deepEqual(await migrateUp(db),[]);
   for(const table of ["flows","flow_steps","collections","collection_items",
     "capture_runs","analysis_runs","import_records"]) {
@@ -42,9 +42,9 @@ test("003 migration is ordered, idempotent and reversed without corrupting earli
     assert.notEqual(r.rows[0]?.id,null);
   }
   assert.deepEqual(await migrateDown(db),
-   ["017_replay_sessions", "016_corpus_flow_import", "015_collection_handoffs", "014_collection_item_order", "013_lens_build_kit_purge", "012_asset_search_fts", "011_pack_idempotency", "010_artifact_actor_scope", "009_lens_build_kit_runs","008_jobs","007_billing","006_collections_auth","005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
+   ["018_skilit_rename", "017_replay_sessions", "016_corpus_flow_import", "015_collection_handoffs", "014_collection_item_order", "013_lens_build_kit_purge", "012_asset_search_fts", "011_pack_idempotency", "010_artifact_actor_scope", "009_lens_build_kit_runs","008_jobs","007_billing","006_collections_auth","005_workspaces","004_auth","003_workflows","002_design_graph","001_sources_products"]);
    assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"]);
  } finally {await db.close();}
 });
 

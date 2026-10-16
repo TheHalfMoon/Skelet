@@ -72,7 +72,7 @@ create table patterns (
 create index patterns_source_idx on patterns(source_id);
 
 -- Every graph edge resolves both endpoints, even when inserted through raw SQL.
-create function skelet_graph_ref_exists(ref_kind text, ref_id uuid)
+create function skilit_graph_ref_exists(ref_kind text, ref_id uuid)
 returns boolean language plpgsql volatile as $$
 begin
   -- Lock endpoint rows until the insertion commits so a concurrent DELETE
@@ -111,13 +111,13 @@ create table relations (
 );
 create index relations_to_idx on relations(to_type,to_id);
 
-create function skelet_validate_relation() returns trigger
+create function skilit_validate_relation() returns trigger
 language plpgsql as $$
 begin
-  if not skelet_graph_ref_exists(new.from_type,new.from_id) then
+  if not skilit_graph_ref_exists(new.from_type,new.from_id) then
     raise exception 'graph relation source endpoint not found';
   end if;
-  if not skelet_graph_ref_exists(new.to_type,new.to_id) then
+  if not skilit_graph_ref_exists(new.to_type,new.to_id) then
     raise exception 'graph relation target endpoint not found';
   end if;
   return new;
@@ -125,11 +125,11 @@ end;
 $$;
 create trigger relations_validate_endpoints
   before insert or update of from_type,from_id,to_type,to_id on relations
-  for each row execute function skelet_validate_relation();
+  for each row execute function skilit_validate_relation();
 
 -- Polymorphic graph edges cannot be protected by a single foreign key.
 -- Refuse deletion of an endpoint until its edges are explicitly removed.
-create function skelet_guard_graph_endpoint_delete() returns trigger
+create function skilit_guard_graph_endpoint_delete() returns trigger
 language plpgsql as $$
 begin
   if exists (
@@ -142,15 +142,15 @@ begin
   return old;
 end;
 $$;
-create trigger skelet_source_graph_guard before delete on sources
-  for each row execute function skelet_guard_graph_endpoint_delete('source');
-create trigger skelet_product_graph_guard before delete on products
-  for each row execute function skelet_guard_graph_endpoint_delete('product');
-create trigger skelet_version_graph_guard before delete on product_versions
-  for each row execute function skelet_guard_graph_endpoint_delete('product_version');
-create trigger skelet_artifact_graph_guard before delete on artifacts
-  for each row execute function skelet_guard_graph_endpoint_delete('artifact');
-create trigger skelet_asset_graph_guard before delete on assets
-  for each row execute function skelet_guard_graph_endpoint_delete('asset');
-create trigger skelet_pattern_graph_guard before delete on patterns
-  for each row execute function skelet_guard_graph_endpoint_delete('pattern');
+create trigger skilit_source_graph_guard before delete on sources
+  for each row execute function skilit_guard_graph_endpoint_delete('source');
+create trigger skilit_product_graph_guard before delete on products
+  for each row execute function skilit_guard_graph_endpoint_delete('product');
+create trigger skilit_version_graph_guard before delete on product_versions
+  for each row execute function skilit_guard_graph_endpoint_delete('product_version');
+create trigger skilit_artifact_graph_guard before delete on artifacts
+  for each row execute function skilit_guard_graph_endpoint_delete('artifact');
+create trigger skilit_asset_graph_guard before delete on assets
+  for each row execute function skilit_guard_graph_endpoint_delete('asset');
+create trigger skilit_pattern_graph_guard before delete on patterns
+  for each row execute function skilit_guard_graph_endpoint_delete('pattern');

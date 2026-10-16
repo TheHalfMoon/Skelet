@@ -1,10 +1,10 @@
-# Skelet Security Charter
+# Skilit Security Charter
 
 Status: canonical security and privacy constraints for implementation
 
 ## Security Objective
 
-Skelet ingests untrusted URLs, HTML, SVG, images, files, donor data, and agent requests. The default posture is fail-closed isolation, explicit authority, minimal egress, and recoverable evidence.
+Skilit ingests untrusted URLs, HTML, SVG, images, files, donor data, and agent requests. The default posture is fail-closed isolation, explicit authority, minimal egress, and recoverable evidence.
 
 No product feature may bypass these boundaries for convenience.
 
@@ -56,7 +56,7 @@ Captured active content must be sanitized, converted to inert output, or rendere
 
 Remote MCP and write-capable REST operations require authenticated authority.
 
-Every workspace-scoped read or write must verify membership and role server-side. Client-supplied workspace IDs, collection IDs, asset IDs, and Skelet URIs are never trusted as authorization evidence.
+Every workspace-scoped read or write must verify membership and role server-side. Client-supplied workspace IDs, collection IDs, asset IDs, and Skilit URIs are never trusted as authorization evidence.
 
 The test matrix must prove:
 
@@ -85,7 +85,7 @@ Provider credentials are passed only to the provider process that requires them.
 
 ## External AI and Data Egress
 
-The qualified Skelet path must work with external LLM providers disabled.
+The qualified Skilit path must work with external LLM providers disabled.
 
 Any external model call requires:
 

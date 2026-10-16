@@ -1,10 +1,10 @@
-# Skelet Code Provenance Policy
+# Skilit Code Provenance Policy
 
 Status: canonical code-import provenance policy
 
 ## Purpose
 
-Skelet intentionally reuses mature permitted source code instead of rebuilding solved infrastructure. Reuse is allowed only when the imported code remains traceable to an immutable source identity and its permission/license obligations are understood.
+Skilit intentionally reuses mature permitted source code instead of rebuilding solved infrastructure. Reuse is allowed only when the imported code remains traceable to an immutable source identity and its permission/license obligations are understood.
 
 `UPSTREAMS.lock.yml` is the machine-readable inventory of planned and activated upstream sources. `schemas/upstreams.schema.json` defines its shape, and `scripts/validate_upstreams.py` enforces bootstrap semantic rules.
 
@@ -14,9 +14,9 @@ A user-provided authorization statement is recorded as permission evidence for t
 
 An upstream open-source license is also not evidence that every asset or dataset found in the same repository has identical rights.
 
-For each activated source, Skelet records both:
+For each activated source, Skilit records both:
 
-- `permission_basis`: why Skelet is allowed to use the source;
+- `permission_basis`: why Skilit is allowed to use the source;
 - `license`: the verified license or governing terms for the imported material.
 
 `VERIFY_AT_IMPORT` is allowed only while a source remains `planned`.
@@ -45,7 +45,7 @@ For `upstream_license` or `both`, the exact applicable upstream license or terms
 
 ### imported
 
-An imported source additionally records the paths or material actually imported and the transformations applied by Skelet.
+An imported source additionally records the paths or material actually imported and the transformations applied by Skilit.
 
 ### retired
 
@@ -69,14 +69,14 @@ Copy first and document later is not permitted.
 
 ## Selective Import
 
-Skelet imports only the capability needed for the active grain. Avoid importing:
+Skilit imports only the capability needed for the active grain. Avoid importing:
 
 - bulk screenshots or media into Git;
 - build output;
 - generated corpora;
 - upstream secrets or environment files;
 - deployment credentials;
-- provider-specific production configuration not required by Skelet;
+- provider-specific production configuration not required by Skilit;
 - unrelated applications or examples;
 - historical Git objects when a selective snapshot is sufficient.
 
@@ -103,7 +103,7 @@ Every rename/import grain must test for unintended third-party identifier change
 
 Before merge, evidence must bind to the exact candidate HEAD and include:
 
-- canonical Skelet base SHA;
+- canonical Skilit base SHA;
 - upstream immutable pin;
 - source verification date;
 - import manifest;
@@ -126,10 +126,10 @@ The update must:
 2. compare the old and new upstream state;
 3. review license/rights changes;
 4. define the bounded imported delta;
-5. qualify the resulting Skelet diff normally.
+5. qualify the resulting Skilit diff normally.
 
 Do not change the stored pin merely to make the lock file match code already copied from an unrecorded revision.
 
 ## No Provenance, No Canonical Import
 
-If a material imported code path cannot be traced to a verified source identity and permission/license basis, it is not eligible to become canonical Skelet code.
+If a material imported code path cannot be traced to a verified source identity and permission/license basis, it is not eligible to become canonical Skilit code.

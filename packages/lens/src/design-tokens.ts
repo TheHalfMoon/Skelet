@@ -1,5 +1,5 @@
 /**
- * G09-02 deterministic design-token extractor for Skelet Lens.
+ * G09-02 deterministic design-token extractor for Skilit Lens.
  *
  * Pure, offline, dependency-free normalization over pre-extracted style
  * declarations. The capture layer (a later P09 grain) supplies computed or

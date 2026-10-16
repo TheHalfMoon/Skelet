@@ -1,7 +1,7 @@
 /**
- * AF-02 zero-model and egress conformance policy for Skelet.
+ * AF-02 zero-model and egress conformance policy for Skilit.
  *
- * The mandatory Skelet path runs with no model API key, no GPU, and no
+ * The mandatory Skilit path runs with no model API key, no GPU, and no
  * paid cloud subscription. URL capture may contact an explicitly authorized
  * public target website, but the mandatory path never calls a hosted model,
  * embedding, vector-search, crawler, or media-generation service.
@@ -27,7 +27,7 @@ export class NoModelError extends Error {
 }
 
 /**
- * Explicit configuration states for SKELET_NO_MODEL.
+ * Explicit configuration states for SKILIT_NO_MODEL.
  * "1" is strict zero-model mode and is the default when unset.
  * "0" is an explicit opt-out that is not qualified for launch acceptance.
  * Any other value fails closed.
@@ -35,7 +35,7 @@ export class NoModelError extends Error {
 export const NO_MODEL_STRICT = "1";
 export const NO_MODEL_OPT_OUT = "0";
 
-/** Parse SKELET_NO_MODEL into an explicit enabled flag. */
+/** Parse SKILIT_NO_MODEL into an explicit enabled flag. */
 export function parseNoModelFlag(raw: string | undefined): boolean {
   if (raw === undefined) {
     return true;
@@ -48,7 +48,7 @@ export function parseNoModelFlag(raw: string | undefined): boolean {
   }
   throw new NoModelError(
     "no-model/invalid-config",
-    "SKELET_NO_MODEL must be \"1\" or \"0\".",
+    "SKILIT_NO_MODEL must be \"1\" or \"0\".",
   );
 }
 
@@ -91,7 +91,7 @@ export const FORBIDDEN_MODEL_ENV_VARS: readonly string[] = [
 ];
 
 /**
- * Hosts that the mandatory Skelet path never contacts. Target-website
+ * Hosts that the mandatory Skilit path never contacts. Target-website
  * capture uses the explicitly validated capture URL only; any attempt to
  * reach one of these hosts in strict mode is denied fail-closed.
  * Entries are lowercase hostnames without ports or schemes.
@@ -189,7 +189,7 @@ export interface NoModelEnvReport {
  * Never returns secret values, only variable names.
  */
 export function inspectNoModelEnv(source: NodeJS.ProcessEnv): NoModelEnvReport {
-  const enabled = parseNoModelFlag(source.SKELET_NO_MODEL);
+  const enabled = parseNoModelFlag(source.SKILIT_NO_MODEL);
   const forbiddenPresent: string[] = [];
   if (enabled) {
     for (const name of FORBIDDEN_MODEL_ENV_VARS) {

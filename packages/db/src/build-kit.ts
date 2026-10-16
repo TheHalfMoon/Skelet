@@ -7,7 +7,7 @@ import { requireRole } from "./workspaces.ts";
  * G09b-02 AnalysisRun job lifecycle foundation for the Lens Build Kit.
  *
  * Durable nine-state lifecycle bound to the frozen
- * `skelet.lens.build-kit.v1` manifest contract (G09b-01): queued,
+ * `skilit.lens.build-kit.v1` manifest contract (G09b-01): queued,
  * capturing, extracting, generating, validating, completed, partial,
  * failed, canceled. Tenant-scoped opaque identities, idempotent
  * submission, optimistic-concurrency revisions, worker leases with

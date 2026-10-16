@@ -1,19 +1,19 @@
 {
-  "name": "skelet-registry",
+  "name": "skilit-registry",
   "version": "0.1.0",
   "spec": "shadcn-registry/1",
-  "description": "Skelet shadcn-compatible component registry index. Items are Skelet-owned and dependency-light.",
+  "description": "Skilit shadcn-compatible component registry index. Items are Skilit-owned and dependency-light.",
   "items": [
     {
-      "name": "skelet-button",
+      "name": "skilit-button",
       "type": "registry:ui",
-      "title": "Skelet Button",
+      "title": "Skilit Button",
       "description": "Evidence-linked button with variant and size support for agent-built interfaces."
     },
     {
-      "name": "skelet-card",
+      "name": "skilit-card",
       "type": "registry:ui",
-      "title": "Skelet Card",
+      "title": "Skilit Card",
       "description": "Evidence reference card with title, summary, and provenance slot."
     }
   ]

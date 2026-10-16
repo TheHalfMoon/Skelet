@@ -7,7 +7,7 @@ import type { DbTransaction } from "./db.ts";
  * snapshot (see docs/operations/RUNBOOK.md). This module is the portable
  * verification vehicle for restore correctness: snapshot every row of
  * the corpus subgraph, wipe it, re-insert the exact rows (original IDs
- * preserved, so stable Skelet URIs survive), and verify identity.
+ * preserved, so stable Skilit URIs survive), and verify identity.
  *
  * Scope is deliberately the corpus subgraph (sources, products,
  * product versions, artifacts, flows, flow steps, import records).

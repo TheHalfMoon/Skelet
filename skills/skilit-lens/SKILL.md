@@ -1,11 +1,11 @@
 ---
-name: skelet-lens
-description: Turn a design reference into implementation context with Skelet evidence. Use when bootstrapping a build from a reference pack; automated URL analysis lands in a later phase.
+name: skilit-lens
+description: Turn a design reference into implementation context with Skilit evidence. Use when bootstrapping a build from a reference pack; automated URL analysis lands in a later phase.
 ---
 
-# Skelet Lens
+# Skilit Lens
 
-Turn references into implementation context grounded in Skelet evidence.
+Turn references into implementation context grounded in Skilit evidence.
 
 ## Current capabilities
 
@@ -23,7 +23,7 @@ URL capture (`analyze_url`) and image analysis (`analyze_image`) land with the L
 
 ## Lens build-kit jobs (qualified)
 
-The durable URL-to-kit lifecycle is qualified on REST, MCP, and the operator UI. Address every job by its stable `skelet://lens/{id}` identifier and pass the owning `workspaceId` on each call:
+The durable URL-to-kit lifecycle is qualified on REST, MCP, and the operator UI. Address every job by its stable `skilit://lens/{id}` identifier and pass the owning `workspaceId` on each call:
 
 1. **Create.** Use `lens_create_job` with the source URL, capture mode, budgets, and an idempotency key; replays converge on one job.
 2. **Poll and inspect.** Use `lens_poll_job` for status and `lens_get_job` for evidence, artifact summary, and attempt history; watch until a terminal state instead of assuming completion.
@@ -34,4 +34,4 @@ The durable URL-to-kit lifecycle is qualified on REST, MCP, and the operator UI.
 
 - Never claim access to a site's proprietary source. Source-grounded means cited, not copied.
 - Restricted, trademarked, or unknown-license bytes never enter downloadable artifacts.
-- Every build context cites recoverable Skelet URIs a second agent can use.
+- Every build context cites recoverable Skilit URIs a second agent can use.

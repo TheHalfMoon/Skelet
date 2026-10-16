@@ -1,0 +1,16 @@
+{
+  "name": "skilit-button",
+  "type": "registry:ui",
+  "title": "Skilit Button",
+  "description": "Evidence-linked button with variant and size support for agent-built interfaces.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/skilit-button.tsx",
+      "type": "registry:ui",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport type SkilitButtonVariant = \"primary\" | \"secondary\" | \"ghost\";\nexport type SkilitButtonSize = \"sm\" | \"md\" | \"lg\";\n\nexport interface SkilitButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {\n  variant?: SkilitButtonVariant;\n  size?: SkilitButtonSize;\n  evidenceUri?: string;\n}\n\nconst variants: Record<SkilitButtonVariant, string> = {\n  primary: \"bg-foreground text-background hover:opacity-90\",\n  secondary: \"border border-input bg-background hover:bg-muted\",\n  ghost: \"hover:bg-muted\",\n};\n\nconst sizes: Record<SkilitButtonSize, string> = {\n  sm: \"h-8 px-3 text-xs\",\n  md: \"h-9 px-4 text-sm\",\n  lg: \"h-10 px-6 text-base\",\n};\n\nexport function SkilitButton({\n  variant = \"primary\",\n  size = \"md\",\n  evidenceUri,\n  className,\n  ...props\n}: SkilitButtonProps): React.JSX.Element {\n  return (\n    <button\n      data-evidence-uri={evidenceUri}\n      className={cn(\n        \"inline-flex items-center justify-center rounded-md font-medium transition-colors\",\n        \"disabled:pointer-events-none disabled:opacity-50\",\n        variants[variant],\n        sizes[size],\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: skelet-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: skilit-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -131,14 +131,14 @@ jobs:
 
       - name: Zero-model egress gate on clean strict env
         env:
-          SKELET_NO_MODEL: "1"
+          SKILIT_NO_MODEL: "1"
         run: python scripts/check_no_model.py --root .
 
       - name: Zero-model gate fails closed on forbidden credential
         shell: bash
         run: |
           set -euo pipefail
-          if SKELET_NO_MODEL=1 OPENAI_API_KEY=sk-ci-fixture-only python scripts/check_no_model.py --root .; then
+          if SKILIT_NO_MODEL=1 OPENAI_API_KEY=sk-ci-fixture-only python scripts/check_no_model.py --root .; then
             echo "expected gate to fail with OPENAI_API_KEY present" >&2
             exit 1
           fi
@@ -155,25 +155,25 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint no-model package
-        run: pnpm --filter skelet-no-model lint
+        run: pnpm --filter skilit-no-model lint
 
       - name: Strict typecheck no-model package
-        run: pnpm --filter skelet-no-model typecheck
+        run: pnpm --filter skilit-no-model typecheck
 
       - name: Run zero-model conformance tests
         run: node --experimental-strip-types --test packages/no-model/tests/no-model.test.mjs
 
       - name: Worker strict health on clean env
         env:
-          SKELET_NO_MODEL: "1"
+          SKILIT_NO_MODEL: "1"
         run: pnpm --dir apps/worker start health
 
       - name: Worker fails closed on invalid flag
         shell: bash
         run: |
           set -euo pipefail
-          if SKELET_NO_MODEL=strict pnpm --dir apps/worker start health; then
-            echo "expected worker health to fail with invalid SKELET_NO_MODEL" >&2
+          if SKILIT_NO_MODEL=strict pnpm --dir apps/worker start health; then
+            echo "expected worker health to fail with invalid SKILIT_NO_MODEL" >&2
             exit 1
           fi
 
@@ -220,10 +220,10 @@ jobs:
         run: python scripts/validate_registry.py
 
       - name: Production build
-        run: pnpm --dir apps/web build 2>&1 | tee /tmp/skelet-build.log
+        run: pnpm --dir apps/web build 2>&1 | tee /tmp/skilit-build.log
 
       - name: Bundle budget rollback check
-        run: node scripts/check_bundle_budget.mjs --build-output /tmp/skelet-build.log
+        run: node scripts/check_bundle_budget.mjs --build-output /tmp/skilit-build.log
 
       - name: Production startup smoke
         run: node scripts/smoke-web.mjs 3103
@@ -273,8 +273,8 @@ jobs:
       - name: Worker health command
         run: pnpm --dir apps/worker start health
 
-  monet-screenshot-queue:
-    name: monet-screenshot-queue
+  skilit-screenshot-queue:
+    name: skilit-screenshot-queue
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -297,7 +297,7 @@ jobs:
         with:
           node-version: "22.23.1"
 
-      - name: Typecheck the isolated donor module
+      - name: Typecheck the isolated capture module (vendored implementation detail)
         run: >-
           npx --yes --package=typescript@5.9.3 tsc
           --noEmit --strict --target ES2022
@@ -305,7 +305,7 @@ jobs:
           packages/providers/monet/screenshot/queue.ts
 
       - name: Run Node.js queue contract tests
-        run: node --experimental-strip-types --test tests/node/monet-screenshot-queue.test.mjs
+        run: node --experimental-strip-types --test tests/node/skilit-screenshot-queue.test.mjs
 
   providers:
     name: providers
@@ -338,10 +338,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint providers package
-        run: pnpm --filter skelet-providers lint
+        run: pnpm --filter skilit-providers lint
 
       - name: Strict typecheck providers package
-        run: pnpm --filter skelet-providers typecheck
+        run: pnpm --filter skilit-providers typecheck
 
       - name: Run provider contract tests
         run: node --experimental-strip-types --test packages/providers/tests/provider.test.mjs
@@ -377,10 +377,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint editor adapters package
-        run: pnpm --filter skelet-editor-adapters lint
+        run: pnpm --filter skilit-editor-adapters lint
 
       - name: Strict typecheck editor adapters package
-        run: pnpm --filter skelet-editor-adapters typecheck
+        run: pnpm --filter skilit-editor-adapters typecheck
 
       - name: Run vector adapter tests
         run: node --experimental-strip-types --test packages/editor-adapters/tests/vector-adapter.test.mjs
@@ -422,10 +422,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint ingest package
-        run: pnpm --filter skelet-ingest lint
+        run: pnpm --filter skilit-ingest lint
 
       - name: Strict typecheck ingest package
-        run: pnpm --filter skelet-ingest typecheck
+        run: pnpm --filter skilit-ingest typecheck
 
       - name: Run publish pipeline tests
         run: >-
@@ -464,10 +464,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint assets package
-        run: pnpm --filter skelet-assets lint
+        run: pnpm --filter skilit-assets lint
 
       - name: Strict typecheck assets package
-        run: pnpm --filter skelet-assets typecheck
+        run: pnpm --filter skilit-assets typecheck
 
       - name: Run asset registry tests
         run: >-
@@ -509,10 +509,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint TypeScript SDK
-        run: pnpm --filter skelet-sdk lint
+        run: pnpm --filter skilit-sdk lint
 
       - name: Strict typecheck TypeScript SDK
-        run: pnpm --filter skelet-sdk typecheck
+        run: pnpm --filter skilit-sdk typecheck
 
       - name: Run TypeScript SDK tests
         run: node --experimental-strip-types --test packages/sdk-ts/tests/client.test.mjs
@@ -548,10 +548,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint Lens package
-        run: pnpm --filter skelet-lens lint
+        run: pnpm --filter skilit-lens lint
 
       - name: Strict typecheck Lens package
-        run: pnpm --filter skelet-lens typecheck
+        run: pnpm --filter skilit-lens typecheck
 
       - name: Install pinned Playwright Chromium headless shell
         run: node packages/lens/node_modules/playwright-core/cli.js install chromium-headless-shell
@@ -591,13 +591,13 @@ jobs:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_DB: skelet_test
-          POSTGRES_USER: skelet_test
+          POSTGRES_DB: skilit_test
+          POSTGRES_USER: skilit_test
           POSTGRES_PASSWORD: local_ci_fixture_only
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U skelet_test -d skelet_test"
+          --health-cmd "pg_isready -U skilit_test -d skilit_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -628,10 +628,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint DB package
-        run: pnpm --filter skelet-db lint
+        run: pnpm --filter skilit-db lint
 
       - name: Strict typecheck DB package
-        run: pnpm --filter skelet-db typecheck
+        run: pnpm --filter skilit-db typecheck
 
       - name: Run DB migration and domain tests
         run: >-
@@ -655,8 +655,8 @@ jobs:
 
       - name: Real PostgreSQL transaction and concurrency integration tests
         env:
-          SKELET_TEST_DATABASE_URL: postgresql://skelet_test:local_ci_fixture_only@127.0.0.1:5432/skelet_test
-          SKELET_DB_TEST_CONFIRM: "yes"
+          SKILIT_TEST_DATABASE_URL: postgresql://skilit_test:local_ci_fixture_only@127.0.0.1:5432/skilit_test
+          SKILIT_DB_TEST_CONFIRM: "yes"
         run: |
           node --experimental-strip-types --test packages/db/tests/pg-integration.test.mjs
           node --experimental-strip-types --test packages/db/tests/pg-graph.test.mjs
@@ -699,10 +699,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint storage package
-        run: pnpm --filter skelet-storage lint
+        run: pnpm --filter skilit-storage lint
 
       - name: Strict typecheck storage package
-        run: pnpm --filter skelet-storage typecheck
+        run: pnpm --filter skilit-storage typecheck
 
       - name: Storage bytes and filesystem regression tests
         run: node --experimental-strip-types --test packages/storage/tests/storage.test.mjs

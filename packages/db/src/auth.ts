@@ -7,7 +7,7 @@ import {
 import type { DbQueryResult, DbTransaction } from "./db.ts";
 
 /**
- * G04-01 authentication baseline: Skelet-owned sign-up/sign-in/sign-out over
+ * G04-01 authentication baseline: Skilit-owned sign-up/sign-in/sign-out over
  * the 004_auth schema. Shapes stay compatible with a future Better Auth
  * adapter, but this module has no network, no cookies, and no external
  * provider: email/password verification plus opaque session tokens.

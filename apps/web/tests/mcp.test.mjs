@@ -10,14 +10,14 @@ import { createWorkspace } from "../../../packages/db/src/workspaces.ts";
 import { registerAsset } from "../../../packages/assets/src/registry.ts";
 import { bearerToken, dispatchMcp, resolveRequestUser } from "../lib/mcp.ts";
 import { resetRateLimits, checkRateLimit } from "../lib/rate-limit.ts";
-import { exportReferencePack, parseSkeletUri } from "../lib/reference-packs.ts";
+import { exportReferencePack, parseSkilitUri } from "../lib/reference-packs.ts";
 
 const ANON = { userId: null };
 
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const user = await signUp(db, { email: "agent@skelet.example", password: "agent-password-01" });
+  const user = await signUp(db, { email: "agent@skilit.example", password: "agent-password-01" });
   const source = await createSource(db, { key: "mcp-source", kind: "synthetic" });
   const icon = await registerAsset(db, {
     kind: "icon",
@@ -40,7 +40,7 @@ test("initialize negotiates protocol versions", async () => {
   try {
     const latest = await call(fx.db, ANON, "initialize", { protocolVersion: "2026-07-28" });
     assert.equal(latest.result.protocolVersion, "2026-07-28");
-    assert.equal(latest.result.serverInfo.name, "skelet");
+    assert.equal(latest.result.serverInfo.name, "skilit");
     assert.deepEqual(Object.keys(latest.result.capabilities), ["tools"]);
     const legacy = await call(fx.db, ANON, "initialize", { protocolVersion: "2024-11-05" });
     assert.equal(legacy.result.protocolVersion, "2024-11-05");
@@ -56,7 +56,7 @@ test("initialize negotiates protocol versions", async () => {
 test("session tokens bind to server-resolved identities", async () => {
   const fx = await fixture();
   try {
-    const signed = await signIn(fx.db, { email: "agent@skelet.example", password: "agent-password-01" });
+    const signed = await signIn(fx.db, { email: "agent@skilit.example", password: "agent-password-01" });
     assert.equal(await resolveRequestUser(fx.db, signed.token), fx.user.id);
     await assert.rejects(() => resolveRequestUser(fx.db, "bogus-token"));
     await assert.rejects(() => resolveRequestUser(fx.db, null));
@@ -120,7 +120,7 @@ test("tools require a resolved identity", async () => {
   }
 });
 
-test("asset tools return stable Skelet URIs", async () => {
+test("asset tools return stable Skilit URIs", async () => {
   const fx = await fixture();
   try {
     const searched = await call(fx.db, fx.ctx, "tools/call", {
@@ -128,24 +128,24 @@ test("asset tools return stable Skelet URIs", async () => {
       arguments: { query: "arrow" },
     });
     const payload = JSON.parse(searched.result.content[0].text);
-    assert.equal(payload.schema_version, "skelet.agent.v1");
+    assert.equal(payload.schema_version, "skilit.agent.v1");
     assert.equal(payload.status, "complete");
     assert.ok(typeof payload.request_id === "string" && payload.request_id.length > 0);
     assert.equal(payload.result.assets.length, 1);
-    assert.equal(payload.result.assets[0].uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(payload.result.assets[0].uri, `skilit://artifact/${fx.icon.artifactId}`);
     assert.equal(payload.result.assets[0].serving, "download");
     const single = await call(fx.db, fx.ctx, "tools/call", {
       name: "get_asset",
       arguments: { artifactId: fx.icon.artifactId },
     });
     const one = JSON.parse(single.result.content[0].text);
-    assert.equal(one.schema_version, "skelet.agent.v1");
-    assert.equal(one.result.asset.uri, `skelet://artifact/${fx.icon.artifactId}`);
+    assert.equal(one.schema_version, "skilit.agent.v1");
+    assert.equal(one.result.asset.uri, `skilit://artifact/${fx.icon.artifactId}`);
     const item = await call(fx.db, fx.ctx, "tools/call", {
       name: "get_registry_item",
-      arguments: { name: "skelet-button" },
+      arguments: { name: "skilit-button" },
     });
-    assert.equal(JSON.parse(item.result.content[0].text).result.item.name, "skelet-button");
+    assert.equal(JSON.parse(item.result.content[0].text).result.item.name, "skilit-button");
   } finally {
     await fx.db.close();
   }
@@ -159,12 +159,12 @@ test("registry search lists, filters, and validates", async () => {
       arguments: {},
     });
     const listed = JSON.parse(all.result.content[0].text);
-    assert.equal(listed.schema_version, "skelet.agent.v1");
+    assert.equal(listed.schema_version, "skilit.agent.v1");
     assert.equal(listed.status, "complete");
     assert.equal(listed.result.total, 2);
     assert.deepEqual(
       listed.result.items.map((entry) => entry.name),
-      ["skelet-button", "skelet-card"],
+      ["skilit-button", "skilit-card"],
     );
     const button = await call(fx.db, fx.ctx, "tools/call", {
       name: "search_registry",
@@ -172,7 +172,7 @@ test("registry search lists, filters, and validates", async () => {
     });
     const filtered = JSON.parse(button.result.content[0].text);
     assert.equal(filtered.result.total, 1);
-    assert.equal(filtered.result.items[0].name, "skelet-button");
+    assert.equal(filtered.result.items[0].name, "skilit-button");
     const none = await call(fx.db, fx.ctx, "tools/call", {
       name: "search_registry",
       arguments: { query: "no-such-widget" },
@@ -187,8 +187,8 @@ test("registry search lists, filters, and validates", async () => {
       });
       assert.equal(rejected.error.code, -32602, `rejects ${JSON.stringify(bad)}`);
     }
-    const previous = process.env.SKELET_DISABLED_CAPABILITIES;
-    process.env.SKELET_DISABLED_CAPABILITIES = "registry";
+    const previous = process.env.SKILIT_DISABLED_CAPABILITIES;
+    process.env.SKILIT_DISABLED_CAPABILITIES = "registry";
     try {
       const disabled = await call(fx.db, fx.ctx, "tools/call", {
         name: "search_registry",
@@ -198,8 +198,8 @@ test("registry search lists, filters, and validates", async () => {
       const envelope = disabled.error.data.envelope;
       assert.equal(envelope.error.code, "PROVIDER_DISABLED");
     } finally {
-      if (previous === undefined) delete process.env.SKELET_DISABLED_CAPABILITIES;
-      else process.env.SKELET_DISABLED_CAPABILITIES = previous;
+      if (previous === undefined) delete process.env.SKILIT_DISABLED_CAPABILITIES;
+      else process.env.SKILIT_DISABLED_CAPABILITIES = previous;
     }
   } finally {
     await fx.db.close();
@@ -241,8 +241,8 @@ test("agent write round-trip preserves references across sessions", async () => 
   const db = await openDatabase();
   try {
     await migrateUp(db);
-    const owner = await signUp(db, { email: "writer@skelet.example", password: "writer-password-01" });
-    const outsider = await signUp(db, { email: "outsider@skelet.example", password: "outsider-password-01" });
+    const owner = await signUp(db, { email: "writer@skilit.example", password: "writer-password-01" });
+    const outsider = await signUp(db, { email: "outsider@skilit.example", password: "outsider-password-01" });
     const space = await createWorkspace(db, { name: "Writer space", ownerId: owner.id });
     const source = await createSource(db, { key: "writer-source", kind: "synthetic" });
     const product = await createProduct(db, { sourceId: source.id, title: "Writer app" });
@@ -270,11 +270,11 @@ test("agent write round-trip preserves references across sessions", async () => 
       },
     });
     const createdPayload = JSON.parse(created.result.content[0].text);
-    assert.equal(createdPayload.schema_version, "skelet.agent.v1");
+    assert.equal(createdPayload.schema_version, "skilit.agent.v1");
     const pack = createdPayload.result.pack;
-    assert.equal(pack.schema, "skelet/reference-pack/1");
+    assert.equal(pack.schema, "skilit/reference-pack/1");
     assert.equal(pack.itemCount, 1);
-    assert.equal(pack.items[0].uri, `skelet://artifact/${screen.id}`);
+    assert.equal(pack.items[0].uri, `skilit://artifact/${screen.id}`);
     const saved = await call(db, ownerCtx, "tools/call", {
       name: "save_reference",
       arguments: { collectionId: pack.uri.split("/").pop(), artifactId: screen.id },
@@ -282,11 +282,11 @@ test("agent write round-trip preserves references across sessions", async () => 
     assert.equal(JSON.parse(saved.result.content[0].text).result.saved, true);
     const fetched = await call(db, ownerCtx, "tools/call", {
       name: "get_object",
-      arguments: { uri: `skelet://artifact/${screen.id}` },
+      arguments: { uri: `skilit://artifact/${screen.id}` },
     });
     assert.equal(JSON.parse(fetched.result.content[0].text).result.object.title, "Writer screen");
     const recovered = await exportReferencePack(db, pack.uri.split("/").pop(), owner.id);
-    assert.deepEqual(recovered.items.map((entry) => entry.uri), [`skelet://artifact/${screen.id}`]);
+    assert.deepEqual(recovered.items.map((entry) => entry.uri), [`skilit://artifact/${screen.id}`]);
     const denied = await call(db, outsiderCtx, "tools/call", {
       name: "get_object",
       arguments: { uri: pack.uri },
@@ -308,10 +308,10 @@ test("agent write round-trip preserves references across sessions", async () => 
     assert.equal(forged.error.code, -32000);
     const badUri = await call(db, ownerCtx, "tools/call", {
       name: "get_object",
-      arguments: { uri: "skelet://nope/123" },
+      arguments: { uri: "skilit://nope/123" },
     });
     assert.equal(badUri.error.code, -32602);
-    assert.throws(() => parseSkeletUri("not-a-uri"), /Skelet URI is invalid/);
+    assert.throws(() => parseSkilitUri("not-a-uri"), /Skilit URI is invalid/);
   } finally {
     await db.close();
   }
@@ -370,8 +370,8 @@ test("AF-SEC-00: forged cross-workspace artifact reads and saves fail closed", a
   try {
     await migrateUp(db);
     const { createWorkspace } = await import("../../../packages/db/src/workspaces.ts");
-    const ownerA = await signUp(db, { email: "af-mcp-a@skelet.example", password: "af-password-01" });
-    const ownerB = await signUp(db, { email: "af-mcp-b@skelet.example", password: "af-password-01" });
+    const ownerA = await signUp(db, { email: "af-mcp-a@skilit.example", password: "af-password-01" });
+    const ownerB = await signUp(db, { email: "af-mcp-b@skilit.example", password: "af-password-01" });
     const spaceA = await createWorkspace(db, { name: "AF MCP A", ownerId: ownerA.id });
     const source = await createSource(db, { key: "af-mcp-source", kind: "synthetic" });
     const priv = await createArtifact(db, {
@@ -388,12 +388,12 @@ test("AF-SEC-00: forged cross-workspace artifact reads and saves fail closed", a
     const ctxB = { userId: ownerB.id };
     const allowed = await call(db, ctxA, "tools/call", {
       name: "get_object",
-      arguments: { uri: `skelet://artifact/${priv.id}` },
+      arguments: { uri: `skilit://artifact/${priv.id}` },
     });
     assert.equal(JSON.parse(allowed.result.content[0].text).result.object.title, "AF MCP private");
     const denied = await call(db, ctxB, "tools/call", {
       name: "get_object",
-      arguments: { uri: `skelet://artifact/${priv.id}` },
+      arguments: { uri: `skilit://artifact/${priv.id}` },
     });
     // Opaque failure: identical to a missing object, no existence oracle.
     assert.equal(denied.error.code, -32000);

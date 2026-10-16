@@ -309,7 +309,7 @@ export default function LensJobsPage() {
       <h1>Lens Build Kit jobs</h1>
       <p>
         Create, poll, inspect, download, cancel, retry, and resume the same durable Lens jobs served over REST
-        and MCP, addressed by the stable <code>skelet://lens/{"{id}"}</code> identifier.
+        and MCP, addressed by the stable <code>skilit://lens/{"{id}"}</code> identifier.
       </p>
 
       <section aria-label="Credentials">

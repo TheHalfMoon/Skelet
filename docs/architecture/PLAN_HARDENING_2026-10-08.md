@@ -1,4 +1,4 @@
-# Skelet Architecture Review and Plan Hardening (2026-10-08)
+# Skilit Architecture Review and Plan Hardening (2026-10-08)
 
 Status: PROPOSED, effective only after governed merge into canonical `main`.
 Authority: additive clarification of `docs/IMPLEMENTATION_PLAN.md`. No previous canonical grains are reopened.
@@ -6,13 +6,13 @@ Change class: documentation-only. No donor source, media, models, or dependencie
 
 ## Verdict and key correction
 
-Retain Skelet as an **agent-first design intelligence layer**, not a second canvas editor or an inexpensive screenshot clone. The existing normalized Artifact graph, modular monolith, PostgreSQL authority, provenance/rights separation, local-default providers, and exact-head governance are sound.
+Retain Skilit as an **agent-first design intelligence layer**, not a second canvas editor or an inexpensive screenshot clone. The existing normalized Artifact graph, modular monolith, PostgreSQL authority, provenance/rights separation, local-default providers, and exact-head governance are sound.
 
-**Critical correction:** the G01-01 Monet selection contains only 90 qualified source paths, excluding most UI, components, data, and screenshots. It cannot itself prove a runnable Monet-based Next.js application. G01-02a established a 45/45 candidate/quarantine preflight; PR #7 contains a single isolated screenshot-queue module, not a full product. P01 must therefore use **capability-first selective reuse and a clean Skelet app shell** instead of assuming an imported donor application will work. Do not fabricate full-build evidence or import quarantined code to satisfy a milestone.
+**Critical correction:** the G01-01 Monet selection contains only 90 qualified source paths, excluding most UI, components, data, and screenshots. It cannot itself prove a runnable Monet-based Next.js application. G01-02a established a 45/45 candidate/quarantine preflight; PR #7 contains a single isolated screenshot-queue module, not a full product. P01 must therefore use **capability-first selective reuse and a clean Skilit app shell** instead of assuming an imported donor application will work. Do not fabricate full-build evidence or import quarantined code to satisfy a milestone.
 
 ## 1. Product ownership and first vertical slice
 
-Skelet owns: research evidence and source identity, asset discovery and rights, URL/image Lens, component registry, multimodal search, saved reference packs, API/MCP, and its own product access and billing.
+Skilit owns: research evidence and source identity, asset discovery and rights, URL/image Lens, component registry, multimodal search, saved reference packs, API/MCP, and its own product access and billing.
 
 **Do not duplicate** Lilac's design/editor canvas, Ineractive's app generation, Morize's durable agent memory, or Kernux/Deskal browser/computer runtime. Integrate only qualified capabilities through versioned adapters. TheHalfMoon readmes/roadmaps are **leads**, not proof of actual reusable runtime implementations.
 
@@ -30,7 +30,7 @@ Then S1 adds **safe URL Lens**: isolated capture, evidence-rich report, tokens, 
 | Gate | Dependency | Required proof |
 | --- | --- | --- |
 | R0 Rights + donor decisions | Canonical P00 and G01-01/01a/02a | Immutable source pins, source-vs-asset authorization, quarantine decision, imported-path ledger |
-| R1 Runnable app shell | R0 | Clean Next.js Skelet workspace install, lint, strict typecheck, build, health route; **no** dependence on excluded donor content |
+| R1 Runnable app shell | R0 | Clean Next.js Skilit workspace install, lint, strict typecheck, build, health route; **no** dependence on excluded donor content |
 | R2 Canonical domain + tenant rights | R1 | PostgreSQL migrations/constraints, storage, workspace auth, cross-tenant denial including asset URLs and vectors |
 | R3 Integrated S0 | R2 | Authenticated ingest -> search -> UI -> collections -> REST/MCP -> reference pack roundtrip; zero external model required |
 | R4 Safe URL Lens S1 | R3 | Public URL -> isolated fetch/capture -> token extraction -> provenance -> job polling/partial status; SSRF/egress tests pass |
@@ -38,7 +38,7 @@ Then S1 adds **safe URL Lens**: isolated capture, evidence-rich report, tokens, 
 | R6 Commercial beta | R5 | Billing/quota/abuse tests, tenant isolation, terms/takedown, accessibility, measured unit economics, deployment recoverability |
 | R7 Commercial v1 | R6 | All original minimum launch journeys, 3 distinct agent clients, robust E2E/load/incident exercises, signed release |
 
-Existing P00–P15 deliverables remain in force. Where P01/G01-03 assumed a runnable full Monet app, reinterpret the next executable foundation as a clean Skelet-owned shell integrating only separately qualified donor capabilities. Neither rename nor silently close already merged grains.
+Existing P00–P15 deliverables remain in force. Where P01/G01-03 assumed a runnable full Monet app, reinterpret the next executable foundation as a clean Skilit-owned shell integrating only separately qualified donor capabilities. Neither rename nor silently close already merged grains.
 
 ## 3. Canonical services, indexing, and failure model
 
@@ -46,7 +46,7 @@ Existing P00–P15 deliverables remain in force. Where P01/G01-03 assumed a runn
 - Define data ownership, transaction boundaries, revision IDs and migrations before parallel feature development. Use a transactional outbox for `publish -> index`; acknowledge partial optional enrichment without publishing invalid canonical data.
 - Postgres queue (pg-boss candidate) must have stable idempotency keys, leases, retry/jitter, rate/concurrency caps, cancellation, poison queues, replay, audit and recovery. The imported ephemeral `ScreenshotQueue` is **not** the durable worker queue.
 - Apply tenant and rights filters before ranking, not after. Enforce at API, MCP, object URLs, embeddings, suggestion counts, sharing, caching, search facets, exports, and reference-pack recovery.
-- Public ID and `skelet://` URI resolution must be stable regardless of donor/provider IDs. Define 404/403 semantics, historical version access, provenance changes and authorized object deletion.
+- Public ID and `skilit://` URI resolution must be stable regardless of donor/provider IDs. Define 404/403 semantics, historical version access, provenance changes and authorized object deletion.
 
 ## 4. Browser/Lens and prompt-injection security
 

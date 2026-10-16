@@ -10,7 +10,7 @@ alter table import_records
   add constraint import_records_canonical_type_check
   check(canonical_type in ('product','product_version','artifact','asset','pattern','flow'));
 
-create or replace function skelet_graph_ref_exists(ref_kind text, ref_id uuid)
+create or replace function skilit_graph_ref_exists(ref_kind text, ref_id uuid)
 returns boolean language plpgsql volatile as $$
 begin
   -- Lock endpoint rows until the insertion commits so a concurrent DELETE
@@ -30,4 +30,4 @@ end;
 $$;
 
 create trigger import_flow_guard before delete on flows for each row
- execute function skelet_import_ref_delete_guard('flow');
+ execute function skilit_import_ref_delete_guard('flow');

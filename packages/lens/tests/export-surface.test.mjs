@@ -113,21 +113,21 @@ test("qualified colors, typography, spacing, radius, and motion export correctly
   // Tailwind theme carries every qualified category.
   const tailwind = artifact(bundle, "tailwind.theme.js");
   for (const needle of [
-    '"skelet-color-001": "#aabbcc"',
-    '"skelet-size-001": "24px"',
-    '"skelet-weight-001": "700"',
-    '"skelet-leading-001": "1.5"',
-    '"skelet-space-001": "-8px"',
-    '"skelet-radius-001": "4px"',
-    '"skelet-duration-001": "200ms"',
-    '"skelet-ease-001": "cubic-bezier(0.4, 0, 0.2, 1)"',
+    '"skilit-color-001": "#aabbcc"',
+    '"skilit-size-001": "24px"',
+    '"skilit-weight-001": "700"',
+    '"skilit-leading-001": "1.5"',
+    '"skilit-space-001": "-8px"',
+    '"skilit-radius-001": "4px"',
+    '"skilit-duration-001": "200ms"',
+    '"skilit-ease-001": "cubic-bezier(0.4, 0, 0.2, 1)"',
   ]) {
     assert.ok(tailwind.content.includes(needle), `tailwind missing ${needle}`);
   }
   // shadcn variables cover colors and radius where supported.
   const shadcn = artifact(bundle, "shadcn-theme.css");
-  assert.ok(shadcn.content.includes("--skelet-color-001: #aabbcc;"));
-  assert.ok(shadcn.content.includes("--skelet-radius-001: 4px;"));
+  assert.ok(shadcn.content.includes("--skilit-color-001: #aabbcc;"));
+  assert.ok(shadcn.content.includes("--skilit-radius-001: 4px;"));
   // DESIGN.md preserves source references for exported observations.
   const design = artifact(bundle, "DESIGN.md");
   assert.ok(design.content.includes("#brand"));
@@ -226,16 +226,16 @@ test("unknown-rights assets cannot enter redistributable packages", () => {
 
 test("generated theme files pass actual parser and build verification", () => {
   const bundle = exportLensArtifacts(assembleLensReport(captured(), qualifiedStyles()));
-  const dir = mkdtempSync(join(tmpdir(), "skelet-export-"));
+  const dir = mkdtempSync(join(tmpdir(), "skilit-export-"));
   try {
     const tailwindPath = join(dir, "tailwind.theme.js");
     writeFileSync(tailwindPath, artifact(bundle, "tailwind.theme.js").content);
     execFileSync(process.execPath, ["--check", tailwindPath]);
     const required = createRequire(import.meta.url)(tailwindPath);
-    assert.equal(required.theme.extend.colors["skelet-color-001"], "#aabbcc");
-    assert.equal(required.theme.extend.fontSize["skelet-size-001"], "24px");
-    assert.equal(required.theme.extend.spacing["skelet-space-001"], "-8px");
-    assert.equal(required.theme.extend.spacing["skelet-space-002"], "16px");
+    assert.equal(required.theme.extend.colors["skilit-color-001"], "#aabbcc");
+    assert.equal(required.theme.extend.fontSize["skilit-size-001"], "24px");
+    assert.equal(required.theme.extend.spacing["skilit-space-001"], "-8px");
+    assert.equal(required.theme.extend.spacing["skilit-space-002"], "16px");
     // Strict structural parse of the shadcn CSS: one :root rule, allowlisted declarations.
     const css = artifact(bundle, "shadcn-theme.css").content;
     const match = /^\/\*[\s\S]*?\*\/\n:root \{\n([\s\S]*?)\}$/.exec(css.trim());
@@ -244,7 +244,7 @@ test("generated theme files pass actual parser and build verification", () => {
     assert.ok(declarations.length >= 2);
     for (const raw of declarations) {
       const line = raw.trim();
-      assert.match(line, /^--skelet-(color|radius)-\d{3}: (#[0-9a-f]{6}(?:[0-9a-f]{2})?|-?\d+(\.\d+)?px);$/);
+      assert.match(line, /^--skilit-(color|radius)-\d{3}: (#[0-9a-f]{6}(?:[0-9a-f]{2})?|-?\d+(\.\d+)?px);$/);
     }
     assert.ok(!css.includes("url(") && !css.includes("@"));
     // JSON artifacts parse and the DTCG validates offline.
@@ -307,7 +307,7 @@ test("malformed, laundering-risk, and sparse inputs fail closed", () => {
   const bad = [
     null,
     {},
-    { ...report, schemaVersion: "skelet.lens.report.v9" },
+    { ...report, schemaVersion: "skilit.lens.report.v9" },
     { ...report, status: "completed" },
     { ...report, analysisId: "not-a-hash" },
     { ...report, designDna: { ...report.designDna, dtcg: { colors: {} } } },
@@ -334,7 +334,7 @@ test("empty-token reports stay explicitly partial with valid empty themes", () =
   const bundle = exportLensArtifacts(assembleLensReport(captured(), []));
   assert.equal(bundle.status, "partial");
   assert.ok(bundle.manifest.coverageGaps.includes("no-qualified-style-tokens"));
-  const dir = mkdtempSync(join(tmpdir(), "skelet-export-empty-"));
+  const dir = mkdtempSync(join(tmpdir(), "skilit-export-empty-"));
   try {
     const tailwindPath = join(dir, "tailwind.theme.js");
     writeFileSync(tailwindPath, artifact(bundle, "tailwind.theme.js").content);

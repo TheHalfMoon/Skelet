@@ -1,4 +1,4 @@
-# Skelet Launch SLO Targets and Operator Thresholds
+# Skilit Launch SLO Targets and Operator Thresholds
 
 Status: planning targets from `docs/IMPLEMENTATION_PLAN.md` section 17,
 with the first measured baseline attached. These are objectives to
@@ -66,7 +66,7 @@ health, no-model, or backup failure.
 |---|-----------|--------|-----------------|
 | 1 | Clean-checkout frozen install succeeds | `pnpm install --frozen-lockfile` (CI `bootstrap` job) | Block release; diff lockfile vs manifest |
 | 2 | Web production build passes and health/smoke pass | `pnpm --dir apps/web build`; `node scripts/smoke-web.mjs 3103` | Block release; inspect build/smoke logs |
-| 3 | Worker health passes with no provider secrets | `SKELET_NO_MODEL=1 pnpm --dir apps/worker start health`; `python3 scripts/check_no_model.py --root .` | Fail closed; audit env for forbidden credentials |
+| 3 | Worker health passes with no provider secrets | `SKILIT_NO_MODEL=1 pnpm --dir apps/worker start health`; `python3 scripts/check_no_model.py --root .` | Fail closed; audit env for forbidden credentials |
 | 4 | Dependency posture holds | `python3 scripts/generate_sbom.py --check`; `pnpm audit --json` (see `DEPENDENCY_SCAN.md`) | Override/update grain for patched advisories; dated accepted-risk entry otherwise |
 | 5 | Migrations rehearse up/down/up on scratch hardware | `migration-rehearsal` suite (CI `db-foundation` job) | Block upgrade; fix the down migration first |
 | 6 | Backup exists and restore is proven before serving | Runbook drill; `backup-restore` suites | Re-run drill on scratch DB; do not serve until verify passes |

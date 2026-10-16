@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/TheHalfMoon/Skelet/schemas/upstreams.schema.json",
-  "title": "Skelet upstream source lock",
+  "$id": "https://github.com/TheHalfMoon/Skilit/schemas/upstreams.schema.json",
+  "title": "Skilit upstream source lock",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "sources"],

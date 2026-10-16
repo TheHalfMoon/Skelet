@@ -29,7 +29,7 @@ create table jobs (
 );
 create index jobs_claim_idx on jobs(queue, status, run_at);
 
-create function skelet_jobs_updated_at() returns trigger
+create function skilit_jobs_updated_at() returns trigger
 language plpgsql set search_path = public, pg_temp as $$
 begin
  new.updated_at = now();
@@ -37,4 +37,4 @@ begin
 end;
 $$;
 create trigger jobs_updated_at before update on jobs
- for each row execute function skelet_jobs_updated_at();
+ for each row execute function skilit_jobs_updated_at();

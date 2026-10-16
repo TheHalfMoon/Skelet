@@ -10,7 +10,7 @@ const SCRIPT = fileURLToPath(new URL("../../../scripts/check_abuse_alarms.mjs", 
 const NOW = 1_700_000_000_000;
 
 function run(args, input) {
-  const dir = mkdtempSync(join(tmpdir(), "skelet-p15-2-"));
+  const dir = mkdtempSync(join(tmpdir(), "skilit-p15-2-"));
   try {
     const eventsPath = join(dir, "events.jsonl");
     writeFileSync(eventsPath, input);
@@ -73,7 +73,7 @@ test("P15-2: malformed inputs fail closed with exit 3 and no assessment", () => 
   assert.equal(badJson.stdout, "");
   const badEvent = run(["--now", String(NOW)], `${JSON.stringify({ code: "", at: NOW })}\n`);
   assert.equal(badEvent.exit, 3);
-  const dir = mkdtempSync(join(tmpdir(), "skelet-p15-2-"));
+  const dir = mkdtempSync(join(tmpdir(), "skilit-p15-2-"));
   try {
     const missing = join(dir, "does-not-exist.jsonl");
     try {

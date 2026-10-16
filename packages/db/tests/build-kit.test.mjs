@@ -32,7 +32,7 @@ const NINE = [
   "007_billing",
   "008_jobs",
   "009_lens_build_kit_runs",
-  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions",
+  "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename",
 ];
 const BASE = new Date("2026-10-10T04:00:00.000Z");
 
@@ -50,9 +50,9 @@ function request(overrides = {}) {
 }
 
 async function tenants(db) {
-  const first = await signUp(db, { email: "kit-a@skelet.example", password: "kit-member-01" });
+  const first = await signUp(db, { email: "kit-a@skilit.example", password: "kit-member-01" });
   const spaceA = await createWorkspace(db, { name: "Kit A", ownerId: first.id });
-  const second = await signUp(db, { email: "kit-b@skelet.example", password: "kit-member-02" });
+  const second = await signUp(db, { email: "kit-b@skilit.example", password: "kit-member-02" });
   const spaceB = await createWorkspace(db, { name: "Kit B", ownerId: second.id });
   return {
     a: { workspaceId: spaceA.workspace.id, actorId: first.id },
@@ -65,7 +65,7 @@ let soloSeq = 0;
 async function soloTenant(db, tag) {
   soloSeq += 1;
   const user = await signUp(db, {
-    email: `kit-${tag}-${soloSeq}@skelet.example`,
+    email: `kit-${tag}-${soloSeq}@skilit.example`,
     password: "kit-member-01",
   });
   const space = await createWorkspace(db, {

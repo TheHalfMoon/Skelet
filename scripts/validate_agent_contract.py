@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate Skelet agent-contract fixtures (AF-03a frozen v1).
+"""Validate Skilit agent-contract fixtures (AF-03a frozen v1).
 
 Standard library only. Enforces the versioned result envelope, the typed
-error taxonomy, stable Skelet URI patterns, and the evidence-mode
+error taxonomy, stable Skilit URI patterns, and the evidence-mode
 vocabulary shared by MCP, REST, SDK, and CLI. Behavior parity lands in
 later AF-03 grains; this gate freezes the contract first.
 """
@@ -14,7 +14,8 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA_VERSION = "skelet.agent.v1"
+SCHEMA_VERSION = "skilit.agent.v1"
+LEGACY_SCHEMA_VERSION = "skelet.agent.v1"
 STATUSES = {"complete", "partial"}
 ERROR_CODES = {
     "INVALID_INPUT",
@@ -39,7 +40,7 @@ EVIDENCE_MODES = {
     "unknown",
 }
 URI_RE = re.compile(
-    r"^skelet://(product|version|artifact|flow|collection|lens|reference-pack|pattern|replay)/[A-Za-z0-9_\-]{1,128}$"
+    r"^(?:skilit|skelet)://(product|version|artifact|flow|collection|lens|reference-pack|pattern|replay)/[A-Za-z0-9_\-]{1,128}$"
 )
 
 
@@ -73,8 +74,8 @@ def validate_envelope(data: object) -> list[str]:
     unknown = set(data) - allowed
     if unknown:
         fail(errors, "envelope", f"unknown fields: {sorted(unknown)}")
-    if data.get("schema_version") != SCHEMA_VERSION:
-        fail(errors, "envelope", "schema_version must be skelet.agent.v1")
+    if data.get("schema_version") not in (SCHEMA_VERSION, LEGACY_SCHEMA_VERSION):
+        fail(errors, "envelope", "schema_version must be skilit.agent.v1")
     request_id = data.get("request_id")
     if not isinstance(request_id, str) or not request_id or len(request_id) > 128:
         fail(errors, "envelope", "request_id must be 1..128 chars")

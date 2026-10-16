@@ -12,11 +12,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from unittest import mock
 
-from scripts.skelet_sdk import SDK_CONTRACT_VERSION, SdkError, SkeletClient
+from scripts.skilit_sdk import SDK_CONTRACT_VERSION, SdkError, SkilitClient
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSET = {
-    "uri": "skelet://artifact/1",
+    "uri": "skilit://artifact/1",
     "kind": "icon",
     "title": "Arrow",
     "license": "MIT",
@@ -62,28 +62,28 @@ def stubbed(routes, error=None):
 
 
 def make_client(**kwargs):
-    options = {"base_url": "https://skelet.test", "token": "secret"}
+    options = {"base_url": "https://skilit.test", "token": "secret"}
     options.update(kwargs)
-    return SkeletClient(options["base_url"], options["token"], **{k: v for k, v in kwargs.items() if k not in ("base_url", "token")})
+    return SkilitClient(options["base_url"], options["token"], **{k: v for k, v in kwargs.items() if k not in ("base_url", "token")})
 
 
 class SdkClientTests(unittest.TestCase):
     def test_constructor_validation(self) -> None:
         with self.assertRaises(SdkError):
-            SkeletClient("", "t")
+            SkilitClient("", "t")
         with self.assertRaises(SdkError):
-            SkeletClient("https://x", "")
+            SkilitClient("https://x", "")
         with self.assertRaises(SdkError):
-            SkeletClient("http://example.com", "t")
+            SkilitClient("http://example.com", "t")
         with self.assertRaises(SdkError):
-            SkeletClient("https://user:pass@x", "t")
+            SkilitClient("https://user:pass@x", "t")
         with self.assertRaises(SdkError):
-            SkeletClient("https://x", "t", timeout=-1)
+            SkilitClient("https://x", "t", timeout=-1)
         self.assertEqual(SDK_CONTRACT_VERSION, "v1")
-        self.assertTrue(make_client().base_url.endswith("https://skelet.test"))
+        self.assertTrue(make_client().base_url.endswith("https://skilit.test"))
 
     def test_search_shapes_requests(self) -> None:
-        with stubbed({"https://skelet.test/api/v1/assets": {"assets": [ASSET]}}) as calls:
+        with stubbed({"https://skilit.test/api/v1/assets": {"assets": [ASSET]}}) as calls:
             assets = make_client().search_assets("arrow", kinds="icon", limit=5)
         self.assertEqual([ASSET], assets)
         request = calls[0]
@@ -95,14 +95,14 @@ class SdkClientTests(unittest.TestCase):
 
     def test_get_and_object_recovery(self) -> None:
         routes = {
-            "https://skelet.test/api/v1/assets/abc": {"asset": ASSET},
-            "https://skelet.test/api/v1/objects": {
-                "object": {"uri": "skelet://artifact/abc", "kind": "icon", "title": "A", "rights": "permitted"}
+            "https://skilit.test/api/v1/assets/abc": {"asset": ASSET},
+            "https://skilit.test/api/v1/objects": {
+                "object": {"uri": "skilit://artifact/abc", "kind": "icon", "title": "A", "rights": "permitted"}
             },
         }
         with stubbed(routes):
-            self.assertEqual(make_client().get_asset("abc")["uri"], "skelet://artifact/1")
-            envelope = make_client().get_object("skelet://artifact/abc")
+            self.assertEqual(make_client().get_asset("abc")["uri"], "skilit://artifact/1")
+            envelope = make_client().get_object("skilit://artifact/abc")
             self.assertEqual(envelope["object"]["title"], "A")
             with self.assertRaises(SdkError):
                 make_client().get_asset("")
@@ -118,7 +118,7 @@ class SdkClientTests(unittest.TestCase):
         ):
             with self.subTest(status=status):
                 error = urllib.error.HTTPError(
-                    "https://skelet.test/api/v1/assets", status, "boom", {}, io.BytesIO(b"{}")
+                    "https://skilit.test/api/v1/assets", status, "boom", {}, io.BytesIO(b"{}")
                 )
                 with stubbed({}, error=error):
                     with self.assertRaises(SdkError) as caught:
@@ -131,36 +131,36 @@ class SdkClientTests(unittest.TestCase):
             with self.assertRaises(SdkError) as caught:
                 make_client().search_assets("q")
         self.assertEqual(caught.exception.code, "sdk/transport")
-        with stubbed({"https://skelet.test/api/v1/assets": {"nope": True}}):
+        with stubbed({"https://skilit.test/api/v1/assets": {"nope": True}}):
             with self.assertRaises(SdkError) as caught:
                 make_client().search_assets("q")
         self.assertEqual(caught.exception.code, "sdk/transport")
 
     def test_envelope_unwrap_with_cursor_and_request_id(self) -> None:
         envelope = {
-            "schema_version": "skelet.agent.v1",
+            "schema_version": "skilit.agent.v1",
             "request_id": "req-py-001",
             "status": "complete",
             "result": {"assets": [ASSET]},
             "cursor": "Y3Vyc29y",
         }
-        with stubbed({"https://skelet.test/api/v1/assets": envelope}):
+        with stubbed({"https://skilit.test/api/v1/assets": envelope}):
             page = make_client().search_assets_page("arrow", cursor="Y3Vyc29y", request_id="req-py-001")
         self.assertEqual(page["assets"], [ASSET])
         self.assertEqual(page["cursor"], "Y3Vyc29y")
         self.assertEqual(page["request_id"], "req-py-001")
-        with stubbed({"https://skelet.test/api/v1/assets": {"assets": [ASSET]}}):
+        with stubbed({"https://skilit.test/api/v1/assets": {"assets": [ASSET]}}):
             self.assertEqual(make_client().search_assets("arrow"), [ASSET])
 
     def test_envelope_errors_map_with_retryable(self) -> None:
         cases = (
-            (401, {"schema_version": "skelet.agent.v1", "request_id": "r1", "status": "complete", "result": {},
+            (401, {"schema_version": "skilit.agent.v1", "request_id": "r1", "status": "complete", "result": {},
                     "error": {"code": "UNAUTHENTICATED", "message": "Unauthorized.", "retryable": False}},
              "sdk/unauthorized", False),
-            (403, {"schema_version": "skelet.agent.v1", "request_id": "r2", "status": "complete", "result": {},
+            (403, {"schema_version": "skilit.agent.v1", "request_id": "r2", "status": "complete", "result": {},
                     "error": {"code": "RIGHTS_RESTRICTED", "message": "Content is rights-restricted.", "retryable": False}},
              "sdk/forbidden", False),
-            (429, {"schema_version": "skelet.agent.v1", "request_id": "r3", "status": "complete", "result": {},
+            (429, {"schema_version": "skilit.agent.v1", "request_id": "r3", "status": "complete", "result": {},
                     "error": {"code": "RATE_LIMITED", "message": "Rate limited.", "retryable": True}},
              "sdk/rate-limited", True),
         )
@@ -168,7 +168,7 @@ class SdkClientTests(unittest.TestCase):
             with self.subTest(status=status):
                 payload = json.dumps(body).encode("utf-8")
                 error = urllib.error.HTTPError(
-                    "https://skelet.test/api/v1/assets", status, "boom", {}, io.BytesIO(payload)
+                    "https://skilit.test/api/v1/assets", status, "boom", {}, io.BytesIO(payload)
                 )
                 with stubbed({}, error=error):
                     with self.assertRaises(SdkError) as caught:
@@ -202,19 +202,19 @@ class StubApiHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
-        # AF-03c: the stub speaks the same skelet.agent.v1 envelope as the
+        # AF-03c: the stub speaks the same skilit.agent.v1 envelope as the
         # real REST routes so the CLI E2E proves envelope interop, not just
         # bare-shape parsing. The SDK unwraps both shapes.
         if self.path.startswith("/api/v1/assets?"):
             self._send(200, {
-                "schema_version": "skelet.agent.v1",
+                "schema_version": "skilit.agent.v1",
                 "request_id": "req-cli-001",
                 "status": "complete",
                 "result": {"assets": [ASSET]},
             })
         elif self.path.startswith("/api/v1/assets/"):
             self._send(200, {
-                "schema_version": "skelet.agent.v1",
+                "schema_version": "skilit.agent.v1",
                 "request_id": "req-cli-002",
                 "status": "complete",
                 "result": {"asset": ASSET},
@@ -223,10 +223,10 @@ class StubApiHandler(BaseHTTPRequestHandler):
             self._send(
                 200,
                 {
-                    "schema_version": "skelet.agent.v1",
+                    "schema_version": "skilit.agent.v1",
                     "request_id": "req-cli-003",
                     "status": "complete",
-                    "result": {"pack": {"schema": "skelet/reference-pack/1", "uri": "skelet://collection/1", "items": []}},
+                    "result": {"pack": {"schema": "skilit/reference-pack/1", "uri": "skilit://collection/1", "items": []}},
                 },
             )
         else:
@@ -253,11 +253,11 @@ class CliEndToEndTests(unittest.TestCase):
 
     def _run(self, *args: str, extra_env: dict | None = None):
         merged = dict(os.environ)
-        merged.update({"SKELET_BASE_URL": f"http://127.0.0.1:{self.port}", "SKELET_TOKEN": "cli-secret"})
+        merged.update({"SKILIT_BASE_URL": f"http://127.0.0.1:{self.port}", "SKILIT_TOKEN": "cli-secret"})
         if extra_env:
             merged.update(extra_env)
         return subprocess.run(
-            [sys.executable, str(ROOT / "scripts" / "skelet.py"), *args],
+            [sys.executable, str(ROOT / "scripts" / "skilit.py"), *args],
             capture_output=True,
             text=True,
             env=merged,
@@ -267,18 +267,18 @@ class CliEndToEndTests(unittest.TestCase):
     def test_search_get_object_round_trip(self) -> None:
         search = self._run("search", "--query", "arrow")
         self.assertEqual(search.returncode, 0, search.stderr)
-        self.assertIn("skelet://artifact/1", search.stdout)
+        self.assertIn("skilit://artifact/1", search.stdout)
         get = self._run("get", "abc")
         self.assertEqual(get.returncode, 0, get.stderr)
         self.assertIn("MIT", get.stdout)
-        recovered = self._run("object", "skelet://collection/1")
+        recovered = self._run("object", "skilit://collection/1")
         self.assertEqual(recovered.returncode, 0, recovered.stderr)
-        self.assertIn("skelet/reference-pack/1", recovered.stdout)
+        self.assertIn("skilit/reference-pack/1", recovered.stdout)
 
     def test_missing_credentials_fail_closed(self) -> None:
-        merged = {key: value for key, value in os.environ.items() if not key.startswith("SKELET_")}
+        merged = {key: value for key, value in os.environ.items() if not key.startswith("SKILIT_")}
         completed = subprocess.run(
-            [sys.executable, str(ROOT / "scripts" / "skelet.py"), "search", "--query", "x"],
+            [sys.executable, str(ROOT / "scripts" / "skilit.py"), "search", "--query", "x"],
             capture_output=True,
             text=True,
             env=merged,
@@ -287,12 +287,12 @@ class CliEndToEndTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 2)
 
     def test_unauthorized_surfaces_typed_error(self) -> None:
-        completed = self._run("search", "--query", "x", extra_env={"SKELET_TOKEN": "wrong"})
+        completed = self._run("search", "--query", "x", extra_env={"SKILIT_TOKEN": "wrong"})
         self.assertEqual(completed.returncode, 1)
         self.assertIn("sdk/unauthorized", completed.stderr)
 
     def test_redirects_are_refused_without_follow(self) -> None:
-        from scripts.skelet_sdk import SkeletClient as Client
+        from scripts.skilit_sdk import SkilitClient as Client
 
         client = Client(f"http://127.0.0.1:{self.port}", "cli-secret")
         with self.assertRaises(SdkError) as caught:

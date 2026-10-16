@@ -4,7 +4,7 @@
 -- reconstructed on re-migration.
 drop trigger if exists import_flow_guard on flows;
 
-create or replace function skelet_graph_ref_exists(ref_kind text, ref_id uuid)
+create or replace function skilit_graph_ref_exists(ref_kind text, ref_id uuid)
 returns boolean language plpgsql volatile as $$
 begin
   -- Lock endpoint rows until the insertion commits so a concurrent DELETE

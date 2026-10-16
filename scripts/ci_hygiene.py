@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repository-level CI hygiene checks for Skelet bootstrap and future imports."""
+"""Repository-level CI hygiene checks for Skilit bootstrap and future imports."""
 
 from __future__ import annotations
 

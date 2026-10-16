@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""AF-02 zero-model and egress conformance gate for Skelet.
+"""AF-02 zero-model and egress conformance gate for Skilit.
 
-Mandatory Skelet path runs with no model API key, no GPU, and no paid
+Mandatory Skilit path runs with no model API key, no GPU, and no paid
 cloud subscription. This gate fails closed when strict zero-model mode is
 enabled and a forbidden model or paid-provider credential is present, when
-SKELET_NO_MODEL is not an explicit state, or when runtime source outside
+SKILIT_NO_MODEL is not an explicit state, or when runtime source outside
 the canonical policy references unapproved model or paid-cloud egress.
 
 The TypeScript module packages/no-model/src/no-model.ts is canonical for
@@ -99,7 +99,7 @@ def parse_no_model_flag(raw: str | None) -> bool:
         return True
     if raw == "0":
         return False
-    raise ValueError('SKELET_NO_MODEL must be "1" or "0".')
+    raise ValueError('SKILIT_NO_MODEL must be "1" or "0".')
 
 
 def forbidden_present(env: dict[str, str]) -> list[str]:
@@ -135,7 +135,9 @@ def scan_unapproved_egress(root: Path) -> list[str]:
 def check_repository(root: Path, env: dict[str, str]) -> list[str]:
     errors: list[str] = []
     try:
-        enabled = parse_no_model_flag(env.get("SKELET_NO_MODEL"))
+        # Canonical SKILIT_NO_MODEL; legacy SKELET_NO_MODEL remains readable.
+        raw = env.get("SKILIT_NO_MODEL", env.get("SKELET_NO_MODEL"))
+        enabled = parse_no_model_flag(raw)
     except ValueError as exc:
         return [str(exc)]
     if enabled:
@@ -168,7 +170,7 @@ def main(argv: list[str]) -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    enabled = parse_no_model_flag(os.environ.get("SKELET_NO_MODEL"))
+    enabled = parse_no_model_flag(os.environ.get("SKILIT_NO_MODEL", os.environ.get("SKELET_NO_MODEL")))
     mode = "strict" if enabled else "opt-out"
     print(f"NO_MODEL_GATE_PASSED mode={mode} hosts={len(UNAPPROVED_EGRESS_HOSTS)}")
     return 0

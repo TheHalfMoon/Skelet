@@ -59,6 +59,7 @@ class V1LocalScopeTests(unittest.TestCase):
         self.assertGreaterEqual(len(conditionals), 2)
 
     def test_no_mandatory_paid_service_in_local(self) -> None:
+        # Historical contract retains original env/URI bytes; Skilit successor reads legacy values (see NOTICE successor note).
         for token in ("no mandatory paid services", "no-model",
                       "SKELET_NO_MODEL=1"):
             self.assertIn(token, self.doc)

@@ -6,14 +6,14 @@ import { migrateDown, migrateUp } from "../src/migrate.ts";
 import { createSource, createProduct, createProductVersion } from "../src/repositories.ts";
 import { createArtifact, createAsset, createPattern, createRelation, getAssetByHash } from "../src/graph.ts";
 
-const url = process.env.SKELET_TEST_DATABASE_URL;
+const url = process.env.SKILIT_TEST_DATABASE_URL;
 const enabled = Boolean(url);
 
 function verifyFixture() {
-  if (!url || process.env.SKELET_DB_TEST_CONFIRM !== "yes") throw new Error("Fixture confirmation required");
+  if (!url || process.env.SKILIT_DB_TEST_CONFIRM !== "yes") throw new Error("Fixture confirmation required");
   const u = new URL(url);
   if (!["127.0.0.1","localhost"].includes(u.hostname) ||
-    u.pathname !== "/skelet_test" || u.username !== "skelet_test") {
+    u.pathname !== "/skilit_test" || u.username !== "skilit_test") {
     throw new Error("Refusing to run on non-fixture PostgreSQL");
   }
 }
@@ -22,7 +22,7 @@ test("real PostgreSQL round-trips design graph and blocks invalid raw SQL", { sk
   verifyFixture();
   const db = await openDatabase({ connectionString: url });
   try {
-    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"]);
+    assert.deepEqual(await migrateUp(db), ["001_sources_products", "002_design_graph", "003_workflows", "004_auth", "005_workspaces", "006_collections_auth", "007_billing", "008_jobs", "009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"]);
     const source = await createSource(db,{key:"pg-fixture",kind:"test"});
     const product = await createProduct(db,{sourceId:source.id,title:"Real PostgreSQL"});
     const version = await createProductVersion(db,{productId:product.id,versionNo:1});

@@ -4,7 +4,7 @@ Status: candidate for exact-HEAD review; shell only, no jobs yet.
 
 ## Scope
 
-`apps/worker` (`skelet-worker@0.1.0`): a dependency-free Node.js worker
+`apps/worker` (`skilit-worker@0.1.0`): a dependency-free Node.js worker
 shell sharing the pnpm workspace and strict TypeScript base with the web
 application. It establishes the environment contract and command surface that
 later ingestion/capture/analysis jobs will extend. The web application is
@@ -14,18 +14,18 @@ unchanged in behavior.
 
 | Variable | Values | Default |
 | --- | --- | --- |
-| `SKELET_ENV` | `development` \| `test` \| `production` | `development` |
-| `SKELET_WORKER_CONCURRENCY` | decimal integer 1–32 | `4` |
-| `SKELET_LOG_LEVEL` | `debug` \| `info` \| `warn` \| `error` | `info` |
+| `SKILIT_ENV` | `development` \| `test` \| `production` | `development` |
+| `SKILIT_WORKER_CONCURRENCY` | decimal integer 1–32 | `4` |
+| `SKILIT_LOG_LEVEL` | `debug` \| `info` \| `warn` \| `error` | `info` |
 
-Unknown `SKELET_*` keys fail closed (typos are rejected, not ignored);
-non-Skelet keys pass through untouched. All rules are pinned by
+Unknown `SKILIT_*` keys fail closed (typos are rejected, not ignored);
+non-Skilit keys pass through untouched. All rules are pinned by
 `apps/worker/tests/env.test.mjs`.
 
 ## Command surface (`src/cli.ts`, `src/index.ts`)
 
 - `health`: validates the environment and prints
-  `{status: "ok", service: "skelet-worker", version, env}` as JSON.
+  `{status: "ok", service: "skilit-worker", version, env}` as JSON.
 - `start`: validates the environment and reports readiness; states explicitly
   that no jobs are registered yet.
 - Unknown/missing command: usage text, exit 2. Invalid env on `start`:
@@ -35,7 +35,7 @@ non-Skelet keys pass through untouched. All rules are pinned by
 ## Workspace layout note (G02-01)
 
 The reshape grain required moving qualified web code into `apps/web` with a
-pnpm workspace. The Skelet shell was born in place (G01-03a) already
+pnpm workspace. The Skilit shell was born in place (G01-03a) already
 satisfying that layout, so no move was necessary: no behavior changed, and
 the workspace file, frozen lockfile, and per-app toolchains are in force.
 This grain extends the same layout with `apps/worker` and shared strict

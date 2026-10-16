@@ -19,8 +19,8 @@ test("gallery UI serves product and version reads over the real REST contracts",
   for (const marker of ["List products", "Inspect versions", "More products", "More versions"]) {
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
-  assert.ok(text.includes("skelet://product/"), "UI renders the stable product identifier");
-  assert.ok(text.includes("skelet://version/") || text.includes("version.uri"), "UI renders version identifiers");
+  assert.ok(text.includes("skilit://product/"), "UI renders the stable product identifier");
+  assert.ok(text.includes("skilit://version/") || text.includes("version.uri"), "UI renders version identifiers");
   assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
   assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
 });

@@ -27,7 +27,7 @@ import type { AgentEnvelope } from "./agent-contract.ts";
 /**
  * AF-08-i board REST layer over the collections domain (reference
  * boards): list/create/get/update/delete boards, list/save/remove/move
- * items. Canonical skelet.agent.v1 envelopes; HTTP statuses derive from
+ * items. Canonical skilit.agent.v1 envelopes; HTTP statuses derive from
  * the one error catalog in agent-contract.ts.
  *
  * Authority: workspaceId is a client-supplied locator; membership
@@ -88,7 +88,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function boardUri(id: string): string {
-  return `skelet://collection/${id}`;
+  return `skilit://collection/${id}`;
 }
 
 function toBoardView(collection: Collection): Record<string, unknown> {
@@ -105,7 +105,7 @@ function toBoardView(collection: Collection): Record<string, unknown> {
 
 function toItemView(reference: CollectionReference): Record<string, unknown> {
   return {
-    uri: `skelet://artifact/${reference.artifactId}`,
+    uri: `skilit://artifact/${reference.artifactId}`,
     artifactId: reference.artifactId,
     position: reference.position,
     savedAt: reference.savedAt,

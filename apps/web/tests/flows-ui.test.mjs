@@ -19,8 +19,8 @@ test("flow player serves flow and step reads over the real REST contracts", asyn
   for (const marker of ["List flows", "Inspect steps", "More flows", "Previous step", "Next step"]) {
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
-  assert.ok(text.includes("skelet://flow/"), "UI renders the stable flow identifier");
-  assert.ok(text.includes("skelet://artifact/") || text.includes("current.uri"), "UI renders step artifact references");
+  assert.ok(text.includes("skilit://flow/"), "UI renders the stable flow identifier");
+  assert.ok(text.includes("skilit://artifact/") || text.includes("current.uri"), "UI renders step artifact references");
   assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
   assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
 });

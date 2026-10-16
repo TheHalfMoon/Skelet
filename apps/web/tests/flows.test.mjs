@@ -12,7 +12,7 @@ import { getFlowStepsRoute, listFlowsRoute } from "../lib/rest.ts";
 import { AGENT_SCHEMA_VERSION } from "../lib/agent-contract.ts";
 
 const SOURCE_VERSION = "flows-transport-1";
-const FLOW_URI_RE = /^skelet:\/\/flow\/[A-Za-z0-9_-]{1,128}$/;
+const FLOW_URI_RE = /^skilit:\/\/flow\/[A-Za-z0-9_-]{1,128}$/;
 
 function assertStableEnvelope(envelope, context) {
   assert.equal(envelope.schema_version, AGENT_SCHEMA_VERSION, `${context}: schema_version`);
@@ -95,8 +95,8 @@ function corpus() {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "flows-t-owner@skelet.example", password: "flows-password-01" });
-  const outsider = await signUp(db, { email: "flows-t-out@skelet.example", password: "flows-password-01" });
+  const owner = await signUp(db, { email: "flows-t-owner@skilit.example", password: "flows-password-01" });
+  const outsider = await signUp(db, { email: "flows-t-out@skilit.example", password: "flows-password-01" });
   const source = await createSource(db, { key: "flows-t-source", kind: "synthetic" });
   await importCorpusFixture(db, { sourceId: source.id, sourceVersion: SOURCE_VERSION, corpus: corpus() });
   const space = await createWorkspace(db, { name: "Flows transport", ownerId: owner.id });

@@ -114,7 +114,7 @@ test("fixture report chains to a validated shippable kit package", async () => {
       coverageGaps: report.provenance.coverageGaps.slice(0, 8),
     },
   });
-  assert.equal(manifest.schema_version, "skelet.lens.build-kit.v1");
+  assert.equal(manifest.schema_version, "skilit.lens.build-kit.v1");
   assert.equal(manifest.analysis_id, report.analysisId);
   const assembled = assembleKitManifest({
     kitId,

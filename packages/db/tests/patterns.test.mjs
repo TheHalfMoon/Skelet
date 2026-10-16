@@ -19,8 +19,8 @@ const HEX = (char) => char.repeat(64);
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "pattern-owner@skelet.example", password: "pattern-password-01" });
-  const outsider = await signUp(db, { email: "pattern-out@skelet.example", password: "pattern-password-01" });
+  const owner = await signUp(db, { email: "pattern-owner@skilit.example", password: "pattern-password-01" });
+  const outsider = await signUp(db, { email: "pattern-out@skilit.example", password: "pattern-password-01" });
   const source = await createSource(db, { key: "pattern-source", kind: "synthetic" });
   return { db, owner, outsider, source };
 }
@@ -123,7 +123,7 @@ test("P10-C: pattern detail carries links, relations, and deterministic order", 
     assert.equal(detail.title, "Detail");
     assert.equal(detail.description, "A pattern");
     assert.equal(detail.links.length, 2);
-    assert.ok(detail.links.every((link) => link.uri.startsWith("skelet://artifact/")));
+    assert.ok(detail.links.every((link) => link.uri.startsWith("skilit://artifact/")));
     assert.deepEqual(detail.links.map((link) => link.relation).sort(), ["appears_in", "references"]);
   } finally {
     await fx.db.close();

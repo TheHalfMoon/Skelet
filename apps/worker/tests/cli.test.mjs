@@ -8,7 +8,7 @@ test("health command reports the worker contract", () => {
   assert.equal(result.exitCode, 0);
   const payload = JSON.parse(result.stdout);
   assert.equal(payload.status, "ok");
-  assert.equal(payload.service, "skelet-worker");
+  assert.equal(payload.service, "skilit-worker");
   assert.equal(typeof payload.version, "string");
   assert.ok(payload.version.length > 0);
   assert.equal(payload.env, "development");
@@ -17,7 +17,7 @@ test("health command reports the worker contract", () => {
 });
 
 test("health reports explicit opt-out when disabled", () => {
-  const result = run(["health"], { SKELET_NO_MODEL: "0" });
+  const result = run(["health"], { SKILIT_NO_MODEL: "0" });
   assert.equal(result.exitCode, 0);
   const payload = JSON.parse(result.stdout);
   assert.equal(payload.noModel, false);
@@ -25,28 +25,28 @@ test("health reports explicit opt-out when disabled", () => {
 });
 
 test("health fails closed on invalid no-model flag", () => {
-  const result = run(["health"], { SKELET_NO_MODEL: "strict" });
+  const result = run(["health"], { SKILIT_NO_MODEL: "strict" });
   assert.equal(result.exitCode, 1);
-  assert.match(result.stderr, /SKELET_NO_MODEL/);
+  assert.match(result.stderr, /SKILIT_NO_MODEL/);
 });
 
 test("health fails closed on invalid env", () => {
-  const result = run(["health"], { SKELET_ENV: "staging" });
+  const result = run(["health"], { SKILIT_ENV: "staging" });
   assert.equal(result.exitCode, 1);
-  assert.match(result.stderr, /SKELET_ENV/);
+  assert.match(result.stderr, /SKILIT_ENV/);
 });
 
 test("start command validates env and reports readiness", () => {
-  const result = run(["start"], { SKELET_ENV: "test" });
+  const result = run(["start"], { SKILIT_ENV: "test" });
   assert.equal(result.exitCode, 0);
   assert.match(result.stdout, /ready/);
   assert.match(result.stdout, /no jobs registered/);
 });
 
 test("start fails closed on invalid env", () => {
-  const result = run(["start"], { SKELET_ENV: "staging" });
+  const result = run(["start"], { SKILIT_ENV: "staging" });
   assert.equal(result.exitCode, 1);
-  assert.match(result.stderr, /SKELET_ENV/);
+  assert.match(result.stderr, /SKILIT_ENV/);
 });
 
 test("unknown command prints usage with exit 2", () => {

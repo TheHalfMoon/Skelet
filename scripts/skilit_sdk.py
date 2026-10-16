@@ -1,8 +1,8 @@
-"""Skelet Python SDK: a thin typed client over REST API v1.
+"""Skilit Python SDK: a thin typed client over REST API v1.
 
 Standard library only (urllib). Mirrors the TypeScript SDK read surface:
 unified asset search, single-asset resolution, and canonical object
-recovery by stable Skelet URI. Transport failures surface as typed
+recovery by stable Skilit URI. Transport failures surface as typed
 SdkError codes, never raw responses. Redirects are refused rather than
 followed so bearer tokens cannot leak to redirect targets.
 """
@@ -49,10 +49,10 @@ class SdkError(Exception):
 
 
 def _envelope_result(body: object) -> dict | None:
-    """Unwrap skelet.agent.v1 envelope, else accept bare pre-AF-03b shape."""
+    """Unwrap skilit.agent.v1 envelope (legacy skelet.agent.v1 accepted), else bare pre-AF-03b shape."""
     if not isinstance(body, dict):
         return None
-    if body.get("schema_version") == "skelet.agent.v1" and isinstance(body.get("result"), dict):
+    if body.get("schema_version") in ("skilit.agent.v1", "skelet.agent.v1") and isinstance(body.get("result"), dict):
         result = body["result"]
         return result if isinstance(result, dict) else None
     return body
@@ -133,7 +133,7 @@ def _validate_base_url(base_url: str) -> str:
     return base
 
 
-class SkeletClient:
+class SkilitClient:
     """Typed read client for REST API v1."""
 
     def __init__(self, base_url: str, token: str, timeout: float = 30.0) -> None:
@@ -253,10 +253,10 @@ class SkeletClient:
         return result["asset"]
 
     def get_object(self, uri: str, request_id: str | None = None):
-        """Retrieve a canonical object by stable Skelet URI.
+        """Retrieve a canonical object by stable Skilit URI.
 
         Returns the server result object unchanged ({"object": ...} or
-        {"pack": ...}) unwrapped from the skelet.agent.v1 envelope so
+        {"pack": ...}) unwrapped from the skilit.agent.v1 envelope so
         callers branch on result keys instead of heuristic fields.
         """
         if not isinstance(uri, str) or not uri:

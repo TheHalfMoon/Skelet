@@ -1,9 +1,9 @@
-"""Validate Skelet agent skill packages.
+"""Validate Skilit agent skill packages.
 
 Each skill directory must carry a SKILL.md with exact frontmatter (name
 matching the directory, non-empty description), reference only known
 tools (implemented, or upcoming with explicit gating), keep every cited
-Skelet URI well-formed, and contain no denied instructions. Backtick
+Skilit URI well-formed, and contain no denied instructions. Backtick
 spans outside the known tools, URIs/paths, and the documentation
 vocabulary below fail closed; extend DOC_VOCABULARY when legitimate new
 field words are introduced. Exits nonzero on the first violation.
@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
 
-EXPECTED_SKILLS = ("skelet-research", "skelet-assets", "skelet-lens", "skelet-reference-pack")
+EXPECTED_SKILLS = ("skilit-research", "skilit-assets", "skilit-lens", "skilit-reference-pack")
 
 IMPLEMENTED_TOOLS = frozenset(
     {
@@ -70,7 +70,7 @@ DENIED_PHRASES = (
 
 SNAKE_FIELDS = frozenset({"artifact_ids", "workspace_id", "reference_pack"})
 
-URI_PATTERN = re.compile(r"skelet://[a-z-]+/[A-Za-z0-9_.-]+")
+URI_PATTERN = re.compile(r"skilit://[a-z-]+/[A-Za-z0-9_.-]+")
 TOOL_PATTERN = re.compile(r"`([^`]+)`")
 
 # Non-tool backtick vocabulary: field names, values, paths, and component
@@ -97,9 +97,9 @@ DOC_VOCABULARY = frozenset(
         "serving",
         "serving: download",
         "servingReason",
-        "skelet-button",
-        "skelet-card",
-        "skelet/reference-pack/1",
+        "skilit-button",
+        "skilit-card",
+        "skilit/reference-pack/1",
         "title",
         "workspaceId",
     }
@@ -158,10 +158,10 @@ def validate_skill(directory: Path) -> list[str]:
     lowered = body.lower()
     if upcoming and not any(marker in lowered for marker in GATING_MARKERS):
         return [f"skill {name} references upcoming tools without gating: {sorted(upcoming)}"]
-    for span in re.findall(r"skelet://\S+", body):
+    for span in re.findall(r"skilit://\S+", body):
         candidate = re.sub(r"\{[^}]*\}", "x", span).rstrip(".,:)]}'\"`")
         if URI_PATTERN.fullmatch(candidate) is None:
-            return [f"skill {name} cites a malformed Skelet URI: {span}"]
+            return [f"skill {name} cites a malformed Skilit URI: {span}"]
     bare = set(re.findall(r"(?<![`/\w])[a-z]+(?:_[a-z]+)+(?![\w`])", body))
     stray = bare - IMPLEMENTED_TOOLS - UPCOMING_TOOLS - SNAKE_FIELDS
     if stray:

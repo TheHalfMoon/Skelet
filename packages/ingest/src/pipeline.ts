@@ -296,7 +296,7 @@ export async function publishArtifact(
 
     let assetId: string | null = null;
     let assetDeduplicated = false;
-    let contentHash = sha256Hex(Buffer.from(`skelet:${kind}:${title}`));
+    let contentHash = sha256Hex(Buffer.from(`skilit:${kind}:${title}`));
     if (input.asset !== undefined && mediaType !== undefined) {
       let stored;
       try {

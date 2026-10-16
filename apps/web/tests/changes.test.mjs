@@ -49,8 +49,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "changes-t-owner@skelet.example", password: "changes-password-01" });
-  const outsider = await signUp(db, { email: "changes-t-out@skelet.example", password: "changes-password-01" });
+  const owner = await signUp(db, { email: "changes-t-owner@skilit.example", password: "changes-password-01" });
+  const outsider = await signUp(db, { email: "changes-t-out@skilit.example", password: "changes-password-01" });
   const source = await createSource(db, { key: "changes-t-source", kind: "synthetic" });
   const product = await createProduct(db, { sourceId: source.id, title: "Transport app" });
   const v1 = await createProductVersion(db, { productId: product.id, versionNo: 1 });

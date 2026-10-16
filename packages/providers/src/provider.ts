@@ -1,10 +1,10 @@
 /**
  * G05-02 provider contract: every donor or external engine sits behind a
- * Skelet-owned adapter implementing this interface. The contract carries
+ * Skilit-owned adapter implementing this interface. The contract carries
  * capability identity, version pin, deterministic configuration,
  * timeout/cancellation behavior, output validation, provenance emission,
  * error classification, health reporting, and egress/cost declarations.
- * Provider failures never redefine Skelet's public schemas: they surface
+ * Provider failures never redefine Skilit's public schemas: they surface
  * as typed ProviderError codes instead.
  *
  * Timeouts and cancellations are enforced by settling the invocation,

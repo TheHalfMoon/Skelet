@@ -6,7 +6,7 @@
 -- a deterministic per-session sequence. Replay reads the same rows back in
 -- sequence order. No donor code is vendored; the event envelope shape
 -- (type/timestamp/data) mirrors the rrweb event contract without importing
--- it. Redaction happens in the Skelet-owned record path, not in storage.
+-- it. Redaction happens in the Skilit-owned record path, not in storage.
 create table replay_sessions (
  id uuid primary key default gen_random_uuid(),
  flow_id uuid not null references flows(id) on delete cascade,

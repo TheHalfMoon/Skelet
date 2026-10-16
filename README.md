@@ -1,6 +1,6 @@
-# Skelet
+# Skilit
 
-Skelet is the design intelligence layer for humans and AI agents.
+Skilit is the design intelligence layer for humans and AI agents.
 
 ## Canonical documents
 

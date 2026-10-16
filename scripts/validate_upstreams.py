@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Skelet's zero-dependency upstream lock contract.
+"""Validate Skilit's zero-dependency upstream lock contract.
 
 UPSTREAMS.lock.yml intentionally uses the JSON-compatible subset of YAML 1.2 so
 bootstrap validation can run with the Python standard library only.

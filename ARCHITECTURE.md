@@ -1,10 +1,10 @@
-# Skelet Architecture Charter
+# Skilit Architecture Charter
 
 Status: canonical architecture constraints for implementation
 
 ## Architectural Goal
 
-Build Skelet as a modular monolith with stable domain and public contracts. Reuse mature permitted donors behind adapters, but keep Skelet's canonical domain, provenance model, search contract, and agent interfaces independent of any donor runtime.
+Build Skilit as a modular monolith with stable domain and public contracts. Reuse mature permitted donors behind adapters, but keep Skilit's canonical domain, provenance model, search contract, and agent interfaces independent of any donor runtime.
 
 ## Canonical System of Record
 
@@ -12,7 +12,7 @@ PostgreSQL is the canonical transactional store and graph-adjacency store.
 
 Canonical entities are defined in `docs/IMPLEMENTATION_PLAN.md` and include Source, Product, ProductVersion, Artifact, Asset, Relation, Flow, FlowStep, Pattern, Collection, CaptureRun, AnalysisRun, and ImportRecord.
 
-Do not create independent canonical databases for icons, logos, components, screens, websites, or flows. They are typed objects in one Skelet Design Graph.
+Do not create independent canonical databases for icons, logos, components, screens, websites, or flows. They are typed objects in one Skilit Design Graph.
 
 ## Initial Deployable Units
 
@@ -53,7 +53,7 @@ Use pnpm workspaces. Do not introduce Turborepo before measured build pressure j
 
 ## Provider Boundary
 
-Every donor or external engine must sit behind a Skelet-owned adapter unless it is the selectively imported baseline itself.
+Every donor or external engine must sit behind a Skilit-owned adapter unless it is the selectively imported baseline itself.
 
 Every provider contract must expose:
 
@@ -67,7 +67,7 @@ Every provider contract must expose:
 - health check;
 - egress and cost classification where applicable.
 
-Provider failures must not redefine Skelet's public schemas.
+Provider failures must not redefine Skilit's public schemas.
 
 ## Ingestion Boundary
 
@@ -92,7 +92,7 @@ Imports must be replayable and idempotent.
 
 Binary media never belongs in Git except intentionally small fixtures.
 
-Assets are content-addressed by SHA-256 and stored through a Skelet `StorageProvider` interface. Metadata and provenance live in PostgreSQL.
+Assets are content-addressed by SHA-256 and stored through a Skilit `StorageProvider` interface. Metadata and provenance live in PostgreSQL.
 
 ## Search
 
@@ -110,13 +110,13 @@ The UI must never depend directly on a specific search engine.
 
 The canonical remote agent interface is MCP over Streamable HTTP plus versioned REST APIs.
 
-Stable Skelet object URIs must survive internal database migrations and public API version changes.
+Stable Skilit object URIs must survive internal database migrations and public API version changes.
 
 Do not expose internal micro-operations as one MCP tool each. Public tools model user intent; internal adapters remain implementation details.
 
 ## Cost and Lock-In Rule
 
-No launch-critical Skelet path may require a mandatory paid LLM, paid crawler, managed vector database, managed search engine, GPU service, or vendor-specific media CDN.
+No launch-critical Skilit path may require a mandatory paid LLM, paid crawler, managed vector database, managed search engine, GPU service, or vendor-specific media CDN.
 
 Commercial infrastructure may be adopted when measured reliability, scale, or total-cost evidence justifies it, but a provider abstraction must preserve replacement capability.
 

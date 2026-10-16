@@ -58,7 +58,7 @@ function corpus() {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "drill-owner@skelet.example", password: "drill-password-01" });
+  const owner = await signUp(db, { email: "drill-owner@skilit.example", password: "drill-password-01" });
   const source = await createSource(db, { key: "drill-source", kind: "synthetic" });
   await importCorpusFixture(db, { sourceId: source.id, sourceVersion: "drill-1", corpus: corpus() });
   return { db, owner, source };

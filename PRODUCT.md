@@ -1,14 +1,14 @@
-# Skelet Product Contract
+# Skilit Product Contract
 
 Status: canonical product charter for implementation
 
 ## Mission
 
-Skelet is the design intelligence layer for humans and AI agents.
+Skilit is the design intelligence layer for humans and AI agents.
 
 The product must help users and agents discover real design evidence, understand why it works, retrieve the right assets, analyze existing products, and reuse that evidence in implementation workflows.
 
-Skelet is not defined as a cheaper Mobbin clone. The commercial model may target approximately half the price of equivalent Mobbin plans, but product differentiation must come from agent-native design intelligence, broader asset coverage, URL analysis, provenance, and reusable machine-readable context.
+Skilit is not defined as a cheaper Mobbin clone. The commercial model may target approximately half the price of equivalent Mobbin plans, but product differentiation must come from agent-native design intelligence, broader asset coverage, URL analysis, provenance, and reusable machine-readable context.
 
 ## Primary Users
 
@@ -18,7 +18,7 @@ Skelet is not defined as a cheaper Mobbin clone. The commercial model may target
 4. Product teams researching shipped patterns and flows.
 5. Teams that need reusable design evidence, assets, and implementation context.
 
-AI agents are first-class users. Anything a human can discover in the Skelet UI must have a stable structured representation that can be retrieved through the API/MCP layer.
+AI agents are first-class users. Anything a human can discover in the Skilit UI must have a stable structured representation that can be retrieved through the API/MCP layer.
 
 ## Product Surfaces
 
@@ -36,11 +36,11 @@ Lens accepts a URL or image and returns a structured design intelligence pack in
 
 ### Agents
 
-The agent platform includes Remote MCP, MCP Apps, Agent Skills, REST APIs, SDKs, and CLI access. Agent workflows must not require scraping the Skelet web UI.
+The agent platform includes Remote MCP, MCP Apps, Agent Skills, REST APIs, SDKs, and CLI access. Agent workflows must not require scraping the Skilit web UI.
 
 ### Create
 
-Create turns qualified Skelet references into editable design output through OpenPencil or another qualified provider. Skelet must not build a new canvas engine unless evidence later proves that existing providers cannot meet product requirements.
+Create turns qualified Skilit references into editable design output through the Skilit document adapter (qualified provider backend) or another qualified provider. Skilit must not build a new canvas engine unless evidence later proves that existing providers cannot meet product requirements.
 
 ## Launch-Critical Journeys
 
@@ -49,7 +49,7 @@ Create turns qualified Skelet references into editable design output through Ope
 - Connect an AI agent and search, inspect, compare, save, and package design evidence without using the web UI.
 - Save research to workspace collections and resume it from another client or agent.
 - Retrieve machine-usable assets with provenance, rights metadata, variants, and source references.
-- Create compact reference packs that another agent can recover entirely from stable Skelet IDs or URIs.
+- Create compact reference packs that another agent can recover entirely from stable Skilit IDs or URIs.
 
 ## Commercial Launch Scope
 
@@ -76,10 +76,10 @@ The minimum paid launch includes:
 
 ## Product Quality Bar
 
-Skelet must prefer evidence over generated claims. Analysis output must distinguish observed facts, deterministic inference, heuristic inference, and model-generated interpretation.
+Skilit must prefer evidence over generated claims. Analysis output must distinguish observed facts, deterministic inference, heuristic inference, and model-generated interpretation.
 
-A result without recoverable source identity is incomplete. An agent output without stable Skelet IDs or URIs is incomplete. An imported asset without provenance and a serving policy is incomplete.
+A result without recoverable source identity is incomplete. An agent output without stable Skilit IDs or URIs is incomplete. An imported asset without provenance and a serving policy is incomplete.
 
 ## Definition of Ready
 
-Skelet v1 is commercially ready when an authenticated agent can connect, search real design evidence, inspect structured objects, compare references, retrieve provenance, save evidence, create a reference pack, hand it to another agent, and recover every referenced object without scraping the Skelet web UI.
+Skilit v1 is commercially ready when an authenticated agent can connect, search real design evidence, inspect structured objects, compare references, retrieve provenance, save evidence, create a reference pack, hand it to another agent, and recover every referenced object without scraping the Skilit web UI.

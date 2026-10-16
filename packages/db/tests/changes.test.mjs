@@ -16,8 +16,8 @@ const HEX = (char) => char.repeat(64);
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "changes-owner@skelet.example", password: "changes-password-01" });
-  const outsider = await signUp(db, { email: "changes-out@skelet.example", password: "changes-password-01" });
+  const owner = await signUp(db, { email: "changes-owner@skilit.example", password: "changes-password-01" });
+  const outsider = await signUp(db, { email: "changes-out@skilit.example", password: "changes-password-01" });
   const source = await createSource(db, { key: "changes-source", kind: "synthetic" });
   return { db, owner, outsider, source };
 }

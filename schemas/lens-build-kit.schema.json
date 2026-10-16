@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/TheHalfMoon/Skelet/schemas/lens-build-kit.schema.json",
-  "title": "Skelet Lens Build Kit manifest (frozen v1 contract)",
+  "$id": "https://github.com/TheHalfMoon/Skilit/schemas/lens-build-kit.schema.json",
+  "title": "Skilit Lens Build Kit manifest (frozen v1 contract)",
   "description": "P09b Build Kit manifest and ZIP layout contract. Implementation grains MUST validate kit manifests against this schema before any job logic lands. Unknown-rights bytes MUST NOT enter redistributable artifacts.",
   "type": "object",
   "additionalProperties": false,
@@ -18,7 +18,7 @@
     "provenance"
   ],
   "properties": {
-    "schema_version": {"const": "skelet.lens.build-kit.v1"},
+    "schema_version": {"enum": ["skilit.lens.build-kit.v1", "skelet.lens.build-kit.v1"]},
     "kit_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "analysis_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "status": {"enum": ["queued", "capturing", "extracting", "generating", "validating", "completed", "partial", "failed", "canceled"]},
@@ -27,7 +27,7 @@
       "additionalProperties": false,
       "required": ["schema", "analysis_id", "sha256"],
       "properties": {
-        "schema": {"const": "skelet.lens.report.v1"},
+        "schema": {"enum": ["skilit.lens.report.v1", "skelet.lens.report.v1"]},
         "analysis_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
       }
@@ -75,7 +75,7 @@
         "heuristic": {"type": "array", "maxItems": 0},
         "model_generated": {"type": "array", "maxItems": 0},
         "coverage_gaps": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 80}},
-        "generated_label": {"const": "generated-starter-is-skelet-synthesis-not-original-source"}
+        "generated_label": {"const": "generated-starter-is-skilit-synthesis-not-original-source"}
       }
     }
   },

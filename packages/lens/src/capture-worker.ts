@@ -98,7 +98,7 @@ export async function capturePublicPage(
   if (viewport !== "desktop" && viewport !== "mobile") {
     throw new CaptureError("capture/blocked", "Unsupported viewport.");
   }
-  const home = mkdtempSync(join(tmpdir(), "skelet-lens-"));
+  const home = mkdtempSync(join(tmpdir(), "skilit-lens-"));
   const script = fileURLToPath(new URL("./capture-child.ts", import.meta.url));
 
   try {

@@ -93,9 +93,9 @@ test("re-attachment and malformed inputs fail closed", () => {
   emptied.frames = [];
   assert.throws(() => attachVideoEvidence(base, emptied), ReportError);
   assert.throws(() => attachVideoEvidence(base, null), ReportError);
-  assert.throws(() => attachVideoEvidence(base, { schema: "skelet/video-frame-evidence/9" }), ReportError);
+  assert.throws(() => attachVideoEvidence(base, { schema: "skilit/video-frame-evidence/9" }), ReportError);
   assert.throws(() => attachVideoEvidence(null, good), ReportError);
-  assert.throws(() => attachVideoEvidence({ schemaVersion: "skelet.lens.report.v9" }, good), ReportError);
+  assert.throws(() => attachVideoEvidence({ schemaVersion: "skilit.lens.report.v9" }, good), ReportError);
   // The re-authentication path is the same validator unit-covered in AF-06-i.
   assert.deepEqual(validateVideoEvidenceRecord(JSON.parse(JSON.stringify(good))), good);
 });

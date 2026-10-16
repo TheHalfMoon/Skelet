@@ -43,8 +43,8 @@ async function fixture(tag) {
   seq += 1;
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: `lens-${tag}-${seq}@skelet.example`, password: "lens-member-01" });
-  const outsider = await signUp(db, { email: `lens-out-${tag}-${seq}@skelet.example`, password: "lens-member-01" });
+  const owner = await signUp(db, { email: `lens-${tag}-${seq}@skilit.example`, password: "lens-member-01" });
+  const outsider = await signUp(db, { email: `lens-out-${tag}-${seq}@skilit.example`, password: "lens-member-01" });
   const space = await createWorkspace(db, { name: `Lens ${tag} ${seq}`, ownerId: owner.id });
   return { db, owner, outsider, workspaceId: space.workspace.id };
 }
@@ -62,10 +62,10 @@ function sha256Bytes(bytes) {
 
 test("stable lens URI parses and round-trips", () => {
   const kitId = "a".repeat(64);
-  assert.equal(lensUriFor(kitId), `skelet://lens/${kitId}`);
-  assert.equal(parseLensUri(`skelet://lens/${kitId}`), kitId);
-  assert.throws(() => parseLensUri("skelet://artifact/123"), { name: "AgentContractError" });
-  assert.throws(() => parseLensUri("skelet://lens/short"), { name: "AgentContractError" });
+  assert.equal(lensUriFor(kitId), `skilit://lens/${kitId}`);
+  assert.equal(parseLensUri(`skilit://lens/${kitId}`), kitId);
+  assert.throws(() => parseLensUri("skilit://artifact/123"), { name: "AgentContractError" });
+  assert.throws(() => parseLensUri("skilit://lens/short"), { name: "AgentContractError" });
   assert.throws(() => parseLensUri("https://example.org/"), { name: "AgentContractError" });
   assert.throws(() => parseLensUri(null), { name: "AgentContractError" });
 });
@@ -76,7 +76,7 @@ test("create assigns a durable identifier and replays idempotently", async () =>
     const input = body({ workspaceId: fx.workspaceId });
     const first = await createLensJobRoute(fx.db, input, fx.owner.id, "req-create-1");
     assert.equal(first.status, 201);
-    assert.equal(first.body.schema_version, "skelet.agent.v1");
+    assert.equal(first.body.schema_version, "skilit.agent.v1");
     assert.equal(first.body.request_id, "req-create-1");
     const job = first.body.result.job;
     assert.ok(HEX64.test(job.kitId));

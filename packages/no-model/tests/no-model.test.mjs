@@ -57,7 +57,7 @@ test("strict mode fails closed when a model credential is present", () => {
       !/sk-test/.test(error.message),
   );
   assert.throws(
-    () => validateNoModelEnv({ SKELET_NO_MODEL: "1", ANTHROPIC_API_KEY: "x" }),
+    () => validateNoModelEnv({ SKILIT_NO_MODEL: "1", ANTHROPIC_API_KEY: "x" }),
     /ANTHROPIC_API_KEY/,
   );
 });
@@ -69,16 +69,16 @@ test("empty credential values do not count as present", () => {
 
 test("explicit opt-out does not enforce credential absence", () => {
   const report = validateNoModelEnv({
-    SKELET_NO_MODEL: "0",
+    SKILIT_NO_MODEL: "0",
     OPENAI_API_KEY: "sk-test",
   });
   assert.equal(report.enabled, false);
   assert.deepEqual(report.forbiddenPresent, []);
 });
 
-test("invalid SKELET_NO_MODEL fails closed", () => {
-  assert.throws(() => validateNoModelEnv({ SKELET_NO_MODEL: "strict" }), NoModelError);
-  assert.throws(() => inspectNoModelEnv({ SKELET_NO_MODEL: "strict" }), NoModelError);
+test("invalid SKILIT_NO_MODEL fails closed", () => {
+  assert.throws(() => validateNoModelEnv({ SKILIT_NO_MODEL: "strict" }), NoModelError);
+  assert.throws(() => inspectNoModelEnv({ SKILIT_NO_MODEL: "strict" }), NoModelError);
 });
 
 test("unapproved egress hosts are denied including subdomains", () => {
@@ -129,6 +129,6 @@ test("status descriptor is redacted and deterministic", () => {
   const dirty = describeNoModelStatus({ OPENAI_API_KEY: "sk-secret-value" });
   assert.equal(dirty.forbiddenCount, 1);
   assert.ok(!JSON.stringify(dirty).includes("sk-secret-value"));
-  const opted = describeNoModelStatus({ SKELET_NO_MODEL: "0" });
+  const opted = describeNoModelStatus({ SKILIT_NO_MODEL: "0" });
   assert.equal(opted.enabled, false);
 });

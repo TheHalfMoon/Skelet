@@ -1,4 +1,4 @@
-# Skelet Self-Hosted Operations Runbook
+# Skilit Self-Hosted Operations Runbook
 
 Status: canonical operator procedures for the supported zero-founder-spend
 local and customer self-hosted modes. Managed SaaS remains explicitly not
@@ -8,7 +8,7 @@ offered until separately budgeted per the AF-00 deployment contract.
 
 Production backup has two halves, taken together:
 
-1. **PostgreSQL**: `pg_dump --format=custom --file=skelet-$DATE.dump $DATABASE_URL`
+1. **PostgreSQL**: `pg_dump --format=custom --file=skilit-$DATE.dump $DATABASE_URL`
    (schema plus data, including the `schema_migrations` ledger and the
    immutable `import_records` ledger).
 2. **Object storage**: filesystem snapshot of the content-addressed store
@@ -26,7 +26,7 @@ drill: `packages/db/src/backup.ts` with `backup-restore.test.mjs`
 (PGlite) and `pg-backup-restore.test.mjs` (real PostgreSQL, CI
 `db-foundation` job). The drill snapshots the corpus subgraph, wipes it
 with `TRUNCATE ... CASCADE`, re-inserts the exact rows (original IDs
-preserved, so stable `skelet://` URIs survive), and verifies row counts
+preserved, so stable `skilit://` URIs survive), and verifies row counts
 plus id sets per table before declaring success.
 
 Operator restore procedure:
@@ -81,7 +81,7 @@ must implement.
   migration ships a tested down file, but downgrades are rehearsal-only
   outside emergencies because the import ledger is append-only.
 - Health: web `/api/health`, worker `health` command, and the
-  `SKELET_NO_MODEL=1` gate (fails closed on forbidden credentials).
+  `SKILIT_NO_MODEL=1` gate (fails closed on forbidden credentials).
 
 ## 5. Incident minimum
 

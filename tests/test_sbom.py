@@ -34,7 +34,7 @@ class SbomTests(unittest.TestCase):
     def test_cyclonedx_envelope(self) -> None:
         self.assertEqual(self.bom["bomFormat"], "CycloneDX")
         self.assertEqual(self.bom["specVersion"], "1.5")
-        self.assertEqual(self.bom["metadata"]["component"]["name"], "skelet")
+        self.assertEqual(self.bom["metadata"]["component"]["name"], "skilit")
         self.assertTrue(GIT_SHA_RE.match(self.bom["metadata"]["repoHead"]))
 
     def test_components_sorted_and_wellformed(self) -> None:

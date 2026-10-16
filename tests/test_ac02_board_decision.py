@@ -2,8 +2,8 @@
 
 Machine-checks every static fact cited in
 docs/qualification/AC-02_BOARD_DECISION.md directly from repo sources
-(Skelet board surfaces + AC-00-i closure JSON), offline. Donor-side
-figures come from the SHA-verified moodboard closure; Skelet-side
+(Skilit board surfaces + AC-00-i closure JSON), offline. Donor-side
+figures come from the SHA-verified moodboard closure; Skilit-side
 figures from migrations, route files, tool schemas, package manifests,
 and test sources. The keep verdict and both revisit triggers are
 asserted verbatim so the decision cannot drift from its evidence.
@@ -96,7 +96,7 @@ class Ac02DecisionTests(unittest.TestCase):
         self.assertIn("no handoff path in inventory", self.doc)
         self.assertIn("no rights/provenance path in inventory", self.doc)
 
-    def test_skelet_surfaces_match_sources(self) -> None:
+    def test_skilit_surfaces_match_sources(self) -> None:
         routes = sorted(
             str(p) for p in (ROOT / "apps" / "web" / "app").rglob("route.ts") if "/boards" in str(p).replace("\\", "/")
         )
@@ -111,7 +111,7 @@ class Ac02DecisionTests(unittest.TestCase):
         for token in ("8 REST routes", "3 MCP tools", "014", "015"):
             self.assertIn(token, self.doc)
 
-    def test_skelet_adds_no_canvas_dependencies(self) -> None:
+    def test_skilit_adds_no_canvas_dependencies(self) -> None:
         pkg = load_json(WEB_PKG_PATH)
         deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
         for banned in ("konva", "react-konva", "zustand"):
@@ -120,12 +120,13 @@ class Ac02DecisionTests(unittest.TestCase):
 
     def test_keyboard_parity_and_virtualization_gap_are_honest(self) -> None:
         ui_test = BOARDS_UI_TEST.read_text(encoding="utf-8")
-        self.assertIn("keyboard", ui_test.lower(), "Skelet keyboard coverage must exist to claim parity")
-        self.assertNotIn("virtual", ui_test.lower(), "Skelet virtualization must stay unclaimed")
+        self.assertIn("keyboard", ui_test.lower(), "Skilit keyboard coverage must exist to claim parity")
+        self.assertNotIn("virtual", ui_test.lower(), "Skilit virtualization must stay unclaimed")
         self.assertIn("parity, not a differentiator", self.doc)
         self.assertIn("sole donor lead", self.doc)
 
     def test_verdict_is_keep_with_revisit_triggers(self) -> None:
+        # Historical decision record retains original project bytes.
         self.assertIn("KEEP Skelet-owned", self.doc)
         self.assertIn("adopt nothing", self.doc.lower())
         self.assertIn("Revisit triggers", self.doc)

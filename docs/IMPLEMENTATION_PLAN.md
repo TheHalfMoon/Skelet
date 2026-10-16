@@ -1,13 +1,13 @@
-# Skelet Implementation Plan
+# Skilit Implementation Plan
 
 Status: CANONICAL IMPLEMENTATION PLAN — implementation-ready
-Repository: https://github.com/TheHalfMoon/Skelet
-Product thesis: Skelet is the design intelligence layer for humans and AI agents.
+Repository: https://github.com/TheHalfMoon/Skilit
+Product thesis: Skilit is the design intelligence layer for humans and AI agents.
 Commercial thesis: paid plans should target approximately 50% of the equivalent Mobbin plan price, while product differentiation must come from agent-native design intelligence rather than discounting.
 
 ## 1. Product Contract
 
-Skelet MUST treat AI agents as first-class users. Anything discoverable by a human in the Skelet web UI MUST have a stable structured representation that can be retrieved through the API/MCP layer.
+Skilit MUST treat AI agents as first-class users. Anything discoverable by a human in the Skilit web UI MUST have a stable structured representation that can be retrieved through the API/MCP layer.
 
 Primary product surfaces:
 1. Research: products, versions, websites, screens, flows, patterns, copy, references.
@@ -19,7 +19,7 @@ Primary product surfaces:
 Launch-critical user journeys:
 - Search across screens, flows, websites, components, icons, logos, fonts, and patterns from one query box.
 - Paste a URL and receive screenshots, page/section structure, design tokens, brand assets, technology clues, QA findings, and agent-ready context.
-- Connect an AI agent and perform search, inspect, compare, save, and create-reference-pack workflows without using the Skelet web UI.
+- Connect an AI agent and perform search, inspect, compare, save, and create-reference-pack workflows without using the Skilit web UI.
 - Save research to collections/workspaces and resume it from another agent/client.
 - Retrieve assets with source, provenance, rights metadata, variants, and machine-usable formats.
 
@@ -58,7 +58,7 @@ Canonical entities:
 - Collection: user/workspace research set.
 - CaptureRun: one bounded ingestion/capture execution.
 - AnalysisRun: deterministic or model-backed enrichment execution.
-- ImportRecord: external source ID -> canonical Skelet ID mapping.
+- ImportRecord: external source ID -> canonical Skilit ID mapping.
 
 Artifact kinds at launch:
 - screen
@@ -156,11 +156,11 @@ Use pnpm workspaces. Do not introduce Turborepo unless build measurements show a
 ## 5. Provider Boundaries
 
 Base/selective upstream:
-- Monet Registry: website/component registry engine, page/section metadata concepts, capture/search/build scripts. Import selectively, exclude bulk media and product-owned branding/data not required by Skelet.
+- Monet Registry: website/component registry engine, page/section metadata concepts, capture/search/build scripts. Import selectively, exclude bulk media and product-owned branding/data not required by Skilit.
 
 Transplant/adapters:
 - OpenSourceUI: catalog UX, component preview patterns, quality checks, selected component data.
-- Better Auth/PaceKit: authentication UX/flows; database remains Skelet PostgreSQL.
+- Better Auth/PaceKit: authentication UX/flows; database remains Skilit PostgreSQL.
 - Better Auth Stripe plugin: subscription/customer/team-seat lifecycle.
 - Iconify: normalized icon collections and metadata.
 - Simple Icons/SVGL/authorized logo datasets: brand/logo corpus.
@@ -243,7 +243,7 @@ Search MUST support:
 - flow/pattern search
 - asset/license filtering
 
-## 8. Skelet Lens
+## 8. Skilit Lens
 
 Input: URL or uploaded image.
 
@@ -269,14 +269,14 @@ Lens output contract:
 - technology clues with confidence/source
 - QA findings
 - provenance
-- similar Skelet references
+- similar Skilit references
 - exports: JSON, DESIGN.md, DTCG tokens, Tailwind theme, shadcn theme when supported, agent-context JSON
 
 Lens MUST clearly distinguish observed facts, deterministic inference, heuristic inference, and model-generated interpretation.
 
 ### 8.1 Lens Build Kit successor (P09b, normative; tracks issue #9)
 
-The Lens report (§8) is extended by a bounded successor phase **P09b — URL to ready-to-build implementation kit**, which turns a qualified Lens analysis into a downloadable, agent-usable build starter. P09b is an additive capability of Skelet Lens, not a new editor, app builder, or clone of the analyzed site's proprietary source.
+The Lens report (§8) is extended by a bounded successor phase **P09b — URL to ready-to-build implementation kit**, which turns a qualified Lens analysis into a downloadable, agent-usable build starter. P09b is an additive capability of Skilit Lens, not a new editor, app builder, or clone of the analyzed site's proprietary source.
 
 Build Kit execution contract:
 - Stable `AnalysisRun`/kit identifiers; idempotent submission; poll, cancel, retry, and resume operations; artifact expiration; tenant-scoped storage and access; per-job quota accounting; versioned schemas; deterministic error classification.
@@ -295,17 +295,17 @@ Canonical remote endpoint:
 - /mcp over Streamable HTTP.
 
 Public resources use stable URIs:
-- skelet://product/{id}
-- skelet://version/{id}
-- skelet://artifact/{id}
-- skelet://flow/{id}
-- skelet://collection/{id}
-- skelet://lens/{analysis_id}
-- skelet://reference-pack/{id}
+- skilit://product/{id}
+- skilit://version/{id}
+- skilit://artifact/{id}
+- skilit://flow/{id}
+- skilit://collection/{id}
+- skilit://lens/{analysis_id}
+- skilit://reference-pack/{id}
 
 Keep the tool surface small and composable. Launch tools:
 - search_design: unified search with kind/facet/query/image/reference filters.
-- get_object: retrieve structured canonical objects by Skelet URI or ID.
+- get_object: retrieve structured canonical objects by Skilit URI or ID.
 - find_similar: semantic/visual/pattern similarity.
 - compare_design: compare products, versions, artifacts, or flows with evidence references.
 - analyze_url: create or retrieve a Lens analysis.
@@ -314,7 +314,7 @@ Keep the tool surface small and composable. Launch tools:
 - save_reference: save an object to a collection/workspace.
 - create_reference_pack: create compact agent context from selected evidence.
 - get_changes: retrieve version/capture differences for a Product.
-- search_registry: search Skelet's shadcn-compatible component registry.
+- search_registry: search Skilit's shadcn-compatible component registry.
 
 Do not expose one MCP tool per internal micro-operation. The agent contract should model user intent, while internal providers remain implementation details.
 
@@ -327,12 +327,12 @@ MCP Apps launch views:
 - reference board
 
 Agent Skills:
-- skelet-research: research real shipped references before proposing UI.
-- skelet-assets: select icons/logos/fonts/components with rights metadata.
-- skelet-lens: analyze a URL and generate implementation context.
-- skelet-reference-pack: persist/reuse evidence across agents.
+- skilit-research: research real shipped references before proposing UI.
+- skilit-assets: select icons/logos/fonts/components with rights metadata.
+- skilit-lens: analyze a URL and generate implementation context.
+- skilit-reference-pack: persist/reuse evidence across agents.
 
-All agent outputs MUST reference Skelet IDs/URIs so a later agent can recover the source evidence without relying on prose copied into chat history.
+All agent outputs MUST reference Skilit IDs/URIs so a later agent can recover the source evidence without relying on prose copied into chat history.
 
 ## 10. Assets and Registry
 
@@ -354,7 +354,7 @@ Font pipeline:
 - do not serve restricted font files merely because metadata can be indexed.
 
 Component pipeline:
-- Skelet publishes a shadcn-compatible registry.
+- Skilit publishes a shadcn-compatible registry.
 - donor components are normalized to registry items only when dependencies and source/provenance are known.
 - component metadata links to real shipped references when available.
 - registry items include clear agent-oriented descriptions and dependency metadata.
@@ -452,9 +452,9 @@ Deliverables:
 - UPSTREAMS.lock.yml schema and initial donor inventory.
 - CODE_PROVENANCE.md and DATA_PROVENANCE.md.
 - SECURITY.md with URL-capture/MCP threat boundaries.
-- CI skeleton and branch governance.
+- CI skiliton and branch governance.
 Exit criteria:
-- Skelet repo has a canonical first commit.
+- Skilit repo has a canonical first commit.
 - every planned donor has role/permission/license placeholders and execution-time pin rule.
 - no runtime donor code imported yet.
 
@@ -464,10 +464,10 @@ Steps:
 - create import manifest before copying.
 - import only required source/config/scripts/tests; exclude bulk media, generated corpus, product branding, deployment assumptions, and secrets.
 - preserve upstream notices/provenance.
-- rename project-owned identity to Skelet without blind replacement of third-party identifiers.
+- rename project-owned identity to Skilit without blind replacement of third-party identifiers.
 - qualify install, lint/typecheck/tests/build.
 Exit criteria:
-- Skelet builds from its own repo.
+- Skilit builds from its own repo.
 - imported files are provenance-bound.
 - baseline behavior is reproducible from a clean checkout.
 
@@ -495,7 +495,7 @@ Exit criteria:
 - duplicate import fixture produces no duplicate canonical objects/assets.
 - provenance is mandatory for published imported artifacts.
 
-### P04 — Auth, Workspaces, Billing Skeleton
+### P04 — Auth, Workspaces, Billing Skiliton
 Deliverables:
 - Better Auth integration.
 - workspace/organization roles.
@@ -534,18 +534,18 @@ Exit criteria:
 
 ### P07 — Component Registry
 Deliverables:
-- shadcn-compatible Skelet registry endpoint and registry index.
+- shadcn-compatible Skilit registry endpoint and registry index.
 - Monet/OpenSourceUI/PaceUI import adapters for permitted components.
 - dependency/provenance metadata and live preview.
 - registry contract tests.
 Exit criteria:
-- shadcn MCP can discover Skelet registry items without a Skelet-specific client plugin.
-- a clean sample app can install a qualified Skelet component and build successfully.
+- shadcn MCP can discover Skilit registry items without a Skilit-specific client plugin.
+- a clean sample app can install a qualified Skilit component and build successfully.
 
 ### P08 — Agent Platform v1
 Deliverables:
 - Remote MCP endpoint with authenticated Streamable HTTP.
-- stable Skelet URI resource scheme.
+- stable Skilit URI resource scheme.
 - launch tool set: search_design, get_object, find_similar, analyze_url, analyze_image, resolve_asset, save_reference, create_reference_pack, search_registry.
 - Agent Skill packages for research/assets/lens/reference-pack.
 - REST /api/v1 parity for core read capabilities.
@@ -571,7 +571,7 @@ Depends: P09 Lens capture/report qualified (R4 gate), plus P03 canonical graph a
 Deliverables:
 - versioned Build Kit schemas and fixture-validated ZIP layout (manifest, analysis pages/sections/components, DTCG tokens, CSS/Tailwind/shadcn themes, rights-classified asset inventory, screenshots, editable React/Next.js + Tailwind starter, provenance, AGENT.md task pack);
 - AnalysisRun/kit job lifecycle with queued/capturing/extracting/generating/validating/completed/partial/failed/canceled states, idempotent create, poll/cancel/retry/resume, expiry, tenant scoping, and quota accounting;
-- UI, REST, MCP, CLI/SDK parity over stable analysis/kit IDs and `skelet://lens/{analysis_id}` URIs, so a second agent can recover the same kit without the original session.
+- UI, REST, MCP, CLI/SDK parity over stable analysis/kit IDs and `skilit://lens/{analysis_id}` URIs, so a second agent can recover the same kit without the original session.
 Exit criteria:
 - rights-cleared 3-page fixture produces desktop/mobile captures, deterministic tokens, component inventory, source-linked evidence, schema-valid ZIP, and a generated starter that installs, typechecks, builds, starts, and passes responsive/keyboard smoke on a clean checkout;
 - restricted assets are excluded from downloadable artifacts; SSRF/redirect/DNS-rebinding, prompt-injection, tenant-leakage, path-traversal, quota, cancellation/retry, and provider-outage tests pass;
@@ -606,8 +606,8 @@ Deliverables:
 - project/reference-pack persistence inspired by proven local artifact workflows.
 - evidence compaction format for agents.
 Exit criteria:
-- supported MCP App client renders interactive Skelet UI from the remote server.
-- another agent can consume a saved reference pack and recover every evidence object by Skelet URI.
+- supported MCP App client renders interactive Skilit UI from the remote server.
+- another agent can consume a saved reference pack and recover every evidence object by Skilit URI.
 
 ### P13 — Time Machine + Change Intelligence
 Deliverables:
@@ -627,7 +627,7 @@ Deliverables:
 - .fig/.pen export/import where supported.
 - design token handoff.
 Exit criteria:
-- user/agent can turn a qualified Skelet reference pack into an editable design document.
+- user/agent can turn a qualified Skilit reference pack into an editable design document.
 - OpenPencil integration is isolated behind an adapter so Create can evolve independently.
 
 ### P15 — Commercial Launch Qualification
@@ -718,7 +718,7 @@ Agent metrics:
 - search-to-evidence selection rate
 - reference-pack creation/use rate
 - repeat agent usage by workspace
-- median number of Skelet evidence objects used per completed agent task
+- median number of Skilit evidence objects used per completed agent task
 
 Human metrics:
 - search -> artifact view
@@ -746,7 +746,7 @@ Quality metrics:
 
 Do not add a new vendor/provider when an existing qualified provider covers the same launch requirement unless benchmark evidence shows a material quality, cost, rights, or reliability advantage.
 
-Do not build a custom subsystem when a permitted mature donor can satisfy the requirement behind an adapter without weakening the canonical Skelet domain.
+Do not build a custom subsystem when a permitted mature donor can satisfy the requirement behind an adapter without weakening the canonical Skilit domain.
 
 Do not make Create, mobile device capture, or paid LLM inference a prerequisite for initial commercial launch.
 
@@ -766,7 +766,7 @@ G00-02: Provenance schemas
 - Adds: UPSTREAMS.lock.yml schema, CODE_PROVENANCE.md, DATA_PROVENANCE.md, validation script.
 - Proves: malformed/mutable-source entries fail validation.
 
-G00-03: CI skeleton
+G00-03: CI skiliton
 - Depends: G00-01
 - Adds: format/lint/typecheck/test/build placeholders, exact-head evidence convention, binary-size gate.
 - Proves: deliberately broken fixture fails each gate.
@@ -781,7 +781,7 @@ G01-02: Monet source snapshot
 - Adds: selected files exactly matching manifest.
 - Proves: content hashes against upstream pin and preserved notices.
 
-G01-03: Skelet identity + baseline qualification
+G01-03: Skilit identity + baseline qualification
 - Depends: G01-02
 - Changes: project-owned branding/config only; no architecture redesign.
 - Proves: clean install, lint/typecheck/test/build, no unintended third-party identifier rewrite.
@@ -829,7 +829,7 @@ G04-02: Workspaces and roles
 G04-03: Collections
 - Depends: G04-02
 - Adds: collection create/read/update/delete and save-reference path.
-- Proves: user can persist a canonical Skelet object reference.
+- Proves: user can persist a canonical Skilit object reference.
 
 G04-04: Billing adapter
 - Depends: G04-02
@@ -853,7 +853,7 @@ G05-03: Publish transaction
 
 After G05-03, P06+ work may run as parallel feature branches only when they do not modify the same public contract. Domain/API/schema changes remain serialized through normal merge commits.
 
-Branch naming pattern: skelet/pXX-gYY-short-name.
+Branch naming pattern: skilit/pXX-gYY-short-name.
 
 ## 21. Mandatory Security Qualification Matrix
 
@@ -892,7 +892,7 @@ External egress tests MUST include:
 Version independently:
 - REST API: /api/v1; breaking changes require /api/v2 or a documented compatibility window.
 - MCP tools/resources: semantic schema version recorded in server metadata; breaking tool input/output changes require new tool/resource version or compatibility adapter.
-- Skelet URI identity is stable across API versions.
+- Skilit URI identity is stable across API versions.
 - registry schema follows the pinned shadcn registry specification and validates in CI.
 - database schema is internal and may evolve through forward migrations; public APIs never expose table shapes as contracts.
 
@@ -904,12 +904,12 @@ This section is a **planning amendment**, not product implementation. It becomes
 
 The core P00–P15 product vision remains unchanged, but the following execution corrections take precedence over earlier implementation-sequencing assumptions if they conflict:
 
-1. **No runnable-Monet assumption.** The 90 Monet source files selected in G01-01 and classified in G01-02a are not a complete runnable Next.js product. G01-02 successor grains MUST import one dependency-closed, verified capability at a time; G01-03 MAY establish a clean Skelet-owned app shell instead of recreating excluded donor UI/branding. Bootstrap Python tests or an isolated copied TypeScript helper do not prove a working product.
+1. **No runnable-Monet assumption.** The 90 Monet source files selected in G01-01 and classified in G01-02a are not a complete runnable Next.js product. G01-02 successor grains MUST import one dependency-closed, verified capability at a time; G01-03 MAY establish a clean Skilit-owned app shell instead of recreating excluded donor UI/branding. Bootstrap Python tests or an isolated copied TypeScript helper do not prove a working product.
 2. **Progress by tested user journeys.** S0 must integrate rights-qualified icon/component ingestion, canonical persistence, search, human inspection, collection saving, reference-pack export, and REST/MCP recovery from another client before expanding to S1 safe URL Lens. This does not shrink the existing paid launch scope.
 3. **Modern MCP contract.** Target the official 2026-07-28 MCP protocol with tested compatibility; OAuth metadata/audience binding/PKCE/issuer, Tasks extension and REST fallback, official MCP Apps SDK and explicit host support. Never assume MCP Apps or Tasks exist in every client.
 4. **Strict rights and egress boundaries.** Dataset, screenshot, icon/font/logo, model and trademark rights are separate from donor source-code permission. Socket-level browser egress isolation and prompt-injection defenses are mandatory for Lens, beyond URL string checks. Takedown and derivative deletion are release requirements.
 5. **Measured quality and costs.** Lexical search and local/offline path before optional embeddings. Relevance judgments, exact model/runtime pins, performance baseline, quotas, browser-minute/storage/egress cost attribution and commercial margin evidence precede scaling; no impossible promise of free public infrastructure.
-6. **Clear product responsibilities.** Skelet owns research/evidence/asset registry and agent retrieval. Lilac/OpenPencil own edit/canvas; Kernux/Deskal provide qualified access capabilities only; Morize/Orcel/Gomrey/Ineractive are optional adapter/consumer relationships, not unverified runtime dependencies.
+6. **Clear product responsibilities.** Skilit owns research/evidence/asset registry and agent retrieval. Lilac/OpenPencil own edit/canvas; Kernux/Deskal provide qualified access capabilities only; Morize/Orcel/Gomrey/Ineractive are optional adapter/consumer relationships, not unverified runtime dependencies.
 7. **Traceable readiness.** Every implementation grain maps to the R0–R7 gate and explicit capability state, and every P0 gap must be actually closed before the corresponding public feature/launch. A passing planning validator never substitutes for full application tests.
 8. **Preserve governance.** Graft, Jev, Alibaba OCR/delegation, exact-HEAD GitHub CI, normal merges and verified post-merge closeouts remain non-waivable.
 
@@ -925,7 +925,7 @@ These documents authorize **planning and evaluation** only. They do not activate
 
 Status: PROPOSED planning amendment. This section becomes normative after its documentation PR has passed the existing exact-head review/CI and ordinary merge policy; it does not complete a runtime grain.
 
-Founder clarifies: Skelet must maximize verifiable design-workflow value for **external AI agents** without Skelet hosting or financing model inference, GPU compute, paid search/vector SaaS, or cloud workloads. The user supplies their own agent/model and, for the zero-founder-compute product mode, runs Skelet on local/customer-hosted infrastructure. A public managed SaaS cannot claim zero infrastructure cost and is out of scope absent an approved unit-economic budget and quotas.
+Founder clarifies: Skilit must maximize verifiable design-workflow value for **external AI agents** without Skilit hosting or financing model inference, GPU compute, paid search/vector SaaS, or cloud workloads. The user supplies their own agent/model and, for the zero-founder-compute product mode, runs Skilit on local/customer-hosted infrastructure. A public managed SaaS cannot claim zero infrastructure cost and is out of scope absent an approved unit-economic budget and quotas.
 
 Implementation consequences:
 

@@ -1,11 +1,11 @@
-# Skelet v1 Local Release-Candidate Preparation (Procedure, Not a Publication)
+# Skilit v1 Local Release-Candidate Preparation (Procedure, Not a Publication)
 
 Status: CANONICAL RC PROCEDURE. Base: `0198c4b` (PR #144 merge).
 Scope: how the v1 Local release candidate is built, verified, and handed to the owner signing ceremony. No release tag is created and nothing is published by this grain. Machine-checked by `tests/node/release-candidate.test.mjs` (builder behavior) and `tests/test_release_candidate_doc.py` (document completeness).
 
 ## 1. Deliverable format decision
 
-Skelet v1 Local is a web/worker/PostgreSQL stack, not a desktop binary. The release candidate is therefore a **reproducible source release**:
+Skilit v1 Local is a web/worker/PostgreSQL stack, not a desktop binary. The release candidate is therefore a **reproducible source release**:
 
 1. Lockfile-pinned source tarball (`git archive HEAD` + deterministic `gzip -n -9`).
 2. `manifest.json` (version proposal, commit, file inventory, artifact + SBOM digests, signing/license state).
@@ -27,10 +27,10 @@ No desktop binary is invented. No hosted service is required to consume the cand
 ## 3. Build and verify (operator commands)
 
 ```bash
-node scripts/build_release_candidate.mjs --out /tmp/skelet-rc --version v1.0.0-local-rc.1
-cat /tmp/skelet-rc/manifest.json
-cat /tmp/skelet-rc/SHA256SUMS
-(cd /tmp/skelet-rc && sha256sum -c SHA256SUMS)
+node scripts/build_release_candidate.mjs --out /tmp/skilit-rc --version v1.0.0-local-rc.1
+cat /tmp/skilit-rc/manifest.json
+cat /tmp/skilit-rc/SHA256SUMS
+(cd /tmp/skilit-rc && sha256sum -c SHA256SUMS)
 ```
 
 Measured probe at `0198c4b` (local, 2026-10-16): 962 tracked files, 1,134,573-byte tarball, exit 0. Digests are per-commit: regenerate on the exact RC commit at signing time; never reuse a digest across commits.
@@ -45,7 +45,7 @@ The consumer proof is the clean-install procedure on the candidate digest: isola
 
 ## 6. Gaps requiring owner decisions
 
-- **OD-05 (license, RESOLVED): root `LICENSE` (Apache License 2.0 for original Skelet-owned code) and consolidated root `NOTICE` now exist in this repository**, placed under owner authorization OD-05 recorded in GitHub Issue #34. The NOTICE preserves upstream copyrights, licenses, attribution, and third-party restrictions (monet-registry carve-out §2, ready-but-not-distributed donors §3, excluded assets/weights/services §§7–9, compatibility finding §5 with no blocking conflict). The builder manifest records the OD-05 license state and must never be read as relicensing third-party material. This unblocks *final* release packaging on the license axis; signing (OD-02) and tag/draft (OD-03) remain gated.
+- **OD-05 (license, RESOLVED): root `LICENSE` (Apache License 2.0 for original Skilit-owned code) and consolidated root `NOTICE` now exist in this repository**, placed under owner authorization OD-05 recorded in GitHub Issue #34. The NOTICE preserves upstream copyrights, licenses, attribution, and third-party restrictions (monet-registry carve-out §2, ready-but-not-distributed donors §3, excluded assets/weights/services §§7–9, compatibility finding §5 with no blocking conflict). The builder manifest records the OD-05 license state and must never be read as relicensing third-party material. This unblocks *final* release packaging on the license axis; signing (OD-02) and tag/draft (OD-03) remain gated.
 - **OD-02 (signing):** the candidate is explicitly unsigned (`signed: false`). Digests above are generated for the owner ceremony; `sign_release_artifact.mjs --self-test` proves the workflow with ephemeral keys only.
 - **OD-03 (release):** version identifier, release-candidate tag/draft, and any publication await explicit owner approval.
 

@@ -5,7 +5,7 @@ import type { Artifact } from "../../db/src/graph.ts";
 import { RegistryError, servingPolicy } from "./registry.ts";
 
 /**
- * AF-13a-i deterministic artifact similarity (Skelet-owned, no embeddings).
+ * AF-13a-i deterministic artifact similarity (Skilit-owned, no embeddings).
  *
  * `find_similar` answers "artifact -> similar artifacts" over the
  * actor-readable corpus using only deterministic lexical signals:

@@ -28,7 +28,7 @@ import type { AgentEnvelope } from "./agent-contract.ts";
  * AF-05e-i Lens job lifecycle parity: the REST/MCP-shared server layer
  * over the durable Build Kit store (packages/db/src/build-kit.ts).
  *
- * Contract (skelet.agent.v1 envelopes; HTTP statuses derive from the one
+ * Contract (skilit.agent.v1 envelopes; HTTP statuses derive from the one
  * canonical catalog in agent-contract.ts):
  * - POST create: 201 on first creation, 200 on idempotent replay.
  * - Poll (status) and inspect (get): immediate reads, always 200 with the
@@ -40,7 +40,7 @@ import type { AgentEnvelope } from "./agent-contract.ts";
  * - Download: 200 with artifact bytes on success; 404 when the identity
  *   is unknown, outside the workspace, or the output is purged; 409 when
  *   no successful artifact exists yet (active or failed/canceled runs).
- * - Stable resource identifier: `skelet://lens/{64-hex-kit-id}` in every
+ * - Stable resource identifier: `skilit://lens/{64-hex-kit-id}` in every
  *   job view. Kit IDs are content-derived (workspace, idempotency key,
  *   request hash), so duplicate submissions converge on one URI.
  *
@@ -89,15 +89,19 @@ const DOWNLOAD_NAMES = ["manifest.json", "evidence.json"] as const;
 export type DownloadName = (typeof DOWNLOAD_NAMES)[number];
 
 export function lensUriFor(kitId: string): string {
-  return `skelet://lens/${kitId}`;
+  return `skilit://lens/${kitId}`;
 }
 
-/** Parse `skelet://lens/{64-hex-kit-id}`; anything else is INVALID_INPUT. */
+/** Parse `skilit://lens/{64-hex-kit-id}` (legacy `skelet://` accepted); anything else is INVALID_INPUT. */
 export function parseLensUri(uri: unknown): string {
   if (typeof uri !== "string") {
     throw new AgentContractError("INVALID_INPUT", { message: "Lens URI is invalid." });
   }
-  const match = /^skelet:\/\/lens\/([0-9a-f]{64})$/i.exec(uri.trim());
+  const trimmed = uri.trim();
+  const normalized = trimmed.toLowerCase().startsWith("skelet://")
+    ? `skilit://${trimmed.slice("skelet://".length)}`
+    : trimmed;
+  const match = /^skilit:\/\/lens\/([0-9a-f]{64})$/i.exec(normalized);
   if (match === null || !HEX64_PATTERN.test((match[1] ?? "").toLowerCase())) {
     throw new AgentContractError("INVALID_INPUT", { message: "Lens URI is invalid." });
   }

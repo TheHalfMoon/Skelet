@@ -3,10 +3,10 @@ import test from "node:test";
 
 import { buildHealthPayload } from "../app/api/health/payload.ts";
 
-test("health payload satisfies the Skelet web contract", () => {
+test("health payload satisfies the Skilit web contract", () => {
   const payload = buildHealthPayload();
   assert.equal(payload.status, "ok");
-  assert.equal(payload.service, "skelet-web");
+  assert.equal(payload.service, "skilit-web");
   assert.equal(typeof payload.version, "string");
   assert.ok(payload.version.length > 0);
 });

@@ -1,5 +1,5 @@
 /**
- * P15-1 abuse-alarm evaluator (Skelet-owned, no-prod-dependency).
+ * P15-1 abuse-alarm evaluator (Skilit-owned, no-prod-dependency).
  *
  * Operationalizes the operator alert thresholds in
  * `docs/operations/SLOS.md` as a pure deterministic function over

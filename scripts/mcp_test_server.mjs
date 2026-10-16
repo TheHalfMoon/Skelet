@@ -1,7 +1,7 @@
 /**
  * AF-03c interop test server: real PGlite-backed MCP + REST over HTTP.
  *
- * Spins an in-memory Skelet database with a fixed interop fixture, then
+ * Spins an in-memory Skilit database with a fixed interop fixture, then
  * serves the same dispatch paths as the Next.js routes (dispatchMcp for
  * POST /mcp, searchAssetsRoute/getAssetRoute/getObjectRoute for REST).
  * Used by the Node fetch client test and the Python urllib client test so
@@ -53,12 +53,12 @@ function readBody(req) {
 async function buildFixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "interop-owner@skelet.example", password: "interop-password-01" });
-  const outsider = await signUp(db, { email: "interop-outsider@skelet.example", password: "interop-password-01" });
-  const member = await signUp(db, { email: "interop-member@skelet.example", password: "interop-password-01" });
-  const ownerSession = await signIn(db, { email: "interop-owner@skelet.example", password: "interop-password-01" });
-  const outsiderSession = await signIn(db, { email: "interop-outsider@skelet.example", password: "interop-password-01" });
-  const memberSession = await signIn(db, { email: "interop-member@skelet.example", password: "interop-password-01" });
+  const owner = await signUp(db, { email: "interop-owner@skilit.example", password: "interop-password-01" });
+  const outsider = await signUp(db, { email: "interop-outsider@skilit.example", password: "interop-password-01" });
+  const member = await signUp(db, { email: "interop-member@skilit.example", password: "interop-password-01" });
+  const ownerSession = await signIn(db, { email: "interop-owner@skilit.example", password: "interop-password-01" });
+  const outsiderSession = await signIn(db, { email: "interop-outsider@skilit.example", password: "interop-password-01" });
+  const memberSession = await signIn(db, { email: "interop-member@skilit.example", password: "interop-password-01" });
   const source = await createSource(db, { key: "interop-source", kind: "synthetic" });
   const space = await createWorkspace(db, { name: "Interop space", ownerId: owner.id });
   await addMember(db, { workspaceId: space.workspace.id, userId: member.id, role: "member", actorId: owner.id });

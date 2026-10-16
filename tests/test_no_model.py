@@ -1,4 +1,4 @@
-"""AF-02 zero-model and egress conformance tests for Skelet."""
+"""AF-02 zero-model and egress conformance tests for Skilit."""
 
 from __future__ import annotations
 
@@ -71,12 +71,12 @@ class EgressScanTests(unittest.TestCase):
         self.assertTrue(any("OPENAI_API_KEY" in error for error in errors))
 
     def test_invalid_flag_fails_closed(self) -> None:
-        errors = check_repository(ROOT, {"SKELET_NO_MODEL": "strict"})
-        self.assertTrue(any("SKELET_NO_MODEL" in error for error in errors))
+        errors = check_repository(ROOT, {"SKILIT_NO_MODEL": "strict"})
+        self.assertTrue(any("SKILIT_NO_MODEL" in error for error in errors))
 
     def test_opt_out_skips_credential_gate_but_keeps_egress_scan(self) -> None:
         errors = check_repository(
-            ROOT, {"SKELET_NO_MODEL": "0", "OPENAI_API_KEY": "sk-test"}
+            ROOT, {"SKILIT_NO_MODEL": "0", "OPENAI_API_KEY": "sk-test"}
         )
         self.assertEqual(errors, [])
 
@@ -92,7 +92,7 @@ class GateCliTests(unittest.TestCase):
             "HF_TOKEN",
             "FIRECRAWL_API_KEY",
             "PINECONE_API_KEY",
-            "SKELET_NO_MODEL",
+            "SKILIT_NO_MODEL",
         ):
             env.pop(name, None)
         result = subprocess.run(

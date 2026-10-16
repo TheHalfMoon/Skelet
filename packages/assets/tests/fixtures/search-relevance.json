@@ -1,5 +1,5 @@
 {
-  "dataset": "skelet-af04-synthetic-relevance-v1",
+  "dataset": "skilit-af04-synthetic-relevance-v1",
   "description": "Frozen synthetic relevance fixtures for deterministic lexical search. No embeddings, no external models. Each case lists the query, filters, expected top titles in order, and minimum expected counts. Used by packages/assets/tests/search.test.mjs and scripts/bench_search.mjs.",
   "records": [
     {

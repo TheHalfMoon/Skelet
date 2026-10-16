@@ -16,12 +16,12 @@ function version(): string {
     typeof packageJson.version !== "string" ||
     packageJson.version === ""
   ) {
-    throw new Error("skelet-worker package.json must define a version");
+    throw new Error("skilit-worker package.json must define a version");
   }
   return packageJson.version;
 }
 
-const USAGE = `usage: skelet-worker <health|start>
+const USAGE = `usage: skilit-worker <health|start>
   health   print the worker health contract as JSON
   start    validate env and report readiness (no jobs registered yet)`;
 
@@ -45,10 +45,10 @@ export function run(argv: string[], env: NodeJS.ProcessEnv): CliResult {
         stdout:
           JSON.stringify({
             status: "ok",
-            service: "skelet-worker",
+            service: "skilit-worker",
             version: version(),
-            env: loaded.SKELET_ENV,
-            noModel: loaded.SKELET_NO_MODEL,
+            env: loaded.SKILIT_ENV,
+            noModel: loaded.SKILIT_NO_MODEL,
             egress: "deny-unapproved",
           }) + "\n",
         stderr: "",
@@ -57,9 +57,9 @@ export function run(argv: string[], env: NodeJS.ProcessEnv): CliResult {
     return {
       exitCode: 0,
       stdout:
-        `skelet-worker ready (env=${loaded.SKELET_ENV}, ` +
-        `concurrency=${loaded.SKELET_WORKER_CONCURRENCY}, ` +
-        `no-model=${loaded.SKELET_NO_MODEL ? "1" : "0"}): ` +
+        `skilit-worker ready (env=${loaded.SKILIT_ENV}, ` +
+        `concurrency=${loaded.SKILIT_WORKER_CONCURRENCY}, ` +
+        `no-model=${loaded.SKILIT_NO_MODEL ? "1" : "0"}): ` +
         `no jobs registered\n`,
       stderr: "",
     };

@@ -1,6 +1,6 @@
 /**
  * G09-11: deterministic, bounded, source-linked technology-signal evidence
- * for Skelet Lens.
+ * for Skilit Lens.
  *
  * Pure, offline, dependency-free collection of OBSERVATIONS ONLY from an
  * already captured document. It never visits a URL, never fetches a script
@@ -28,7 +28,7 @@
 import { elementRef } from "./style-evidence.ts";
 
 /** Contract version carried by capture results and lens reports. */
-export const TECH_SIGNAL_SCHEMA_VERSION = "skelet.lens.tech-signal.v1" as const;
+export const TECH_SIGNAL_SCHEMA_VERSION = "skilit.lens.tech-signal.v1" as const;
 
 /** Closed kind allowlist. Unknown kinds fail closed, never collected. */
 export const TECH_SIGNAL_KINDS = [

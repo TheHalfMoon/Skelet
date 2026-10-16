@@ -45,7 +45,7 @@ function styles() {
 
 test("report assembles observed evidence without inventing provider facts", () => {
   const report = assembleLensReport(captured(), styles());
-  assert.equal(report.schemaVersion, "skelet.lens.report.v1");
+  assert.equal(report.schemaVersion, "skilit.lens.report.v1");
   assert.equal(report.status, "partial");
   assert.match(report.analysisId, /^[0-9a-f]{64}$/);
   assert.equal(report.observed.title, captured().title);

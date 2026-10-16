@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms — Skelet",
+  title: "Terms — Skilit",
   description:
-    "The governing posture for self-hosted Skelet use: Skelet-owned surfaces, upstream licenses, and owner-provided commercial terms.",
+    "The governing posture for self-hosted Skilit use: Skilit-owned surfaces, upstream licenses, and owner-provided commercial terms.",
 };
 
 export default function Terms() {
@@ -15,10 +15,10 @@ export default function Terms() {
         commercial terms, if any, are provided by the repository owner;
         nothing here invents them.
       </p>
-      <h2>Skelet-owned surfaces</h2>
+      <h2>Skilit-owned surfaces</h2>
       <p>
         The web UI, worker, agent contracts, and adapters in this checkout
-        are Skelet-owned. Behavior is defined by the implementation plan,
+        are Skilit-owned. Behavior is defined by the implementation plan,
         architecture, security charter, and governance documents in the
         repository.
       </p>

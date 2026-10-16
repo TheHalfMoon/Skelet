@@ -27,7 +27,7 @@ No product code changed by this grain beyond the script itself.
   key. Production release keys require an owner-controlled key ceremony
   (generation, storage, rotation, revocation) that this repo does not
   perform; until that ceremony exists, no artifact may be presented as
-  an officially signed Skelet release.
+  an officially signed Skilit release.
 
 ## Proof
 

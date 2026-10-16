@@ -19,7 +19,7 @@ async function fixture() {
   const source = await createSource(db, { key: "pipeline-source", kind: "synthetic" });
   const product = await createProduct(db, { sourceId: source.id, title: "Pipeline app" });
   const version = await createProductVersion(db, { productId: product.id, versionNo: 1 });
-  const root = await mkdtemp(join(tmpdir(), "skelet-ingest-"));
+  const root = await mkdtemp(join(tmpdir(), "skilit-ingest-"));
   const storage = new LocalContentAddressedStorage({ rootDir: root });
   return { db, source, product, version, storage, root };
 }

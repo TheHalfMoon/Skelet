@@ -10,11 +10,11 @@ import {
 
 test("registry index lists every item with provenance", () => {
   const index = buildRegistryIndex();
-  assert.equal(index.name, "skelet-registry");
+  assert.equal(index.name, "skilit-registry");
   assert.ok(index.version.length > 0);
   assert.deepEqual(
     index.items.map((entry) => entry.name).sort(),
-    ["skelet-button", "skelet-card"],
+    ["skilit-button", "skilit-card"],
   );
   for (const entry of index.items) {
     assert.ok(entry.title.length > 0);
@@ -23,7 +23,7 @@ test("registry index lists every item with provenance", () => {
 });
 
 test("registry items satisfy the shadcn contract", () => {
-  for (const name of ["skelet-button", "skelet-card"]) {
+  for (const name of ["skilit-button", "skilit-card"]) {
     const item = buildRegistryItem(name);
     assert.equal(item.name, name);
     assert.equal(item.type, "registry:ui");
@@ -33,13 +33,13 @@ test("registry items satisfy the shadcn contract", () => {
     assert.ok(item.files.length >= 1);
     for (const file of item.files) {
       assert.ok(file.path.endsWith(".tsx"));
-      assert.ok(file.content.includes("Skelet"));
+      assert.ok(file.content.includes("Skilit"));
       assert.ok(file.content.length > 100);
     }
   }
-  const button = buildRegistryItem("skelet-button");
+  const button = buildRegistryItem("skilit-button");
   assert.ok(button.files[0]?.content.includes("evidenceUri"));
-  const card = buildRegistryItem("skelet-card");
+  const card = buildRegistryItem("skilit-card");
   assert.ok(card.files[0]?.content.includes("rightsNote"));
 });
 
@@ -67,21 +67,21 @@ test("registry search is deterministic across name, title, and description", () 
   assert.equal(all.total, 2);
   assert.deepEqual(
     all.items.map((entry) => entry.name),
-    ["skelet-button", "skelet-card"],
+    ["skilit-button", "skilit-card"],
   );
   const byName = searchRegistryIndex("  BUTTON ", 20);
   assert.equal(byName.total, 1);
-  assert.equal(byName.items[0]?.name, "skelet-button");
+  assert.equal(byName.items[0]?.name, "skilit-button");
   const byDescription = searchRegistryIndex("card", 20);
   assert.equal(byDescription.total, 1);
-  assert.equal(byDescription.items[0]?.name, "skelet-card");
+  assert.equal(byDescription.items[0]?.name, "skilit-card");
   const missing = searchRegistryIndex("no-such-widget", 20);
   assert.equal(missing.total, 0);
   assert.deepEqual(missing.items, []);
-  const repeat = searchRegistryIndex("skelet", 20);
+  const repeat = searchRegistryIndex("skilit", 20);
   assert.deepEqual(
     repeat.items.map((entry) => entry.name),
-    ["skelet-button", "skelet-card"],
+    ["skilit-button", "skilit-card"],
   );
 });
 

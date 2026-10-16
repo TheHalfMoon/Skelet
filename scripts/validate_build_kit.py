@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Skelet Lens Build Kit manifests (P09b frozen v1 contract).
+"""Validate Skilit Lens Build Kit manifests (P09b frozen v1 contract).
 
 Standard library only. Enforces the schema, the fixed export layout, the
 ZIP path firewall, the rights firewall (unknown/restricted/trademarked
@@ -79,8 +79,8 @@ def validate_manifest(data: object) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
         return ["manifest: must be an object"]
-    if data.get("schema_version") != "skelet.lens.build-kit.v1":
-        fail(errors, "schema_version", "must be skelet.lens.build-kit.v1")
+    if data.get("schema_version") not in ("skilit.lens.build-kit.v1", "skelet.lens.build-kit.v1"):
+        fail(errors, "schema_version", "must be skilit.lens.build-kit.v1")
     for key in ("kit_id", "analysis_id"):
         if not isinstance(data.get(key), str) or not HEX64_RE.match(data[key]):
             fail(errors, key, "must be 64 lowercase hex chars")
@@ -90,8 +90,8 @@ def validate_manifest(data: object) -> list[str]:
     if not isinstance(report, dict):
         fail(errors, "lens_report", "must be an object")
     else:
-        if report.get("schema") != "skelet.lens.report.v1":
-            fail(errors, "lens_report.schema", "must be skelet.lens.report.v1")
+        if report.get("schema") not in ("skilit.lens.report.v1", "skelet.lens.report.v1"):
+            fail(errors, "lens_report.schema", "must be skilit.lens.report.v1")
         if report.get("analysis_id") != data.get("analysis_id"):
             fail(errors, "lens_report.analysis_id", "must equal the kit analysis_id")
         if not isinstance(report.get("sha256"), str) or not HEX64_RE.match(report["sha256"]):
@@ -174,7 +174,7 @@ def validate_manifest(data: object) -> list[str]:
             fail(errors, f"provenance.{key}", "must be a string list")
     if provenance.get("heuristic") != [] or provenance.get("model_generated") != []:
         fail(errors, "provenance", "v1 kits carry no heuristic or model-generated content")
-    if provenance.get("generated_label") != "generated-starter-is-skelet-synthesis-not-original-source":
+    if provenance.get("generated_label") != "generated-starter-is-skilit-synthesis-not-original-source":
         fail(errors, "provenance.generated_label", "is out of contract")
     return errors
 

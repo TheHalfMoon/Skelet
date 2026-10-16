@@ -12,7 +12,7 @@ import { getPatternRoute, listPatternsRoute } from "../lib/rest.ts";
 import { AGENT_SCHEMA_VERSION } from "../lib/agent-contract.ts";
 
 const HEX = (char) => char.repeat(64);
-const PATTERN_URI_RE = /^skelet:\/\/pattern\/[a-z0-9-]{1,64}$/;
+const PATTERN_URI_RE = /^skilit:\/\/pattern\/[a-z0-9-]{1,64}$/;
 
 function assertStableEnvelope(envelope, context, mode = "observed") {
   assert.equal(envelope.schema_version, AGENT_SCHEMA_VERSION, `${context}: schema_version`);
@@ -49,8 +49,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "pattern-t-owner@skelet.example", password: "pattern-password-01" });
-  const outsider = await signUp(db, { email: "pattern-t-out@skelet.example", password: "pattern-password-01" });
+  const owner = await signUp(db, { email: "pattern-t-owner@skilit.example", password: "pattern-password-01" });
+  const outsider = await signUp(db, { email: "pattern-t-out@skilit.example", password: "pattern-password-01" });
   const source = await createSource(db, { key: "pattern-t-source", kind: "synthetic" });
   const entry = await createPattern(db, { slug: "transport-pattern", title: "Transport pattern", sourceId: source.id });
   const art = await createArtifact(db, {
@@ -86,9 +86,9 @@ test("P10-C: MCP and REST serve identical pattern taxonomy", async () => {
       await mcpCall(fx.db, { userId: fx.owner.id }, "get_pattern", { slug: "transport-pattern" }),
     );
     assertStableEnvelope(mcpDetail, "MCP get_pattern");
-    assert.equal(mcpDetail.result.pattern.uri, "skelet://pattern/transport-pattern");
+    assert.equal(mcpDetail.result.pattern.uri, "skilit://pattern/transport-pattern");
     assert.equal(mcpDetail.result.links.length, 1);
-    assert.ok(mcpDetail.result.links[0].uri.startsWith("skelet://artifact/"));
+    assert.ok(mcpDetail.result.links[0].uri.startsWith("skilit://artifact/"));
     const restDetail = await getPatternRoute(fx.db, "transport-pattern", fx.owner.id);
     assert.equal(restDetail.status, 200);
     assert.deepEqual(restDetail.body.result, mcpDetail.result);

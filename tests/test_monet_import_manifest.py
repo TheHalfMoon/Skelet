@@ -156,6 +156,7 @@ class MonetImportManifestTests(unittest.TestCase):
 
     def test_authorization_record_is_repository_scoped_and_code_only(self) -> None:
         auth = self.authorization
+        # Historical authorization record retains original project bytes; Skilit inherits as successor (see NOTICE successor note).
         self.assertEqual("Skelet", auth["project"])
         self.assertEqual("monet-registry", auth["source_id"])
         self.assertEqual("https://github.com/monet-design/monet-registry", auth["repository"])

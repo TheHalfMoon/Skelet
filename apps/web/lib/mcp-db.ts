@@ -15,7 +15,9 @@ let shared: Promise<DbClient> | null = null;
 
 export function getSharedDb(): Promise<DbClient> {
   if (shared === null) {
-    const url = process.env.SKELET_MCP_DATABASE_URL;
+    const url =
+      process.env.SKILIT_MCP_DATABASE_URL ??
+      process.env.SKELET_MCP_DATABASE_URL;
     shared = openDatabase(url === undefined ? undefined : { connectionString: url }).catch(
       (error: unknown) => {
         shared = null;

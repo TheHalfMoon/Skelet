@@ -26,8 +26,8 @@ import {
 async function setup() {
   const db = await openDatabase();
   await migrateUp(db);
-  const ownerA = await signUp(db, { email: "af-a@skelet.example", password: "af-password-01" });
-  const ownerB = await signUp(db, { email: "af-b@skelet.example", password: "af-password-01" });
+  const ownerA = await signUp(db, { email: "af-a@skilit.example", password: "af-password-01" });
+  const ownerB = await signUp(db, { email: "af-b@skilit.example", password: "af-password-01" });
   const spaceA = await createWorkspace(db, { name: "AF space A", ownerId: ownerA.id });
   const spaceB = await createWorkspace(db, { name: "AF space B", ownerId: ownerB.id });
   const source = await createSource(db, { key: "af-source", kind: "synthetic" });
@@ -75,7 +75,7 @@ test("workspace-visible artifact admits members but denies outsiders", async () 
   const { db, ownerA, ownerB, spaceA } = await setup();
   try {
     const source = (await db.query("select id from sources where key='af-source'")).rows[0];
-    const member = await signUp(db, { email: "af-member@skelet.example", password: "af-password-01" });
+    const member = await signUp(db, { email: "af-member@skilit.example", password: "af-password-01" });
     await addMember(db, {
       workspaceId: spaceA.workspace.id,
       userId: member.id,

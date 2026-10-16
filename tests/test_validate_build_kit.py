@@ -22,12 +22,13 @@ class BuildKitContractTest(unittest.TestCase):
 
     def test_schema_file_is_valid_json(self) -> None:
         schema = json.loads((ROOT / "schemas" / "lens-build-kit.schema.json").read_text(encoding="utf-8"))
-        self.assertEqual(schema["properties"]["schema_version"], {"const": "skelet.lens.build-kit.v1"})
+        # Canonical skilit with legacy skelet accepted for migration (see schemas/lens-build-kit.schema.json).
+        self.assertEqual(schema["properties"]["schema_version"], {"enum": ["skilit.lens.build-kit.v1", "skelet.lens.build-kit.v1"]})
 
     def test_rejects(self) -> None:
         cases = []
         bad = load()
-        bad["schema_version"] = "skelet.lens.build-kit.v2"
+        bad["schema_version"] = "skilit.lens.build-kit.v2"
         cases.append(bad)
         bad = load()
         bad["status"] = "done"

@@ -8,7 +8,7 @@ test("home has navigable links to the five qualified local views", () => {
   for (const href of ["/gallery", "/flows", "/patterns", "/boards", "/lens"]) {
     assert.match(source, new RegExp(`href: "${href}"`));
   }
-  assert.match(source, /aria-label="Explore Skelet"/);
+  assert.match(source, /aria-label="Explore Skilit"/);
   assert.match(source, /aria-label="Documentation and service links"/);
 });
 

@@ -1,11 +1,11 @@
 /**
- * G09-12: Skelet-owned deterministic technology-clue matcher.
+ * G09-12: Skilit-owned deterministic technology-clue matcher.
  *
  * Pure, offline, dependency-free projection of G09-11 technology-signal
  * OBSERVATIONS into evidence-graded technology CLUES. It never visits a
  * URL, never fetches anything, never executes code, and never imports the
  * GPL-3.0 runtime dataset identified in the G09-06 OpenTechAlyzer
- * evaluation. Rules are a small hand-authored Skelet-owned set shaped by
+ * evaluation. Rules are a small hand-authored Skilit-owned set shaped by
  * the evidence-graded engine reference (per-pattern confidence, truncated
  * evidence, fail-soft non-matches); live collectors, external enrichment,
  * and runtime dataset merging stay out of scope.
@@ -32,7 +32,7 @@ import {
 } from "./tech-signal-evidence.ts";
 
 /** Version of the hand-authored rule set below. Bump on any rule change. */
-export const TECH_CLUE_RULES_VERSION = "skelet.tech-rules.v1" as const;
+export const TECH_CLUE_RULES_VERSION = "skilit.tech-rules.v1" as const;
 
 /** Hard output budgets. Inputs reuse the G09-11 signal budget. */
 export const TECH_CLUE_BUDGET = {
@@ -318,7 +318,7 @@ export function matchTechnologyClues(signals: TechSignal[]): TechnologyClue[] {
  * and data stay local: egress "none", cost "free-local".
  */
 export const TECH_CLUE_PROVIDER = {
-  id: "skelet-tech-clues",
+  id: "skilit-tech-clues",
   capability: "technology-clues",
   version: TECH_CLUE_RULES_VERSION,
   egress: "none",
@@ -334,7 +334,7 @@ export const TECH_CLUE_PROVIDER = {
   invoke: async (input: TechSignal[]): Promise<TechnologyClue[]> => matchTechnologyClues(input),
   health: async (): Promise<{ ok: boolean; detail?: string }> => ({ ok: true, detail: "ready" }),
   provenance: (input: TechSignal[], output: TechnologyClue[]): Record<string, unknown> => ({
-    providerId: "skelet-tech-clues",
+    providerId: "skilit-tech-clues",
     capability: "technology-clues",
     version: TECH_CLUE_RULES_VERSION,
     egress: "none",

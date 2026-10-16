@@ -3,7 +3,7 @@
  *
  * Pure and deterministic: given kit identities, a lens report binding,
  * a capture scope, traversed pages, and artifact payloads with rights
- * classifications, produce the frozen `skelet.lens.build-kit.v1`
+ * classifications, produce the frozen `skilit.lens.build-kit.v1`
  * manifest object. Mirrors `schemas/lens-build-kit.schema.json` and
  * `scripts/validate_build_kit.py` rule for rule; the Python validator
  * remains the canonical gate and every assembled fixture here is
@@ -22,10 +22,10 @@
  * placement.
  */
 
-export const KIT_MANIFEST_VERSION = "skelet.lens.build-kit.v1" as const;
-export const LENS_REPORT_SCHEMA = "skelet.lens.report.v1" as const;
+export const KIT_MANIFEST_VERSION = "skilit.lens.build-kit.v1" as const;
+export const LENS_REPORT_SCHEMA = "skilit.lens.report.v1" as const;
 export const GENERATED_LABEL =
-  "generated-starter-is-skelet-synthesis-not-original-source" as const;
+  "generated-starter-is-skilit-synthesis-not-original-source" as const;
 export const REDISTRIBUTABLE_NOTE =
   "Only artifacts marked redistributable may be downloaded; unknown, restricted, and trademarked bytes are withheld." as const;
 

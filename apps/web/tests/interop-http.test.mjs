@@ -87,7 +87,7 @@ function envelopeOfSuccess(response, context) {
   assert.equal(response.json.jsonrpc, "2.0", `${context}: jsonrpc`);
   assert.ok(response.json.result?.content?.[0]?.text, `${context}: envelope text`);
   const envelope = JSON.parse(response.json.result.content[0].text);
-  assert.equal(envelope.schema_version, "skelet.agent.v1", `${context}: schema`);
+  assert.equal(envelope.schema_version, "skilit.agent.v1", `${context}: schema`);
   assert.ok(typeof envelope.request_id === "string" && envelope.request_id.length > 0, `${context}: request_id`);
   return envelope;
 }
@@ -124,8 +124,8 @@ test("AF-03c: protocol versions negotiate with header and param compatibility", 
     );
     assert.equal(headerOnly.json.result.protocolVersion, "2025-03-26");
     assert.equal(headerOnly.negotiated, "2025-03-26");
-    assert.equal(headerOnly.json.result.serverInfo.name, "skelet");
-    assert.deepEqual(headerOnly.json.result.skelet.capabilities, { packs: true, registry: true });
+    assert.equal(headerOnly.json.result.serverInfo.name, "skilit");
+    assert.deepEqual(headerOnly.json.result.skilit.capabilities, { packs: true, registry: true });
   } finally {
     await stopServer(proc);
   }
@@ -197,7 +197,7 @@ test("AF-03c: request IDs correlate retries and typed errors carry retry hints",
     assert.equal(invalidEnvelope.error.retryable, false);
     const denied = await mcp(info.baseUrl, info.outsiderToken, {
       jsonrpc: "2.0", id: 4, method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${info.privateId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${info.privateId}` } },
     });
     assert.equal(envelopeOfFailure(denied, "denied").error.retryable, false);
   } finally {
@@ -262,7 +262,7 @@ test("AF-03c: capability advertisement and unsupported-extension fallbacks", asy
     const init = await mcp(info.baseUrl, info.ownerToken, {
       jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2026-07-28" },
     });
-    assert.deepEqual(init.json.result.skelet.capabilities, { packs: true, registry: true });
+    assert.deepEqual(init.json.result.skilit.capabilities, { packs: true, registry: true });
     const resources = await mcp(info.baseUrl, info.ownerToken, { jsonrpc: "2.0", id: 2, method: "resources/list", params: {} });
     assert.equal(resources.json.error.code, -32601);
     const prompts = await mcp(info.baseUrl, info.ownerToken, { jsonrpc: "2.0", id: 3, method: "prompts/list", params: {} });
@@ -273,7 +273,7 @@ test("AF-03c: capability advertisement and unsupported-extension fallbacks", asy
     // the same canonical URI resolves over REST with the same envelope.
     const created = await mcp(info.baseUrl, info.ownerToken, {
       jsonrpc: "2.0", id: 5, method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${info.artifactId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${info.artifactId}` } },
     });
     const uri = envelopeOfSuccess(created, "mcp object").result.object.uri;
     const rest = await fetch(`${info.baseUrl}/api/v1/objects?uri=${encodeURIComponent(uri)}`, {
@@ -281,7 +281,7 @@ test("AF-03c: capability advertisement and unsupported-extension fallbacks", asy
     });
     assert.equal(rest.status, 200);
     const restBody = await rest.json();
-    assert.equal(restBody.schema_version, "skelet.agent.v1");
+    assert.equal(restBody.schema_version, "skilit.agent.v1");
     assert.equal(restBody.result.object.uri, uri);
   } finally {
     await stopServer(proc);
@@ -293,11 +293,11 @@ test("AF-03c: cross-workspace and rights denials share no oracle", async () => {
   try {
     const denied = await mcp(info.baseUrl, info.outsiderToken, {
       jsonrpc: "2.0", id: 1, method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${info.privateId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${info.privateId}` } },
     });
     const missing = await mcp(info.baseUrl, info.outsiderToken, {
       jsonrpc: "2.0", id: 2, method: "tools/call",
-      params: { name: "get_object", arguments: { uri: "skelet://artifact/11111111-2222-4333-8444-555555555555" } },
+      params: { name: "get_object", arguments: { uri: "skilit://artifact/11111111-2222-4333-8444-555555555555" } },
     });
     assert.equal(denied.json.error.code, -32000);
     assert.equal(missing.json.error.code, -32000);
@@ -306,7 +306,7 @@ test("AF-03c: cross-workspace and rights denials share no oracle", async () => {
     assert.equal(envelopeOfFailure(denied, "denied").error.message, envelopeOfFailure(missing, "missing").error.message);
     const rights = await mcp(info.baseUrl, info.memberToken, {
       jsonrpc: "2.0", id: 3, method: "tools/call",
-      params: { name: "get_object", arguments: { uri: `skelet://artifact/${info.restrictedId}` } },
+      params: { name: "get_object", arguments: { uri: `skilit://artifact/${info.restrictedId}` } },
     });
     assert.equal(envelopeOfFailure(rights, "rights").error.code, "RIGHTS_RESTRICTED");
   } finally {
@@ -317,7 +317,7 @@ test("AF-03c: cross-workspace and rights denials share no oracle", async () => {
 test("AF-03c: cross-client canonical URI handoff (MCP create, SDK read)", async () => {
   const { proc, info } = await startServer();
   try {
-    const { SkeletClient } = await import("../../../packages/sdk-ts/src/client.ts");
+    const { SkilitClient } = await import("../../../packages/sdk-ts/src/client.ts");
     const created = await mcp(info.baseUrl, info.ownerToken, {
       jsonrpc: "2.0", id: 1, method: "tools/call",
       params: {
@@ -326,12 +326,12 @@ test("AF-03c: cross-client canonical URI handoff (MCP create, SDK read)", async 
       },
     });
     const packUri = envelopeOfSuccess(created, "handoff create").result.pack.uri;
-    assert.match(packUri, /^skelet:\/\/collection\//);
-    const sdk = new SkeletClient({ baseUrl: info.baseUrl, token: info.ownerToken });
+    assert.match(packUri, /^skilit:\/\/collection\//);
+    const sdk = new SkilitClient({ baseUrl: info.baseUrl, token: info.ownerToken });
     const pack = await sdk.getObject(packUri);
     assert.equal(pack.uri, packUri);
     assert.equal(pack.itemCount, 1);
-    assert.equal(pack.items[0].uri, `skelet://artifact/${info.artifactId}`);
+    assert.equal(pack.items[0].uri, `skilit://artifact/${info.artifactId}`);
     const page = await sdk.searchAssetsPage({ query: "interop-page", limit: 1 });
     assert.equal(page.items.length, 1);
     assert.ok(typeof page.cursor === "string");

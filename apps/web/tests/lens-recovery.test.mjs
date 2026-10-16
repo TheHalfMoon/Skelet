@@ -20,7 +20,7 @@ let seq = 0;
 
 async function memberDb(db) {
   seq += 1;
-  const owner = await signUp(db, { email: `lensrec-${Date.now()}-${seq}@skelet.example`, password: "lens-member-01" });
+  const owner = await signUp(db, { email: `lensrec-${Date.now()}-${seq}@skilit.example`, password: "lens-member-01" });
   const space = await createWorkspace(db, { name: `Lens recovery ${seq}`, ownerId: owner.id });
   return { owner, workspaceId: space.workspace.id };
 }
@@ -76,7 +76,7 @@ test("resume transfers an expired lease to a recovering worker", async () => {
 });
 
 test("durable state survives close and reopen on a file-backed store", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "skelet-lens-persist-"));
+  const dir = await mkdtemp(join(tmpdir(), "skilit-lens-persist-"));
   let kitId = "";
   let analysisId = "";
   try {
@@ -103,7 +103,7 @@ test("durable state survives close and reopen on a file-backed store", async () 
         assert.equal(polled.body.result.job.kitId, kitId);
         assert.equal(polled.body.result.job.analysisId, analysisId);
         assert.equal(polled.body.result.job.status, "queued");
-        assert.equal(polled.body.result.job.uri, `skelet://lens/${kitId}`);
+        assert.equal(polled.body.result.job.uri, `skilit://lens/${kitId}`);
         const detail = await getLensJobRoute(second, { workspaceId: ws, kitId }, ownerId);
         assert.equal(detail.status, 200);
         assert.equal(detail.body.result.job.sourceUrl, "https://example.org/");

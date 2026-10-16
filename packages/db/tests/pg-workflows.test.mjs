@@ -9,14 +9,14 @@ import {createFlow,addFlowStep,listFlowSteps,createCollection,saveCollectionArti
 import {signUp} from "../src/auth.ts";
 import {createWorkspace} from "../src/workspaces.ts";
 
-const connectionString=process.env.SKELET_TEST_DATABASE_URL;
+const connectionString=process.env.SKILIT_TEST_DATABASE_URL;
 const enabled=Boolean(connectionString);
 function fixtureGuard() {
- if(!connectionString||process.env.SKELET_DB_TEST_CONFIRM!=="yes")
+ if(!connectionString||process.env.SKILIT_DB_TEST_CONFIRM!=="yes")
   throw new Error("Explicit local fixture guard required");
  const url=new URL(connectionString);
  if(!["127.0.0.1","localhost"].includes(url.hostname) ||
-  url.username!=="skelet_test" || url.pathname!=="/skelet_test")
+  url.username!=="skilit_test" || url.pathname!=="/skilit_test")
   throw new Error("Refusing to mutate a non-fixture PostgreSQL database");
 }
 
@@ -26,7 +26,7 @@ test("real PostgreSQL ordered flow, tenant-tagged collection, and state identity
  const db=await openDatabase({connectionString});
  try {
   assert.deepEqual(await migrateUp(db),
-   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions"]);
+   ["001_sources_products","002_design_graph","003_workflows","004_auth","005_workspaces","006_collections_auth","007_billing","008_jobs","009_lens_build_kit_runs", "010_artifact_actor_scope", "011_pack_idempotency", "012_asset_search_fts", "013_lens_build_kit_purge", "014_collection_item_order", "015_collection_handoffs", "016_corpus_flow_import", "017_replay_sessions", "018_skilit_rename"]);
   const source=await createSource(db,{key:"pg-workflows",kind:"fixture"});
   const product=await createProduct(db,{sourceId:source.id,title:"Journey"});
   const version=await createProductVersion(db,{productId:product.id,versionNo:1});
@@ -38,7 +38,7 @@ test("real PostgreSQL ordered flow, tenant-tagged collection, and state identity
   await addFlowStep(db,{flowId:flow.id,position:1,artifactId:screen.id});
   await addFlowStep(db,{flowId:flow.id,position:0,artifactId:screen.id});
   assert.deepEqual((await listFlowSteps(db,flow.id)).map(x=>x.position),[0,1]);
-  const fixtureUser=await signUp(db,{email:"pg-workflows@skelet.example",
+  const fixtureUser=await signUp(db,{email:"pg-workflows@skilit.example",
    password:"pg-workflows-01"});
   const fixtureSpace=await createWorkspace(db,{name:"PG workflows",
    ownerId:fixtureUser.id});

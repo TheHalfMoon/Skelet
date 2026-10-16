@@ -19,7 +19,7 @@ test("pattern taxonomy UI serves reads over the real REST contracts", async () =
   for (const marker of ["List patterns", "Inspect pattern", "More patterns"]) {
     assert.ok(text.includes(marker), `UI exposes ${marker}`);
   }
-  assert.ok(text.includes("skelet://pattern/"), "UI renders the stable pattern identifier");
+  assert.ok(text.includes("skilit://pattern/"), "UI renders the stable pattern identifier");
   assert.ok(text.includes("Authorization"), "UI authenticates with a bearer token");
   assert.ok(!/Bearer [A-Za-z0-9._-]{8,}/.test(text.replace("Bearer ${token.trim()}", "")), "UI carries no hardcoded credential");
 });

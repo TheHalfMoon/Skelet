@@ -12,7 +12,7 @@ const repoRoot = dirname(require.resolve("../../package.json"));
 const BUILDER = join(repoRoot, "scripts", "build_release_candidate.mjs");
 
 function build(args) {
-  const out = mkdtempSync(join(tmpdir(), "skelet-rc-"));
+  const out = mkdtempSync(join(tmpdir(), "skilit-rc-"));
   const proc = spawnSync(process.execPath, [BUILDER, "--out", out, ...args], {
     encoding: "utf8",
     timeout: 300000,
@@ -25,7 +25,7 @@ test("RC builder produces a verifiable tarball plus manifest plus checksums", ()
   assert.equal(proc.status, 0, `builder must exit zero (stderr: ${(proc.stderr ?? "").slice(0, 500)})`);
   const payload = JSON.parse(proc.stdout);
   assert.equal(payload.ok, true);
-  assert.match(payload.tarball, /^skelet-v1\.0\.0-local-rc\.1-[0-9a-f]{7}\.tar\.gz$/);
+  assert.match(payload.tarball, /^skilit-v1\.0\.0-local-rc\.1-[0-9a-f]{7}\.tar\.gz$/);
   const tarballPath = join(out, payload.tarball);
   assert.ok(existsSync(tarballPath), "tarball exists");
   const recomputed = createHash("sha256").update(readFileSync(tarballPath)).digest("hex");

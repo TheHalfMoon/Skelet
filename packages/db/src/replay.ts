@@ -10,7 +10,7 @@ import { listFlowSteps } from "./workflows.ts";
  * back in order. No donor code is vendored: only the event envelope
  * shape (numeric type, millisecond timestamp, data object) mirrors the
  * rrweb event contract. Sensitive input values are masked in the
- * Skelet-owned record path before storage; raw keystrokes, passwords,
+ * Skilit-owned record path before storage; raw keystrokes, passwords,
  * and tokens never reach the ledger.
  *
  * Visibility reuses the flow readability rule (every step artifact must

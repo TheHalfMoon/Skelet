@@ -1,4 +1,4 @@
-# Skelet Plan Gap Register and Acceptance Tests (2026-10-08)
+# Skilit Plan Gap Register and Acceptance Tests (2026-10-08)
 
 Status: PROPOSED implementation governance companion. No application features were implemented by this planning audit.
 Canonical base examined: `8ff53f3cd9f392f00f5718eb2ac2981adcdbb1a0` (`main` after PR #6).
@@ -49,7 +49,7 @@ Concurrent frontier: PR #7 is an isolated donor screenshot queue under review; i
 
 1. Close or reconcile the independent pending PR #7 using its own exact-HEAD Jev/OCR/CI rules. A planning PR must not merge unrelated code or rewrite PR #7's head.
 2. G01-02c: Source import dependency and quarantine resolution plan. Compute each candidate file's imported path dependencies, excluded references, licensing and runtime surface; select *only* the smallest useful module. Never blindly unquarantine.
-3. G01-03a: Skelet-owned minimal Next.js application scaffold with health route, no donor branding or images, pinned pnpm/TypeScript/Node, clean install/build.
+3. G01-03a: Skilit-owned minimal Next.js application scaffold with health route, no donor branding or images, pinned pnpm/TypeScript/Node, clean install/build.
 4. G01-03b: Integrate one qualified donor provider or component as a demonstrable app capability; imported/smoke status explicit. Do not claim full Monet parity.
 5. G02 core: Workspace layout, worker shell, environment schema and local PostgreSQL. Preserve app behavior before and after structure change.
 6. G03/G04 minimal domain and workspace-scoped rights, object-storage metadata, migrations; no public asset serving without policy.

@@ -12,8 +12,8 @@ import { listProductsRoute, listProductVersionsRoute } from "../lib/rest.ts";
 import { AGENT_SCHEMA_VERSION } from "../lib/agent-contract.ts";
 
 const HEX = (char) => char.repeat(64);
-const PRODUCT_URI_RE = /^skelet:\/\/product\/[A-Za-z0-9_-]{1,128}$/;
-const VERSION_URI_RE = /^skelet:\/\/version\/[A-Za-z0-9_-]{1,128}$/;
+const PRODUCT_URI_RE = /^skilit:\/\/product\/[A-Za-z0-9_-]{1,128}$/;
+const VERSION_URI_RE = /^skilit:\/\/version\/[A-Za-z0-9_-]{1,128}$/;
 
 function assertStableEnvelope(envelope, context, mode = "observed") {
   assert.equal(envelope.schema_version, AGENT_SCHEMA_VERSION, `${context}: schema_version`);
@@ -50,8 +50,8 @@ function mcpFailureEnvelopeOf(response) {
 async function fixture() {
   const db = await openDatabase();
   await migrateUp(db);
-  const owner = await signUp(db, { email: "gallery-t-owner@skelet.example", password: "gallery-password-01" });
-  const outsider = await signUp(db, { email: "gallery-t-out@skelet.example", password: "gallery-password-01" });
+  const owner = await signUp(db, { email: "gallery-t-owner@skilit.example", password: "gallery-password-01" });
+  const outsider = await signUp(db, { email: "gallery-t-out@skilit.example", password: "gallery-password-01" });
   const source = await createSource(db, { key: "gallery-t-source", kind: "synthetic" });
   const product = await createProduct(db, { sourceId: source.id, title: "Gallery transport app" });
   const v1 = await createProductVersion(db, { productId: product.id, versionNo: 1 });
