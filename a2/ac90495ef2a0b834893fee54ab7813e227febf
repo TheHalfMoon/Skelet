@@ -1,0 +1,33 @@
+docs/reviews/P10-NORMALIZATION_JEV_REVIEW.json
+  s_36c890d79926e9::t_ad1f5106f796d9 1
+docs/reviews/P10-NORMALIZATION_PSTACK_PANELS.md
+  s_36c890d79926e9::t_89fe0e36923c1b 1-21
+docs/qualification/AF-12_ACCEPTANCE_MATRIX.md
+  s_36c890d79926e9::t_022ba378a76783 449
+docs/reviews/P10-NORMALIZATION_OCR_DELEGATION.md
+  s_36c890d79926e9::t_f9a26cbf9d989b 1-10
+docs/reviews/P10-NORMALIZATION_JEV_REVIEW.md
+  s_36c890d79926e9::t_d9a8100b34d286 1-7
+tests/test_p10_normalization.py
+  s_36c890d79926e9::t_e678ea65a03a63 1-78
+docs/reviews/P10-NORMALIZATION_JEV_SPEC.json
+  s_36c890d79926e9::t_f3a50146dc367a 1
+docs/qualification/P10_NORMALIZATION_NOTE.md
+  s_36c890d79926e9::t_b9218d756b10d2 1-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "a2ac90495ef2a0b834893fee54ab7813e227febf",
+  "prompts": {},
+  "sessions": {
+    "s_36c890d79926e9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebdaa4c68ffeiNwK51axQKEUXr",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
