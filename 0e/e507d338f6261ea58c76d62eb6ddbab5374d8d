@@ -1,0 +1,31 @@
+docs/operations/RELEASE_CANDIDATE.md
+  s_3ac249a7072f60::t_335d968cdd2bfb 48
+tests/test_release_candidate_doc.py
+  s_3ac249a7072f60::t_4837e1253cb67c 44-47,49-50
+scripts/build_release_candidate.mjs
+  s_3ac249a7072f60::t_8b6bbba0777696 138
+LICENSE
+  s_3ac249a7072f60::t_fdde933b01fdf5 1-201
+tests/test_license_notice.py
+  s_3ac249a7072f60::t_8872cfe23baff4 65
+  s_3ac249a7072f60::t_b8dbf95ae085c5 85
+  s_3ac249a7072f60::t_150faa75806464 1-64,66-84,86-109
+NOTICE
+  s_3ac249a7072f60::t_e5d37fca7761d2 1-375
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0ee507d338f6261ea58c76d62eb6ddbab5374d8d",
+  "prompts": {},
+  "sessions": {
+    "s_3ac249a7072f60": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ebc1e6649ffevUMT7Fl3kOE54t",
+        "model": "muse-spark-1.3-contributor-free"
+      },
+      "human_author": "Abdulaziz <alshehriofficial@gmail.com>"
+    }
+  }
+}
