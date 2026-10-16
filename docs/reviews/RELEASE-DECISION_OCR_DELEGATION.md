@@ -1,0 +1,6 @@
+# Release Decision Alibaba OCR Record (not an LLM-backed scan)
+
+- Grain: v1 Local release decision record, branch `skelet/v1-local-release-decision`, base `d49ceb83fe2f322e1c5dda89ed1f502a8b3b7f8e`.
+- OCR version: open-code-review v1.12.13 (fabbdb29) darwin/arm64. No OCR LLM provider credential is configured, so the official `ocr delegate` workflow preview is used per `GOVERNANCE.md`.
+- Exact-diff preview (workspace mode): `docs/qualification/V1_LOCAL_RELEASE_DECISION.md` [added] excluded: unsupported_ext; `tests/test_release_decision.py` [added] excluded: default_path. Reviewable in workspace mode are only `docs/reviews/RELEASE-DECISION_JEV_SPEC.json` (this grain's own review spec), `docs/reviews/RELEASE-DECISION_JEV_REVIEW.json` (this grain's own genuine Jev output), and untracked `.ignore` (intentionally NOT staged or committed, preserved untracked per project policy).
+- Applicability verdict: **not applicable as a product code/configuration review** — zero product code or configuration files are reviewable under OCR rules (docs-only grain plus one offline Python conformance test excluded by default path), and no tag, publication, digest, or issue close is taken in this grain. Preview evidence retained above. No blocking findings. This record MUST NOT be described as an LLM-backed OCR scan.
