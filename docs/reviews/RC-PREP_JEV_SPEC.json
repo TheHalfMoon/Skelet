@@ -1,0 +1,59 @@
+{
+  "description": "Skelet v1 Local release-candidate preparation (builder script, procedure, versioning, signing/license prep)",
+  "questions": {
+    "compatibility": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does this grain preserve all contracts: one new build script plus one node test plus one procedure doc plus one doc test; no route/schema/API/MCP/migration/dependency/config change; node-test and python-unittest globs auto-wire the suites? Any changed behavior?",
+      "type": "noul"
+    },
+    "correctness": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is the grain factually correct: builder emits git-archive tarball plus manifest plus SHA256SUMS with fail-closed exclusions (env/keys/creds/node_modules/.ignore), 256MB budget, SBOM requirement, exit 0/2/3 contract; measured probe 962 files exit 0; version is proposal-only with no tag; license gap OD-05 recorded with no terms granted?",
+      "type": "noul"
+    },
+    "evidence": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Is evidence sufficient: node builder test 2/2 (verifiable artifact plus refusal paths) and doc test 6/6 pass; probe output quoted with digest; any claim without a run?",
+      "type": "noul"
+    },
+    "reliability": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Any reliability risk: stdlib-only offline script; unsafe version labels rejected; digests recomputed in the test; digests declared per-commit (never reused across commits)?",
+      "type": "noul"
+    },
+    "scope": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Anything beyond RC preparation: release tag creation, publication, license invention, signing with production keys, paid provisioning, or unrelated refactors? Is final release explicitly blocked on OD-02/OD-03/OD-05?",
+      "type": "noul"
+    },
+    "security": {
+      "criteria": {
+        "false": "No demonstrated material issue",
+        "true": "Material issue exists"
+      },
+      "instructions": "Does the grain weaken any control: forbidden-path scan before archiving; no secrets in tarball/manifest/test; candidate explicitly unsigned; license state honestly pending? Any leakage?",
+      "type": "noul"
+    }
+  },
+  "state": {
+    "base_sha": "0198c4b737f979074e0f37055dc5febf47d37f20",
+    "branch": "skelet/release-candidate-prep",
+    "change": "RC prep grain: scripts/build_release_candidate.mjs (offline builder with exclusion control, manifest, checksums) plus tests/node/release-candidate.test.mjs (2 behavior tests) plus docs/operations/RELEASE_CANDIDATE.md (format, versioning, verification, OD-05 license gap) plus tests/test_release_candidate_doc.py (6 doc tests). No product code change to runtime; no migration; no dependency change.",
+    "head_sha": "WORKTREE"
+  }
+}
