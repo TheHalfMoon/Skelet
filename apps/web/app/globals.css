@@ -284,3 +284,9 @@ button, input, select, textarea { font: inherit; }
 }
 .sk-session-banner-link:hover { background: #e4ece5; }
 @media (max-width: 540px) { .sk-session-banner { align-items: flex-start; } }
+
+/* The browser shows only workspaces listed by server-side memberships. */
+.sk-workspace-picker-hint {
+  color: #625f5a; font-size: 12px; margin: 7px 0 0;
+  line-height: 1.6;
+}

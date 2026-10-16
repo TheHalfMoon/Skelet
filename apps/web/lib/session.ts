@@ -5,7 +5,7 @@ import {
   signUp,
   validateSession,
 } from "../../../packages/db/src/auth.ts";
-import { createWorkspaceTx } from "../../../packages/db/src/workspaces.ts";
+import { createWorkspaceTx, listWorkspacesForUser } from "../../../packages/db/src/workspaces.ts";
 import type { DbClient, DbTransaction } from "../../../packages/db/src/db.ts";
 import {
   AgentContractError,
@@ -390,11 +390,17 @@ export async function sessionStatusRoute(
   if (presented.token === null) return unauthenticated(requestId);
   try {
     const session = await validateSession(db, presented.token);
+    // Derive selectable workspaces exclusively from server-side membership.
+    // Never accept a userId/workspaceId supplied by the caller.
+    const authorized = await db.transaction((tx) =>
+      listWorkspacesForUser(tx, session.user.id),
+    );
     return {
       status: 200,
       body: successEnvelope(requestId, {
         user: { id: session.user.id, email: session.user.email },
         expiresAt: session.session.expiresAt,
+        workspaces: authorized.map(({ id, name }) => ({ id, name })),
       }),
     };
   } catch {
