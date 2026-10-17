@@ -11,11 +11,11 @@ is used in the active UI.
 | --- | --- |
 | `apps/web/public/brand/skilit-mark-orange.svg` | Orange mark on warm off-white or dark surfaces |
 | `apps/web/public/brand/skilit-mark-black.svg` | Black mark on the soft orange brand field |
-| `apps/web/public/brand/skilit-lockup-light.svg` | Full Skilit wordmark on cream |
-| `apps/web/public/brand/skilit-lockup-orange.svg` | Full Skilit wordmark on muted orange |
-| `apps/web/app/icon.svg` | Distinctive app/favicon mark (black on soft orange) |
+| `apps/web/public/brand/skilit-lockup-light.svg` | Lowercase `skilit` wordmark on cream |
+| `apps/web/public/brand/skilit-lockup-orange.svg` | Lowercase `skilit` wordmark on warm orange |
+| `apps/web/app/icon.svg` | Standalone orange S on cream app/favicon canvas |
 | `apps/web/public/brand/skilit-social-light.svg` | Editable 1200×630 social/repository composition on cream |
-| `apps/web/public/brand/skilit-social-orange.svg` | Editable reverse composition on muted orange |
+| `apps/web/public/brand/skilit-social-orange.svg` | Editable reverse composition on warm orange |
 | `apps/web/public/brand/skilit-social-light.png` | Open Graph and default web card (1200×630) |
 | `apps/web/public/brand/skilit-social-orange.png` | Alternate social and GitHub preview (1200×630) |
 
@@ -28,7 +28,9 @@ Do not stretch or rotate the symbol. Leave generous clear space around it.
 The visible brand wordmark is always **`skilit`** in lowercase, matching the
 founder-approved identity image. Conventional **Skilit** capitalization remains
 valid in prose, accessibility labels, package metadata, and compatibility
-contracts. No first-party wordmark uses an initial capital or trailing dot. The two social compositions use the *same* generated S path and the same
+contracts. No first-party wordmark uses an initial capital or trailing dot.
+
+The two social compositions use the *same* generated S path and the same
 ink and orange palette as the existing lockups. No alteration to the approved
 S silhouette is permitted without founder approval.
 
