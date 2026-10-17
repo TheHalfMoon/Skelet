@@ -12,7 +12,7 @@ test("two Skilit social compositions preserve exactly the official S geometry", 
   for (const variant of ["light", "orange"]) {
     const social = text(`../public/brand/skilit-social-${variant}.svg`);
     assert.match(social, /viewBox="0 0 1200 630"/);
-    assert.match(social, /Skilit/);
+    assert.match(social, /<text[^>]+>skilit<\/text>/);
     assert.match(social, /DESIGN INTELLIGENCE/);
     assert.match(social, /For humans and AI agents/);
     assert.equal(social.match(/<path d="([^"]+)"/)?.[1], shape);
@@ -38,8 +38,8 @@ test("Skilit branding is consistent across README, shell, local meta previews an
   const metadata = text("../app/layout.tsx");
   assert.match(readme, /apps\/web\/public\/brand\/skilit-lockup-light.svg/);
   assert.match(readme, /docs\/brand\/IDENTITY.md/);
-  assert.match(shell, /<span>Skilit<\/span>/);
-  assert.doesNotMatch(shell, /sk-brand-dot|<span>skilit/);
+  assert.match(shell, /<span>skilit<\/span>/);
+  assert.doesNotMatch(shell, /sk-brand-dot|<span>Skilit<\/span>/);
   assert.match(metadata, /SKILIT_METADATA_ORIGIN/);
   assert.match(metadata, /openGraph:/);
   assert.match(metadata, /twitter:/);
@@ -53,7 +53,7 @@ test("Skilit branding is consistent across README, shell, local meta previews an
   }
 });
 
-test("approved original logos and icon remain untouched", () => {
+test("approved S geometry is retained across lowercase lockups", () => {
   const tokens = JSON.parse(text("../../../docs/brand/tokens.json"));
   const light = text("../public/brand/skilit-lockup-light.svg");
   const dark = text("../public/brand/skilit-lockup-orange.svg");
