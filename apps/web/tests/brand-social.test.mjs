@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 
 const read = (relative) => readFileSync(new URL(relative, import.meta.url));
 const text = (relative) => read(relative).toString("utf8");
@@ -29,6 +30,15 @@ test("social PNG assets are valid standard 1200x630 screenshots", () => {
     assert.equal(png.subarray(12, 16).toString("ascii"), "IHDR");
     assert.equal(png.readUInt32BE(16), 1200);
     assert.equal(png.readUInt32BE(20), 630);
+    // A stale screenshot with correct dimensions must not silently pass.
+    const ihdrEnd = 8 + 12 + png.readUInt32BE(8);
+    assert.equal(png.subarray(ihdrEnd + 4, ihdrEnd + 8).toString("ascii"), "tEXt");
+    const length = png.readUInt32BE(ihdrEnd);
+    const sourceHash = createHash("sha256")
+      .update(read(`../public/brand/skilit-social-${variant}.svg`))
+      .digest("hex");
+    const recorded = png.subarray(ihdrEnd + 8, ihdrEnd + 8 + length).toString("latin1");
+    assert.equal(recorded, `skilit-svg-sha256\0${sourceHash}`, "PNG must match exact SVG source");
   }
 });
 
