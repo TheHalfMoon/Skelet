@@ -24,10 +24,10 @@ POINTS = [
     (132, 110), (265, 60), (280, 38), (279, 20),
 ]
 
-ORANGE = "#F8793D"
-ORANGE_FIELD = "#F3A07C"
-CREAM = "#FAF9F6"
-INK = "#14161A"
+ORANGE = "#FF6A1F"
+ORANGE_FIELD = "#FF782D"
+CREAM = "#FAF8F5"
+INK = "#0F0F0F"
 
 def outline():
     coords = POINTS
@@ -58,14 +58,14 @@ for name, background, mark, text_color in [
     children = (
         f'<rect width="1024" height="384" fill="{background}"/>\n'
         f'<path d="{PATH}" transform="translate(126 78) scale(.60)" fill="{mark}"/>\n'
-        f'<text x="364" y="226" font-family="Arial, Helvetica, sans-serif" '
-        f'font-size="116" font-weight="500" letter-spacing="-3.5" fill="{text_color}">Skilit</text>'
+        f'<text x="364" y="241" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="144" font-weight="600" letter-spacing="-5" fill="{text_color}">skilit</text>'
     )
     (PUBLIC / name).write_text(svg("0 0 1024 384", children, "Skilit logo"))
 
 icon = (
-    f'<rect x="0" y="0" width="64" height="64" rx="14" fill="{ORANGE_FIELD}"/>'
-    f'<path d="{PATH}" transform="translate(17 7) scale(.13)" fill="{INK}"/>'
+    f'<rect x="0" y="0" width="64" height="64" rx="14" fill="{CREAM}"/>'
+    f'<path d="{PATH}" transform="translate(17 7) scale(.13)" fill="{ORANGE}"/>'
 )
 (ROOT / "apps/web/app/icon.svg").write_text(svg("0 0 64 64", icon, "Skilit app icon"))
 
@@ -79,8 +79,8 @@ for name, background, mark, foreground, secondary in [
     children = (
         f'<rect width="1200" height="630" fill="{background}"/>\n'
         f'<path d="{PATH}" transform="translate(146 106) scale(1.08)" fill="{mark}"/>\n'
-        f'<text x="540" y="283" font-family="Arial, Helvetica, sans-serif" '
-        f'font-size="114" font-weight="500" letter-spacing="-3" fill="{foreground}">Skilit</text>\n'
+        f'<text x="540" y="295" font-family="Arial, Helvetica, sans-serif" '
+        f'font-size="144" font-weight="600" letter-spacing="-5" fill="{foreground}">skilit</text>\n'
         f'<rect x="546" y="322" width="522" height="2" fill="{foreground}" opacity=".16"/>\n'
         f'<text x="547" y="377" font-family="Arial, Helvetica, sans-serif" '
         f'font-size="22" font-weight="700" letter-spacing="4" fill="{foreground}">DESIGN INTELLIGENCE</text>\n'
