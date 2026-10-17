@@ -988,6 +988,38 @@
       },
       "imported_paths": [],
       "modifications": []
+    },
+    {
+      "id": "inter-tight-google-fonts",
+      "source_url": "https://github.com/google/fonts",
+      "source_kind": "git",
+      "role": "dataset",
+      "status": "imported",
+      "capability": "Redistributable offline Inter Tight Latin brand wordmark font, converted outline geometry and social identity assets.",
+      "permission_basis": {
+        "type": "upstream_license",
+        "note": "Verified SIL OFL 1.1 in google/fonts at immutable git commit; preserve upstream copyright, OFL and attribution. Derivative brand paths are also governed by OFL."
+      },
+      "license": "SIL Open Font License 1.1",
+      "pin_policy": "git_commit_required",
+      "exact_commit_or_release": "fac60545cc0de9d4eff6eb5b1ab88bcdfc9ecc69",
+      "verification_date": "2026-10-17",
+      "rights_scope": {
+        "code": "license-governed",
+        "data": "restricted",
+        "assets": "license-governed",
+        "models": "not-applicable",
+        "services": "not-applicable",
+        "trademarks": "restricted"
+      },
+      "imported_paths": [
+        "apps/web/public/brand/inter-tight-latin-600.woff2",
+        "docs/brand/wordmark-inter-tight-600.json",
+        "docs/brand/licenses/Inter-Tight-OFL.txt"
+      ],
+      "modifications": [
+        "Instanced InterTight[wght].ttf at weight 600, reduced to basic Latin WOFF2; converted lowercase skilit letter outlines to immutable SVG path geometry, tracked in brand JSON; logo S shape unchanged."
+      ]
     }
   ]
 }

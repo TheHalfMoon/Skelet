@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Inter Tight Skilit";
+  src: url("/brand/inter-tight-latin-600.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
 :root {
   color-scheme: light;
   --sk-ink: #0f0f0f;
@@ -26,7 +33,7 @@ button, input, select, textarea { font: inherit; }
   position: sticky; top: 0; height: 100vh; z-index: 4;
 }
 .sk-sidebar-head { padding: 4px 12px 34px; }
-.sk-brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: #fbfaf7; font-size: 26px; letter-spacing: -.065em; font-weight: 650; }
+.sk-brand { font-family: "Inter Tight Skilit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: #fbfaf7; font-size: 26px; letter-spacing: -.065em; font-weight: 600; }
 .sk-brand-symbol { display: grid; place-items: center; width: 34px; height: 44px; flex: 0 0 34px; }
 .sk-brand-symbol img { object-fit: contain; }
 .sk-brand-caption { display: block; font-size: 9px; font-weight: 650; letter-spacing: .17em; color: #8e9096; margin: 16px 0 0 43px; white-space: nowrap; }
@@ -92,7 +99,7 @@ button, input, select, textarea { font: inherit; }
 .sk-principle-foot span { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 650; color: #5c5e5f; }
 
 .sk-tool-section, .sk-workflow-section { padding-top: 52px; }
-.sk-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 23px; }
+.sk-section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 23px; }
 .sk-section-heading h2 { font-size: clamp(25px, 2.4vw, 36px); font-weight: 650; letter-spacing: -.05em; margin: 10px 0 8px; }
 .sk-section-heading p { font-size: 13px; color: #666460; line-height: 1.7; margin: 0; }
 .sk-section-counter { font-size: 10px; color: #64615e; font-weight: 750; letter-spacing: .12em; white-space: nowrap; }
@@ -189,7 +196,7 @@ button, input, select, textarea { font: inherit; }
   color: #62605d; font-size: 13px; line-height: 1.7;
 }
 .sk-page-content > main:not(.sk-dashboard) > section :is(form) {
-  display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 14px 0;
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 14px 0;
 }
 .sk-page-content > main:not(.sk-dashboard) > section :is(input, select, textarea) {
   min-height: 41px;

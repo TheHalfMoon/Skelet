@@ -6,8 +6,11 @@ reference on 2026-10-17. The points below are editable vector source data,
 not a reference to an external branding library.
 """
 from pathlib import Path
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
+WORDMARK = json.loads((ROOT / "docs/brand/wordmark-inter-tight-600.json").read_text())
+WORDMARK_PATH = WORDMARK["path"]
 PUBLIC = ROOT / "apps/web/public/brand"
 PUBLIC.mkdir(parents=True, exist_ok=True)
 
@@ -58,8 +61,8 @@ for name, background, mark, text_color in [
     children = (
         f'<rect width="1024" height="384" fill="{background}"/>\n'
         f'<path d="{PATH}" transform="translate(126 78) scale(.60)" fill="{mark}"/>\n'
-        f'<text x="364" y="241" font-family="Arial, Helvetica, sans-serif" '
-        f'font-size="144" font-weight="600" letter-spacing="-5" fill="{text_color}">skilit</text>'
+        f'<path d="{WORDMARK_PATH}" transform="translate(364 241)" '
+        f'data-wordmark="skilit" fill="{text_color}"/>'
     )
     (PUBLIC / name).write_text(svg("0 0 1024 384", children, "Skilit logo"))
 
@@ -79,8 +82,8 @@ for name, background, mark, foreground, secondary in [
     children = (
         f'<rect width="1200" height="630" fill="{background}"/>\n'
         f'<path d="{PATH}" transform="translate(146 106) scale(1.08)" fill="{mark}"/>\n'
-        f'<text x="540" y="295" font-family="Arial, Helvetica, sans-serif" '
-        f'font-size="144" font-weight="600" letter-spacing="-5" fill="{foreground}">skilit</text>\n'
+        f'<path d="{WORDMARK_PATH}" transform="translate(540 295)" '
+        f'data-wordmark="skilit" fill="{foreground}"/>\n'
         f'<rect x="546" y="322" width="522" height="2" fill="{foreground}" opacity=".16"/>\n'
         f'<text x="547" y="377" font-family="Arial, Helvetica, sans-serif" '
         f'font-size="22" font-weight="700" letter-spacing="4" fill="{foreground}">DESIGN INTELLIGENCE</text>\n'

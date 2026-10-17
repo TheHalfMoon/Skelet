@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import test from "node:test";
 import { assertSafeSvgBody } from "../../../packages/assets/src/iconset.ts";
 
@@ -27,6 +28,32 @@ test("Skilit is the sole first-party brand identity in the active assets", () =>
   }
 });
 
+test("pinned offline Inter Tight font, outline paths and OFL provenance are consistent", () => {
+  const source = JSON.parse(read("../../../docs/brand/wordmark-inter-tight-600.json"));
+  const font = readFileSync(new URL("../public/brand/inter-tight-latin-600.woff2", import.meta.url));
+  const ofl = read("../../../docs/brand/licenses/Inter-Tight-OFL.txt");
+  const css = read("../app/globals.css");
+  assert.equal(source.family, "Inter Tight");
+  assert.equal(source.weight, 600);
+  assert.match(source.upstreamCommit, /^[a-f0-9]{40}$/);
+  assert.match(source.sourceSha256, /^[a-f0-9]{64}$/);
+  assert.equal(font.subarray(0, 4).toString("ascii"), "wOF2");
+  assert.equal(createHash("sha256").update(font).digest("hex"), source.subsetSha256);
+  assert.equal(createHash("sha256").update(ofl).digest("hex"), source.sourceLicenseSha256);
+  assert.match(ofl, /SIL OPEN FONT LICENSE Version 1\.1/);
+  assert.match(ofl, /Copyright 2022 The Inter Project Authors/);
+  assert.match(css, /url\("\/brand\/inter-tight-latin-600\.woff2"\)/);
+  assert.ok(source.path.length > 100);
+  for (const asset of [
+    ...assets.slice(2, 4),
+    read("../public/brand/skilit-social-light.svg"),
+    read("../public/brand/skilit-social-orange.svg"),
+  ]) {
+    assert.ok(asset.includes(`d="${source.path}"`), "wordmark must use pinned outlined geometry");
+    assert.match(asset, /data-wordmark="skilit"/);
+  }
+});
+
 test("orange and black official marks have identical S geometry", () => {
   const marks = assets.slice(0, 2).map((asset) => asset.match(/<path d="([^"]+)"/)?.[1]);
   assert.ok(marks[0]?.startsWith("M "));
@@ -37,8 +64,8 @@ test("orange and black official marks have identical S geometry", () => {
   assert.ok(assets[3].includes(tokens.colors.orangeField));
   assert.ok(assets[3].includes(tokens.colors.ink));
   for (const lockup of assets.slice(2, 4)) {
-    assert.match(lockup, /<text[^>]+>skilit<\/text>/, "approved wordmark must stay lowercase");
-    assert.doesNotMatch(lockup, />Skilit<\/text>/);
+    assert.match(lockup, /data-wordmark="skilit"/, "approved wordmark must remain lowercase");
+    assert.doesNotMatch(lockup, />Skilit<\/text>|font-family="Arial/);
   }
   assert.match(assets[4], /fill="#FAF8F5"/);
   assert.match(assets[4], /fill="#FF6A1F"/);

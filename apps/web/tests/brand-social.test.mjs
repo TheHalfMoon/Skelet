@@ -13,7 +13,7 @@ test("two Skilit social compositions preserve exactly the official S geometry", 
   for (const variant of ["light", "orange"]) {
     const social = text(`../public/brand/skilit-social-${variant}.svg`);
     assert.match(social, /viewBox="0 0 1200 630"/);
-    assert.match(social, /<text[^>]+>skilit<\/text>/);
+    assert.match(social, /data-wordmark="skilit"/);
     assert.match(social, /DESIGN INTELLIGENCE/);
     assert.match(social, /For humans and AI agents/);
     assert.equal(social.match(/<path d="([^"]+)"/)?.[1], shape);
