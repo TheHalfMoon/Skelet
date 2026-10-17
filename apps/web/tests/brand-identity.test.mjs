@@ -16,7 +16,8 @@ const paths = [
 const assets = paths.map(read);
 
 test("Skilit is the sole first-party brand identity in the active assets", () => {
-  assert.equal(tokens.product, "Skilit");
+  assert.equal(tokens.product, "skilit");
+  assert.equal(tokens.version, 2);
   for (const asset of assets) {
     assert.match(asset, /<svg\b/);
     assert.match(asset, /Skilit/i);
@@ -35,6 +36,12 @@ test("orange and black official marks have identical S geometry", () => {
   assert.ok(assets[2].includes(tokens.colors.orange));
   assert.ok(assets[3].includes(tokens.colors.orangeField));
   assert.ok(assets[3].includes(tokens.colors.ink));
+  for (const lockup of assets.slice(2, 4)) {
+    assert.match(lockup, /<text[^>]+>skilit<\/text>/, "approved wordmark must stay lowercase");
+    assert.doesNotMatch(lockup, />Skilit<\/text>/);
+  }
+  assert.match(assets[4], /fill="#FAF8F5"/);
+  assert.match(assets[4], /fill="#FF6A1F"/);
 });
 
 test("18 Skilit-owned icons are safe and compatible with the asset importer", () => {
