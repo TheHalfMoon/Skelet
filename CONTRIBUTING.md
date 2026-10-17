@@ -17,7 +17,7 @@ Search existing issues and pull requests before proposing a change. Scope your w
 
 ## Local setup
 
-Use a clean worktree or branch from the **current** protected `main`. Preserve existing untracked files, including `.ignore`. The [governance rules](GOVERNANCE.md) prescribe `skilit/pXX-gYY-short-name` branches for adopted implementation grains, with a recorded base SHA.
+Use a clean worktree or branch from the **current** canonical `main`. Preserve existing untracked files, including `.ignore`. The [governance rules](GOVERNANCE.md) prescribe `skilit/pXX-gYY-short-name` branches for adopted implementation grains, with a recorded base SHA.
 
 The root [package.json](package.json) pins pnpm **9.12.0**, supports Node.js **>=20.9.0**, and CI uses a pinned Node 22 toolchain. Follow the repository's operational instructions for Python and database requirements.
 
