@@ -71,4 +71,4 @@ Follow [SECURITY.md](SECURITY.md). If available, use GitHub's **private vulnerab
 
 Follow [CODE_PROVENANCE.md](CODE_PROVENANCE.md): source-copy permission does not by itself grant rights to fonts, data, screenshots, brand marks, model weights or hosted services. Pin immutable upstream versions and retain required NOTICE and attribution. Avoid paid or cloud-only dependencies without an approved decision.
 
-Use English for repository artifacts, reviews, issues and PRs, as required by governance. Be respectful, specific, and evidence-driven, and distinguish verified behavior from proposals.
+Use English for repository artifacts, reviews, issues and PRs, as required by governance. Follow the [community standards](CODE_OF_CONDUCT.md), and see [support and issue routing](SUPPORT.md) for the appropriate channel. Be respectful, specific, and evidence-driven, and distinguish verified behavior from proposals.
